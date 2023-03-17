@@ -1,0 +1,16 @@
+{
+  "name": "octos",
+  "version": "1.0.0",
+  "main": "src/main.js",
+  "scripts": {
+    "build-node-module": "cd wallpaper&npm install",
+    "build-node-module-help": "echo Delete folders node_modules, build, and bin before building",
+    "start": "electron ."
+  },
+  "dependencies": {
+    "electron": "^23.1.2",
+    "electron-rebuild": "^3.2.9",
+    "fs-extra": "^11.1.0",
+    "unzipper": "^0.10.11"
+  }
+}

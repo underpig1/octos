@@ -1,0 +1,11 @@
+{
+    "name": "Minimal",
+    "entry": "index.html",
+    "options": {
+        "events": {
+            "requireFocus": true,
+            "mouse": true,
+            "keyboard": true
+        }
+    }
+}

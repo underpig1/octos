@@ -1,0 +1,20 @@
+{
+    "selected": "Minimal",
+    "mods": [
+        {
+            "name": "Minimal",
+            "folder": "minimal"
+        }
+    ],
+    "config": {
+        "name": "Mod name",
+        "entry": "index.html",
+        "options": {
+            "events": {
+                "requireFocus": true,
+                "mouse": true,
+                "keyboard": true
+            }
+        }
+    }
+}

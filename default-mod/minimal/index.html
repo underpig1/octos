@@ -1,0 +1,38 @@
+<html style="margin: 0;">
+    <style>
+        #button:hover {
+            background-color: green;
+        }
+
+        h1:hover {
+            color: red;
+        }
+    </style>
+    <body style="margin: 0;">
+        <div style="width: 100%; height: 100%; background-image: url('https://storage.ko-fi.com/cdn/useruploads/display/27d0bfa0-9f0a-4034-a3cf-7010ddf049d5_zeldasunsetdeskopthumbail.gif'); background-size: cover;">
+            <h1 id="content">the content</h1>
+            <button id="button">Hi</button>
+            <input type="text" />
+        </div>
+    </body>
+    <script>
+        const button = document.getElementById('button');
+
+        button.addEventListener('click', () => {
+            console.log('Button clicked!');
+        });
+
+        const simulateClick = (elem) => {
+            const event = new MouseEvent('click', {
+                bubbles: true,
+                cancelable: true,
+                view: window
+            });
+            elem.dispatchEvent(event);
+        };
+
+        window.onload = () => {
+            simulateClick(button);
+        };
+    </script>
+</html>

@@ -1,0 +1,179 @@
+const { app, BrowserWindow, ipcMain, screen, Menu, MenuItem, Tray, dialog } = require("electron");
+const wp = require("../wallpaper");
+const path = require("path");
+const { getPrefs, selectMod, getSelectedConfig, addMod, getSelectedEntry, restorePrefsDefaults, filterFolders } = require("./store.js");
+var win, tray, cmenu, settings;
+const lastmouse = { x: null, y: null, pressed: false, active: false };
+var lastkeystate = [];
+var options = retrieveOptions();
+
+function createWindow() {
+    const bounds = screen.getPrimaryDisplay().bounds;
+
+    win = new BrowserWindow({
+        width: bounds.width,
+        height: bounds.height,
+        transparent: true,
+        frame: false,
+        resizable: false,
+        x: bounds.x,
+        y: bounds.y,
+        webPreferences: {
+            preload: path.join(__dirname, "preload.js"),
+            nodeIntegration: false,
+            contextIsolation: true
+        }
+    });
+    win.webContents.openDevTools();
+}
+
+function init() {
+    var entry = getSelectedEntry();
+    createWindow();
+    if (entry.isUrl) win.loadURL(entry.path);
+    else win.loadFile(entry.path);
+    wp.attach(win);
+    createTray();
+    updateModList();
+    createSettings();
+}
+
+function createTrayMenu(modItems = []) {
+    cmenu = Menu.buildFromTemplate([
+        { label: "Add mod", type: "normal", click: load },
+        { id: "mods", label: "Installed mods", type: "submenu", submenu: Menu.buildFromTemplate(modItems) },
+        { label: "Settings", type: "normal", click: () => settings ? settings.show() : null },
+        { label: "Open mod folder", type: "normal", click: () => require("child_process").exec('start "" "%AppData%\\octos\\mods"') },
+        { label: "Restore defaults", type: "normal", click: restore },
+        { type: "separator" },
+        { id: "visibility", label: "Toggle visibility", type: "checkbox", checked: true, click: toggle },
+        { type: "separator" },
+        { label: "Refresh", type: "normal", click: refresh },
+        { label: "Exit", type: "normal", click: exit }
+    ]);
+    tray.setContextMenu(cmenu);
+}
+
+function createTray() {
+    tray = new Tray("img/tray.png");
+    tray.setToolTip("Octos");
+    createTrayMenu();
+}
+
+function setModByName(name) {
+    if (selectMod(name)) {
+        var entry = getSelectedEntry();
+        if (entry.isUrl) win.loadURL(entry.path);
+        else win.loadFile(entry.path);
+        refresh();
+    }
+    updateModList();
+}
+
+function updateModList() {
+    filterFolders();
+    var names = getPrefs().mods.map((x) => x = {
+        label: x.name,
+        type: "checkbox",
+        checked: getPrefs().selected == x.name
+    });
+    for (const name of names) name.click = () => setModByName(name.label);
+    createTrayMenu(names);
+}
+
+function restore() {
+    restorePrefsDefaults();
+}
+
+function load() {
+    dialog.showOpenDialog({ filters: [{ name: "Mod", extensions: ["omod", "zip"] }], properties: ["openFile"] }).then((content) => {
+        if (!content.canceled) {
+            try {
+                addMod(content.filePaths[0]).then(updateModList);
+            }
+            catch (err) {
+                console.log(err);
+            }
+        }
+    });
+}
+
+function toggle() {
+    if (cmenu.getMenuItemById("visibility").checked) win.show();
+    else win.hide();
+}
+
+function refresh() {
+    win.close();
+    tray.destroy();
+    init();
+    options = retrieveOptions();
+}
+
+function exit() {
+    wp.setTaskbar(true);
+    app.isQuiting = true;
+    app.quit();
+    tray.destroy();
+}
+
+function createSettings() {
+    settings = new BrowserWindow({
+        width: 800,
+        height: 550,
+        frame: false,
+        resizable: false
+    });
+
+    settings.loadFile("src/settings.html");
+    settings.hide();
+}
+
+function handleEvents() {
+    if (options.events.mouse) {
+        var [x, y] = wp.mousePosition();
+        var active = wp.inForeground();
+        var pressed = [wp.leftMousePressed(), wp.middleMousePressed()];
+        if (lastmouse.x != x || lastmouse.y != y) win.webContents.sendInputEvent({ type: "mouseMove", x: x, y: y });
+        if (active || !options.events.requireFocus) {
+            if (pressed[0] && !lastmouse.pressed[0]) win.webContents.sendInputEvent({ type: "mouseDown", x: x, y: y, button: "left", clickCount: 1 });
+            if (lastmouse.pressed[0] && !pressed[0]) win.webContents.sendInputEvent({ type: "mouseUp", x: x, y: y, button: "left", clickCount: 1 });
+
+            if (pressed[1] && !lastmouse.pressed[1]) win.webContents.sendInputEvent({ type: "mouseDown", x: x, y: y, button: "middle", clickCount: 1 });
+            if (lastmouse.pressed[1] && !pressed[1]) win.webContents.sendInputEvent({ type: "mouseUp", x: x, y: y, button: "middle", clickCount: 1 });
+        }
+        lastmouse.x = x; lastmouse.y = y; lastmouse.active = active; lastmouse.pressed = pressed;
+    }
+    if (options.events.keyboard) {
+        var keystate = wp.keyboard();
+        for (var i = 0; i <= 255; i++) {
+            var keyCode = String.fromCharCode(i);
+            if (keystate[i]) {
+                if (!lastkeystate[i]) {
+                    win.webContents.sendInputEvent({ type: "keyDown", keyCode });
+                    win.webContents.sendInputEvent({ type: "char", keyCode });
+                }
+            }
+            else if (lastkeystate[i]) win.webContents.sendInputEvent({ type: "keyUp", keyCode });
+        }
+        lastkeystate = JSON.parse(JSON.stringify(keystate));
+    }
+}
+
+function retrieveOptions() {
+    return getSelectedConfig().options;
+}
+
+app.whenReady().then(() => {
+    init();
+
+    if (options.events.mouse || options.events.keyboard) setInterval(handleEvents, 1);
+
+    win.webContents.send("path", path.join(__dirname, "renderer.js"));
+    // ipcMain.handle("mouse", async () => {
+    //     var [x, y] = wp.mousePosition();
+    //     var active = wp.inForeground();
+    //     var data = { x, y, pressed: wp.leftMousePressed() && active, active };
+    //     return data;
+    // });
+});

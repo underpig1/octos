@@ -1,0 +1,16 @@
+{
+  "name": "wallpaper",
+  "version": "1.0.0",
+  "main": "exports.js",
+  "scripts": {
+    "install": "node-gyp rebuild&.\\node_modules\\.bin\\electron-rebuild.cmd"
+  },
+  "gypfile": true,
+  "devDependencies": {
+    "electron-rebuild": "^3.2.9"
+  },
+  "dependencies": {
+    "bindings": "^1.5.0",
+    "electron": "^23.1.2"
+  }
+}
