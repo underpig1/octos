@@ -2,8 +2,7 @@
     <head>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300,400,500,600,700&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300,400,500,600,700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300&display=swap" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
         <title>Octos - Settings</title>
         <style>
@@ -28,6 +27,7 @@
             }
 
             .main {
+                position: relative;
                 margin-left: 200px;
                 height: 100%;
                 background-color: white;
@@ -80,6 +80,7 @@
                 background-color: white;
                 transition: background-color 0.25s ease, color 0.25s ease;
                 cursor: pointer;
+                z-index: 1;
             }
 
             #close:hover {
@@ -92,10 +93,12 @@
             }
 
             .tab {
+                position: absolute;
                 width: 100%;
                 height: 100%;
-                padding-left: 50px;
+                padding-left: 65px;
                 padding-top: 25px;
+                visibility: hidden;
             }
 
             .heading {
@@ -105,93 +108,46 @@
                 font-family: "Roboto", sans-serif;
             }
 
-            .switch {
-                position: relative;
-                display: inline-block;
-                width: 40px;
-                height: 25px;
-            }
-
-            .switch input {
-                opacity: 0;
-                width: 0;
-                height: 0;
-            }
-
-            .slider {
-                position: absolute;
-                cursor: pointer;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background-color: #ccc;
-                transition: 0.25s;
-                border-radius: 20px;
-            }
-
-            .slider:before {
-                position: absolute;
-                content: "";
-                height: 20px;
-                width: 20px;
-                left: 3px;
-                bottom: 3px;
-                background-color: white;
-                transition: 0.25s;
-                border-radius: 50%;
-            }
-
-            input:checked + .slider {
-                background-color: #2196F3;
-            }
-
-            input:focus + .slider {
-                box-shadow: 0 0 1px #2196F3;
-            }
-
-            input:checked + .slider:before {
-                transform: translateX(16px);
-            }
-
-            .input {
-                display: flex;
-                width: 500px;
-                flex-direction: row;
-                align-items: center;
-            }
-
             .input>span {
                 font-size: 16pt;
                 margin-right: 25px;
                 color: gray;
                 font-family: "Roboto Condensed", sans-serif;
             }
+
+            .tab.active {
+                visibility: visible;
+            }
         </style>
     </head>
     <body>
         <i id="close" class="ri-close-line" onclick="window.electron.close();"></i>
         <div class="nav">
-            <image class="icon" src="../img/settings.png"></image>
+            <image class="icon" src="../../img/settings.png"></image>
             <div class="nav-item active" onclick="setTab(0)"><i class="ri-tools-fill"></i>General</div>
             <div class="nav-item" onclick="setTab(1)"><i class="ri-equalizer-line"></i>Mod Settings</div>
             <div class="nav-item" onclick="setTab(2)"><i class="ri-gallery-line"></i>Mod Gallery</div>
             <div class="nav-item" style="border-bottom: #222 1px solid;" onclick="setTab(3)"><i class="ri-paint-fill"></i>Create</div>
         </div>
         <div class="main">
-            <div id="tab-0" class="tab">
+            <div id="tab-0" class="tab active">
                 <h1 class="heading">General</h1>
-                <div class="input"><span>Hello</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+            </div>
+            <div id="tab-1" class="tab">
+                <h1 class="heading">Mod settings</h1>
             </div>
         </div>
         <script>
             const navItems = document.getElementsByClassName("nav-item");
+            const tabs = document.getElementsByClassName("tab");
             var active = 0;
 
             function setTab(id) {
                 navItems[active].classList.remove("active");
+                tabs[active].classList.remove("active");
                 active = id;
                 navItems[active].classList.add("active");
+                tabs[active].classList.add("active");
             }
         </script>
     </body>

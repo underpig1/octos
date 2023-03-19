@@ -11,3 +11,4 @@ BOOL RMousePressed(void);
 BOOL InForeground(void);
 void SetTaskbar(BOOL state);
 bool* KeyboardState(void);
+void SendMediaEvent(int state);

@@ -11,3 +11,4 @@ exports.inForeground = addon.infg;
 exports.middleMousePressed = addon.mmpressed;
 exports.rightMousePressed = addon.rmpressed;
 exports.keyboard = addon.keyboard;
+exports.sendMediaEvent = addon.sendmedia;

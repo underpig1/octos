@@ -1,7 +1,9 @@
 const { app, BrowserWindow, ipcMain, screen, Menu, MenuItem, Tray, dialog } = require("electron");
 const wp = require("../wallpaper");
 const path = require("path");
-const { getPrefs, selectMod, getSelectedConfig, addMod, getSelectedEntry, restorePrefsDefaults, filterFolders } = require("./store.js");
+const { getPrefs, selectMod, getSelectedConfig, addMod, getSelectedEntry, restorePrefsDefaults, filterFolders } = require("./utils/store.js");
+const { modifier, keyCode } = require("./utils/ascii.js");
+const { send } = require("process");
 var win, tray, cmenu, settings;
 const lastmouse = { x: null, y: null, pressed: false, active: false };
 var lastkeystate = [];
@@ -119,13 +121,16 @@ function exit() {
 
 function createSettings() {
     settings = new BrowserWindow({
-        width: 800,
-        height: 550,
+        width: 1100,
+        height: 600,
         frame: false,
-        resizable: false
+        resizable: true,
+        webPreferences: {
+            preload: path.join(__dirname, "settings/preload.js")
+        }
     });
 
-    settings.loadFile("src/settings.html");
+    settings.loadFile("src/settings/main.html");
     settings.hide();
 }
 
@@ -146,17 +151,43 @@ function handleEvents() {
     }
     if (options.events.keyboard) {
         var keystate = wp.keyboard();
+        var modifiers = [];
+        var keysPressed = [];
+        var shift = false;
         for (var i = 0; i <= 255; i++) {
-            var keyCode = String.fromCharCode(i);
             if (keystate[i]) {
-                if (!lastkeystate[i]) {
-                    win.webContents.sendInputEvent({ type: "keyDown", keyCode });
-                    win.webContents.sendInputEvent({ type: "char", keyCode });
+                var m = modifier(i);
+                if (m == "Shift") shift = true;
+                else if (m) keysPressed.push(m);
+                else keysPressed.push(i);
+            }
+        }
+        for (const key of keysPressed) {
+            if (!lastkeystate.includes(key)) {
+                var k = key == "Backspace" ? key : keyCode(key, shift);
+                if (k) {
+                    win.webContents.sendInputEvent({ type: "keyDown", keyCode: k });
+                    win.webContents.sendInputEvent({ type: "char", keyCode: k });
                 }
             }
-            else if (lastkeystate[i]) win.webContents.sendInputEvent({ type: "keyUp", keyCode });
         }
-        lastkeystate = JSON.parse(JSON.stringify(keystate));
+        for (const key of lastkeystate) {
+            if (!keysPressed.includes(key)) {
+                var k = keyCode(key, shift);
+                if (k) win.webContents.sendInputEvent({ type: "keyUp", keyCode: k });
+            }
+        }
+
+        //     var keyCode = String.fromCharCode(i);
+        //     if (keystate[i]) {
+        //         if (!lastkeystate[i]) {
+        //             win.webContents.sendInputEvent({ type: "keyDown", keyCode });
+        //             win.webContents.sendInputEvent({ type: "char", keyCode });
+        //         }
+        //     }
+        //     else if (lastkeystate[i]) win.webContents.sendInputEvent({ type: "keyUp", keyCode });
+        
+        lastkeystate = JSON.parse(JSON.stringify(keysPressed));
     }
 }
 
@@ -170,6 +201,12 @@ app.whenReady().then(() => {
     if (options.events.mouse || options.events.keyboard) setInterval(handleEvents, 1);
 
     win.webContents.send("path", path.join(__dirname, "renderer.js"));
+
+    ipcMain.on("close", (e) => {
+        const webContents = e.sender;
+        const win = BrowserWindow.fromWebContents(webContents);
+        win.hide();
+    });
     // ipcMain.handle("mouse", async () => {
     //     var [x, y] = wp.mousePosition();
     //     var active = wp.inForeground();

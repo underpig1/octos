@@ -3,7 +3,7 @@ const path = require("path");
 const fs = require("fs-extra");
 const unzipper = require("unzipper");
 
-const defaults = require("../default-mod/defaults.json");
+const defaults = require("../../default-mod/defaults.json");
 
 var prefs;
 const userDataPath = (electron.app || electron.remote.app).getPath("userData");

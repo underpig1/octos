@@ -84,6 +84,12 @@ void KeyboardExport(const FunctionCallbackInfo<Value> &args)
     args.GetReturnValue().Set(array);
 }
 
+void SendMediaExport(const FunctionCallbackInfo<Value> &args)
+{
+    v8::Isolate *isolate = args.GetIsolate();
+    SendMediaEvent(args[0]->IntValue(isolate));
+}
+
 static void Cleanup(void*)
 {
     SetTaskbar(true);
@@ -101,6 +107,7 @@ void Initialize(Local<Object> exports)
     NODE_SET_METHOD(exports, "infg", InForegroundExport);
     NODE_SET_METHOD(exports, "settb", SetTaskbarExport);
     NODE_SET_METHOD(exports, "keyboard", KeyboardExport);
+    NODE_SET_METHOD(exports, "sendmedia", SendMediaExport);
 }
 
 NODE_MODULE_INIT()

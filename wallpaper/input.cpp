@@ -17,6 +17,16 @@ BOOL CALLBACK FindWorkerW(HWND hwnd, LPARAM param)
     return TRUE;
 }
 
+// LRESULT CALLBACK mouseHookProc(int nCode, WPARAM wParam, LPARAM lParam)
+// {
+//     MSLLHOOKSTRUCT *msH = reinterpret_cast<MSLLHOOKSTRUCT *>(lParam);
+
+//     if (wParam == WM_MOUSEWHEEL) {
+//         scrollDelta = static_cast<std::make_signed_t<WORD>>(HIWORD(msH->mouseData)) < 0 ? -1 : 1;
+//     }
+//     return CallNextHookEx(NULL, nCode, wParam, lParam);
+// }
+
 void Attach(unsigned char *handleBuffer)
 {
     LONG_PTR handle = *reinterpret_cast<LONG_PTR *>(handleBuffer);
@@ -28,6 +38,9 @@ void Attach(unsigned char *handleBuffer)
     EnumWindows(&FindWorkerW, reinterpret_cast<LPARAM>(&workerw));
     SetWindowLong(hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
     SetParent(hwnd, workerw);
+
+    // HINSTANCE hInstance = (HINSTANCE)GetWindowLong(hwnd, GWLP_HINSTANCE);
+    // HHOOK mouseHook = SetWindowsHookEx(WH_MOUSE_LL, mouseHookProc, hInstance, NULL);
 }
 
 void Detach(unsigned char *handleBuffer)
@@ -85,4 +98,22 @@ void SetTaskbar(BOOL state = TRUE)
     HWND hShellWnd = FindWindow(L"Shell_TrayWnd", NULL);
     ShowWindow(hShellWnd, state ? SW_SHOW : SW_HIDE);
     UpdateWindow(hShellWnd);
+}
+
+void SendMediaEvent(int state = 0)
+{
+    int key;
+    if (state == -1) key = VK_MEDIA_PREV_TRACK;
+    else if (state == 0) key = VK_MEDIA_PLAY_PAUSE;
+    else if (state == 1) key = VK_MEDIA_NEXT_TRACK;
+    else if (state <= 26) key = 0x6E + state;
+    else return;
+
+    INPUT input[2];
+    input[0].type = INPUT_KEYBOARD;
+    input[0].ki.wVk = key;
+    input[1].type = INPUT_KEYBOARD;
+    input[1].ki.wVk = key;
+    input[1].ki.dwFlags = KEYEVENTF_KEYUP;
+    SendInput(2, input, sizeof(INPUT));
 }
