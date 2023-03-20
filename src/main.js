@@ -8,6 +8,7 @@ var win, tray, cmenu, settings;
 const lastmouse = { x: null, y: null, pressed: false, active: false };
 var lastkeystate = [];
 var options = retrieveOptions();
+const isActive = () => ["octos", ""].includes(wp.fgTitle());
 
 function createWindow() {
     const bounds = screen.getPrimaryDisplay().bounds;
@@ -27,14 +28,24 @@ function createWindow() {
         }
     });
     win.webContents.openDevTools();
+
+    // win.setAlwaysOnTop(true, "pop-up-menu", -1); // for mac
 }
 
-function init() {
+function loadHTML() {
     var entry = getSelectedEntry();
-    createWindow();
     if (entry.isUrl) win.loadURL(entry.path);
     else win.loadFile(entry.path);
     wp.attach(win);
+
+    win.webContents.on("dom-ready", () => {
+        win.webContents.insertCSS("body { user-select: none; }");
+    });
+}
+
+function init() {
+    createWindow();
+    loadHTML();
     createTray();
     updateModList();
     createSettings();
@@ -64,9 +75,7 @@ function createTray() {
 
 function setModByName(name) {
     if (selectMod(name)) {
-        var entry = getSelectedEntry();
-        if (entry.isUrl) win.loadURL(entry.path);
-        else win.loadFile(entry.path);
+        loadHTML();
         refresh();
     }
     updateModList();
@@ -135,19 +144,22 @@ function createSettings() {
 }
 
 function handleEvents() {
+    console.log(wp.trackTitle());
     if (options.events.mouse) {
         var [x, y] = wp.mousePosition();
-        var active = wp.inForeground();
+        var active = isActive();
         var pressed = [wp.leftMousePressed(), wp.middleMousePressed()];
         if (lastmouse.x != x || lastmouse.y != y) win.webContents.sendInputEvent({ type: "mouseMove", x: x, y: y });
-        if (active || !options.events.requireFocus) {
-            if (pressed[0] && !lastmouse.pressed[0]) win.webContents.sendInputEvent({ type: "mouseDown", x: x, y: y, button: "left", clickCount: 1 });
+        if (active/* || !options.events.requireFocus*/) {
+            if (pressed[0] && !lastmouse.pressed[0]) {
+                win.webContents.sendInputEvent({ type: "mouseDown", x: x, y: y, button: "left", clickCount: 1 });
+            }
             if (lastmouse.pressed[0] && !pressed[0]) win.webContents.sendInputEvent({ type: "mouseUp", x: x, y: y, button: "left", clickCount: 1 });
 
             if (pressed[1] && !lastmouse.pressed[1]) win.webContents.sendInputEvent({ type: "mouseDown", x: x, y: y, button: "middle", clickCount: 1 });
             if (lastmouse.pressed[1] && !pressed[1]) win.webContents.sendInputEvent({ type: "mouseUp", x: x, y: y, button: "middle", clickCount: 1 });
         }
-        lastmouse.x = x; lastmouse.y = y; lastmouse.active = active; lastmouse.pressed = pressed;
+        lastmouse.x = x; lastmouse.y = y; lastmouse.active = JSON.stringify(active); lastmouse.pressed = pressed;
     }
     if (options.events.keyboard) {
         var keystate = wp.keyboard();
@@ -206,6 +218,9 @@ app.whenReady().then(() => {
         const webContents = e.sender;
         const win = BrowserWindow.fromWebContents(webContents);
         win.hide();
+    });
+    ipcMain.handle("send-media-event", (e, state) => {
+        if (isActive()) wp.sendMediaEvent(state);
     });
     // ipcMain.handle("mouse", async () => {
     //     var [x, y] = wp.mousePosition();

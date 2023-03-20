@@ -5,6 +5,7 @@
 #include "./main.h"
 
 HWND workerw = NULL;
+HWND hwnd;
 
 BOOL CALLBACK FindWorkerW(HWND hwnd, LPARAM param)
 {
@@ -30,7 +31,7 @@ BOOL CALLBACK FindWorkerW(HWND hwnd, LPARAM param)
 void Attach(unsigned char *handleBuffer)
 {
     LONG_PTR handle = *reinterpret_cast<LONG_PTR *>(handleBuffer);
-    HWND hwnd = (HWND)(LONG_PTR)handle;
+    hwnd = (HWND)(LONG_PTR)handle;
 
     HWND progman = FindWindow(L"Progman", NULL);
     LRESULT result = SendMessageTimeout(progman, 0x052C, NULL, NULL, SMTO_NORMAL, 1000, NULL);
@@ -86,6 +87,19 @@ BOOL InForeground()
     return fgpid == wwpid;
 }
 
+char* ForegroundWindow()
+{
+    GetWindowThreadProcessId(GetForegroundWindow(), NULL);
+    HWND fg = GetForegroundWindow();
+    int len = GetWindowTextLength(fg) + 1;
+    WCHAR *wstr = new WCHAR[len];
+    GetWindowText(fg, wstr, len);
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, NULL, 0, NULL, NULL);
+    char *wnd_title = new char[size_needed];
+    WideCharToMultiByte(CP_UTF8, 0, wstr, -1, wnd_title, size_needed, NULL, NULL);
+    return wnd_title;
+}
+
 bool* KeyboardState()
 {
     bool keys[256];
@@ -102,6 +116,8 @@ void SetTaskbar(BOOL state = TRUE)
 
 void SendMediaEvent(int state = 0)
 {
+    SetForegroundWindow(hwnd);
+
     int key;
     if (state == -1) key = VK_MEDIA_PREV_TRACK;
     else if (state == 0) key = VK_MEDIA_PLAY_PAUSE;
@@ -109,11 +125,16 @@ void SendMediaEvent(int state = 0)
     else if (state <= 26) key = 0x6E + state;
     else return;
 
-    INPUT input[2];
-    input[0].type = INPUT_KEYBOARD;
-    input[0].ki.wVk = key;
-    input[1].type = INPUT_KEYBOARD;
-    input[1].ki.wVk = key;
-    input[1].ki.dwFlags = KEYEVENTF_KEYUP;
-    SendInput(2, input, sizeof(INPUT));
+    INPUT ip;
+    ip.type = INPUT_KEYBOARD;
+    ip.ki.wScan = 0;
+    ip.ki.time = 0;
+    ip.ki.dwExtraInfo = 0;
+
+    ip.ki.wVk = key;
+    ip.ki.dwFlags = 0;
+    SendInput(1, &ip, sizeof(INPUT));
+
+    ip.ki.dwFlags = KEYEVENTF_KEYUP;
+    SendInput(1, &ip, sizeof(INPUT));
 }

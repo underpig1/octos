@@ -21,9 +21,18 @@ ipcRenderer.on("path", (event, content) => {
     else attachRenderer(content)
 });
 
-async function mouse() {
-    const result = await ipcRenderer.invoke("mouse");
-    return result;
-}
+// async function mouse() {
+//     const result = await ipcRenderer.invoke("mouse");
+//     return result;
+// }
 
-contextBridge.exposeInMainWorld("mouse", mouse);
+// contextBridge.exposeInMainWorld("mouse", mouse);
+
+contextBridge.exposeInMainWorld("media", {
+    send: {
+        prevTrack: () => ipcRenderer.invoke("send-media-event", -1),
+        pausePlay: () => ipcRenderer.invoke("send-media-event", 0),
+        skipTrack: () => ipcRenderer.invoke("send-media-event", 1),
+        fnKey: (k) => ipcRenderer.invoke("send-media-event", 1 + k)
+    }
+});

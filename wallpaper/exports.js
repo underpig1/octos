@@ -12,3 +12,6 @@ exports.middleMousePressed = addon.mmpressed;
 exports.rightMousePressed = addon.rmpressed;
 exports.keyboard = addon.keyboard;
 exports.sendMediaEvent = addon.sendmedia;
+exports.fgTitle = addon.title;
+
+exports.trackTitle = addon.ttitle;

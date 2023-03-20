@@ -75,6 +75,10 @@ document.addEventListener("keydown", (e) => {
     console.log(e.key);
 })
 
+document.addEventListener("keyup", (e) => {
+    if (e.key == " ") e.preventDefault();
+})
+
 // setInterval(() => {
 //     var position = window.mouse.position();
 //     var pressed = window.mouse.pressed() && window.mouse.active();

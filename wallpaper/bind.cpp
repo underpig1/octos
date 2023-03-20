@@ -1,7 +1,7 @@
 #include <node.h>
 #include <node_buffer.h>
 #include <windows.h>
-#include <iostream>
+#include <string>
 #include "./main.h"
 
 using node::AddEnvironmentCleanupHook;
@@ -87,10 +87,29 @@ void KeyboardExport(const FunctionCallbackInfo<Value> &args)
 void SendMediaExport(const FunctionCallbackInfo<Value> &args)
 {
     v8::Isolate *isolate = args.GetIsolate();
-    SendMediaEvent(args[0]->IntValue(isolate));
+    v8::Local<v8::Context> context = isolate->GetCurrentContext();
+    v8::Maybe<uint32_t> maybe_uint = args[0]->Uint32Value(context);
+    uint32_t i = maybe_uint.FromJust();
+    SendMediaEvent((int)i);
 }
 
-static void Cleanup(void*)
+void ForegroundExport(const FunctionCallbackInfo<Value> &args)
+{
+    v8::Isolate *isolate = args.GetIsolate();
+    char* title = ForegroundWindow();
+    v8::Local<v8::String> string = v8::String::NewFromUtf8(isolate, title, v8::NewStringType::kNormal).ToLocalChecked();
+    args.GetReturnValue().Set(string);
+}
+
+void TrackTitleExport(const FunctionCallbackInfo<Value> &args)
+{
+    v8::Isolate *isolate = args.GetIsolate();
+    std::string title = TrackTitle();
+    v8::Local<v8::String> string = v8::String::NewFromUtf8(isolate, title.c_str(), v8::NewStringType::kNormal).ToLocalChecked();
+    args.GetReturnValue().Set(string);
+}
+
+static void Cleanup(void *)
 {
     SetTaskbar(true);
     Detach(windowHandleBuffer);
@@ -108,6 +127,8 @@ void Initialize(Local<Object> exports)
     NODE_SET_METHOD(exports, "settb", SetTaskbarExport);
     NODE_SET_METHOD(exports, "keyboard", KeyboardExport);
     NODE_SET_METHOD(exports, "sendmedia", SendMediaExport);
+    NODE_SET_METHOD(exports, "title", ForegroundExport);
+    NODE_SET_METHOD(exports, "ttitle", TrackTitleExport);
 }
 
 NODE_MODULE_INIT()

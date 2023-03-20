@@ -12,3 +12,5 @@ BOOL InForeground(void);
 void SetTaskbar(BOOL state);
 bool* KeyboardState(void);
 void SendMediaEvent(int state);
+char* ForegroundWindow(void);
+std::string TrackTitle(void);
