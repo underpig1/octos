@@ -144,7 +144,7 @@ function createSettings() {
 }
 
 function handleEvents() {
-    console.log(wp.trackTitle());
+    console.log(wp.playbackStatus());
     if (options.events.mouse) {
         var [x, y] = wp.mousePosition();
         var active = isActive();
@@ -221,6 +221,16 @@ app.whenReady().then(() => {
     });
     ipcMain.handle("send-media-event", (e, state) => {
         if (isActive()) wp.sendMediaEvent(state);
+    });
+    ipcMain.handle("get-media-event", (e, type) => {
+        // name, artist, timeline, status
+        // paused, changing, stopped, playing, closed
+        if (type == "title") return wp.trackTitle();
+        else if (type == "artist") return wp.trackArtist();
+        else if (type == "secondsElapsed") return wp.trackTimeline()[0];
+        else if (type == "secondsTotal") return wp.trackTimeline()[1];
+        else if (type == "percentElapsed") return wp.trackTimeline()[0] / wp.trackTimeline()[1];
+        else if (type == "isPlaying") return wp.playbackStatus() == "Playing";
     });
     // ipcMain.handle("mouse", async () => {
     //     var [x, y] = wp.mousePosition();

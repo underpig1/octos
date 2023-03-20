@@ -109,6 +109,33 @@ void TrackTitleExport(const FunctionCallbackInfo<Value> &args)
     args.GetReturnValue().Set(string);
 }
 
+void TrackArtistExport(const FunctionCallbackInfo<Value> &args)
+{
+    v8::Isolate *isolate = args.GetIsolate();
+    std::string artist = TrackArtist();
+    v8::Local<v8::String> string = v8::String::NewFromUtf8(isolate, artist.c_str(), v8::NewStringType::kNormal).ToLocalChecked();
+    args.GetReturnValue().Set(string);
+}
+
+void TrackTimelineExport(const FunctionCallbackInfo<Value> &args)
+{
+    v8::Isolate *isolate = args.GetIsolate();
+    v8::Local<v8::Context> context = isolate->GetCurrentContext();
+    int* timeline = TrackTimeline();
+    v8::Local<v8::Array> array = v8::Array::New(isolate, 2);
+    array->Set(context, 0, v8::Integer::New(isolate, timeline[0]));
+    array->Set(context, 1, v8::Integer::New(isolate, timeline[1]));
+    args.GetReturnValue().Set(array);
+}
+
+void PlaybackStatusExport(const FunctionCallbackInfo<Value> &args)
+{
+    v8::Isolate *isolate = args.GetIsolate();
+    std::string status = PlaybackStatus();
+    v8::Local<v8::String> string = v8::String::NewFromUtf8(isolate, status.c_str(), v8::NewStringType::kNormal).ToLocalChecked();
+    args.GetReturnValue().Set(string);
+}
+
 static void Cleanup(void *)
 {
     SetTaskbar(true);
@@ -129,6 +156,9 @@ void Initialize(Local<Object> exports)
     NODE_SET_METHOD(exports, "sendmedia", SendMediaExport);
     NODE_SET_METHOD(exports, "title", ForegroundExport);
     NODE_SET_METHOD(exports, "ttitle", TrackTitleExport);
+    NODE_SET_METHOD(exports, "tartist", TrackArtistExport);
+    NODE_SET_METHOD(exports, "ttime", TrackTimelineExport);
+    NODE_SET_METHOD(exports, "tstatus", PlaybackStatusExport);
 }
 
 NODE_MODULE_INIT()

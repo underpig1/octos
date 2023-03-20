@@ -14,3 +14,6 @@ bool* KeyboardState(void);
 void SendMediaEvent(int state);
 char* ForegroundWindow(void);
 std::string TrackTitle(void);
+std::string TrackArtist(void);
+int *TrackTimeline(void);
+std::string PlaybackStatus(void);

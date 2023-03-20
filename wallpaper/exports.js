@@ -15,3 +15,6 @@ exports.sendMediaEvent = addon.sendmedia;
 exports.fgTitle = addon.title;
 
 exports.trackTitle = addon.ttitle;
+exports.trackArtist = addon.tartist;
+exports.trackTimeline = addon.ttime;
+exports.playbackStatus = addon.tstatus;
