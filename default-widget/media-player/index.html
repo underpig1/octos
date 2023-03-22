@@ -1,0 +1,190 @@
+<widget name="media-player">
+    <style>
+        :root {
+            --color: black;
+            --width: 225px;
+            --offset: 50px;
+        }
+
+        body {
+            margin: 0;
+        }
+
+        svg {
+            color: var(--color);
+        }
+
+        .arrow {
+            width: 15px;
+            height: 15px;
+        }
+
+        .circle {
+            opacity: 0;
+            position: absolute;
+            height: 43px;
+            width: 43px;
+        }
+
+        .circle.active {
+            opacity: 1;
+        }
+
+        .btn {
+            transition: transform 0.1s;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btns {
+            width: calc(var(--width) - var(--offset));
+            height: 43px;
+            display: flex;
+            flex-direction: row;
+            align-content: center;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .progress {
+            position: relative;
+            display: flex;
+            margin-top: 10px;
+            width: calc(var(--width));
+            height: 15px;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        #pause-play {
+            position: relative;
+            width: 43px;
+            height: 43px;
+        }
+
+        .progress-line {
+            height: 2px;
+            width: 100%;
+            background-color: var(--color);
+            filter: grayscale(1) invert(0.8);
+            opacity: 0.5;
+        }
+
+        .progress-indicator {
+            position: absolute;
+            background-color: var(--color);
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            transition: left 5s linear;
+        }
+
+        .main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: var(--width);
+        }
+    </style>
+    <div class="main">
+        <div class="btns">
+            <div class="prev btn">
+                <svg class="arrow" id="prev" style="transform:rotateZ(180deg)">
+                    <g inkscape:label="Layer 1" inkscape:groupmode="layer" id="layer1" transform="translate(-296.58966,167.85952)">
+                        <path
+                            style="opacity:1;fill:currentColor;fill-opacity:1;stroke:none;stroke-width:11.2997961;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+                            d="m 1120.9688,-634.42969 v 10.95508 48.21875 l 41.582,-29.58594 z m 41.8261,0.13281 v 58.80469 h 5.6524 5.6504 v -58.80469 z"
+                            transform="scale(0.26458333)" />
+                    </g>
+                </svg>
+            </div>
+            <div id="pause-play" class="btn">
+                <svg class="circle" id="pause">
+                    <g transform="translate(-241.61832,129.33181)">
+                        <path
+                            style="opacity:1;fill:currentColor;fill-opacity:1;stroke:none;stroke-width:1.95016444;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
+                            d="M 81.083984,195.46484 C 36.302706,195.4645 -3.4015748e-4,231.76755 0,276.54883 c -3.7795276e-4,44.78128 36.302706,81.08239 81.083984,81.08203 44.780676,-5e-4 81.082406,-36.30135 81.082036,-81.08203 3.4e-4,-44.78068 -36.30136,-81.08349 -81.082036,-81.08399 z M 60.375,255.83984 h 41.41602 v 41.41602 H 60.375 Z"
+                            transform="matrix(0.26458333,0,0,0.26458333,241.61832,-181.04855)" />
+                    </g>
+                </svg>
+                <svg class="circle active" id="play">
+                    <g transform="translate(-241.62 181.05)">
+                        <path
+                            d="m263.07-181.05a21.453 21.453 0 0 0-21.453 21.453 21.453 21.453 0 0 0 21.453 21.453 21.453 21.453 0 0 0 21.453-21.453 21.453 21.453 0 0 0-21.453-21.453zm-3.1076 14.786 9.3696 6.6674-9.3696 6.6674z"
+                            style="paint-order:stroke; fill:currentColor; fill markers" />
+                    </g>
+                </svg>
+            </div>
+            <div class="next btn">
+                <svg class="arrow" id="next">
+                    <g inkscape:label="Layer 1" inkscape:groupmode="layer" id="layer1" transform="translate(-296.58966,167.85952)">
+                        <path
+                            style="opacity:1;fill:currentColor;fill-opacity:1;stroke:none;stroke-width:11.2997961;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+                            d="m 1120.9688,-634.42969 v 10.95508 48.21875 l 41.582,-29.58594 z m 41.8261,0.13281 v 58.80469 h 5.6524 5.6504 v -58.80469 z"
+                            transform="scale(0.26458333)" />
+                    </g>
+                </svg>
+            </div>
+        </div>
+        <div class="progress">
+            <div class="progress-line"></div>
+            <div id="progress" class="progress-indicator"></div>
+        </div>
+    </div>
+    <script>
+        const prev = document.getElementById("prev");
+        const pausePlay = document.getElementById("pause-play");
+        const next = document.getElementById("next");
+
+        const pause = document.getElementById("pause");
+        const play = document.getElementById("play");
+        
+        const progress = document.getElementById("progress");
+        const width = parseInt(getComputedStyle(document.body).getPropertyValue("--width"));
+        var prevPos = 0;
+
+        document.addEventListener("playbacktime", (e) => {
+            var newPos = Math.round(width*parseInt(e.detail.secondsElapsed)/parseInt(e.detail.secondsTotal));
+            var tjump = Math.round(newPos - prevPos) > 4;
+            if (tjump) progress.style.transition = "";
+            progress.style.left = newPos + "px";
+            if (tjump) progress.style.transition = "left 5s linear";
+            prevPos = JSON.parse(JSON.stringify(newPos));
+        });
+
+        document.addEventListener("playbackstatus", (e) => {
+            e.detail.status;
+            setPlayStatus(e.detail.status == "playing");
+        });
+
+        pausePlay.onclick = () => {
+            window.media.send.pausePlay();
+            setPlayStatus(play.classList.contains("active"));
+        }
+
+        prev.onclick = window.media.send.prevTrack;
+        next.onclick = window.media.send.nextTrack;
+
+        async function setPlayStatus(playing) {
+            if (playing) {
+                pause.classList.add("active");
+                play.classList.remove("active");
+            }
+            else {
+                play.classList.add("active");
+                pause.classList.remove("active");
+            }
+        }
+
+        async function update() {
+            var pg = await window.media.getSecondsElapsed();
+            var total = await window.media.getSecondsTotal();
+            progress.style.left = width*pg/total + "px";
+
+            var playing = await window.media.isPlaying();
+            setPlayStatus(playing);
+        }
+    </script>
+</widget>

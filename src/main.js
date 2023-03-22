@@ -4,9 +4,11 @@ const path = require("path");
 const { getPrefs, selectMod, getSelectedConfig, addMod, getSelectedEntry, restorePrefsDefaults, filterFolders } = require("./utils/store.js");
 const { modifier, keyCode } = require("./utils/ascii.js");
 const { send } = require("process");
+const { syncPlaybackInfo, asyncPlaybackInfo, sendMediaEvent } = require("./utils/winrt.js");
 var win, tray, cmenu, settings;
-const lastmouse = { x: null, y: null, pressed: false, active: false };
-var lastkeystate = [];
+var prevMouse = { position: {} };
+var prevKeyboard = [];
+var prevMediaState = {};
 var options = retrieveOptions();
 const isActive = () => ["octos", ""].includes(wp.fgTitle());
 
@@ -144,26 +146,26 @@ function createSettings() {
 }
 
 function handleEvents() {
-    console.log(wp.playbackStatus());
     if (options.events.mouse) {
-        var [x, y] = wp.mousePosition();
-        var active = isActive();
-        var pressed = [wp.leftMousePressed(), wp.middleMousePressed()];
-        if (lastmouse.x != x || lastmouse.y != y) win.webContents.sendInputEvent({ type: "mouseMove", x: x, y: y });
-        if (active/* || !options.events.requireFocus*/) {
-            if (pressed[0] && !lastmouse.pressed[0]) {
-                win.webContents.sendInputEvent({ type: "mouseDown", x: x, y: y, button: "left", clickCount: 1 });
-            }
-            if (lastmouse.pressed[0] && !pressed[0]) win.webContents.sendInputEvent({ type: "mouseUp", x: x, y: y, button: "left", clickCount: 1 });
-
-            if (pressed[1] && !lastmouse.pressed[1]) win.webContents.sendInputEvent({ type: "mouseDown", x: x, y: y, button: "middle", clickCount: 1 });
-            if (lastmouse.pressed[1] && !pressed[1]) win.webContents.sendInputEvent({ type: "mouseUp", x: x, y: y, button: "middle", clickCount: 1 });
+        var position = wp.mousePosition();
+        var mouse = {
+            position: { x: position[0], y: position[1] },
+            active: isActive(),
+            leftButtonPressed: wp.leftMousePressed(),
+            middleButtonPressed: wp.middleMousePressed()
         }
-        lastmouse.x = x; lastmouse.y = y; lastmouse.active = JSON.stringify(active); lastmouse.pressed = pressed;
+        if (prevMouse.position.x != mouse.position.x || prevMouse.position.y != mouse.position.y) win.webContents.sendInputEvent({ type: "mouseMove", x: mouse.position.x, y: mouse.position.y });
+        if (mouse.active) {
+            if (mouse.leftButtonPressed && !prevMouse.leftButtonPressed) win.webContents.sendInputEvent({ type: "mouseDown", x: mouse.position.x, y: mouse.position.y, button: "left", clickCount: 1 });
+            if (prevMouse.leftButtonPressed && !mouse.leftButtonPressed) win.webContents.sendInputEvent({ type: "mouseUp", x: mouse.position.x, y: mouse.position.y, button: "left", clickCount: 1 });
+
+            if (mouse.middleButtonPressed && !prevMouse.middleButtonPressed) win.webContents.sendInputEvent({ type: "mouseDown", x: mouse.position.x, y: mouse.position.y, button: "middle", clickCount: 1 });
+            if (prevMouse.middleButtonPressed && !mouse.middleButtonPressed) win.webContents.sendInputEvent({ type: "mouseUp", x: mouse.position.x, y: mouse.position.y, button: "middle", clickCount: 1 });
+        }
+        prevMouse = mouse;
     }
     if (options.events.keyboard) {
         var keystate = wp.keyboard();
-        var modifiers = [];
         var keysPressed = [];
         var shift = false;
         for (var i = 0; i <= 255; i++) {
@@ -175,7 +177,7 @@ function handleEvents() {
             }
         }
         for (const key of keysPressed) {
-            if (!lastkeystate.includes(key)) {
+            if (!prevKeyboard.includes(key)) {
                 var k = key == "Backspace" ? key : keyCode(key, shift);
                 if (k) {
                     win.webContents.sendInputEvent({ type: "keyDown", keyCode: k });
@@ -183,23 +185,20 @@ function handleEvents() {
                 }
             }
         }
-        for (const key of lastkeystate) {
+        for (const key of prevKeyboard) {
             if (!keysPressed.includes(key)) {
                 var k = keyCode(key, shift);
                 if (k) win.webContents.sendInputEvent({ type: "keyUp", keyCode: k });
             }
         }
-
-        //     var keyCode = String.fromCharCode(i);
-        //     if (keystate[i]) {
-        //         if (!lastkeystate[i]) {
-        //             win.webContents.sendInputEvent({ type: "keyDown", keyCode });
-        //             win.webContents.sendInputEvent({ type: "char", keyCode });
-        //         }
-        //     }
-        //     else if (lastkeystate[i]) win.webContents.sendInputEvent({ type: "keyUp", keyCode });
-        
-        lastkeystate = JSON.parse(JSON.stringify(keysPressed));
+        prevKeyboard = keysPressed;
+    }
+    if (options.events.media) {
+        var info = syncPlaybackInfo();
+        if (prevMediaState.title != info.title || prevMediaState.arist != info.arist) dispatchEvent("track", { title: info.title, artist: info.artist });
+        if (prevMediaState.status != info.status) dispatchEvent("playbackstatus", { status: info.status });
+        if (prevMediaState.secondsElapsed != info.secondsElapsed || prevMediaState.secondsTotal != info.secondsTotal) dispatchEvent("playbacktime", { secondsElapsed: info.secondsElapsed, secondsTotal: info.secondsTotal });
+        prevMediaState = JSON.parse(JSON.stringify(info));
     }
 }
 
@@ -207,10 +206,15 @@ function retrieveOptions() {
     return getSelectedConfig().options;
 }
 
+function dispatchEvent(type, options) {
+    win.webContents.executeJavaScript(`document.dispatchEvent(new CustomEvent('${type}', {detail:${JSON.stringify(options)}}));`);
+}
+
 app.whenReady().then(() => {
     init();
 
-    if (options.events.mouse || options.events.keyboard) setInterval(handleEvents, 1);
+    if (options.events.mouse || options.events.keyboard || options.events.media) setInterval(handleEvents, 1);
+    if (options.events.media) setInterval(asyncPlaybackInfo, 1000);
 
     win.webContents.send("path", path.join(__dirname, "renderer.js"));
 
@@ -220,22 +224,33 @@ app.whenReady().then(() => {
         win.hide();
     });
     ipcMain.handle("send-media-event", (e, state) => {
-        if (isActive()) wp.sendMediaEvent(state);
+        if (isActive()) //wp.sendMediaEvent(state);
+            sendMediaEvent(state);
     });
     ipcMain.handle("get-media-event", (e, type) => {
         // name, artist, timeline, status
         // paused, changing, stopped, playing, closed
-        if (type == "title") return wp.trackTitle();
-        else if (type == "artist") return wp.trackArtist();
-        else if (type == "secondsElapsed") return wp.trackTimeline()[0];
-        else if (type == "secondsTotal") return wp.trackTimeline()[1];
-        else if (type == "percentElapsed") return wp.trackTimeline()[0] / wp.trackTimeline()[1];
-        else if (type == "isPlaying") return wp.playbackStatus() == "Playing";
+        // title, artist, secondsElapsed, secondsTotal, percentElapsed, isPlaying
+        // if (type == "title") return wp.trackTitle();
+        // else if (type == "artist") return wp.trackArtist();
+        // else if (type == "secondsElapsed") return wp.trackTimeline()[0];
+        // else if (type == "secondsTotal") return wp.trackTimeline()[1];
+        // else if (type == "percentElapsed") return wp.trackTimeline()[0] / wp.trackTimeline()[1];
+        // else if (type == "isPlaying") return wp.playbackStatus() == "Playing";
+        if (type == "title") return prevMediaState.title;
+        else if (type == "artist") return prevMediaState.artist;
+        else if (type == "secondsElapsed") return prevMediaState.secondsElapsed;
+        else if (type == "secondsTotal") return prevMediaState.secondsTotal;
+        else if (type == "percentElapsed") return prevMediaState.secondsElapsed/prevMediaState.secondsTotal;
+        else if (type == "isPlaying") return prevMediaState.status == "playing";
     });
-    // ipcMain.handle("mouse", async () => {
-    //     var [x, y] = wp.mousePosition();
-    //     var active = wp.inForeground();
-    //     var data = { x, y, pressed: wp.leftMousePressed() && active, active };
-    //     return data;
-    // });
+    ipcMain.handle("get-mouse", (e, type) => {
+        if (type == "position") return {x: wp.mousePosition()[0], y: wp.mousePosition()[1]};
+        else if (type == "active") return isActive();
+        else if (type == "leftButtonPressed") return wp.leftMousePressed();
+        else if (type == "middleButtonPressed") return wp.middleMousePressed();
+    });
+    ipcMain.handle("get-keyboard", (e, type) => {
+        if (type == "keys") return prevKeyboard;
+    });
 });

@@ -71,16 +71,22 @@
 
 // setInterval(handle, 10);
 
-document.addEventListener("keydown", (e) => {
-    console.log(e.key);
-})
-
-document.addEventListener("keyup", (e) => {
-    if (e.key == " ") e.preventDefault();
-})
-
 // setInterval(() => {
 //     var position = window.mouse.position();
 //     var pressed = window.mouse.pressed() && window.mouse.active();
 //     //handleMouseData({ x: data.position.x, y: data.position.y, pressed: data.pressed });
 // }, 10);
+
+class MediaController {
+    pausePlay() {
+        window.media.send.pausePlay();
+    }
+
+    skipToNextTrack() {
+        window.media.send.nextTrack();
+    }
+
+    skipToPrevTrack() {
+        window.media.send.prevTrack();
+    }
+}

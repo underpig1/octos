@@ -1,19 +1,19 @@
 {
-    "selected": "Minimal",
+    "selected": "ethereal",
     "mods": [
         {
-            "name": "Minimal",
-            "folder": "minimal"
+            "name": "Ethereal",
+            "folder": "ethereal"
         }
     ],
     "config": {
-        "name": "Mod name",
+        "name": "Custom mod",
         "entry": "index.html",
         "options": {
             "events": {
-                "requireFocus": true,
                 "mouse": true,
-                "keyboard": true
+                "keyboard": true,
+                "media": true
             }
         }
     }

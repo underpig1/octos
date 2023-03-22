@@ -1,0 +1,11 @@
+{
+    "name": "Ethereal",
+    "entry": "index.html",
+    "options": {
+        "events": {
+            "mouse": true,
+            "keyboard": false,
+            "media": true
+        }
+    }
+}

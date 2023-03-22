@@ -15,24 +15,32 @@ using namespace Windows::Foundation;
 GlobalSystemMediaTransportControlsSession GetSessionHandle() {
     GlobalSystemMediaTransportControlsSessionManager SessionManager(NULL);
     IAsyncOperation sessionAsync = SessionManager.RequestAsync();
-    sessionAsync.get();
-    SessionManager = sessionAsync.GetResults();
-    return SessionManager.GetCurrentSession();
+    auto status = sessionAsync.wait_for(std::chrono::milliseconds{100});
+    if (status != AsyncStatus::Started)
+    {
+        if (status == AsyncStatus::Completed) {
+            SessionManager = sessionAsync.GetResults();
+            if (SessionManager != NULL) return SessionManager.GetCurrentSession();
+        }
+    }
+    return NULL;
 }
 
 GlobalSystemMediaTransportControlsSessionMediaProperties GetMediaProperties() {
     auto currentSession = GetSessionHandle();
-    if (currentSession != NULL)
-    {
-        IAsyncOperation mediaAsync = currentSession.TryGetMediaPropertiesAsync();
-        mediaAsync.get();
-        return mediaAsync.GetResults();
+    if (currentSession == NULL) return NULL;
+    IAsyncOperation mediaAsync = currentSession.TryGetMediaPropertiesAsync();
+    auto status = mediaAsync.wait_for(std::chrono::milliseconds{100});
+    if (status != AsyncStatus::Started) {
+        if (status == AsyncStatus::Completed) return mediaAsync.GetResults();
     }
+    return NULL;
 }
 
 std::string TrackTitle()
 {
     auto mediaProperties = GetMediaProperties();
+    if (mediaProperties == NULL) return "";
     std::string title = to_string(mediaProperties.Title());
     return title;
 }
@@ -40,6 +48,7 @@ std::string TrackTitle()
 std::string TrackArtist()
 {
     auto mediaProperties = GetMediaProperties();
+    if (mediaProperties == NULL) return "";
     std::string artist = to_string(mediaProperties.Artist());
     return artist;
 }
@@ -59,30 +68,30 @@ int* TrackTimeline()
         int results[2] = {elapsedTimeInSeconds, durationInSeconds};
         return results;
     }
+    int defaults[2] = {0, 0};
+    return defaults;
 }
 
 std::string PlaybackStatus() {
     auto currentSession = GetSessionHandle();
-    if (currentSession != NULL)
+    if (currentSession == NULL) return "";
+    auto playbackInfo = currentSession.GetPlaybackInfo();
+    auto playbackStatus = playbackInfo.PlaybackStatus();
+    switch (playbackStatus)
     {
-        auto playbackInfo = currentSession.GetPlaybackInfo();
-        auto playbackStatus = playbackInfo.PlaybackStatus();
-        switch (playbackStatus)
-        {
-        case 5:
-            return "Paused";
-        case 2:
-            return "Changing";
-        case 3:
-            return "Stopped";
-        case 4:
-            return "Playing";
-        case 0:
-            return "Closed";
-        case 1:
-            return "Opened";
-        default:
-            return "";
-        }
+    case 5:
+        return "Paused";
+    case 2:
+        return "Changing";
+    case 3:
+        return "Stopped";
+    case 4:
+        return "Playing";
+    case 0:
+        return "Closed";
+    case 1:
+        return "Opened";
+    default:
+        return "";
     }
 }

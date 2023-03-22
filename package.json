@@ -4,10 +4,12 @@
   "main": "src/main.js",
   "scripts": {
     "build-node-module": "cd wallpaper&npm install",
+    "build-all-node-modules": ".\\node_modules\\.bin\\electron-rebuild.cmd",
     "build-node-module-help": "echo Delete folders node_modules, build, and bin before building",
     "start": "electron ."
   },
   "dependencies": {
+    "@nodert-win10-21h1/windows.media.control": "^0.1.6",
     "electron": "^23.1.2",
     "electron-rebuild": "^3.2.9",
     "fs-extra": "^11.1.0",

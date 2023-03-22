@@ -34,13 +34,18 @@ function selectMod(name) {
 }
 
 function getSelectedModData() {
-    checkSelectedExists()
+    checkSelectedExists();
     return getModData(prefs.selected);
 }
 
 function getSelectedConfig() {
-    checkSelectedExists()
-    return readModConfig(prefs.selected);
+    checkSelectedExists();
+    try {
+        return readModConfig(prefs.selected);
+    }
+    catch (err) {
+        return getConfigFromFolderPath(path.join(defaultsPath, defaults.selected));
+    }
 }
 
 function removeMod(name) {
@@ -66,15 +71,20 @@ function addMod(modPath) {
 }
 
 function getSelectedEntry() {
-    checkSelectedExists()
-    var entryPath = getSelectedConfig().entry;
+    checkSelectedExists();
     try {
-        var url = new URL(entryPath);
-        return { path: entryPath, isUrl: true };
+        var entryPath = getSelectedConfig().entry;
+        try {
+            var url = new URL(entryPath);
+            return { path: entryPath, isUrl: true };
+        }
+        catch (err) {
+            var folder = resolveModFolder(getModFolder(prefs.selected));
+            return { path: path.join(folder, entryPath), isUrl: false };
+        }
     }
     catch (err) {
-        var folder = resolveModFolder(getModFolder(prefs.selected));
-        return { path: path.join(folder, entryPath), isUrl: false };
+        return { path: path.join(__dirname, "../..", defaultsPath, defaults.selected, "index.html"), isUrl: false }
     }
 }
 
@@ -133,9 +143,19 @@ function handleModFolderCopy(target) {
 }
 
 function checkSelectedExists() {
+    if (!checkModDataExists(prefs.selected)) {
+        loadDefaultMods();
+        try {
+            if (!checkModDataExists(prefs.selected)) prefs.selected = prefs.mods[0].name;
+        }
+        catch {}
+    }
     if (!getModData(prefs.selected)) {
-        prefs.selected = prefs.mods[0].name;
-        writePrefs();
+        try {
+            prefs.selected = prefs.mods[0].name;
+            writePrefs();
+        }
+        catch {}
     }
 }
 

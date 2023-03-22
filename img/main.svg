@@ -17,7 +17,52 @@
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
    sodipodi:docname="main.svg">
   <defs
-     id="defs815" />
+     id="defs815">
+    <inkscape:path-effect
+       effect="lattice2"
+       gridpoint0="16.158482,46.023808"
+       gridpoint1="100.16369,46.023808"
+       gridpoint2="16.158482,90.624996"
+       gridpoint3="100.16369,90.624996"
+       gridpoint4="37.159784,46.023808"
+       gridpoint5="79.162388,46.023808"
+       gridpoint6="37.159784,90.624996"
+       gridpoint7="79.162388,90.624996"
+       gridpoint8x9="58.161086,46.023808"
+       gridpoint10x11="58.161086,90.624996"
+       gridpoint12="16.158482,57.174105"
+       gridpoint13="100.16369,57.174105"
+       gridpoint14="16.158482,79.474699"
+       gridpoint15="100.16369,79.474699"
+       gridpoint16="37.159784,57.174105"
+       gridpoint17="79.162388,57.174105"
+       gridpoint18="37.159784,79.474699"
+       gridpoint19="79.162388,79.474699"
+       gridpoint20x21="58.161086,57.174105"
+       gridpoint22x23="58.161086,79.474699"
+       gridpoint24x26="16.158482,68.324402"
+       gridpoint25x27="100.16369,68.324402"
+       gridpoint28x30="37.159784,68.324402"
+       gridpoint29x31="79.162388,68.324402"
+       gridpoint32x33x34x35="58.161086,68.324402"
+       id="path-effect872"
+       is_visible="true"
+       horizontal_mirror="false"
+       vertical_mirror="false"
+       live_update="true" />
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath1359">
+      <rect
+         style="opacity:1;fill:#ffffff;fill-opacity:0.98431373;stroke:#000000;stroke-width:0.09999999;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.25098039;paint-order:normal"
+         id="rect1361"
+         width="253.12302"
+         height="29.452496"
+         x="-182.96477"
+         y="354.88055"
+         ry="6.4311728" />
+    </clipPath>
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -25,9 +70,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="5.6"
-     inkscape:cx="106.03745"
-     inkscape:cy="1039.8147"
+     inkscape:zoom="2.5600001"
+     inkscape:cx="256.25154"
+     inkscape:cy="390.81222"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -36,7 +81,8 @@
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:lockguides="true" />
+     inkscape:lockguides="true"
+     showguides="false" />
   <metadata
      id="metadata818">
     <rdf:RDF>
@@ -317,5 +363,961 @@
          x="23.338524"
          id="tspan1685-1"
          sodipodi:role="line">OCTOS</tspan></text>
+    <rect
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.24120604;paint-order:normal"
+       id="rect853"
+       width="158.61705"
+       height="89.222099"
+       x="6.7363501"
+       y="46.554321" />
+    <rect
+       style="opacity:1;fill:#ff3d3d;fill-opacity:0.98431373;stroke:none;stroke-width:2.8746202;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:11.49848061, 5.7492403;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       id="rect912"
+       width="11.942426"
+       height="80.375717"
+       x="10.686927"
+       y="51.002594"
+       ry="5.9712129"
+       rx="0" />
+    <g
+       id="g957"
+       transform="matrix(0.54545671,0,0,0.54545671,-2.2667449,93.143454)"
+       style="stroke-width:1.83332598">
+      <path
+         inkscape:export-ydpi="436.70001"
+         inkscape:export-xdpi="436.70001"
+         sodipodi:type="star"
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.9789961;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
+         id="path1681-6"
+         sodipodi:sides="6"
+         sodipodi:cx="34.695484"
+         sodipodi:cy="59.063305"
+         sodipodi:r1="5.0628471"
+         sodipodi:r2="2.2512305"
+         sodipodi:arg1="0.52359878"
+         sodipodi:arg2="1.0471976"
+         inkscape:flatsided="true"
+         inkscape:rounded="-1.249e-16"
+         inkscape:randomized="0"
+         d="m 39.080038,61.594728 -4.384554,2.531424 -4.384554,-2.531424 0,-5.062847 4.384554,-2.531423 4.384554,2.531423 z" />
+      <path
+         sodipodi:nodetypes="ccccscccccccscccscccscccccccccccccccccscccscccscccccccccscccscccsccccc"
+         inkscape:connector-curvature="0"
+         inkscape:export-ydpi="436.70001"
+         inkscape:export-xdpi="436.70001"
+         id="path1707-3"
+         d="m 34.603303,55.620177 c -0.299757,0 -0.57706,0.0406 -0.8314,0.122347 -0.251311,0.07872 -0.467762,0.197074 -0.649433,0.354522 -0.184699,0.157437 -0.328963,0.35134 -0.431911,0.581457 -0.102941,0.227089 -0.153731,0.490858 -0.153731,0.790614 0,0.163503 0.0214,0.319102 0.06379,0.467469 0.04542,0.148359 0.108579,0.284762 0.190333,0.408902 0.0757,0.118091 0.16813,0.225214 0.277134,0.322103 0.112031,0.09689 0.236047,0.180303 0.3723,0.249943 -0.160476,0.07569 -0.305895,0.168136 -0.436093,0.277131 -0.127169,0.105972 -0.236495,0.225481 -0.327332,0.358707 -0.09083,0.136266 -0.161865,0.286183 -0.213341,0.449689 -0.04844,0.160471 -0.07216,0.33181 -0.07216,0.513481 0,0.31187 0.0553,0.585815 0.167327,0.821989 0.115061,0.236172 0.272857,0.433421 0.472696,0.590869 0.199838,0.160471 0.434335,0.281135 0.703814,0.362887 0.272507,0.08174 0.566701,0.122362 0.881599,0.122362 0.311869,0 0.602708,-0.04061 0.872186,-0.122362 0.269479,-0.08174 0.503976,-0.202405 0.703814,-0.362887 0.196811,-0.157438 0.351253,-0.354697 0.463284,-0.590869 0.115061,-0.236174 0.172555,-0.510119 0.172555,-0.821989 0,-0.236173 -0.04061,-0.454823 -0.122356,-0.654664 -0.08176,-0.199838 -0.19559,-0.374637 -0.340928,-0.526029 -0.07873,-0.08479 -0.167802,-0.160321 -0.267721,-0.226935 -0.09992,-0.06964 -0.205889,-0.132694 -0.317919,-0.187196 0.124142,-0.06358 0.235778,-0.136934 0.335697,-0.221706 0.102954,-0.08782 0.192024,-0.182443 0.267722,-0.282363 0.09689,-0.133233 0.17128,-0.277602 0.222752,-0.435048 0.0545,-0.160469 0.08158,-0.331811 0.08158,-0.513482 0,-0.299757 -0.05299,-0.563526 -0.15896,-0.790615 -0.102953,-0.23011 -0.246166,-0.424 -0.430866,-0.581448 -0.187727,-0.157449 -0.408689,-0.275799 -0.663029,-0.354524 -0.25434,-0.08176 -0.531643,-0.122361 -0.831401,-0.122361 z m -0.0052,1.021732 c 0.130198,0 0.246236,0.0214 0.346155,0.0638 0.102942,0.04238 0.189824,0.102084 0.262493,0.177791 0.06964,0.07871 0.124826,0.172322 0.164187,0.281317 0.03936,0.108989 0.05857,0.229657 0.05857,0.362887 0,0.133233 -0.0192,0.256089 -0.05857,0.368117 -0.03633,0.108989 -0.08931,0.202589 -0.158959,0.281318 -0.06964,0.07871 -0.154206,0.140711 -0.254126,0.186148 -0.09992,0.04238 -0.213757,0.0638 -0.340927,0.0638 -0.12717,0 -0.242162,-0.0214 -0.34511,-0.0638 -0.09992,-0.04542 -0.184486,-0.107432 -0.254126,-0.186148 -0.07267,-0.07872 -0.127855,-0.172322 -0.164189,-0.281318 -0.03633,-0.112031 -0.05438,-0.234892 -0.05438,-0.368117 0,-0.136264 0.01689,-0.259116 0.0502,-0.368116 0.03633,-0.112031 0.08931,-0.205622 0.158959,-0.281317 0.06661,-0.07569 0.150025,-0.133195 0.249944,-0.172545 0.09992,-0.04238 0.212711,-0.0638 0.339881,-0.0638 z m 0.0094,2.802711 c 0.145337,0 0.276066,0.02257 0.391125,0.06796 0.118091,0.04542 0.219544,0.110775 0.304323,0.195562 0.08174,0.08782 0.144915,0.19157 0.190333,0.312691 0.04542,0.121124 0.06797,0.25751 0.06797,0.408903 0,0.151391 -0.02372,0.287788 -0.07216,0.4089 -0.04541,0.118103 -0.109629,0.21955 -0.191379,0.304326 -0.08479,0.08479 -0.184038,0.150145 -0.299094,0.19556 -0.115061,0.04238 -0.242432,0.06379 -0.381713,0.06379 -0.14231,0 -0.270837,-0.02024 -0.385896,-0.05961 -0.11506,-0.04238 -0.214204,-0.102193 -0.295957,-0.180918 -0.0878,-0.08174 -0.155481,-0.185401 -0.203927,-0.309554 -0.04844,-0.124132 -0.07321,-0.265043 -0.07321,-0.422498 0,-0.151391 0.0236,-0.287789 0.06902,-0.408902 0.04542,-0.121125 0.108579,-0.224882 0.190333,-0.312691 0.08174,-0.08478 0.179854,-0.150145 0.294912,-0.195564 0.118091,-0.04541 0.249971,-0.06796 0.395309,-0.06796 z"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.59626818px;line-height:1.25;font-family:'Roboto Mono';-inkscape-font-specification:'Roboto Mono Bold';letter-spacing:0px;word-spacing:0px;fill:#ff3d3d;fill-opacity:0.98431373;stroke:none;stroke-width:0.63579154;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers" />
+    </g>
+    <g
+       id="g1175"
+       transform="translate(-0.14616251,-0.41341146)">
+      <circle
+         r="3.7636976"
+         cy="57.339123"
+         cx="16.804302"
+         id="path1169"
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.47499999;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.50196078;paint-order:normal" />
+      <path
+         style="fill:#ff4040;fill-opacity:1;stroke-width:0.26458332"
+         id="path1011"
+         d="m 15.49945,55.909219 a 1.9555319,1.9555319 0 0 1 0.693343,-0.400893 0.78162548,0.78162548 0 0 0 0.611518,0.294014 0.78162548,0.78162548 0 0 0 0.61152,-0.294014 1.9555319,1.9555319 0 0 1 0.693343,0.400893 0.78162548,0.78162548 0 0 0 0.05128,0.676117 0.78162548,0.78162548 0 0 0 0.56043,0.382689 1.9659066,1.9659066 0 0 1 0,0.800612 c -0.227071,0.03484 -0.43652,0.168345 -0.56043,0.38269 a 0.78162548,0.78162548 0 0 0 -0.05128,0.676313 1.9555319,1.9555319 0 0 1 -0.693343,0.400698 0.78162548,0.78162548 0 0 0 -0.61152,-0.293819 0.78162548,0.78162548 0 0 0 -0.611518,0.294015 1.9555319,1.9555319 0 0 1 -0.693343,-0.400697 0.78162548,0.78162548 0 0 0 -0.05129,-0.676314 0.78162548,0.78162548 0 0 0 -0.56043,-0.382493 1.9659066,1.9659066 0 0 1 0,-0.800809 0.78162548,0.78162548 0 0 0 0.56043,-0.382688 0.78162548,0.78162548 0 0 0 0.05129,-0.676119 z m 1.598484,1.967669 a 0.58724681,0.58724681 0 1 0 -0.587247,-1.017112 0.58724681,0.58724681 0 0 0 0.587247,1.017112 z"
+         inkscape:connector-curvature="0" />
+    </g>
+    <path
+       style="fill:#ffffff;fill-opacity:1;stroke-width:0.26458332"
+       inkscape:connector-curvature="0"
+       d="m 15.602159,88.36716 a 0.54356719,0.54356719 0 0 1 1.025189,0 h 1.842079 v 0.362259 h -1.842079 a 0.54356719,0.54356719 0 0 1 -1.025189,0 H 14.846853 V 88.36716 Z m 1.086773,-1.267901 a 0.54356719,0.54356719 0 0 1 1.025188,0 h 0.755307 v 0.362258 H 17.71412 a 0.54356719,0.54356719 0 0 1 -1.025188,0 H 14.846853 V 87.099259 Z M 15.602159,85.83136 a 0.54356719,0.54356719 0 0 1 1.025189,0 h 1.842079 v 0.362258 h -1.842079 a 0.54356719,0.54356719 0 0 1 -1.025189,0 H 14.846853 V 85.83136 Z m 0.512595,0.362258 a 0.181129,0.181129 0 1 0 0,-0.362258 0.181129,0.181129 0 0 0 0,0.362258 z m 1.086772,1.267899 a 0.18112941,0.18112941 0 1 0 0,-0.362258 0.18112941,0.18112941 0 0 0 0,0.362258 z m -1.086772,1.267902 a 0.1811295,0.1811295 0 1 0 0,-0.362259 0.1811295,0.1811295 0 0 0 0,0.362259 z"
+       id="path1093" />
+    <path
+       style="fill:#ffffff;fill-opacity:1;stroke-width:0.26458332"
+       inkscape:connector-curvature="0"
+       d="m 18.024487,67.836441 h 0.341587 v 1.024761 h -1.02476 v -0.341587 h -1.366347 v 0.341587 h -1.024761 v -1.024761 h 0.341586 v -1.366346 h -0.341586 v -1.024761 h 1.024761 v 0.341587 h 1.366347 v -0.341587 h 1.02476 v 1.024761 h -0.341587 z m -0.341587,0 v -1.366346 h -0.341586 v -0.341587 h -1.366347 v 0.341587 H 15.63338 v 1.366346 h 0.341587 v 0.341587 h 1.366347 v -0.341587 z m -2.391108,-2.04952 v 0.341587 h 0.341588 v -0.341587 z m 0,2.391107 v 0.341587 H 15.63338 V 68.178028 Z M 17.6829,65.786921 v 0.341587 h 0.341587 v -0.341587 z m 0,2.391107 v 0.341587 h 0.341587 v -0.341587 z"
+       id="path1121" />
+    <path
+       style="fill:#ffffff;fill-opacity:1;stroke-width:0.26458332"
+       inkscape:connector-curvature="0"
+       d="m 18.04473,77.015265 0.206197,0.123682 a 0.085772,0.085772 0 0 1 0,0.147184 l -1.592787,0.955674 -1.592787,-0.955674 a 0.085772,0.085772 0 0 1 0,-0.147184 l 0.206198,-0.123682 1.386589,0.831987 z m 0,0.806257 0.206197,0.123681 a 0.085772,0.085772 0 0 1 0,0.147186 l -1.504442,0.902665 a 0.17154402,0.17154402 0 0 1 -0.176691,0 l -1.504441,-0.902665 a 0.085772,0.085772 0 0 1 0,-0.147186 l 0.206198,-0.123681 1.386589,0.831987 z m -1.298417,-2.382919 1.504614,0.902664 a 0.085772,0.085772 0 0 1 0,0.147185 l -1.592787,0.955672 -1.592787,-0.955672 a 0.085772,0.085772 0 0 1 0,-0.147185 l 1.504441,-0.902664 a 0.17154402,0.17154402 0 0 1 0.176691,0 z"
+       id="path1149" />
+    <g
+       id="g1201">
+      <text
+         id="text1179"
+         y="58.039497"
+         x="26.992439"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.5370698px;line-height:1.25;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';letter-spacing:0px;word-spacing:0px;fill:#ff4040;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';fill:#ff4040;fill-opacity:1;stroke-width:0.26458332"
+           y="58.039497"
+           x="26.992439"
+           id="tspan1177"
+           sodipodi:role="line">SETTINGS</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.5370698px;line-height:1.25;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';letter-spacing:0px;word-spacing:0px;fill:#ff4040;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+         x="26.992439"
+         y="67.941101"
+         id="text1183"><tspan
+           sodipodi:role="line"
+           id="tspan1181"
+           x="26.992439"
+           y="67.941101"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';fill:#ff4040;fill-opacity:1;stroke-width:0.26458332">LAYOUT EDITOR</tspan></text>
+      <text
+         id="text1187"
+         y="87.746803"
+         x="26.992439"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.5370698px;line-height:1.25;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';letter-spacing:0px;word-spacing:0px;fill:#ff4040;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';fill:#ff4040;fill-opacity:1;stroke-width:0.26458332"
+           y="87.746803"
+           x="26.992439"
+           id="tspan1185"
+           sodipodi:role="line">MODULES</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.5370698px;line-height:1.25;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';letter-spacing:0px;word-spacing:0px;fill:#ff4040;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+         x="26.992439"
+         y="77.843948"
+         id="text1191"><tspan
+           sodipodi:role="line"
+           id="tspan1189"
+           x="26.992439"
+           y="77.843948"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';fill:#ff4040;fill-opacity:1;stroke-width:0.26458332">EXPLORE</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.5370698px;line-height:1.25;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';letter-spacing:0px;word-spacing:0px;fill:#ff4040;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+         x="26.992439"
+         y="97.649673"
+         id="text1257"><tspan
+           sodipodi:role="line"
+           id="tspan1255"
+           x="26.992439"
+           y="97.649673"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';fill:#ff4040;fill-opacity:1;stroke-width:0.26458332">CREATE</tspan></text>
+    </g>
+    <rect
+       y="146.82216"
+       x="6.7363501"
+       height="89.222092"
+       width="120.76082"
+       id="rect1203"
+       style="opacity:1;fill:#000000;fill-opacity:0.01005025;stroke:#000000;stroke-width:0.1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.24120603;paint-order:normal" />
+    <rect
+       rx="0"
+       ry="5.9712129"
+       y="151.27043"
+       x="10.686927"
+       height="80.375717"
+       width="11.942426"
+       id="rect1205"
+       style="opacity:1;fill:#ff3d3d;fill-opacity:0.98431373;stroke:none;stroke-width:2.8746202;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:11.49848061, 5.7492403;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal" />
+    <g
+       style="stroke-width:1.83332598"
+       transform="matrix(0.54545671,0,0,0.54545671,-2.2667449,193.41129)"
+       id="g1211">
+      <path
+         d="m 39.080038,61.594728 -4.384554,2.531424 -4.384554,-2.531424 0,-5.062847 4.384554,-2.531423 4.384554,2.531423 z"
+         inkscape:randomized="0"
+         inkscape:rounded="-1.249e-16"
+         inkscape:flatsided="true"
+         sodipodi:arg2="1.0471976"
+         sodipodi:arg1="0.52359878"
+         sodipodi:r2="2.2512305"
+         sodipodi:r1="5.0628471"
+         sodipodi:cy="59.063305"
+         sodipodi:cx="34.695484"
+         sodipodi:sides="6"
+         id="path1207"
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.9789961;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
+         sodipodi:type="star"
+         inkscape:export-xdpi="436.70001"
+         inkscape:export-ydpi="436.70001" />
+      <path
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.59626818px;line-height:1.25;font-family:'Roboto Mono';-inkscape-font-specification:'Roboto Mono Bold';letter-spacing:0px;word-spacing:0px;fill:#ff3d3d;fill-opacity:0.98431373;stroke:none;stroke-width:0.63579154;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+         d="m 34.603303,55.620177 c -0.299757,0 -0.57706,0.0406 -0.8314,0.122347 -0.251311,0.07872 -0.467762,0.197074 -0.649433,0.354522 -0.184699,0.157437 -0.328963,0.35134 -0.431911,0.581457 -0.102941,0.227089 -0.153731,0.490858 -0.153731,0.790614 0,0.163503 0.0214,0.319102 0.06379,0.467469 0.04542,0.148359 0.108579,0.284762 0.190333,0.408902 0.0757,0.118091 0.16813,0.225214 0.277134,0.322103 0.112031,0.09689 0.236047,0.180303 0.3723,0.249943 -0.160476,0.07569 -0.305895,0.168136 -0.436093,0.277131 -0.127169,0.105972 -0.236495,0.225481 -0.327332,0.358707 -0.09083,0.136266 -0.161865,0.286183 -0.213341,0.449689 -0.04844,0.160471 -0.07216,0.33181 -0.07216,0.513481 0,0.31187 0.0553,0.585815 0.167327,0.821989 0.115061,0.236172 0.272857,0.433421 0.472696,0.590869 0.199838,0.160471 0.434335,0.281135 0.703814,0.362887 0.272507,0.08174 0.566701,0.122362 0.881599,0.122362 0.311869,0 0.602708,-0.04061 0.872186,-0.122362 0.269479,-0.08174 0.503976,-0.202405 0.703814,-0.362887 0.196811,-0.157438 0.351253,-0.354697 0.463284,-0.590869 0.115061,-0.236174 0.172555,-0.510119 0.172555,-0.821989 0,-0.236173 -0.04061,-0.454823 -0.122356,-0.654664 -0.08176,-0.199838 -0.19559,-0.374637 -0.340928,-0.526029 -0.07873,-0.08479 -0.167802,-0.160321 -0.267721,-0.226935 -0.09992,-0.06964 -0.205889,-0.132694 -0.317919,-0.187196 0.124142,-0.06358 0.235778,-0.136934 0.335697,-0.221706 0.102954,-0.08782 0.192024,-0.182443 0.267722,-0.282363 0.09689,-0.133233 0.17128,-0.277602 0.222752,-0.435048 0.0545,-0.160469 0.08158,-0.331811 0.08158,-0.513482 0,-0.299757 -0.05299,-0.563526 -0.15896,-0.790615 -0.102953,-0.23011 -0.246166,-0.424 -0.430866,-0.581448 -0.187727,-0.157449 -0.408689,-0.275799 -0.663029,-0.354524 -0.25434,-0.08176 -0.531643,-0.122361 -0.831401,-0.122361 z m -0.0052,1.021732 c 0.130198,0 0.246236,0.0214 0.346155,0.0638 0.102942,0.04238 0.189824,0.102084 0.262493,0.177791 0.06964,0.07871 0.124826,0.172322 0.164187,0.281317 0.03936,0.108989 0.05857,0.229657 0.05857,0.362887 0,0.133233 -0.0192,0.256089 -0.05857,0.368117 -0.03633,0.108989 -0.08931,0.202589 -0.158959,0.281318 -0.06964,0.07871 -0.154206,0.140711 -0.254126,0.186148 -0.09992,0.04238 -0.213757,0.0638 -0.340927,0.0638 -0.12717,0 -0.242162,-0.0214 -0.34511,-0.0638 -0.09992,-0.04542 -0.184486,-0.107432 -0.254126,-0.186148 -0.07267,-0.07872 -0.127855,-0.172322 -0.164189,-0.281318 -0.03633,-0.112031 -0.05438,-0.234892 -0.05438,-0.368117 0,-0.136264 0.01689,-0.259116 0.0502,-0.368116 0.03633,-0.112031 0.08931,-0.205622 0.158959,-0.281317 0.06661,-0.07569 0.150025,-0.133195 0.249944,-0.172545 0.09992,-0.04238 0.212711,-0.0638 0.339881,-0.0638 z m 0.0094,2.802711 c 0.145337,0 0.276066,0.02257 0.391125,0.06796 0.118091,0.04542 0.219544,0.110775 0.304323,0.195562 0.08174,0.08782 0.144915,0.19157 0.190333,0.312691 0.04542,0.121124 0.06797,0.25751 0.06797,0.408903 0,0.151391 -0.02372,0.287788 -0.07216,0.4089 -0.04541,0.118103 -0.109629,0.21955 -0.191379,0.304326 -0.08479,0.08479 -0.184038,0.150145 -0.299094,0.19556 -0.115061,0.04238 -0.242432,0.06379 -0.381713,0.06379 -0.14231,0 -0.270837,-0.02024 -0.385896,-0.05961 -0.11506,-0.04238 -0.214204,-0.102193 -0.295957,-0.180918 -0.0878,-0.08174 -0.155481,-0.185401 -0.203927,-0.309554 -0.04844,-0.124132 -0.07321,-0.265043 -0.07321,-0.422498 0,-0.151391 0.0236,-0.287789 0.06902,-0.408902 0.04542,-0.121125 0.108579,-0.224882 0.190333,-0.312691 0.08174,-0.08478 0.179854,-0.150145 0.294912,-0.195564 0.118091,-0.04541 0.249971,-0.06796 0.395309,-0.06796 z"
+         id="path1209"
+         inkscape:export-xdpi="436.70001"
+         inkscape:export-ydpi="436.70001"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccccscccccccscccscccscccccccccccccccccscccscccscccccccccscccscccsccccc" />
+    </g>
+    <g
+       transform="translate(-0.14616251,99.854423)"
+       id="g1217">
+      <circle
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.47499999;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.50196078;paint-order:normal"
+         id="circle1213"
+         cx="16.804302"
+         cy="57.339123"
+         r="3.7636976" />
+      <path
+         inkscape:connector-curvature="0"
+         d="m 15.49945,55.909219 a 1.9555319,1.9555319 0 0 1 0.693343,-0.400893 0.78162548,0.78162548 0 0 0 0.611518,0.294014 0.78162548,0.78162548 0 0 0 0.61152,-0.294014 1.9555319,1.9555319 0 0 1 0.693343,0.400893 0.78162548,0.78162548 0 0 0 0.05128,0.676117 0.78162548,0.78162548 0 0 0 0.56043,0.382689 1.9659066,1.9659066 0 0 1 0,0.800612 c -0.227071,0.03484 -0.43652,0.168345 -0.56043,0.38269 a 0.78162548,0.78162548 0 0 0 -0.05128,0.676313 1.9555319,1.9555319 0 0 1 -0.693343,0.400698 0.78162548,0.78162548 0 0 0 -0.61152,-0.293819 0.78162548,0.78162548 0 0 0 -0.611518,0.294015 1.9555319,1.9555319 0 0 1 -0.693343,-0.400697 0.78162548,0.78162548 0 0 0 -0.05129,-0.676314 0.78162548,0.78162548 0 0 0 -0.56043,-0.382493 1.9659066,1.9659066 0 0 1 0,-0.800809 0.78162548,0.78162548 0 0 0 0.56043,-0.382688 0.78162548,0.78162548 0 0 0 0.05129,-0.676119 z m 1.598484,1.967669 a 0.58724681,0.58724681 0 1 0 -0.587247,-1.017112 0.58724681,0.58724681 0 0 0 0.587247,1.017112 z"
+         id="path1215"
+         style="fill:#ff4040;fill-opacity:1;stroke-width:0.26458332" />
+    </g>
+    <path
+       id="path1219"
+       d="m 15.602159,188.07755 a 0.54356719,0.54356719 0 0 1 1.025189,0 h 1.842079 v 0.36226 h -1.842079 a 0.54356719,0.54356719 0 0 1 -1.025189,0 h -0.755306 v -0.36226 z m 1.086773,-1.2679 a 0.54356719,0.54356719 0 0 1 1.025188,0 h 0.755307 v 0.36226 H 17.71412 a 0.54356719,0.54356719 0 0 1 -1.025188,0 h -1.842079 v -0.36226 z m -1.086773,-1.2679 a 0.54356719,0.54356719 0 0 1 1.025189,0 h 1.842079 v 0.36226 h -1.842079 a 0.54356719,0.54356719 0 0 1 -1.025189,0 h -0.755306 v -0.36226 z m 0.512595,0.36226 a 0.181129,0.181129 0 1 0 0,-0.36226 0.181129,0.181129 0 0 0 0,0.36226 z m 1.086772,1.2679 a 0.18112941,0.18112941 0 1 0 0,-0.36226 0.18112941,0.18112941 0 0 0 0,0.36226 z m -1.086772,1.2679 a 0.1811295,0.1811295 0 1 0 0,-0.36226 0.1811295,0.1811295 0 0 0 0,0.36226 z"
+       inkscape:connector-curvature="0"
+       style="fill:#ffffff;fill-opacity:1;stroke-width:0.26458332" />
+    <path
+       id="path1221"
+       d="m 18.024487,168.10427 h 0.341587 v 1.02477 h -1.02476 v -0.34159 h -1.366347 v 0.34159 h -1.024761 v -1.02477 h 0.341586 v -1.36634 h -0.341586 v -1.02476 h 1.024761 v 0.34158 h 1.366347 v -0.34158 h 1.02476 v 1.02476 h -0.341587 z m -0.341587,0 v -1.36634 h -0.341586 v -0.34159 h -1.366347 v 0.34159 H 15.63338 v 1.36634 h 0.341587 v 0.34159 h 1.366347 v -0.34159 z m -2.391108,-2.04952 v 0.34159 h 0.341588 v -0.34159 z m 0,2.39111 v 0.34159 h 0.341588 v -0.34159 z m 2.391108,-2.39111 v 0.34159 h 0.341587 v -0.34159 z m 0,2.39111 v 0.34159 h 0.341587 v -0.34159 z"
+       inkscape:connector-curvature="0"
+       style="fill:#ffffff;fill-opacity:1;stroke-width:0.26458332" />
+    <path
+       id="path1223"
+       d="m 18.04473,177.00437 0.206197,0.12368 a 0.085772,0.085772 0 0 1 0,0.14718 l -1.592787,0.95568 -1.592787,-0.95568 a 0.085772,0.085772 0 0 1 0,-0.14718 l 0.206198,-0.12368 1.386589,0.83199 z m 0,0.80626 0.206197,0.12368 a 0.085772,0.085772 0 0 1 0,0.14718 l -1.504442,0.90267 a 0.17154402,0.17154402 0 0 1 -0.176691,0 l -1.504441,-0.90267 a 0.085772,0.085772 0 0 1 0,-0.14718 l 0.206198,-0.12368 1.386589,0.83198 z m -1.298417,-2.38292 1.504614,0.90266 a 0.085772,0.085772 0 0 1 0,0.14719 l -1.592787,0.95567 -1.592787,-0.95567 a 0.085772,0.085772 0 0 1 0,-0.14719 l 1.504441,-0.90266 a 0.17154402,0.17154402 0 0 1 0.176691,0 z"
+       inkscape:connector-curvature="0"
+       style="fill:#ffffff;fill-opacity:1;stroke-width:0.26458332" />
+    <path
+       style="fill:#ffffff;fill-opacity:0.98431373;stroke-width:0.26458332"
+       inkscape:connector-curvature="0"
+       d="m 18.892215,97.343944 -1.05318,1.053179 -0.263248,-0.263247 0.789931,-0.789932 -0.789931,-0.789933 0.263248,-0.263247 z m -3.941655,0 0.789933,0.789932 -0.263249,0.263247 -1.05318,-1.053179 1.05318,-1.05318 0.263062,0.263247 z m 1.295765,1.675557 h -0.396177 l 1.219805,-3.351115 h 0.396177 z"
+       id="path1292" />
+    <text
+       id="text1798"
+       y="189.36223"
+       x="27.992666"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.50511432px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto;letter-spacing:0px;word-spacing:0px;fill:#303030;fill-opacity:0.69019608;stroke:none;stroke-width:0.26458335"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:Roboto;fill:#303030;fill-opacity:0.69019608;stroke-width:0.26458335"
+         y="191.5542"
+         x="27.992666"
+         id="tspan1796"
+         sodipodi:role="line" /></text>
+    <g
+       style="stroke-width:1.45383203"
+       transform="matrix(0.68783738,0,0,0.68783738,9.8446202,160.50526)"
+       id="g2736">
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.86798286px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.38465974"
+         x="29.182478"
+         y="363.97336"
+         id="text2728"><tspan
+           sodipodi:role="line"
+           id="tspan2726"
+           x="29.182478"
+           y="363.97336"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';stroke-width:0.38465974">Disable mouse events</tspan></text>
+      <text
+         id="text2734"
+         y="368.56113"
+         x="29.329971"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.63043213px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:0.56470588;stroke:none;stroke-width:0.38465971"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:Roboto;fill:#000000;fill-opacity:0.56470588;stroke-width:0.38465971"
+           y="368.56113"
+           x="29.329971"
+           sodipodi:role="line"
+           id="tspan2730">Disable to make the Windows taskbar invisible while Octos is running.</tspan><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:Roboto;fill:#000000;fill-opacity:0.56470588;stroke-width:0.38465971"
+           y="371.84918"
+           x="29.329971"
+           sodipodi:role="line"
+           id="tspan2732">Enable to prevent modules from hiding the native taskbar.</tspan></text>
+    </g>
+    <text
+       id="text2752"
+       y="391.24362"
+       x="28.935223"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.53708982px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';letter-spacing:0px;word-spacing:0px;fill:#ff4040;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';fill:#ff4040;fill-opacity:1;stroke-width:0.26458332"
+         y="391.24362"
+         x="28.935223"
+         id="tspan2750"
+         sodipodi:role="line">Privacy</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.03766537px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:0.56470588;stroke:none;stroke-width:0.26458332"
+       x="29.232855"
+       y="395.26022"
+       id="text2756"><tspan
+         sodipodi:role="line"
+         id="tspan2754"
+         x="29.232855"
+         y="395.26022"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:Roboto;fill:#000000;fill-opacity:0.56470588;stroke-width:0.26458332">Change how Octos handles events and system interaction.</tspan></text>
+    <path
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0"
+       id="path2758"
+       d="M 29.662273,404.44543 H 144.42771"
+       style="fill:none;stroke:#000000;stroke-width:0.16500001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.21608043" />
+    <path
+       sodipodi:nodetypes="cc"
+       style="fill:none;stroke:#000000;stroke-width:0.16500001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.21608043"
+       d="M 29.662273,421.67063 H 145.15853"
+       id="path2760"
+       inkscape:connector-curvature="0" />
+    <g
+       style="stroke-width:1.61468351"
+       transform="matrix(0.61931644,0,0,0.61931644,51.134251,199.65781)"
+       id="g2766">
+      <rect
+         style="opacity:1;fill:#ff4040;fill-opacity:1;stroke:none;stroke-width:0.64587337;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.21608043;paint-order:normal"
+         id="rect2762"
+         width="11.920142"
+         height="6.3760986"
+         x="130.50833"
+         y="341.1217"
+         ry="3.1880422" />
+      <circle
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.64587343;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.21608043;paint-order:normal"
+         id="circle2764"
+         cx="139.1649"
+         cy="344.24719"
+         r="2.6309345" />
+    </g>
+    <g
+       id="g2778"
+       transform="matrix(0.68783738,0,0,0.68783738,9.8446202,177.46017)"
+       style="stroke-width:1.45383203">
+      <text
+         id="text2770"
+         y="363.59143"
+         x="29.242922"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.55912209px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.38465971"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';stroke-width:0.38465971"
+           y="363.59143"
+           x="29.242922"
+           id="tspan2768"
+           sodipodi:role="line">Disable keyboard events</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.63043213px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:0.56470588;stroke:none;stroke-width:0.38465971"
+         x="29.329971"
+         y="367.92365"
+         id="text2776"><tspan
+           id="tspan2772"
+           sodipodi:role="line"
+           x="29.329971"
+           y="367.92365"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:Roboto;fill:#000000;fill-opacity:0.56470588;stroke-width:0.38465971">Some modules include custom taskbars. Enable to turn off all</tspan><tspan
+           id="tspan2774"
+           sodipodi:role="line"
+           x="29.329971"
+           y="371.21167"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:Roboto;fill:#000000;fill-opacity:0.56470588;stroke-width:0.38465971">custom taskbars.</tspan></text>
+    </g>
+    <path
+       inkscape:connector-curvature="0"
+       id="path2780"
+       d="M 29.662273,438.91787 H 145.15853"
+       style="fill:none;stroke:#000000;stroke-width:0.16500001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.21608043"
+       sodipodi:nodetypes="cc" />
+    <g
+       id="g2786"
+       transform="matrix(0.6381578,0,0,0.6381578,48.563002,210.06188)"
+       style="stroke-width:1.56701064">
+      <rect
+         ry="3.1880422"
+         y="341.1217"
+         x="130.50833"
+         height="6.3760986"
+         width="11.920142"
+         id="rect2782"
+         style="opacity:1;fill:#ff4040;fill-opacity:1;stroke:none;stroke-width:0.62680423;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.21608043;paint-order:normal" />
+      <circle
+         r="2.6309345"
+         cy="344.24719"
+         cx="139.1649"
+         id="circle2784"
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.62680423;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.21608043;paint-order:normal" />
+    </g>
+    <g
+       style="stroke-width:1.45383203"
+       transform="matrix(0.68783738,0,0,0.68783738,9.8446202,196.02287)"
+       id="g2808">
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.55912209px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.38465971"
+         x="29.242922"
+         y="363.59143"
+         id="text2800"><tspan
+           sodipodi:role="line"
+           id="tspan2798"
+           x="29.242922"
+           y="363.59143"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';stroke-width:0.38465971">Disable media events</tspan></text>
+      <text
+         id="text2806"
+         y="367.92365"
+         x="29.329971"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.63043213px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:0.56470588;stroke:none;stroke-width:0.38465971"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:Roboto;fill:#000000;fill-opacity:0.56470588;stroke-width:0.38465971"
+           y="367.92365"
+           x="29.329971"
+           sodipodi:role="line"
+           id="tspan2802">Some modules include custom taskbars. Enable to turn off all</tspan><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:Roboto;fill:#000000;fill-opacity:0.56470588;stroke-width:0.38465971"
+           y="371.21167"
+           x="29.329971"
+           sodipodi:role="line"
+           id="tspan2804">custom taskbars.</tspan></text>
+    </g>
+    <g
+       style="stroke-width:1.56701064"
+       transform="matrix(0.6381578,0,0,0.6381578,48.563002,228.62458)"
+       id="g2816">
+      <rect
+         style="opacity:1;fill:#ff4040;fill-opacity:1;stroke:none;stroke-width:0.62680423;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.21608043;paint-order:normal"
+         id="rect2812"
+         width="11.920142"
+         height="6.3760986"
+         x="130.50833"
+         y="341.1217"
+         ry="3.1880422" />
+      <circle
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.62680423;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.21608043;paint-order:normal"
+         id="circle2814"
+         cx="139.1649"
+         cy="344.24719"
+         r="2.6309345" />
+    </g>
+    <g
+       id="g8615"
+       style="stroke-width:0.47978491;stroke-miterlimit:4;stroke-dasharray:none"
+       transform="matrix(0.8343844,0,0,0.83302999,26.791495,63.988492)">
+      <g
+         id="g8633">
+        <path
+           style="fill:none;fill-opacity:1;stroke:#ff4040;stroke-width:0.47978491;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+           d="m 134.91746,387.1008 3.9e-4,-2.64996 -0.27452,-0.028 c -0.15098,-0.0154 -0.42747,-0.0415 -0.61441,-0.058 -2.008,-0.1774 -4.11909,-0.91998 -5.27024,-1.8538 l -0.32882,-0.26674 -0.36522,0.28576 c -1.30956,1.02466 -3.16631,1.62839 -5.81682,1.89135 l -0.30344,0.0301 0.0175,2.96335 0.0175,2.96336 0.14116,0.50672 c 0.49475,1.77597 1.7111,3.32655 3.47026,4.42379 0.86167,0.53745 2.46764,1.25495 2.82742,1.26322 0.0633,10e-4 0.34565,-0.0801 0.62748,-0.18132 l -9e-5,2e-5 c 2.35586,-0.84575 4.3082,-2.44546 5.23181,-4.28684 0.0866,-0.17256 0.2307,-0.53728 0.32032,-0.8105 m 0.28355,-1.55236 c 0.009,-0.16123 0.0155,-0.34179 0.0206,-0.54788 m -4.28451,1.31748 v -1.65532 h -2.18361 -2.18362 v 1.65532 1.65531 h 2.18362 2.18361 z m -1.12702,-2.366 c 0,-0.81095 -0.12232,-1.13537 -0.51591,-1.36783 -0.29307,-0.17313 -0.80076,-0.16949 -1.10971,0.008 -0.39506,0.2269 -0.55799,0.64094 -0.55799,1.41803 v 0.65424 h 1.0918 1.09181 z"
+           id="path8606"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="cccsccccccscccccscccscccccccsscscccss" />
+        <path
+           style="opacity:1;fill:none;fill-opacity:1;stroke:#ff4040;stroke-width:0.47978491;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+           d="m 131.40429,396.67726 v 1.6278 c 0,0.8016 -0.64533,1.44694 -1.44694,1.44694 h -7.79004 m -9.97131,0 h -3.32263 c -0.8016,0 -1.44694,-0.64534 -1.44694,-1.44694 v -10.28362 c 0,-0.8016 0.64534,-1.44694 1.44694,-1.44694 h 11.91142"
+           id="rect8608"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="cssccssssc" />
+        <ellipse
+           ry="4.2987576"
+           rx="4.29178"
+           cy="393.12915"
+           cx="114.55571"
+           id="path8619"
+           style="opacity:1;fill:none;fill-opacity:1;stroke:#ff4040;stroke-width:0.47978491;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal" />
+        <ellipse
+           ry="1.4853508"
+           rx="1.4828947"
+           cy="391.6525"
+           cx="114.67241"
+           id="path8621"
+           style="opacity:1;fill:none;fill-opacity:1;stroke:#ff4040;stroke-width:0.47978491;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal" />
+        <path
+           id="path8623"
+           transform="matrix(0.31710005,0,0,0.31761562,-32.109295,-78.896865)"
+           d="m 462.83008,1489.6758 a 9.1495751,9.1495755 0 0 0 -8.86914,6.9512 13.534467,13.534465 0 0 0 8.55859,3.0625 13.534467,13.534465 0 0 0 9.0625,-3.504 9.1495751,9.1495755 0 0 0 -8.75195,-6.5097 z"
+           style="opacity:1;fill:none;fill-opacity:1;stroke:#ff4040;stroke-width:1.51181102;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+           inkscape:connector-curvature="0" />
+      </g>
+    </g>
+    <g
+       id="g8661"
+       transform="matrix(0.68783738,0,0,0.68783738,9.8446202,241.12049)"
+       style="stroke-width:1.45383203">
+      <text
+         id="text8653"
+         y="363.97336"
+         x="29.182478"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.86798286px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.38465974"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';stroke-width:0.38465974"
+           y="363.97336"
+           x="29.182478"
+           id="tspan8651"
+           sodipodi:role="line">Disable mouse events</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.63043213px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:0.56470588;stroke:none;stroke-width:0.38465971"
+         x="29.329971"
+         y="368.56113"
+         id="text8659"><tspan
+           id="tspan8655"
+           sodipodi:role="line"
+           x="29.329971"
+           y="368.56113"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:Roboto;fill:#000000;fill-opacity:0.56470588;stroke-width:0.38465971">Disable to make the Windows taskbar invisible while Octos is running.</tspan><tspan
+           id="tspan8657"
+           sodipodi:role="line"
+           x="29.329971"
+           y="371.84918"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:Roboto;fill:#000000;fill-opacity:0.56470588;stroke-width:0.38465971">Enable to prevent modules from hiding the native taskbar.</tspan></text>
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:5.53708982px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';letter-spacing:0px;word-spacing:0px;fill:#ff4040;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="28.935223"
+       y="471.85886"
+       id="text8665"><tspan
+         sodipodi:role="line"
+         id="tspan8663"
+         x="28.935223"
+         y="471.85886"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';fill:#ff4040;fill-opacity:1;stroke-width:0.26458332">Personalization</tspan></text>
+    <text
+       id="text8669"
+       y="475.87546"
+       x="29.232855"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.03766537px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:0.56470588;stroke:none;stroke-width:0.26458332"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:Roboto;fill:#000000;fill-opacity:0.56470588;stroke-width:0.26458332"
+         y="475.87546"
+         x="29.232855"
+         id="tspan8667"
+         sodipodi:role="line">Change how Octos handles events and system interaction.</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.16500001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.21608043"
+       d="M 29.662273,485.06066 H 144.42771"
+       id="path8671"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path8673"
+       d="M 29.662273,502.28586 H 145.15853"
+       style="fill:none;stroke:#000000;stroke-width:0.16500001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.21608043"
+       sodipodi:nodetypes="cc" />
+    <g
+       id="g8679"
+       transform="matrix(0.61931644,0,0,0.61931644,51.134251,280.27304)"
+       style="stroke-width:1.61468351">
+      <rect
+         ry="3.1880422"
+         y="341.1217"
+         x="130.50833"
+         height="6.3760986"
+         width="11.920142"
+         id="rect8675"
+         style="opacity:1;fill:#ff4040;fill-opacity:1;stroke:none;stroke-width:0.64587337;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.21608043;paint-order:normal" />
+      <circle
+         r="2.6309345"
+         cy="344.24719"
+         cx="139.1649"
+         id="circle8677"
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.64587343;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.21608043;paint-order:normal" />
+    </g>
+    <g
+       style="stroke-width:1.45383203"
+       transform="matrix(0.68783738,0,0,0.68783738,9.8446202,258.0754)"
+       id="g8691">
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.55912209px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.38465971"
+         x="29.242922"
+         y="363.59143"
+         id="text8683"><tspan
+           sodipodi:role="line"
+           id="tspan8681"
+           x="29.242922"
+           y="363.59143"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';stroke-width:0.38465971">Disable keyboard events</tspan></text>
+      <text
+         id="text8689"
+         y="367.92365"
+         x="29.329971"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.63043213px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:0.56470588;stroke:none;stroke-width:0.38465971"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:Roboto;fill:#000000;fill-opacity:0.56470588;stroke-width:0.38465971"
+           y="367.92365"
+           x="29.329971"
+           sodipodi:role="line"
+           id="tspan8685">Some modules include custom taskbars. Enable to turn off all</tspan><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:Roboto;fill:#000000;fill-opacity:0.56470588;stroke-width:0.38465971"
+           y="371.21167"
+           x="29.329971"
+           sodipodi:role="line"
+           id="tspan8687">custom taskbars.</tspan></text>
+    </g>
+    <path
+       sodipodi:nodetypes="cc"
+       style="fill:none;stroke:#000000;stroke-width:0.16500001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.21608043"
+       d="M 29.662273,519.5331 H 145.15853"
+       id="path8693"
+       inkscape:connector-curvature="0" />
+    <g
+       style="stroke-width:1.56701064"
+       transform="matrix(0.6381578,0,0,0.6381578,48.563002,290.67711)"
+       id="g8699">
+      <rect
+         style="opacity:1;fill:#ff4040;fill-opacity:1;stroke:none;stroke-width:0.62680423;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.21608043;paint-order:normal"
+         id="rect8695"
+         width="11.920142"
+         height="6.3760986"
+         x="130.50833"
+         y="341.1217"
+         ry="3.1880422" />
+      <circle
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.62680423;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.21608043;paint-order:normal"
+         id="circle8697"
+         cx="139.1649"
+         cy="344.24719"
+         r="2.6309345" />
+    </g>
+    <g
+       id="g8711"
+       transform="matrix(0.68783738,0,0,0.68783738,9.8446202,276.6381)"
+       style="stroke-width:1.45383203">
+      <text
+         id="text8703"
+         y="363.59143"
+         x="29.242922"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.55912209px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.38465971"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';stroke-width:0.38465971"
+           y="363.59143"
+           x="29.242922"
+           id="tspan8701"
+           sodipodi:role="line">Disable media events</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.63043213px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:0.56470588;stroke:none;stroke-width:0.38465971"
+         x="29.329971"
+         y="367.92365"
+         id="text8709"><tspan
+           id="tspan8705"
+           sodipodi:role="line"
+           x="29.329971"
+           y="367.92365"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:Roboto;fill:#000000;fill-opacity:0.56470588;stroke-width:0.38465971">Some modules include custom taskbars. Enable to turn off all</tspan><tspan
+           id="tspan8707"
+           sodipodi:role="line"
+           x="29.329971"
+           y="371.21167"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:Roboto;fill:#000000;fill-opacity:0.56470588;stroke-width:0.38465971">custom taskbars.</tspan></text>
+    </g>
+    <g
+       id="g8717"
+       transform="matrix(0.6381578,0,0,0.6381578,48.563002,309.23981)"
+       style="stroke-width:1.56701064">
+      <rect
+         ry="3.1880422"
+         y="341.1217"
+         x="130.50833"
+         height="6.3760986"
+         width="11.920142"
+         id="rect8713"
+         style="opacity:1;fill:#ff4040;fill-opacity:1;stroke:none;stroke-width:0.62680423;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.21608043;paint-order:normal" />
+      <circle
+         r="2.6309345"
+         cy="344.24719"
+         cx="139.1649"
+         id="circle8715"
+         style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.62680423;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.21608043;paint-order:normal" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.90912533px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="68.026894"
+       y="307.74557"
+       id="text8781"><tspan
+         sodipodi:role="line"
+         id="tspan8779"
+         x="68.026894"
+         y="310.29105"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:Roboto;fill:#000000;fill-opacity:1;stroke-width:0.26458332" /></text>
+    <g
+       id="g9352"
+       transform="translate(0,0.14794521)">
+      <g
+         style="stroke-width:1.84812963"
+         transform="matrix(0.5410876,0,0,0.5410876,14.158391,-4.376156)"
+         id="g2672">
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.86798286px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.48898432"
+           x="29.182478"
+           y="363.97336"
+           id="text2598"><tspan
+             sodipodi:role="line"
+             id="tspan2596"
+             x="29.182478"
+             y="363.97336"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';stroke-width:0.48898432">Alway<tspan
+   style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold'"
+   id="tspan9278">s show n</tspan>ative taskbar</tspan></text>
+        <text
+           id="text2602"
+           y="368.56113"
+           x="29.329971"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.63043213px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:0.56470588;stroke:none;stroke-width:0.48898426"
+           xml:space="preserve"><tspan
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:Roboto;fill:#000000;fill-opacity:0.56470588;stroke-width:0.48898426"
+             y="368.56113"
+             x="29.329971"
+             sodipodi:role="line"
+             id="tspan2646">Disable to make the Windows taskbar invisible while Octos is running.</tspan><tspan
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:Roboto;fill:#000000;fill-opacity:0.56470588;stroke-width:0.48898426"
+             y="371.84918"
+             x="29.329971"
+             sodipodi:role="line"
+             id="tspan2650">Enable to prevent modules from hiding the native taskbar.</tspan></text>
+      </g>
+      <g
+         style="fill:none;stroke:#ff4040;stroke-width:1.61938548;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         transform="matrix(0.2510572,0,0,0.24302266,76.679985,97.369845)"
+         id="g2663">
+        <path
+           style="opacity:1;fill:none;fill-opacity:1;stroke:#ff4040;stroke-width:1.61938548;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+           d="m 63.946323,315.63164 h 2.509569 m 29.248861,0 h 1.550293 m 28.835454,0 h 1.75699 m 29.0885,0.11282 c 2.86301,0.55145 5.01262,3.05963 5.01262,6.08835 v 14.78777 c 0,3.43545 -2.76573,6.20117 -6.20118,6.20117 h -11.90015 m -3.65408,0 h -7.8928 m -65.224391,0 h -31.49607 c -3.435449,0 -6.201172,-2.76572 -6.201172,-6.20117 v -14.78777 c 0,-2.7676 1.794936,-5.10056 4.288958,-5.90301"
+           id="rect2604"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="cccccccsssccccsssc" />
+        <path
+           inkscape:connector-curvature="0"
+           style="opacity:1;fill:none;fill-opacity:1;stroke:#ff4040;stroke-width:1.61938548;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+           d="m 41.961262,304.75146 h 13.435871 c 3.435449,0 6.201172,2.76573 6.201172,6.20118 v 13.43587 c 0,3.43545 -2.765723,6.20117 -6.201172,6.20117 H 41.961262 c -3.435449,0 -6.201172,-2.76572 -6.201172,-6.20117 v -13.43587 c 0,-3.43545 2.765723,-6.20118 6.201172,-6.20118 z"
+           id="rect2606" />
+        <rect
+           ry="6.2011719"
+           y="311.3288"
+           x="68.062119"
+           height="25.838215"
+           width="25.838215"
+           id="rect2608"
+           style="opacity:1;fill:none;fill-opacity:1;stroke:#ff4040;stroke-width:1.61938548;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal" />
+        <rect
+           style="opacity:1;fill:none;fill-opacity:1;stroke:#ff4040;stroke-width:1.61938548;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+           id="rect2610"
+           width="25.838215"
+           height="25.838215"
+           x="98.902519"
+           y="311.3288"
+           ry="6.2011719" />
+        <rect
+           ry="6.2011719"
+           y="311.3288"
+           x="129.45059"
+           height="25.838215"
+           width="25.838215"
+           id="rect2612"
+           style="opacity:1;fill:none;fill-opacity:1;stroke:#ff4040;stroke-width:1.61938548;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal" />
+      </g>
+      <text
+         id="text2621"
+         y="177.13428"
+         x="29.176023"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:4.35575438px;line-height:1.25;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';letter-spacing:0px;word-spacing:0px;fill:#ff4040;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';fill:#ff4040;fill-opacity:1;stroke-width:0.26458332"
+           y="177.13428"
+           x="29.176023"
+           id="tspan2619"
+           sodipodi:role="line">Taskbar</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.60293043px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:0.56470588;stroke:none;stroke-width:0.26458332"
+         x="29.410156"
+         y="179.71906"
+         id="text2678"><tspan
+           sodipodi:role="line"
+           id="tspan2676"
+           x="29.410156"
+           y="179.71906"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:Roboto;fill:#000000;fill-opacity:0.56470588;stroke-width:0.26458332">Change how Octos handles native and custom taskbars.</tspan></text>
+      <path
+         sodipodi:nodetypes="cc"
+         inkscape:connector-curvature="0"
+         id="path2680"
+         d="M 29.747957,187.51949 H 120.02824"
+         style="fill:none;stroke:#000000;stroke-width:0.16500001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.21608043" />
+      <path
+         sodipodi:nodetypes="cc"
+         style="fill:none;stroke:#000000;stroke-width:0.16500001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.21608043"
+         d="M 29.747957,201.0697 H 120.60314"
+         id="path2682"
+         inkscape:connector-curvature="0" />
+      <g
+         style="stroke-width:2.05260611"
+         transform="matrix(0.48718557,0,0,0.48718557,46.638899,26.423214)"
+         id="g2692">
+        <rect
+           style="opacity:1;fill:#ff4040;fill-opacity:1;stroke:none;stroke-width:0.82104236;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.21608043;paint-order:normal"
+           id="rect2684"
+           width="11.920142"
+           height="6.3760986"
+           x="130.50833"
+           y="341.1217"
+           ry="3.1880422" />
+        <circle
+           style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.82104242;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.21608043;paint-order:normal"
+           id="path2688"
+           cx="139.1649"
+           cy="344.24719"
+           r="2.6309345" />
+      </g>
+      <g
+         id="g2704"
+         transform="matrix(0.5410876,0,0,0.5410876,14.158391,8.961424)"
+         style="stroke-width:1.84812963">
+        <text
+           id="text2696"
+           y="363.59143"
+           x="29.242922"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.55912209px;line-height:1.25;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.48898426"
+           xml:space="preserve"><tspan
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';stroke-width:0.48898426"
+             y="363.59143"
+             x="29.242922"
+             id="tspan2694"
+             sodipodi:role="line">Disable custom taskbars</tspan></text>
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.63043213px;line-height:1.25;font-family:Roboto;-inkscape-font-specification:Roboto;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:0.56470588;stroke:none;stroke-width:0.48898426"
+           x="29.329971"
+           y="367.92365"
+           id="text2702"><tspan
+             id="tspan2720"
+             sodipodi:role="line"
+             x="29.329971"
+             y="367.92365"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:Roboto;fill:#000000;fill-opacity:0.56470588;stroke-width:0.48898426">Some modules include custom taskbars. Enable to turn off all</tspan><tspan
+             id="tspan2724"
+             sodipodi:role="line"
+             x="29.329971"
+             y="371.21167"
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:Roboto;fill:#000000;fill-opacity:0.56470588;stroke-width:0.48898426">custom taskbars.</tspan></text>
+      </g>
+      <g
+         id="g2712"
+         transform="matrix(0.50200714,0,0,0.50200714,44.616224,34.607574)"
+         style="stroke-width:1.99200368">
+        <rect
+           ry="3.1880422"
+           y="341.1217"
+           x="130.50833"
+           height="6.3760986"
+           width="11.920142"
+           id="rect2708"
+           style="opacity:1;fill:#ff4040;fill-opacity:1;stroke:none;stroke-width:0.79680145;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.21608043;paint-order:normal" />
+        <circle
+           r="2.6309345"
+           cy="344.24719"
+           cx="139.1649"
+           id="circle2710"
+           style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.79680145;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.21608043;paint-order:normal" />
+      </g>
+    </g>
+    <text
+       id="text9282"
+       y="157.51193"
+       x="29.19059"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.38465357px;line-height:1.25;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:0.56862748;stroke:none;stroke-width:0.26458332;"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';fill:#000000;fill-opacity:0.56862748;stroke-width:0.26458332;"
+         y="157.51193"
+         x="29.19059"
+         id="tspan9280"
+         sodipodi:role="line">SETTINGS</tspan></text>
+    <path
+       inkscape:connector-curvature="0"
+       d="m 115.01957,155.59299 a 1.4122566,1.4122566 0 0 1 0.50073,-0.28952 0.56447853,0.56447853 0 0 0 0.44163,0.21233 0.56447853,0.56447853 0 0 0 0.44163,-0.21233 1.4122566,1.4122566 0 0 1 0.50072,0.28952 0.56447853,0.56447853 0 0 0 0.037,0.48829 0.56447853,0.56447853 0 0 0 0.40474,0.27637 1.4197491,1.4197491 0 0 1 0,0.57819 c -0.16399,0.0251 -0.31525,0.12158 -0.40474,0.27637 a 0.56447853,0.56447853 0 0 0 -0.037,0.48842 1.4122566,1.4122566 0 0 1 -0.50072,0.28938 0.56447853,0.56447853 0 0 0 -0.44163,-0.21219 0.56447853,0.56447853 0 0 0 -0.44163,0.21234 1.4122566,1.4122566 0 0 1 -0.50073,-0.28938 0.56447853,0.56447853 0 0 0 -0.0371,-0.48842 0.56447853,0.56447853 0 0 0 -0.40473,-0.27624 1.4197491,1.4197491 0 0 1 0,-0.57833 0.56447853,0.56447853 0 0 0 0.40473,-0.27637 0.56447853,0.56447853 0 0 0 0.0371,-0.48828 z m 1.1544,1.42102 a 0.42410108,0.42410108 0 1 0 -0.4241,-0.73454 0.42410108,0.42410108 0 0 0 0.4241,0.73454 z"
+       id="path1215-3"
+       style="fill:#000000;fill-opacity:0.57254905;stroke-width:0.26458332" />
+    <rect
+       style="opacity:1;fill:#ff4040;fill-opacity:1;stroke:none;stroke-width:0.26499999;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.57254902;paint-order:normal"
+       id="rect9386"
+       width="10.039755"
+       height="2.9972382"
+       x="29.300537"
+       y="161.86613"
+       ry="2.3549423e-14" />
+    <rect
+       y="161.86613"
+       x="39.340294"
+       height="2.9972382"
+       width="9.9186459"
+       id="rect9388"
+       style="opacity:1;fill:#000000;fill-opacity:0.0627451;stroke:none;stroke-width:0.26499999;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.57254902;paint-order:normal"
+       ry="0" />
+    <text
+       id="text2621-6"
+       y="163.76802"
+       x="31.405043"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:1.24414062px;line-height:1.25;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';fill:#ffffff;fill-opacity:1;stroke-width:0.26458332"
+         y="163.76802"
+         x="31.405043"
+         id="tspan2619-5"
+         sodipodi:role="line">TASKBAR</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:1.40735471px;line-height:1.25;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:0.57254902;stroke:none;stroke-width:0.26458332"
+       x="41.376087"
+       y="163.86861"
+       id="text9418"><tspan
+         sodipodi:role="line"
+         id="tspan9416"
+         x="41.376087"
+         y="163.86861"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';fill:#000000;fill-opacity:0.57254902;stroke-width:0.26458332">PRIVACY</tspan></text>
+    <rect
+       ry="0"
+       style="opacity:1;fill:#000000;fill-opacity:0.0627451;stroke:none;stroke-width:0.26499999;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.57254902;paint-order:normal"
+       id="rect9420"
+       width="9.9186459"
+       height="2.9972382"
+       x="49.258938"
+       y="161.86613" />
+    <text
+       id="text9424"
+       y="163.86861"
+       x="51.294735"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:1.40735471px;line-height:1.25;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:0.57254902;stroke:none;stroke-width:0.26458332"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';fill:#000000;fill-opacity:0.57254902;stroke-width:0.26458332"
+         y="163.86861"
+         x="51.294735"
+         id="tspan9422"
+         sodipodi:role="line">PRIVACY</tspan></text>
+    <rect
+       y="161.86613"
+       x="59.177586"
+       height="2.9972382"
+       width="9.9186459"
+       id="rect9426"
+       style="opacity:1;fill:#000000;fill-opacity:0.0627451;stroke:none;stroke-width:0.26499999;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.57254902;paint-order:normal"
+       ry="0" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:1.40735471px;line-height:1.25;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:0.57254902;stroke:none;stroke-width:0.26458332"
+       x="61.213379"
+       y="163.86861"
+       id="text9430"><tspan
+         sodipodi:role="line"
+         id="tspan9428"
+         x="61.213379"
+         y="163.86861"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';fill:#000000;fill-opacity:0.57254902;stroke-width:0.26458332">PRIVACY</tspan></text>
+    <rect
+       ry="0"
+       style="opacity:1;fill:#000000;fill-opacity:0.0627451;stroke:none;stroke-width:0.26499999;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.57254902;paint-order:normal"
+       id="rect9432"
+       width="9.9186459"
+       height="2.9972382"
+       x="69.09623"
+       y="161.86613" />
+    <text
+       id="text9436"
+       y="163.86861"
+       x="71.132027"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:1.40735471px;line-height:1.25;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:0.57254902;stroke:none;stroke-width:0.26458332"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';fill:#000000;fill-opacity:0.57254902;stroke-width:0.26458332"
+         y="163.86861"
+         x="71.132027"
+         id="tspan9434"
+         sodipodi:role="line">PRIVACY</tspan></text>
   </g>
 </svg>
