@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@nodert-win10-21h1/windows.media.control": "^0.1.6",
+    "@nodert-win10-21h1/windows.storage.streams": "^0.1.6",
     "electron": "^23.1.2",
     "electron-rebuild": "^3.2.9",
     "fs-extra": "^11.1.0",

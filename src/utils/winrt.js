@@ -1,4 +1,5 @@
 const control = require("@nodert-win10-21h1/windows.media.control");
+const streams = require("@nodert-win10-21h1/windows.storage.streams");
 const info = {};
 const status = ["closed", "opened", "changing", "stopped", "playing", "paused"];
 var session;
@@ -20,6 +21,7 @@ function asyncPlaybackInfo() {
                 session.tryGetMediaPropertiesAsync((error, media) => {
                     info.title = media.title;
                     info.artist = media.artist;
+                    //getThumbnail(media.thumbnail);
 
                     resolve(info);
                 });
@@ -27,6 +29,31 @@ function asyncPlaybackInfo() {
             else resolve({});
         });
     })
+}
+
+function getThumbnail(thumbnail) {
+    const thumbReadBuffer = Buffer.alloc(5000000);
+    thumbnail.openReadAsync((error, stream) => {
+        if (error) {
+            console.error(error);
+            return;
+        }
+
+        stream.readAsync(thumbReadBuffer, thumbReadBuffer.length, streams.InputStreamOptions.READ_AHEAD, (error, bytesRead) => {
+            if (error) {
+                console.error(error);
+                return;
+            }
+
+            const bufferReader = new streams.DataReader.fromBuffer(thumbReadBuffer);
+            const byteBuffer = bufferReader.readBytes(thumbReadBuffer.length);
+
+            // Write the byte buffer to a file
+            // Note: You'll need to change the file path to match your own
+            const filePath = "C:\\media\\album-cover.jpg";
+            require('fs').writeFileSync(filePath, Buffer.from(byteBuffer), { flag: 'w+' });
+        });
+    });
 }
 
 function syncPlaybackInfo() {

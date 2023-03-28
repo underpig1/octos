@@ -1,10 +1,11 @@
-const { app, BrowserWindow, ipcMain, screen, Menu, MenuItem, Tray, dialog } = require("electron");
+const { app, BrowserWindow, ipcMain, screen, Menu, MenuItem, Tray, dialog, nativeTheme } = require("electron");
 const wp = require("../wallpaper");
 const path = require("path");
 const { getPrefs, selectMod, getSelectedConfig, addMod, getSelectedEntry, restorePrefsDefaults, filterFolders } = require("./utils/store.js");
 const { modifier, keyCode } = require("./utils/ascii.js");
 const { send } = require("process");
 const { syncPlaybackInfo, asyncPlaybackInfo, sendMediaEvent } = require("./utils/winrt.js");
+const { injectHTMLByNameScript, setStylesByNameScript, getAllWidgetNames } = require("./utils/widget.js");
 var win, tray, cmenu, settings;
 var prevMouse = { position: {} };
 var prevKeyboard = [];
@@ -41,7 +42,8 @@ function loadHTML() {
     wp.attach(win);
 
     win.webContents.on("dom-ready", () => {
-        win.webContents.insertCSS("body { user-select: none; }");
+        win.webContents.insertCSS("body { user-select: none; margin: 0; } widget { display: block; }");
+        handleWidgets();
     });
 }
 
@@ -210,6 +212,15 @@ function dispatchEvent(type, options) {
     win.webContents.executeJavaScript(`document.dispatchEvent(new CustomEvent('${type}', {detail:${JSON.stringify(options)}}));`);
 }
 
+function handleWidgets() {
+    var names = getAllWidgetNames();
+    for (const name of names) injectScript(injectHTMLByNameScript(name)).then(() => injectScript(setStylesByNameScript(name)));
+}
+
+function injectScript(script) {
+    return win.webContents.executeJavaScript(script);
+}
+
 app.whenReady().then(() => {
     init();
 
@@ -252,5 +263,11 @@ app.whenReady().then(() => {
     });
     ipcMain.handle("get-keyboard", (e, type) => {
         if (type == "keys") return prevKeyboard;
+    });
+    ipcMain.handle("get-system", (e, type) => {
+        // themeDark, themeHighContrast, themeInverted
+        if (type == "themeDark") return nativeTheme.shouldUseDarkColors;
+        else if (type == "themeHighContrast") return nativeTheme.shouldUseHighContrastColors;
+        else if (type == "themeInverted") return nativeTheme.shouldUseInvertedColorScheme;
     });
 });

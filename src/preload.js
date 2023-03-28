@@ -10,15 +10,10 @@ const { ipcRenderer, contextBridge } = require("electron");
 //     setTaskbar: (state) => wp.setTaskbar(state)
 // });
 
-function attachRenderer(path) {
-    const script = window.document.createElement("script");
-    script.src = path;
-    window.document.head.appendChild(script);
-}
-
 ipcRenderer.on("path", (event, content) => {
-    if (window.document.readyState == "loading") window.document.addEventListener("DOMContentLoaded", () => attachRenderer(content));
-    else attachRenderer(content);
+    const script = window.document.createElement("script");
+    script.src = content;
+    window.document.head.appendChild(script);
 });
 
 // async function mouse() {
@@ -47,4 +42,18 @@ contextBridge.exposeInMainWorld("media", {
     getSecondsTotal: async () => await ipcRenderer.invoke("get-media-event", "secondsTotal"),
     getPercentElapsed: async () => await ipcRenderer.invoke("get-media-event", "percentElapsed"),
     isPlaying: async () => await ipcRenderer.invoke("get-media-event", "isPlaying")
+});
+
+contextBridge.exposeInMainWorld("system", {
+    // themeDark, themeHighContrast, themeInverted
+    isThemeDark: async () => await ipcRenderer.invoke("get-system", "themeDark"),
+    isThemeLight: async () => !(await ipcRenderer.invoke("get-system", "themeDark")),
+    isThemeHighContrast: async () => await ipcRenderer.invoke("get-system", "themeHighContrast"),
+    isThemeInverted: async () => await ipcRenderer.invoke("get-system", "themeInverted"),
+    getTheme: async () => {
+        if (await ipcRenderer.invoke("get-system", "themeDark")) return "dark";
+        else if (await ipcRenderer.invoke("get-system", "themeHighContrast")) return "contrast";
+        else if (await ipcRenderer.invoke("get-system", "themeInverted")) return "inverted";
+        else return "default";
+    }
 });

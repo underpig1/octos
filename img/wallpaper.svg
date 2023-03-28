@@ -184,6 +184,32 @@
          stdDeviation="0.48938119"
          id="feGaussianBlur2319" />
     </filter>
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter1653"
+       x="-0.21910059"
+       width="1.4382012"
+       y="-0.6772067"
+       height="2.3544134">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="34.305075"
+         id="feGaussianBlur1655" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter1763"
+       x="-0.061466528"
+       width="1.1229331"
+       y="-0.7844106"
+       height="2.5688212">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="10.105282"
+         id="feGaussianBlur1765" />
+    </filter>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -192,9 +218,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.12374369"
-     inkscape:cx="3538.4751"
-     inkscape:cy="-716.92044"
+     inkscape:zoom="0.061871845"
+     inkscape:cx="11017.276"
+     inkscape:cy="-9846.7678"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -1767,5 +1793,114 @@
          y="3703.7834"
          style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Roboto Mono';-inkscape-font-specification:'Roboto Mono Italic';text-align:start;text-anchor:start;fill:#ffffff;fill-opacity:0.99215686;stroke-width:0.67048538"
          id="tspan2380-2">LAYOUT MODE</tspan></text>
+    <rect
+       style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.69999999;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       id="rect1141"
+       width="1220.8317"
+       height="665.60052"
+       x="2337.0046"
+       y="1323.3149" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:121.01512146px;line-height:1.25;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.26458335"
+       x="2439.084"
+       y="1525.4688"
+       id="text1147"><tspan
+         sodipodi:role="line"
+         id="tspan1145"
+         x="2439.084"
+         y="1525.4688"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';fill:#ffffff;fill-opacity:1;stroke-width:0.26458335">Tuesday</tspan></text>
+    <text
+       id="text1151"
+       y="1646.3378"
+       x="2441.1736"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:68.77607727px;line-height:1.25;font-family:'Roboto Mono';-inkscape-font-specification:'Roboto Mono';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.26458335;"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Roboto Mono';-inkscape-font-specification:'Roboto Mono';fill:#ffffff;fill-opacity:1;stroke-width:0.26458335;"
+         y="1646.3378"
+         x="2441.1736"
+         id="tspan1149"
+         sodipodi:role="line">OCT-27-2028</tspan></text>
+    <rect
+       style="opacity:1;fill:#000400;fill-opacity:1;stroke:#808080;stroke-width:0.1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
+       id="rect1153"
+       width="1920"
+       height="1080"
+       x="2351.5789"
+       y="2321.1958"
+       inkscape:export-filename="C:\Users\chase\Downloads\download2.png"
+       inkscape:export-xdpi="25.397648"
+       inkscape:export-ydpi="25.397648" />
+    <g
+       id="g1789"
+       transform="translate(40.718131,202.59523)">
+      <text
+         id="text1147-7"
+         y="2747.6111"
+         x="3071.5408"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:34.94523621px;line-height:1.25;font-family:'Roboto Mono';-inkscape-font-specification:'Roboto Mono';letter-spacing:0px;word-spacing:0px;fill:#00ff00;fill-opacity:1;stroke:none;stroke-width:0.26458338"
+         xml:space="preserve"><tspan
+           id="tspan1181"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Roboto Mono';-inkscape-font-specification:'Roboto Mono';fill:#00ff00;fill-opacity:1;stroke-width:0.26458338"
+           y="2747.6111"
+           x="3071.5408"
+           sodipodi:role="line">TUESDAY; OCTOBER 27</tspan><tspan
+           id="tspan1175"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Roboto Mono';-inkscape-font-specification:'Roboto Mono';fill:#00ff00;fill-opacity:1;stroke-width:0.26458338"
+           y="2791.2927"
+           x="3071.5408"
+           sodipodi:role="line" /></text>
+      <text
+         transform="matrix(1.1080593,0,0,1.175339,-353.44681,-457.18419)"
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:166.32461548px;line-height:1.25;font-family:'Roboto Mono';-inkscape-font-specification:'Roboto Mono';letter-spacing:0px;word-spacing:0px;fill:#00ff00;fill-opacity:0.87939698;stroke:none;stroke-width:0.23184589;filter:url(#filter1653)"
+         x="3071.198"
+         y="2666.5938"
+         id="text1191"><tspan
+           sodipodi:role="line"
+           id="tspan1189"
+           x="3071.198"
+           y="2666.5938"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Roboto Mono';-inkscape-font-specification:'Roboto Mono';fill:#00ff00;fill-opacity:0.87939698;stroke-width:0.23184589">0:00</tspan></text>
+      <text
+         id="text1187"
+         y="2660.5461"
+         x="3071.198"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:166.32461548px;line-height:1.25;font-family:'Roboto Mono';-inkscape-font-specification:'Roboto Mono';letter-spacing:0px;word-spacing:0px;fill:#00ff00;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+         xml:space="preserve"><tspan
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Roboto Mono';-inkscape-font-specification:'Roboto Mono';fill:#00ff00;fill-opacity:1;stroke-width:0.26458332"
+           y="2660.5461"
+           x="3071.198"
+           id="tspan1185"
+           sodipodi:role="line">0:00</tspan></text>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:34.94523621px;line-height:1.25;font-family:'Roboto Mono';-inkscape-font-specification:'Roboto Mono';letter-spacing:0px;word-spacing:0px;fill:#00ff00;fill-opacity:0.85929649;stroke:none;stroke-width:0.26458338;filter:url(#filter1763)"
+         x="3071.5408"
+         y="2750.635"
+         id="text1665"><tspan
+           sodipodi:role="line"
+           x="3071.5408"
+           y="2750.635"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Roboto Mono';-inkscape-font-specification:'Roboto Mono';fill:#00ff00;fill-opacity:0.85929649;stroke-width:0.26458338"
+           id="tspan1661">TUESDAY; OCTOBER 27</tspan><tspan
+           sodipodi:role="line"
+           x="3071.5408"
+           y="2794.3167"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Roboto Mono';-inkscape-font-specification:'Roboto Mono';fill:#00ff00;fill-opacity:0.85929649;stroke-width:0.26458338"
+           id="tspan1663" /></text>
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:101.63499451px;line-height:1.25;font-family:'Roboto Mono';-inkscape-font-specification:'Roboto Mono Thin';letter-spacing:0px;word-spacing:0px;fill:#00ff00;fill-opacity:1;stroke:none;stroke-width:0.26458329"
+       x="3119.5298"
+       y="2570.7207"
+       id="text2927"><tspan
+         sodipodi:role="line"
+         id="tspan2925"
+         x="3119.5298"
+         y="2570.7207"
+         style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-family:'Roboto Mono';-inkscape-font-specification:'Roboto Mono Thin';fill:#00ff00;fill-opacity:1;stroke-width:0.26458329">GADGET</tspan></text>
   </g>
 </svg>

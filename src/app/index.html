@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <link href="input.css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+    <title>Octos</title>
+</head>
+<body>
+    <div class="main">
+        <div class="sidebar">
+            <div class="sidebar-container">
+                <i onclick="setTab(0)" class="ri-equalizer-line icon-active btn tab-icon" title="Modules"></i>
+                <i onclick="setTab(1)" class="ri-stack-fill btn tab-icon" title="Community"></i>
+                <i onclick="setTab(2)" class="ri-shape-2-line btn tab-icon" title="Layout"></i>
+                <i onclick="setTab(3)" class="ri-settings-4-fill btn tab-icon" title="Settings"></i>
+            </div>
+            <img class="octos-icon" src="../../img/fill.png">
+        </div>
+        <div class="content">
+            <div class="tab tab-active">
+                <div class="column" style="width:640px">
+                    <h1>Installed Modules</h1>
+                    <div class="cards-contatiner">
+                        <div id="installed-modules" class="cards">
+                            <div class="card card-active">
+                                <div class="card-info">
+                                    <h3 class="card-title">Ethereal</h3>
+                                    <i class="ri-more-line card-options"></i>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-info">
+                                    <h3 class="card-title">Ethereal</h3>
+                                    <i class="ri-more-line card-options"></i>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-info">
+                                    <h3 class="card-title">Ethereal</h3>
+                                    <i class="ri-more-line card-options"></i>
+                                </div>
+                            </div>
+                            <i class="ri-add-line add-card card"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="column" style="width:325px;">
+                    <h1>Layouts</h1>
+                    <div class="cards" style="width: auto; grid-template-columns: none;">
+                        <div class="card">
+                            <div class="card-info">
+                                <h3 class="card-title">Ethereal</h3>
+                                <i class="ri-more-line card-options"></i>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-info">
+                                <h3 class="card-title">Ethereal</h3>
+                                <i class="ri-more-line card-options"></i>
+                            </div>
+                        </div>
+                        <i class="ri-add-line add-card card"></i>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="out-buttons">
+                        <button><i class="ri-add-line"></i>Install new .omod</button>
+                        <button><i class="ri-equalizer-line"></i>Manage mods</button>
+                        <button><i class="ri-earth-line"></i>Browse community</button>
+                    </div>
+                </div>
+            </div>
+            <div class="tab">
+                <div class="column" style="width:890px;">
+                    <h1>Explore Community</h1>
+                    <div class="cards-contatiner">
+                        <div class="cards" style="width:100%; grid-template-columns: 1fr 1fr 1fr;">
+                            <div class="card">
+                                <i class="ri-download-2-line card-download"></i>
+                                <div class="card-info">
+                                    <h3 class="card-title">Ethereal</h3>
+                                    <h4 class="card-author">By Octos</h4>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <i class="ri-download-2-line card-download"></i>
+                                <div class="card-info">
+                                    <h3 class="card-title">Ethereal</h3>
+                                    <h4 class="card-author">By Octos</h4>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <i class="ri-download-2-line card-download"></i>
+                                <div class="card-info">
+                                    <h3 class="card-title">Ethereal</h3>
+                                    <h4 class="card-author">By Octos</h4>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <i class="ri-download-2-line card-download"></i>
+                                <div class="card-info">
+                                    <h3 class="card-title">Ethereal</h3>
+                                    <h4 class="card-author">By Octos</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column" style="margin-left:35px;">
+                    <div class="out-buttons">
+                        <button><i class="ri-share-line"></i>Share your creation</button>
+                        <button><i class="ri-equalizer-line"></i>Manage mods</button>
+                    </div>
+                </div>
+            </div>
+            <div class="tab">
+                <div class="column" style="width:100%;">
+                    <h1>Layout Editor</h1>
+                    <button><i class="ri-shape-2-line"></i>Launch the editor</button>
+                    <div id="layout-buttons" style="display:none;">
+                        <button class="button-active"><i class="ri-save-3-fill"></i>Save current layout</button>
+                        <button class="button-active" style="margin-left: 12px;"><i class="ri-download-2-line"></i>Download as .omod</button>
+                    </div>
+                    <h2 style="margin-top: 45px;">Themes</h2>
+                    <div class="themes">
+                        <div class="theme theme-active" style="background-color:red;"></div>
+                        <div class="theme"></div>
+                    </div>
+                    <h2 style="margin-top:35px;">Widget Library</h2>
+                    <div style="position:absolute; width:900px; height:300px; z-index:1; pointer-events:none;">
+                        <i onclick="prevWidgetSlide()" class="widget-slide prev-widget-slide ri-arrow-left-line"></i>
+                        <i onclick="nextWidgetSlide()" class="widget-slide next-widget-slide ri-arrow-right-line"></i>
+                    </div>
+                    <div class="widgets">
+                        <div class="widget-slide-content widget-slide-content-active">
+                            <div class="widget" style="grid-area: 1/1/3/3"><span class="widget-name">Weather card</span><i class="ri-add-line add-widget"></i></div>
+                            <div class="widget" style="grid-area: 1/3/2/5;"><span class="widget-name">Media player</span><i class="ri-add-line add-widget"></i></div>
+                            <div class="widget" style="grid-area: 2/3/3/5;"><span class="widget-name">Shortcut</span><i class="ri-add-line add-widget"></i></div>
+                            <div class="widget" style="grid-area: 1/5/3/7;"><span class="widget-name">Note</span><i class="ri-add-line add-widget"></i></div>
+                        </div>
+                        <div class="widget-slide-content">
+                            <div class="widget" style="grid-area: 1/1/3/3"><span class="widget-name">Weather card</span><i class="ri-add-line add-widget"></i></div>
+                            <div class="widget" style="grid-area: 1/3/2/5;"><span class="widget-name">Media player</span><i class="ri-add-line add-widget"></i></div>
+                            <div class="widget" style="grid-area: 2/3/3/5;"><span class="widget-name">Shortcut</span><i class="ri-add-line add-widget"></i></div>
+                            <div class="widget" style="grid-area: 1/5/3/7;"><span class="widget-name">Note</span><i class="ri-add-line add-widget"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab">
+                <div class="column" style="width:600px;">
+                    <h1>Settings</h1>
+                    <div class="settings">
+                        <div class="settings-card">
+                            <div class="settings-card-title">
+                                <img src="img/taskbar.png" style="height:50px;" class="settings-card-image" />
+                                <h2>Taskbar</h2>
+                                <p>Change how Octos handles native and custom taskbars.</p>
+                            </div>
+                            <div class="settings-entry">
+                                <h3>Always show native taskbar</h3>
+                                <p>Enable this to show the native taskbar regardless of custom taskbar configurations.</p>
+                                <label class="switch">
+                                    <input type="checkbox">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="settings-entry">
+                                <h3>Disable custom taskbars</h3>
+                                <p>Enable this to disable all custom taskbars included in certain modules.</p>
+                                <label class="switch">
+                                    <input type="checkbox">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="out-buttons">
+                        <button class="button-active"><i class="ri-settings-4-fill"></i>Save all changes</button>
+                        <button class="button-active" style="background-color: rgb(255, 95, 95);"><i class="ri-arrow-go-back-line"></i>Revert changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <i onclick="window.electron.close();" class="ri-close-line close"></i>
+    </div>
+    <script>
+        var tab = 0;
+        var slide = 0;
+        const tabIcons = document.getElementsByClassName("tab-icon");
+        const tabs = document.getElementsByClassName("tab");
+        const widgetSlides = document.getElementsByClassName("widget-slide-content");
+        var selectedCard = null;
+        
+        function setTab(active) {
+            tabIcons[tab].classList.remove("icon-active");
+            tabs[tab].classList.remove("tab-active");
+            tab = active;
+            tabIcons[tab].classList.add("icon-active");
+            tabs[tab].classList.add("tab-active");
+            slide = 0;
+        }
+
+        function prevWidgetSlide() {
+            if (slide > 0) {
+                widgetSlides[slide].classList.remove("widget-slide-content-active");
+                slide--;
+                widgetSlides[slide].classList.add("widget-slide-content-active");
+            }
+        }
+
+        function nextWidgetSlide() {
+            if (slide < widgetSlides.length - 1) {
+                widgetSlides[slide].classList.remove("widget-slide-content-active");
+                slide++;
+                widgetSlides[slide].classList.add("widget-slide-content-active");
+            }
+        }
+
+        function cardTemplate(title = "CARD TITLE", backgroundImage = "", internalName = "card", author = false) {
+            return `<div name="${internalName}" ${author ? "" : 'onclick="selectCurrentModule(this)"'} class="card" style="backgroundImage:url(${backgroundImage});">
+                ${author ? '<i class="ri-download-2-line card-download"></i>' : ''}
+                <div class="card-info">
+                    <h3 class="card-title">${title}</h3>
+                    ${author ? `<h4 class="card-author">${author}</h4>` : '<i class="ri-more-line card-options"></i>'}
+                </div>
+            </div>`
+        }
+
+        function addInstalledModule(title = "CARD TITLE", backgroundImage, internalName = "card", author = false) {
+            var template = cardTemplate(...arguments);
+            document.getElementById("installed-modules").innerHTML += template;
+        }
+
+        function selectCurrentModule(element) {
+            selectedCard.classList.remove("card-active");
+            selectedCard = element;
+            selectedCard.classList.add("card-active");
+
+            var name = element.getAttribute("name");
+            window.controls.selectCurrentModule(name);
+        }
+    </script>
+</body>
+</html>
