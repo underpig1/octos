@@ -10,12 +10,6 @@ const { ipcRenderer, contextBridge } = require("electron");
 //     setTaskbar: (state) => wp.setTaskbar(state)
 // });
 
-ipcRenderer.on("path", (event, content) => {
-    const script = window.document.createElement("script");
-    script.src = content;
-    window.document.head.appendChild(script);
-});
-
 // async function mouse() {
 //     const result = await ipcRenderer.invoke("mouse");
 //     return result;
@@ -57,3 +51,9 @@ contextBridge.exposeInMainWorld("system", {
         else return "default";
     }
 });
+
+contextBridge.exposeInMainWorld("storage", {
+    getStorage: async (id) => await ipcRenderer.invoke("get-storage", "getStorage", id),
+    setStorage: async (id, content) => await ipcRenderer.invoke("get-storage", "setStorage", id, content),
+    requestFile: async (extensions = false) => await ipcRenderer.invoke("get-storage", "requestFile", extensions)
+})

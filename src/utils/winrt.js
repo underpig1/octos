@@ -7,7 +7,12 @@ var session;
 function asyncPlaybackInfo() {
     return new Promise((resolve, reject) => {
         control.GlobalSystemMediaTransportControlsSessionManager.requestAsync((error, manager) => {
-            session = manager.getCurrentSession();
+            try {
+                session = manager.getCurrentSession();
+            }
+            catch {
+                session = null;
+            }
 
             if (session) {
                 const timeline = session.getTimelineProperties();

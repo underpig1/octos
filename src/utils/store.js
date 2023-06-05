@@ -61,6 +61,7 @@ function addMod(modPath) {
             if (folder) {
                 var config = getConfigFromFolderPath(path.join(modsPath, folder));
                 var name = config.name;
+                if (name == "Custom mod") name = folder;
                 addModData(name, folder);
                 writePrefs();
                 resolve(true);
@@ -90,7 +91,7 @@ function getSelectedEntry() {
 
 function restorePrefsDefaults() {
     prefs = defaults;
-    fs.writeFileSync(path, defaults);
+    writePrefs();
 }
 
 function loadDefaultMods() {
@@ -107,6 +108,41 @@ function filterFolders() {
         if (!checkModFolderExists(mod.folder)) {
             removeMod(mod.name);
         }
+    }
+}
+
+function updateSettings(settings) {
+    prefs.settings = settings;
+    writePrefs();
+}
+
+function revertSettings() {
+    prefs.settings = defaults;
+    writePrefs();
+}
+
+function setLocalStorage(id, data) {
+    if (prefs.local.hasOwnProperty(prefs.selected)) {
+        prefs.local[prefs.selected][id] = data;
+    }
+    else {
+        prefs.local[prefs.selected] = {};
+        prefs.local[prefs.selected][id] = data;
+    }
+    writePrefs();
+}
+
+function getLocalStorage(id) {
+    if (prefs.local.hasOwnProperty(prefs.selected)) {
+        if (prefs.local[prefs.selected].hasOwnProperty(id)) {
+            return prefs.local[prefs.selected][id];
+        }
+    }
+    else {
+        prefs.local[prefs.selected] = {};
+        prefs.local[prefs.selected][id] = {};
+        writePrefs();
+        return null;
     }
 }
 
@@ -230,4 +266,4 @@ function fillObject(defer, overwrite) {
 
 // EXPORT
 
-module.exports = { getPrefs, initStore, selectMod, getSelectedModData, getSelectedConfig, removeMod, addMod, getSelectedEntry, restorePrefsDefaults, loadDefaultMods, filterFolders };
+module.exports = { getPrefs, initStore, selectMod, getSelectedModData, getSelectedConfig, removeMod, addMod, getSelectedEntry, restorePrefsDefaults, loadDefaultMods, filterFolders, updateSettings, revertSettings, setLocalStorage, getLocalStorage };

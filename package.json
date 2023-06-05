@@ -14,6 +14,7 @@
     "electron": "^23.1.2",
     "electron-rebuild": "^3.2.9",
     "fs-extra": "^11.1.0",
+    "screenshot-desktop": "^0.0.0-development",
     "unzipper": "^0.10.11"
   }
 }

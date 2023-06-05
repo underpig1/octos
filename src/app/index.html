@@ -29,10 +29,10 @@
                     <h1>Installed Modules</h1>
                     <div class="cards-contatiner">
                         <div id="installed-modules" class="cards">
-                            <div class="card card-active">
+                            <!-- <div class="card card-active">
                                 <div class="card-info">
                                     <h3 class="card-title">Ethereal</h3>
-                                    <i class="ri-more-line card-options"></i>
+                                    <i class="ri-more-line card-options" onclick="openContextWindow(event, this)"></i>
                                 </div>
                             </div>
                             <div class="card">
@@ -46,8 +46,8 @@
                                     <h3 class="card-title">Ethereal</h3>
                                     <i class="ri-more-line card-options"></i>
                                 </div>
-                            </div>
-                            <i class="ri-add-line add-card card"></i>
+                            </div> -->
+                            <i class="ri-add-line add-card card" onclick="addModule()"></i>
                         </div>
                     </div>
                 </div>
@@ -81,7 +81,7 @@
                 <div class="column" style="width:890px;">
                     <h1>Explore Community</h1>
                     <div class="cards-contatiner">
-                        <div class="cards" style="width:100%; grid-template-columns: 1fr 1fr 1fr;">
+                        <div id="community-modules" class="cards" style="width:100%; grid-template-columns: 1fr 1fr 1fr;">
                             <div class="card">
                                 <i class="ri-download-2-line card-download"></i>
                                 <div class="card-info">
@@ -191,6 +191,12 @@
                 </div>
             </div>
         </div>
+        <div id="card-options-ctx-window" class="ctx-window">
+            <div class="ctx-item" onclick="ctxSetAsDesktop(event)">Set as desktop</div>
+            <div class="ctx-item" onclick="ctxOpenFileLocation(event)">Open file location</div>
+            <div class="ctx-item" onclick="ctxReinstall(event)">Reinstall</div>
+            <div class="ctx-item" onclick="ctxRemove(event)">Remove</div>
+        </div>
         <i onclick="window.electron.close();" class="ri-close-line close"></i>
     </div>
     <script>
@@ -199,7 +205,15 @@
         const tabIcons = document.getElementsByClassName("tab-icon");
         const tabs = document.getElementsByClassName("tab");
         const widgetSlides = document.getElementsByClassName("widget-slide-content");
-        var selectedCard = null;
+        const cardOptionsCtx = document.getElementById("card-options-ctx-window");
+        var waitingCtxOut = false;
+        var selectedCard;
+        var ctxCard;
+
+        var installedModules = [];
+        var communityModules = [];
+
+        updateMods();
         
         function setTab(active) {
             tabIcons[tab].classList.remove("icon-active");
@@ -227,28 +241,98 @@
         }
 
         function cardTemplate(title = "CARD TITLE", backgroundImage = "", internalName = "card", author = false) {
-            return `<div name="${internalName}" ${author ? "" : 'onclick="selectCurrentModule(this)"'} class="card" style="backgroundImage:url(${backgroundImage});">
+            return `<div name="${internalName}" ${author ? "" : 'onclick="selectCurrentModule(event, this)"'} class="card" style="backgroundImage:url(${backgroundImage});">
                 ${author ? '<i class="ri-download-2-line card-download"></i>' : ''}
                 <div class="card-info">
                     <h3 class="card-title">${title}</h3>
-                    ${author ? `<h4 class="card-author">${author}</h4>` : '<i class="ri-more-line card-options"></i>'}
+                    ${author ? `<h4 class="card-author">By ${author}</h4>` : '<i class="ri-more-line card-options" onclick="openContextWindow(event, this)"></i>'}
                 </div>
             </div>`
         }
 
-        function addInstalledModule(title = "CARD TITLE", backgroundImage, internalName = "card", author = false) {
+        function addInstalledModule(title = "CARD TITLE", backgroundImage, internalName = "card") {
             var template = cardTemplate(...arguments);
-            document.getElementById("installed-modules").innerHTML += template;
+            var target = document.getElementById("installed-modules");
+            var addCard = target.querySelector(".add-card");
+            const saveCard = addCard.outerHTML;
+            addCard.remove();
+            target.innerHTML += template;
+            target.innerHTML += saveCard;
+
+            var element = [...target.childNodes].filter((x) => x.getAttribute ? x.getAttribute("name") == internalName : false)[0];
+            if (element) installedModules.push({ element, name: internalName });
+
+            return element;
         }
 
-        function selectCurrentModule(element) {
-            selectedCard.classList.remove("card-active");
+        function addCommunityModule(title = "CARD TITLE", backgroundImage, internalName = "card", author = "AUTHOR") {
+            var template = cardTemplate(...arguments);
+            var target = document.getElementById("community-modules");
+            target.innerHTML += template;
+            var element = [...target.childNodes].filter((x) => x.getAttribute ? x.getAttribute("name") == internalName : false)[0];
+            if (element) communityModules.push({ element, name: internalName });
+        }
+
+        function selectCurrentModule(e, element, send = true) {
+            var name = element.getAttribute("name");
+            if (e) {
+                if (document.elementFromPoint(e.pageX, e.pageY).parentElement.parentElement.getAttribute("name") == name) return false;
+            }
+            if (selectedCard) selectedCard.classList.remove("card-active");
             selectedCard = element;
             selectedCard.classList.add("card-active");
-
-            var name = element.getAttribute("name");
-            window.controls.selectCurrentModule(name);
+            if (send) window.controls.selectCurrentModule(name);
         }
+
+        function getSelectedModule() {
+            var name = selectedCard.getAttribute("name");
+            var module = installedModules.filter((x) => x.name == name)[0];
+            return module;
+        }
+
+        function ctxSetAsDesktop(e) {
+            if (ctxCard) selectCurrentModule(null, ctxCard);
+        }
+
+        function openContextWindow(e, element) {
+            ctxCard = document.elementFromPoint(e.pageX, e.pageY).parentElement.parentElement;
+            setTimeout(() => {
+                cardOptionsCtx.style.left = `${e.clientX}px`;
+                cardOptionsCtx.style.top = `${e.clientY}px`;
+                cardOptionsCtx.style.display = "block";
+                waitingCtxOut = true;
+            }, 10);
+        }
+
+        function clearInstalledMods() {
+            var target = document.getElementById("installed-modules");
+            target.innerHTML = target.querySelector(".add-card").outerHTML;
+        }
+
+        function addModule() {
+            window.controls.addModule();
+        }
+
+        function updateMods() {
+            window.controls.getModList().then((x) => {
+                clearInstalledMods();
+                for (const mod of x) {
+                    var element = addInstalledModule(mod.name, "", mod.name);
+                    if (mod.selected) selectCurrentModule(null, element, false);
+                }
+            });
+        }
+
+        document.body.addEventListener("contextmenu", e => {
+            e.preventDefault();
+        });
+
+        document.body.addEventListener("click", e => {
+            if (waitingCtxOut) {
+                cardOptionsCtx.style.display = "none";
+                waitingCtxOut = false;
+            }
+        });
     </script>
 </body>
 </html>

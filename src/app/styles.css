@@ -2,6 +2,38 @@
     box-sizing: border-box;
 }
 
+:root.inactive {
+    --background: linear-gradient(120deg, #3e3c3dfa, #44325bfa);
+    --sidebar-background: #242324ff;
+    --tab-icon-color: #ffffffaa;
+    --text-heading-color: #ffffffc0;
+    --text-color: #ffffffaa;
+    --default-background: #006040ff;
+    --border-color: #c9c9c9ff;
+    --active-border-color: #ffc080ff;
+
+    --button-background: #907090ff;
+    --settings-background: #90709070;
+    --settings-entry-background: #00002220;
+    --ctx-background: #41384bff;
+}
+
+:root {
+    --background: #403a44ff;
+    --sidebar-background: #242324ff;
+    --tab-icon-color: #d0ced1ff;
+    --text-heading-color: #ffffffc0;
+    --text-color: #ffffffc0;
+    --default-background: #006040ff;
+    --border-color: #c9c9c9ff;
+    --active-border-color: #ffc080ff;
+
+    --button-background: #242324ff;
+    --settings-background: #242324ff;
+    --settings-entry-background: #00002220;
+    --ctx-background: #242324ff;
+}
+
 html, body {
     margin: 0;
     height: 100%;
@@ -13,17 +45,17 @@ html, body {
 .main {
     width: 100%;
     height: 100%;
-    background-image: linear-gradient(120deg, #3e3c3dfa, #44325bfa);
+    background: var(--background);
     border-radius: 7.5px;
 }
 
-.btn, .card, button, .theme, .widget, .switch, .widget-slide, .close {
+.btn, .card, button, .theme, .widget, .switch, .widget-slide, .close, .ctx-window {
     -webkit-app-region: no-drag;
 }
 
 .sidebar {
     height: 100%;
-    background-color: #242324ff;
+    background-color: var(--sidebar-background);
     width: 60px;
     border-radius: 7.5px 0 0 7.5px;
     display: flex;
@@ -44,7 +76,7 @@ html, body {
 }
 
 .tab-icon {
-    color: #d0ced1ff;
+    color: var(--tab-icon-color);
     font-size: 20px;
     width: 35px;
     height: 35px;
@@ -52,7 +84,7 @@ html, body {
     line-height: 35px;
     border-radius: 50%;
     transition: color 0.5s, background-color 0.5s;
-    background-color: #242324ff;
+    background-color: var(--sidebar-background);
     cursor: pointer;
 }
 
@@ -61,8 +93,8 @@ html, body {
 }
 
 .icon-active {
-    color: #242324ff !important;
-    background-color: #d0ced1ff !important;
+    color: var(--sidebar-background) !important;
+    background-color: var(--tab-icon-color) !important;
 }
 
 .content {
@@ -93,7 +125,7 @@ html, body {
 
 h1 {
     font-family: 'Roboto', sans-serif;
-    color: #ffffffc0;
+    color: var(--text-heading-color);
     font-weight: 900;
     font-size: 32px;
     margin-bottom: 30px;
@@ -115,7 +147,7 @@ h1 {
     position: relative;
     width: calc(1920px/6.9);
     height: calc(1080px/6.9);
-    background-color: #006040ff;
+    background-color: var(--default-background);
     border-radius: 12px;
     box-shadow: 0 5px 10px 5px #00000011;
     cursor: pointer;
@@ -144,7 +176,7 @@ h1 {
 
 .card-author, .card-options, .card-download {
     font-family: 'Roboto', sans-serif;
-    color: #ffffff80;
+    color: var(--text-color);
     font-size: 14px;
     font-weight: normal;
 }
@@ -164,7 +196,7 @@ h1 {
     display: block;
     height: 100px;
     border: 3px solid #c9c9c9ff;
-    color: #c9c9c9ff;
+    color: var(--border-color);
     background-color: transparent;
     grid-column-start: 0;
     grid-column-end: 1;
@@ -175,30 +207,30 @@ h1 {
     box-shadow: none;
 }
 
-.card:active {
+/* .card:active {
     transform: scale(0.99);
-}
+} */
 
 .card-active, .theme-active {
-    outline: 3px solid #ffc080ff;
+    outline: 3px solid var(--active-border-color);
 }
 
 .card-active {
     transform: scale(0.98);
 }
 
-.card-active:active {
+/* .card-active:active {
     transform: scale(0.98);
-}
+} */
 
 button {
-    background-color: #907090ff;
+    background-color: var(--button-background);
     border-radius: 8px;
     height: 40px;
     width: 190px;
     text-align: right;
     padding: 0 18px 0 12px;
-    color: #ffffffc0;
+    color: var(--text-heading-color);
     font-family: 'Roboto', sans-serif;
     font-weight: 500;
     border: none;
@@ -276,7 +308,7 @@ h2 {
 .theme {
     width: 40px;
     height: 40px;
-    background-color: #006040ff;
+    background-color: var(--default-background);
     border-radius: 50%;
     cursor: pointer;
     box-shadow: 0px 2px 4px 2px #00000011;
@@ -284,8 +316,8 @@ h2 {
 
 .widget {
     position: relative;
-    border: 3px solid #c9c9c9ff;
-    color: #c9c9c9ff;
+    border: 3px solid var(--border-color);
+    color: var(--border-color);
     border-radius: 12px;
     transition: transform 0.5s ease;
     cursor: pointer;
@@ -318,7 +350,7 @@ h2 {
     top: 125px;
     border-radius: 50%;
     transition: transform 0.1s;
-    color: #ffffff;
+    color: var(--text-heading-color);
     font-size: 32px;
     line-height: 40px;
     text-align: center;
@@ -340,7 +372,7 @@ h2 {
 
 .settings-card {
     position: relative;
-    background-color: #90709070;
+    background-color: var(--settings-background);
     width: 550px;
     height: fit-content;
     padding: 18px 24px;
@@ -351,7 +383,7 @@ h2 {
 .settings-card-title {
     width: 100%;
     font-family: 'Roboto', sans-serif;
-    color: #ffffffc0;
+    color: var(--text-heading-color);
 }
 
 .settings-card-title > h2 {
@@ -359,13 +391,13 @@ h2 {
     margin-top: 6px;
     margin-bottom: -8px;
     font-size: 20px;
-    color: #ffffffc0;
+    color: var(--text-heading-color);
 }
 
 .settings-card-title > p {
     font-weight: normal;
     font-size: 15px;
-    color: #ffffffa0;
+    color: var(--text-color);
     margin-top: 12px;
     margin-bottom: 20px;
     width: 300px;
@@ -379,7 +411,7 @@ h2 {
 
 .settings-entry {
     width: 100%;
-    background-color: #00002220;
+    background-color: var(--settings-entry-background);
     margin: 8px 0;
     padding: 15px 20px;
     border-radius: 12px;
@@ -391,14 +423,14 @@ h2 {
     font-weight: 500;
     margin: 4.5px 0;
     font-style: italic;
-    color: #ffffffc0;
+    color: var(--text-heading-color);
     font-size: 16px;
 }
 
 .settings-entry > p {
     float: left;
     margin: 2px 0;
-    color: #ffffffa0;
+    color: var(--text-color);
     width: 300px;
     font-size: 14px;
 }
@@ -417,7 +449,7 @@ h2 {
     position: absolute;
     right: 5px;
     top: 5px;
-    color: #ffffffc0;
+    color: var(--text-heading-color);
     cursor: pointer;
     transition: color 0.5s;
     font-size: 24px;
@@ -425,4 +457,30 @@ h2 {
 
 .close:hover {
     color: rgb(255, 95, 95);
+}
+
+.ctx-window {
+    display: none;
+    position: absolute;
+    width: 150px;
+    background-color: var(--ctx-background);
+    border-radius: 5px;
+    overflow: hidden;
+    transform: scale(0.85);
+    box-shadow: 0 2px 5px 5px #00000011;
+}
+
+.ctx-item {
+    width: 100%;
+    height: 35px;
+    line-height: 35px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    color: var(--text-color);
+    font-size: 14px;
+    padding-left: 10px;
+}
+
+.ctx-item:hover {
+    background-color: #00000035;
 }

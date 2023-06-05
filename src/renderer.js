@@ -77,16 +77,4 @@
 //     //handleMouseData({ x: data.position.x, y: data.position.y, pressed: data.pressed });
 // }, 10);
 
-class MediaController {
-    pausePlay() {
-        window.media.send.pausePlay();
-    }
-
-    skipToNextTrack() {
-        window.media.send.nextTrack();
-    }
-
-    skipToPrevTrack() {
-        window.media.send.prevTrack();
-    }
-}
+const octos = window;

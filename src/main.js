@@ -1,11 +1,12 @@
 const { app, BrowserWindow, ipcMain, screen, Menu, MenuItem, Tray, dialog, nativeTheme } = require("electron");
 const wp = require("../wallpaper");
 const path = require("path");
-const { getPrefs, selectMod, getSelectedConfig, addMod, getSelectedEntry, restorePrefsDefaults, filterFolders } = require("./utils/store.js");
+const { getPrefs, selectMod, getSelectedConfig, addMod, getSelectedEntry, filterFolders, updateSettings, revertSettings, setLocalStorage, getLocalStorage } = require("./utils/store.js");
 const { modifier, keyCode } = require("./utils/ascii.js");
 const { send } = require("process");
 const { syncPlaybackInfo, asyncPlaybackInfo, sendMediaEvent } = require("./utils/winrt.js");
 const { injectHTMLByNameScript, setStylesByNameScript, getAllWidgetNames } = require("./utils/widget.js");
+const mainApp = require("./app/main.js");
 var win, tray, cmenu, settings;
 var prevMouse = { position: {} };
 var prevKeyboard = [];
@@ -30,7 +31,7 @@ function createWindow() {
             contextIsolation: true
         }
     });
-    win.webContents.openDevTools();
+    //win.webContents.openDevTools();
 
     // win.setAlwaysOnTop(true, "pop-up-menu", -1); // for mac
 }
@@ -57,11 +58,11 @@ function init() {
 
 function createTrayMenu(modItems = []) {
     cmenu = Menu.buildFromTemplate([
+        // { label: "Open app", type: "normal", click: mainApp.show },
+        { type: "separator" },
         { label: "Add mod", type: "normal", click: load },
         { id: "mods", label: "Installed mods", type: "submenu", submenu: Menu.buildFromTemplate(modItems) },
-        { label: "Settings", type: "normal", click: () => settings ? settings.show() : null },
         { label: "Open mod folder", type: "normal", click: () => require("child_process").exec('start "" "%AppData%\\octos\\mods"') },
-        { label: "Restore defaults", type: "normal", click: restore },
         { type: "separator" },
         { id: "visibility", label: "Toggle visibility", type: "checkbox", checked: true, click: toggle },
         { type: "separator" },
@@ -94,10 +95,7 @@ function updateModList() {
     });
     for (const name of names) name.click = () => setModByName(name.label);
     createTrayMenu(names);
-}
-
-function restore() {
-    restorePrefsDefaults();
+    mainApp.dispatch("updateMods();");
 }
 
 function load() {
@@ -110,6 +108,12 @@ function load() {
                 console.log(err);
             }
         }
+    });
+}
+
+function requestFile(extensions = false) {
+    dialog.showOpenDialog({ filters: (extensions ? [{ extensions: extensions }] : []), properties: ["openFile"] }).then((content) => {
+        if (!content.canceled) return content.filePaths[0];
     });
 }
 
@@ -234,6 +238,22 @@ app.whenReady().then(() => {
         const win = BrowserWindow.fromWebContents(webContents);
         win.hide();
     });
+    ipcMain.on("select-current-module", (e, name) => setModByName(name));
+    ipcMain.handle("get-mod-list", (e) => {
+        return getPrefs().mods.map((x) => x = {
+            name: x.name,
+            folder: x.folder,
+            selected: getPrefs().selected == x.name
+        });
+    });
+    ipcMain.on("add-module", load);
+    ipcMain.on("update-settings", (e, settings) => {
+        updateSettings(settings);
+    });
+    ipcMain.on("revert-settings", (e) => revertSettings());
+    ipcMain.handle("get-settings", (e) => {
+        return getPrefs().settings;
+    });
     ipcMain.handle("send-media-event", (e, state) => {
         if (isActive()) //wp.sendMediaEvent(state);
             sendMediaEvent(state);
@@ -269,5 +289,11 @@ app.whenReady().then(() => {
         if (type == "themeDark") return nativeTheme.shouldUseDarkColors;
         else if (type == "themeHighContrast") return nativeTheme.shouldUseHighContrastColors;
         else if (type == "themeInverted") return nativeTheme.shouldUseInvertedColorScheme;
+    });
+    ipcMain.handle("get-storage", (e, type, id = "", content = "") => {
+        // getStorage, setStorage, requestFile
+        if (type == "getStorage" && id) return getLocalStorage(id);
+        else if (type == "setStorage" && id && content) return setLocalStorage(id, content);
+        else if (type == "requestFile") return requestFile(arguments[2]);
     });
 });

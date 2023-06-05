@@ -16,5 +16,26 @@
                 "media": true
             }
         }
+    },
+    "local": {
+        "ethereal": {}
+    },
+    "settings": {
+        "taskbar": {
+            "alwaysHideNative": false,
+            "disableCustom": false
+        },
+        "widgets": {
+            "allowCustomWidgets": true,
+            "disableWidgets": false
+        },
+        "privacy": {
+            "allowMediaEvents": true,
+            "allowMouseEvents": true,
+            "allowKeyboardEvents": true
+        },
+        "developer": {
+            "showDeveloperMenu": false
+        }
     }
 }
