@@ -85,6 +85,18 @@ function keyCode(key, shift) {
             return shift ? "?" : "/";
         case 32:
             return " ";
+        case "Up":
+            return "Up";
+        case "Down":
+            return "Down";
+        case "Left":
+            return "Left";
+        case "Right":
+            return "Right";
+        case "Return":
+            return "Return";
+        case "Backspace":
+            return "Backspace";
         default:
             return "";
     }

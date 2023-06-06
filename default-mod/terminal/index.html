@@ -130,46 +130,122 @@
         const clear = (c = "") => textbox.innerHTML = c;
         const showcursor = (s = true) => cursor.style.display = s ? "block" : "none";
         const charindex = (l, c) => textbox.innerText.split("\n").slice(0, l).concat([textbox.innerText.split("\n")[l].slice(0, c)]).join("\n").length;
-        const insert = (t) => (textbox.innerText = textbox.innerText.slice(0, charindex(...pcurs)) + t + textbox.innerText.slice(charindex(...pcurs), -1)) & movecursor(0, t.length);
+        const insert = (t) => (textbox.innerText = textbox.innerText.slice(0, charindex(...pcurs)) + t + textbox.innerText.slice(charindex(...pcurs))) & movecursor(0, t.length);
+        const remsert = () => pcurs[1] > 0 ? movecursor(0, -1) & (textbox.innerText = textbox.innerText.slice(0, charindex(...pcurs)) + textbox.innerText.slice(charindex(...pcurs) + 1)) : pcurs[1] = 0;
+        const mwrap = (t) => `<span class='monospace'>${t}</span>`
         const symbols = {
-            box: ["<span class='monospace'>&#10240;</span>", "<span class='monospace'>&#9615;</span>", "<span class='monospace'>&#9614;</span>", "<span class='monospace'>&#9613;</span>", "<span class='monospace'>&#9611;</span>", "<span class='monospace'>&#9610;</span>", "<span class='monospace'>&#9609;</span>"],
+            box: ["&#10240;", "&#9615;", "&#9614;", "&#9613;", "&#9611;", "&#9610;", "&#9609;"],
             wheel: ["&mdash;", "\\", "|", "/"],
             block: "",
-            space: "<span class='monospace'>&#10240;</span>"
+            uspace: "&#10240;",
+            tspace: "\u00a0"
         }
-        const alphanum = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        const alphanum = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ";
 
-        newline();
-        showcursor(false);
-        line("Booting system... ");
-        progressBar(1024, 10, 6).then(() => {
-            line("Setting up... ");
-            progressWheel(2000).then(() => {
-                line("Finishing touches... ");
-                progressWheel(1000).then(() => {
-                    line("Booting now...");
-                    setTimeout(() => {
-                        clear();
+        const clock = [`   ___  
+  / _ \\ 
+ | | | |
+ | | | |
+ | |_| |
+  \\___/ `,
+`  __ 
+ /_ |
+  | |
+  | |
+  | |
+  |_|`,
+`  ___  
+ |__ \\ 
+    ) |
+   / / 
+  / /_ 
+ |____|
+`,
+`  ____  
+ |___ \\ 
+   __) |
+  |__ < 
+  ___) |
+ |____/ `,
+`  _  _   
+ | || |  
+ | || |_ 
+ |__   _|
+    | |  
+    |_|  `,
+`  _____ 
+ | ____|
+ | |__  
+ |___ \\ 
+  ___) |
+ |____/ `,
+`    __  
+   / /  
+  / /_  
+ | '_ \\ 
+ | (_) |
+  \\___/ `,
+`  ______ 
+ |____  |
+     / / 
+    / /  
+   / /   
+  /_/    `,
+`   ___  
+  / _ \\ 
+ | (_) |
+  > _ < 
+ | (_) |
+  \\___/ `,
+`   ___  
+  / _ \\ 
+ | (_) |
+  \\__, |
+    / / 
+   /_/  `,
+`  _ 
+ (_)
+    
+  _ 
+ (_)`];
+        const clockchar = (n) => clock[n].split("\n").map((c) => c.replaceAll(" ", symbols.uspace)).join("<br>");
+
+        function boot() {
+            newline();
+            showcursor(false);
+            line("Booting system... ");
+            progressBar(1024, 10, 6).then(() => {
+                line("Setting up... ");
+                progressWheel(2000).then(() => {
+                    line("Finishing touches... ");
+                    progressWheel(1000).then(() => {
+                        line("Booting now...");
                         setTimeout(() => {
-                            line("Welcome to Desktop Terminal v8.6!");
-                            newline();
+                            clear();
                             setTimeout(() => {
-                                line("Type H for command help");
-                                line("Press M to toggle mode");
-                                showcursor(true);
-                                resetcursor();
-                                setInterval(update, 10);
-                            }, 1000);
-                        }, 1000);
-                    }, 500);
+                                line("Welcome to Desktop Terminal v8.6!");
+                                newline();
+                                setTimeout(startup(), 1000);
+                            }, 500);
+                        }, 500);
+                    });
                 });
             });
-        });
+        }
+
+        startup();
+        function startup() {
+            line("Type H for command help");
+            line("Press M to toggle mode");
+            showcursor(true);
+            resetcursor();
+            setInterval(update, 10);
+        }
 
         function progressBar(total, speed = 100, size = 8) {
             return new Promise((resolve, reject) => {
                 var iter = 0;
-                const draw = (value) => text(`|${symbols.box[6].repeat(Math.floor(value / total * size))}${value < total ? symbols.box[Math.floor((value / total - Math.floor(value / total * size) / size) * size * 7)] + symbols.space.repeat(size - Math.floor(value / total * size) - 1) : ""}| ${value}/${total} - ${(Math.round(value / total * 1000) / 10).toFixed(1)}%`);
+                const draw = (value) => text(`|${mwrap(symbols.box[6]).repeat(Math.floor(value/total*size))}${value < total ? mwrap(symbols.box[Math.floor((value/total - Math.floor(value/total*size)/size)*size*7)]) + mwrap(symbols.uspace).repeat(size - Math.floor(value/total*size) - 1) : ""}| ${value}/${total} - ${(Math.round(value/total*1000)/10).toFixed(1)}%`);
                 draw();
                 drawSeq();
                 function drawSeq() {
@@ -249,6 +325,7 @@
         }
 
         document.onkeydown = (e) => {
+            console.log(e.key);
             keys[e.key] = true;
             const line = textbox.innerText.split("\n")[pcurs[0]];
             if (e.key == "ArrowLeft") {
@@ -264,18 +341,18 @@
                 placecursor(...pcurs);
             }
             else if (e.key == "ArrowUp") {
-                if (pcurs[0] > linecount()) pcurs[0] = linecount();
-                movecursor(-1, 0);
-                if (pcurs[0] < 0) pcurs[0] = 0;
+                if (pcurs[0] > linecount() - 1) pcurs[0] = linecount() - 1;
+                if (pcurs[0] > 0) movecursor(-1, 0);
+                else if (pcurs[0] < 0) pcurs[0] = 0;
                 placecursor(...pcurs);
             }
             else if (e.key == "ArrowDown") {
                 if (pcurs[0] < 0) pcurs[0] = 0;
                 movecursor(1, 0);
-                if (pcurs[0] > linecount()) pcurs[0] = linecount();
+                if (pcurs[0] > linecount() - 1) pcurs[0] = linecount() - 1;
                 placecursor(...pcurs);
             }
-            else if (alphanum.includes(e.key)) insert(e.key);
+            else if (alphanum.includes(e.key)) insert(e.key == " " ? symbols.tspace : e.key);
         }
 
         document.onkeyup = (e) => keys[e.key] = false;

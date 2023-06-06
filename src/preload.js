@@ -57,3 +57,7 @@ contextBridge.exposeInMainWorld("storage", {
     setStorage: async (id, content) => await ipcRenderer.invoke("get-storage", "setStorage", id, content),
     requestFile: async (extensions = false) => await ipcRenderer.invoke("get-storage", "requestFile", extensions)
 })
+
+contextBridge.exposeInMainWorld("dev", {
+    toggleDevTools: async (id) => await ipcRenderer.invoke("toggle-dev-tools", "getStorage", id)
+})

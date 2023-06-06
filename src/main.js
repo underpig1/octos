@@ -65,6 +65,7 @@ function createTrayMenu(modItems = []) {
         { label: "Open mod folder", type: "normal", click: () => require("child_process").exec('start "" "%AppData%\\octos\\mods"') },
         { type: "separator" },
         { id: "visibility", label: "Toggle visibility", type: "checkbox", checked: true, click: toggle },
+        { label: "Toggle devtools", type: "normal", click: toggleDev },
         { type: "separator" },
         { label: "Refresh", type: "normal", click: refresh },
         { label: "Exit", type: "normal", click: exit }
@@ -84,6 +85,11 @@ function setModByName(name) {
         refresh();
     }
     updateModList();
+}
+
+function toggleDev() {
+    if (!win.webContents.isDevToolsOpened()) win.webContents.openDevTools({ mode: "detach" });
+    else win.webContents.closeDevTools();
 }
 
 function updateModList() {
@@ -184,7 +190,7 @@ function handleEvents() {
         }
         for (const key of keysPressed) {
             if (!prevKeyboard.includes(key)) {
-                var k = key == "Backspace" ? key : keyCode(key, shift);
+                var k = keyCode(key, shift);
                 if (k) {
                     win.webContents.sendInputEvent({ type: "keyDown", keyCode: k });
                     win.webContents.sendInputEvent({ type: "char", keyCode: k });
@@ -296,4 +302,5 @@ app.whenReady().then(() => {
         else if (type == "setStorage" && id && content) return setLocalStorage(id, content);
         else if (type == "requestFile") return requestFile(arguments[2]);
     });
+    ipcMain.handle("toggle-dev-tools", toggleDev);
 });
