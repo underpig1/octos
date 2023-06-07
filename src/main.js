@@ -65,7 +65,7 @@ function createTrayMenu(modItems = []) {
         { label: "Open mod folder", type: "normal", click: () => require("child_process").exec('start "" "%AppData%\\octos\\mods"') },
         { type: "separator" },
         { id: "visibility", label: "Toggle visibility", type: "checkbox", checked: true, click: toggle },
-        { label: "Toggle devtools", type: "normal", click: toggleDev },
+        { id: "toggledev", label: "Toggle devtools", type: "checkbox", checked: false, click: toggleDev },
         { type: "separator" },
         { label: "Refresh", type: "normal", click: refresh },
         { label: "Exit", type: "normal", click: exit }
@@ -88,7 +88,7 @@ function setModByName(name) {
 }
 
 function toggleDev() {
-    if (!win.webContents.isDevToolsOpened()) win.webContents.openDevTools({ mode: "detach" });
+    if (cmenu.getMenuItemById("toggledev").checked) win.webContents.openDevTools({ mode: "detach" });
     else win.webContents.closeDevTools();
 }
 

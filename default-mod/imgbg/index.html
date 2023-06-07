@@ -78,12 +78,12 @@
         }
 
         #tooltip:not(.active) .personalize {
-            fill: lightgray;
+            fill: white;
+            filter: drop-shadow(0 0 2px #00000055);
             opacity: 1;
             position: absolute;
             top: 20px;
             right: 20px;
-            mix-blend-mode: difference;
             z-index: 2;
         }
 
@@ -93,11 +93,10 @@
             display: block;
             top: 30px;
             right: 30px;
-            background-color: lightgray;
+            background-color: white;
             opacity: 1;
             width: 0;
             height: 0;
-            mix-blend-mode: difference;
             z-index: 1;
             border-radius: 50%;
             opacity: 0;
@@ -188,8 +187,8 @@
             text-align: right;
             font-size: 12px;
             font-family: sans-serif;
-            color: lightgray;
-            text-shadow: 0 0 2px black;
+            color: white;
+            text-shadow: 0 0 2px #00000055;
             font-weight: 100;
             cursor: default;
             opacity: 1;
@@ -208,13 +207,133 @@
             margin-top: -2px;
             left: 0;
             height: 1px;
-            background-color: lightgray;
+            background-color: white;
+            opacity: 0.5;
             transition: width 0.5s, left 0.5s;
         }
 
         #tooltip:not(.active) .edit:hover::after {
             width: 0;
             left: 50%;
+        }
+
+        #layout-editor.active {
+            visibility: visible;
+        }
+
+        #tooltip.active #layout-editor {
+            visibility: hidden;
+        }
+
+        #layout-editor {
+            --border-radius: 25px;
+            position: absolute;
+            visibility: hidden;
+            display: block;
+            width: 435px;
+            height: 55px;
+            background-color: white;
+            z-index: 3;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            box-shadow: 0 2px 2px #00000011;
+            font-size: 12px;
+            font-family: sans-serif;
+            color: gray;
+            font-weight: 100;
+            transition: height 1s;
+        }
+
+        #layout-editor::before {
+            content: "";
+            width: calc(var(--border-radius)*2);
+            height: var(--border-radius);
+            display: block;
+            background-color: transparent;
+            border-radius: 0 var(--border-radius) 0 0;
+            margin-left: calc(0px - var(--border-radius)*2);
+            box-shadow: var(--border-radius) 0 0 white;
+            z-index: -1;
+        }
+
+        #layout-editor::after {
+            position: absolute;
+            top: 0;
+            right: calc(0px - var(--border-radius)*2);
+            content: "";
+            width: calc(var(--border-radius)*2);
+            height: var(--border-radius);
+            display: block;
+            background-color: transparent;
+            border-radius: var(--border-radius) 0 0 0;
+            box-shadow: calc(0px - var(--border-radius)) 0 0 white;
+            z-index: -1;
+        }
+
+        .colors {
+            width: 100%;
+            height: 25px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 15px;
+            margin-top: -10px;
+            box-sizing: border-box;
+            opacity: 1;
+            transition: opacity 1s, height 1s;
+        }
+
+        .color, .font {
+            background: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 1px solid white;
+        }
+
+        .font {
+            text-align: center;
+            font-size: 14px;
+            line-height: 20px;
+            border-color: darkgray;
+            color: darkgray;
+        }
+
+        .graphics {
+            width: 100%;
+            margin: 15px 0;
+            height: 25px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 15px;
+            box-sizing: border-box;
+            transition: margin-top 1s;
+        }
+
+        .graphic {
+            width: fit-content;
+            padding: 4px 10px;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            border-radius: 15px;
+            background-color: #eee;
+        }
+
+        #layout-editor:not(.styling) .graphics {
+            margin-top: 0;
+        }
+
+        #layout-editor:not(.styling) .colors {
+            opacity: 0;
+            height: 0;
+        }
+
+        #layout-editor.styling {
+            height: 100px;
         }
     </style>
 </head>
@@ -228,6 +347,31 @@
             </svg>
             <span id="personalize-tip">&nbsp;Click to select a background image</span></label>
             <div id="edit" class="edit">Enter layout mode (E)</div>
+            <div id="layout-editor" class="active">
+                <div class="colors">
+                    <p>Style:</p>
+                    <div class="color" style="background: red;"></div>
+                    <div class="color" style="background: orange;"></div>
+                    <div class="color" style="background: yellow;"></div>
+                    <div class="color" style="background: lightgreen;"></div>
+                    <div class="color" style="background: lightblue;"></div>
+                    <div class="color" style="background: violet;"></div>
+                    <div class="color" style="background: white; border-color: darkgray;"></div>
+                    <div class="color" style="background: gray;"></div>
+                    <div class="color" style="background: black;"></div>
+                    <div class="font" style="font-family: sans-serif;">Aa</div>
+                    <div class="font" style="font-family: 'Times New Roman', Times, serif;">Aa</div>
+                    <div class="font" style="font-family: cursive;">Aa</div>
+                </div>
+                <div class="graphics">
+                    <div class="graphic">+ Date</div>
+                    <div class="graphic">+ Time</div>
+                    <div class="graphic">+ Media</div>
+                    <div class="graphic">+ Clock</div>
+                    <div class="graphic">+ Notes</div>
+                    <div class="graphic">+ Image</div>
+                </div>
+            </div>
         <input id="file-upload" type="file" />
     </div>
     <div class="accessory clock template" id="clock-template">
@@ -242,23 +386,33 @@
         const fileUpload = document.getElementById("file-upload");
         const tooltip = document.getElementById("tooltip");
         const edit = document.getElementById("edit");
+        const layoutEditor = document.getElementById("layout-editor");
+        const colors = document.getElementsByClassName("color");
+        const fonts = document.getElementsByClassName("font");
         const accessories = () => [...document.getElementsByClassName("accessory")].filter((c) => !c.classList.contains("template"));
         for (const el of accessories()) setDragElement(el);
         var editing = false;
         var bgchosen = false;
         var id = 0;
         var movetimer = 0;
+        var styling = false;
+        var stylingacc;
         fileUpload.onchange = selectBackground;
 
         window.storage.getStorage("url").then((url) => setBackground(url));
         getAccessoriesFromStorage();
         window.dev.toggleDevTools();
+        layoutButton();
 
         function toggleEdit() {
             editing = !editing;
             for (var accessory of accessories()) {
                 if (editing) accessory.classList.add("editing");
                 else accessory.classList.remove("editing");
+            }
+            if (!editing) {
+                styling = false;
+                layoutEditor.classList.remove("styling");
             }
         }
 
@@ -332,10 +486,26 @@
             });
         }
 
+        function selectAccessory(el) {
+            stylingacc = el;
+            styling = true;
+            layoutEditor.classList.add("styling");
+            var cstyle = window.getComputedStyle(el);
+            for (var font of fonts) {
+                if (window.getComputedStyle(font).getPropertyValue("font-family") == cstyle.getPropertyValue("font-family")) font.classList.add("active");
+                else font.classList.remove("active");
+            }
+            for (var color of colors) {
+                if (window.getComputedStyle(color).getPropertyValue("background") == cstyle.getPropertyValue("background")) font.classList.add("active");
+                else font.classList.remove("active");
+            }
+        }
+
         function setDragElement(el) {
             var pos = [0, 0, 0, 0];
             el.onmousedown = (e) => {
                 if (el.classList.contains("active") && el.classList.contains("editing")) {
+                    selectAccessory(el);
                     var rect = el.getBoundingClientRect();
                     var woff = e.clientX - rect.left - rect.width;
                     var hoff = e.clientY - rect.top;
@@ -372,15 +542,20 @@
             }
         }
 
-        setInterval(() => {
-            if (movetimer > 100 && bgchosen) edit.style.opacity = 0;
-            else movetimer++;
-        }, 10);
+        function layoutButton() {
+            var mouse = [0, 0];
 
-        document.addEventListener("mousemove", (e) => {
-            if (bgchosen) edit.style.opacity = 1;
-            movetimer = 0;
-        });
+            setInterval(() => {
+                if (movetimer > 100 && document.elementFromPoint(...mouse) != edit) edit.style.opacity = 0;
+                else movetimer++;
+            }, 10);
+
+            document.addEventListener("mousemove", (e) => {
+                if (bgchosen) edit.style.opacity = 1;
+                mouse = [e.clientX, e.clientY];
+                movetimer = 0;
+            });
+        }
     </script>
 </body>
 </html>
