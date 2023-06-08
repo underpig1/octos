@@ -158,6 +158,7 @@ function createSettings() {
 }
 
 function handleEvents() {
+    var active = isActive();
     if (options.events.mouse) {
         var position = wp.mousePosition();
         var mouse = {
@@ -191,7 +192,7 @@ function handleEvents() {
         for (const key of keysPressed) {
             if (!prevKeyboard.includes(key)) {
                 var k = keyCode(key, shift);
-                if (k) {
+                if (k && active) {
                     win.webContents.sendInputEvent({ type: "keyDown", keyCode: k });
                     win.webContents.sendInputEvent({ type: "char", keyCode: k });
                 }

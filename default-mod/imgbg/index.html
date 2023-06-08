@@ -138,6 +138,10 @@
             display: block;
         }
 
+        .accessory.editing.styling {
+            border: 2px solid rgb(192, 196, 1);
+        }
+
         .accessory::after {
             display: none;
             content: "";
@@ -217,18 +221,17 @@
             left: 50%;
         }
 
-        #layout-editor.active {
-            visibility: visible;
+        #layout-editor:not(.active) {
+            margin-top: -55px;
         }
 
-        #tooltip.active #layout-editor {
-            visibility: hidden;
+        #layout-editor:not(.active)::before, #layout-editor:not(.active)::after {
+            margin-top: -55px;
         }
 
         #layout-editor {
             --border-radius: 25px;
             position: absolute;
-            visibility: hidden;
             display: block;
             width: 435px;
             height: 55px;
@@ -243,7 +246,7 @@
             font-family: sans-serif;
             color: gray;
             font-weight: 100;
-            transition: height 1s;
+            transition: margin-top 1s, height 1s;
         }
 
         #layout-editor::before {
@@ -256,6 +259,8 @@
             margin-left: calc(0px - var(--border-radius)*2);
             box-shadow: var(--border-radius) 0 0 white;
             z-index: -1;
+            transition: margin-top 1s;
+            pointer-events: none;
         }
 
         #layout-editor::after {
@@ -270,6 +275,8 @@
             border-radius: var(--border-radius) 0 0 0;
             box-shadow: calc(0px - var(--border-radius)) 0 0 white;
             z-index: -1;
+            transition: margin-top 1s;
+            pointer-events: none;
         }
 
         .colors {
@@ -291,6 +298,11 @@
             height: 22px;
             border-radius: 50%;
             border: 1px solid white;
+            transition: border 1s;
+        }
+
+        .color.active, .font.active {
+            border: 2px solid rgb(192, 196, 1) !important;
         }
 
         .font {
@@ -313,6 +325,10 @@
             transition: margin-top 1s;
         }
 
+        #tooltip.active .graphics {
+            margin-top: -55px;
+        }
+
         .graphic {
             width: fit-content;
             padding: 4px 10px;
@@ -330,10 +346,50 @@
         #layout-editor:not(.styling) .colors {
             opacity: 0;
             height: 0;
+            pointer-events: none;
         }
 
         #layout-editor.styling {
             height: 100px;
+        }
+
+        .button {
+            transition: transform 0.1s;
+        }
+
+        .button:active {
+            transform: scale(0.9);
+        }
+
+        .image {
+            display: grid;
+            grid-template-columns: 1fr;
+            padding: 0;
+            pointer-events: all;
+        }
+
+        .image img {
+            box-sizing: border-box;
+            min-width: 200px;
+            min-height: 200px;
+            grid-row-start: 1;
+            grid-column-start: 1;
+        }
+
+        .image .img-tooltip {
+            box-sizing: border-box;
+            min-width: 200px;
+            min-height: 200px;
+            background-color: #eee;
+            text-align: center;
+            line-height: 200px;
+            font-weight: normal;
+            font-size: 12px;
+            border-radius: 5px;
+            color: gray;
+            grid-row-start: 1;
+            grid-column-start: 1;
+            font-family: sans-serif !important;
         }
     </style>
 </head>
@@ -346,30 +402,30 @@
                 </path>
             </svg>
             <span id="personalize-tip">&nbsp;Click to select a background image</span></label>
-            <div id="edit" class="edit">Enter layout mode (E)</div>
-            <div id="layout-editor" class="active">
+            <div id="edit" class="edit" onclick="toggleEdit()">Enter layout mode (E)</div>
+            <div id="layout-editor">
                 <div class="colors">
                     <p>Style:</p>
-                    <div class="color" style="background: red;"></div>
-                    <div class="color" style="background: orange;"></div>
-                    <div class="color" style="background: yellow;"></div>
-                    <div class="color" style="background: lightgreen;"></div>
-                    <div class="color" style="background: lightblue;"></div>
-                    <div class="color" style="background: violet;"></div>
-                    <div class="color" style="background: white; border-color: darkgray;"></div>
-                    <div class="color" style="background: gray;"></div>
-                    <div class="color" style="background: black;"></div>
-                    <div class="font" style="font-family: sans-serif;">Aa</div>
-                    <div class="font" style="font-family: 'Times New Roman', Times, serif;">Aa</div>
-                    <div class="font" style="font-family: cursive;">Aa</div>
+                    <div class="color button" style="background: red;" onclick="selectStyle(this)"></div>
+                    <div class="color button" style="background: orange;" onclick="selectStyle(this)"></div>
+                    <div class="color button" style="background: yellow;" onclick="selectStyle(this)"></div>
+                    <div class="color button" style="background: lightgreen;" onclick="selectStyle(this)"></div>
+                    <div class="color button" style="background: lightblue;" onclick="selectStyle(this)"></div>
+                    <div class="color button" style="background: violet;" onclick="selectStyle(this)"></div>
+                    <div class="color button active" style="background: white; border-color: darkgray;" onclick="selectStyle(this)"></div>
+                    <div class="color button" style="background: gray;" onclick="selectStyle(this)"></div>
+                    <div class="color button" style="background: black;" onclick="selectStyle(this)"></div>
+                    <div class="font button active" style="font-family: sans-serif;" onclick="selectStyle(this)">Aa</div>
+                    <div class="font button" style="font-family: 'Times New Roman', Times, serif;" onclick="selectStyle(this)">Aa</div>
+                    <div class="font button" style="font-family: cursive;" onclick="selectStyle(this)">Aa</div>
                 </div>
                 <div class="graphics">
-                    <div class="graphic">+ Date</div>
-                    <div class="graphic">+ Time</div>
-                    <div class="graphic">+ Media</div>
-                    <div class="graphic">+ Clock</div>
-                    <div class="graphic">+ Notes</div>
-                    <div class="graphic">+ Image</div>
+                    <div class="graphic button" type="calender" onclick="addAccessory(this)">+ Date</div>
+                    <div class="graphic button" type="clock" onclick="addAccessory(this)">+ Time</div>
+                    <div class="graphic button" type="media" onclick="addAccessory(this)">+ Media</div>
+                    <div class="graphic button" type="tick" onclick="addAccessory(this)">+ Clock</div>
+                    <div class="graphic button" type="note" onclick="addAccessory(this)">+ Notes</div>
+                    <div class="graphic button" type="image" onclick="addAccessory(this)">+ Image</div>
                 </div>
             </div>
         <input id="file-upload" type="file" />
@@ -379,6 +435,9 @@
     </div>
     <div class="accessory calender template" id="calender-template">
         <div class="date"><span class="d-day">Sunday</span>, <span class="d-month">May</span> <span class="d-date">23</span></div>
+    </div>
+    <div class="accessory image template" id="image-template">
+        <input id="file-upload" type="file"><span class="img-tooltip">+ Double click to add image</span></img></input>
     </div>
     <div id="background"></div>
     <script>
@@ -410,10 +469,30 @@
                 if (editing) accessory.classList.add("editing");
                 else accessory.classList.remove("editing");
             }
-            if (!editing) {
-                styling = false;
-                layoutEditor.classList.remove("styling");
+            if (editing) {
+                layoutEditor.classList.add("active");
             }
+            else {
+                styling = false;
+                layoutEditor.classList.remove("styling", "active");
+            }
+        }
+
+        function selectStyle(el) {
+            if (el.classList.contains("color")) {
+                for (var color of colors) color.classList.remove("active");
+                stylingacc.style.color = el.style.background;
+            }
+            else if (el.classList.contains("font")) {
+                for (var font of fonts) font.classList.remove("active");
+                stylingacc.style.fontFamily = el.style.fontFamily;
+            }
+            el.classList.add("active");
+        }
+
+        function addAccessory(el) {
+            var type = el.getAttribute("type");
+            createAccessory(window.innerWidth/2 + "px", window.innerHeight/2 + "px", "white", type, "scale(1)");
         }
 
         function selectBackground() {
@@ -452,13 +531,14 @@
                     left: el.style.left,
                     color: el.style.color,
                     type: [...el.classList].filter((c) => c != "accessory" && c != "active" && c != "editing")[0],
-                    transform: el.style.transform
+                    transform: el.style.transform,
+                    data: el.getAttribute("data")
                 };
             }
             window.storage.setStorage("dacc", store);
         }
 
-        function createAccessory(top = "100px", left = "100px", color = "white", type = "clock", transform = "scale(1)") {
+        function createAccessory(top = "100px", left = "100px", color = "white", type = "clock", transform = "scale(1)", data = "") {
             var template = document.getElementById(type + "-template");
             var accessory = template.cloneNode(true);
             accessory.style.top = top;
@@ -466,6 +546,8 @@
             accessory.style.color = color;
             accessory.style.transform = transform;
             accessory.id = id;
+            accessory.style.fontFamily = "sans-serif";
+            accessory.setAttribute("data", data);
             id++;
             accessory.classList.remove("template");
             if (bgchosen) accessory.classList.add("active");
@@ -473,6 +555,7 @@
             setDragElement(accessory);
             document.body.appendChild(accessory);
             updateAccessoryStorage();
+            if (editing) selectAccessory(accessory);
         }
 
         function getAccessoriesFromStorage() {
@@ -480,7 +563,7 @@
                 if (store) {
                     for (var id of Object.keys(store)) {
                         var data = store[id];
-                        createAccessory(data.top, data.left, data.color, data.type, data.transform);
+                        createAccessory(data.top, data.left, data.color, data.type, data.transform, data.data);
                     }
                 }
             });
@@ -490,14 +573,15 @@
             stylingacc = el;
             styling = true;
             layoutEditor.classList.add("styling");
-            var cstyle = window.getComputedStyle(el);
+            for (const el of accessories()) el.classList.remove("styling");
+            el.classList.add("styling");
             for (var font of fonts) {
-                if (window.getComputedStyle(font).getPropertyValue("font-family") == cstyle.getPropertyValue("font-family")) font.classList.add("active");
+                if (font.style.fontFamily == el.style.fontFamily) font.classList.add("active");
                 else font.classList.remove("active");
             }
             for (var color of colors) {
-                if (window.getComputedStyle(color).getPropertyValue("background") == cstyle.getPropertyValue("background")) font.classList.add("active");
-                else font.classList.remove("active");
+                if (color.style.background == el.style.color) color.classList.add("active");
+                else color.classList.remove("active");
             }
         }
 
@@ -520,8 +604,7 @@
                         document.onmouseup = null;
                         document.onmousemove = null;
                         var rect = el.getBoundingClientRect();
-                        var center = [rect.left + rect.width/2, rect.top + rect.height/2];
-                        if ((center[1] > window.innerHeight || center[0] > window.innerWidth || center[1] < 0 || center[0] < 0) && !scaling) el.remove();
+                        if ((rect.top > window.innerHeight || rect.right > window.innerWidth || rect.top < 0 || rect.left < 0) && !scaling) el.remove();
                         else updateAccessoryStorage();
                     }
                     document.onmousemove = (e) => {
@@ -535,9 +618,7 @@
                             el.style.top = (el.offsetTop - pos[2]) + "px";
                             el.style.left = (el.offsetLeft - pos[1]) + "px";
                         }
-                        e.preventDefault();
                     }
-                    e.preventDefault();
                 }
             }
         }
@@ -555,6 +636,10 @@
                 mouse = [e.clientX, e.clientY];
                 movetimer = 0;
             });
+        }
+
+        document.onkeydown = (e) => {
+            if (e.key == "e") toggleEdit();
         }
     </script>
 </body>

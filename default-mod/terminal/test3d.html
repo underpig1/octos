@@ -1,0 +1,169 @@
+<canvas id="canvas"></canvas>
+<script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    canvas.style.width = "100vw";
+    canvas.style.height = "100vh";
+
+    var vec3 = (x, y, z) => {
+        return { x, y, z };
+    }
+    var vec2 = (x, y) => {
+        return { x, y };
+    }
+
+    var c = vec3(0, 0, -100);
+    var r = vec3(0, 0, 0);
+    var e = vec3(0, 0, 1000);
+
+    function project3d(a) {
+        var x = a.x - c.x;
+        var y = a.y - c.y;
+        var z = a.z - c.z;
+        var dx = Math.cos(r.y)*(Math.sin(r.z)*y + Math.cos(r.z)*x) - Math.sin(r.y)*z;
+        var dy = Math.sin(r.x)*(Math.cos(r.y)*z + Math.sin(r.y)*(Math.sin(r.z)*y + Math.cos(r.z)*x)) + Math.cos(r.x)*(Math.cos(r.z)*y - Math.sin(r.z)*x);
+        var dz = Math.cos(r.x)*(Math.cos(r.y)*z + Math.sin(r.y)*(Math.sin(r.z)*y + Math.cos(r.z)*x)) - Math.sin(r.x)*(Math.cos(r.z)*y - Math.sin(r.z)*x);
+        var px = e.z/dz*dx + e.x;
+        var py = e.z/dz*dy + e.y;
+        return vec2(px, py);
+    }
+
+    function line2d(a, b) {
+        ctx.beginPath();
+        ctx.moveTo(a.x + 150, a.y + 75);
+        ctx.lineTo(b.x + 150, b.y + 75);
+        ctx.stroke();
+    }
+
+    function line3d(a, b) {
+        line2d(project3d(a), project3d(b));
+    }
+
+    function face3d(f) {
+        for (var i = 0; i < f.length - 1; i++) line3d(f[i], f[i + 1]);
+        line3d(f[i], f[0]);
+    }
+
+    function mesh3d(m) {
+        for (var i = 0; i < m.length; i++) face3d(m[i]);
+    }
+
+    function mesh2d(m) {
+        var faces = [];
+        for (var i in m) faces.push({ face: m[i].map((c) => project3d(c)), dist: distanceFromCamera([m[i]]), id: i });
+        return faces;
+    }
+
+    function rotate3d(m, t, a = vec3(0, 0, 0)) {
+        var ca = Math.cos(t.x), sa = Math.sin(t.x), cb = Math.cos(t.y), sb = Math.sin(t.y), cc = Math.cos(t.z), sc = Math.sin(t.z);
+        for (var f of m) {
+            for (var p of f) {
+                var px = p.x - a.x;
+                var py = p.y - a.y;
+                var pz = p.z - a.z;
+                p.x = ca*cb*px + (ca*sb*sc - sa*cc)*py + (ca*sb*cc + sa*sc)*pz + a.x;
+                p.y = sa*cb*px + (sa*sb*sc + ca*cc)*py + (sa*sb*cc - ca*sc)*pz + a.y;
+                p.z = -sb*px + cb*sc*py + cb*cc*pz + a.z;
+            }
+        }
+    }
+
+    function centerOfMass(m) {
+        var s = vec3(0, 0, 0);
+        var fm = m.flat();
+        for (var i = 0; i < fm.length; ++i) {
+            s.x += fm[i].x;
+            s.y += fm[i].y;
+            s.z += fm[i].z;
+        }
+        return vec3(s.x/i, s.y/i, s.z/i);
+    }
+
+    function centerByMass(m) {
+        var ct = centerOfMass(m);
+        for (var f of m) {
+            for (var p of f) {
+                p.x -= ct.x;
+                p.y -= ct.y;
+                p.z -= ct.z;
+            }
+        }
+    }
+
+    function distanceFromCamera(m) {
+        var ct = centerOfMass(m);
+        return Math.sqrt((c.x - ct.x)**2 + (c.y - ct.y)**2 + (c.z - ct.z)**2);
+    }
+
+    function arrayToMesh(arr, scale = 1) {
+        return arr.map((c) => c.map((k) => vec3(...k.map((j) => j*scale))));
+    }
+
+    function sphere(radius) {
+        
+    }
+
+    function cone(radius = 5, segments = 5, height = 5) {
+        var circleFace = [];
+        for (var t = 0; t < 2*Math.PI; t += 2*Math.PI/segments) {
+            var x = radius*Math.cos(t);
+            var y = radius*Math.sin(t);
+            circleFace.push([x, y, 0]);
+        }
+
+        var faces = [circleFace];
+        var tip = [0, 0, height];
+        for (var i = 0; i < circleFace.length - 1; i++) faces.push([circleFace[i], circleFace[i + 1], tip]);
+
+        return faces;
+    }
+
+    var cube = (scale) => arrayToMesh([
+        [[-1, -1, -1], [-1, -1, 1], [-1, 1, 1], [-1, 1, -1]],
+        [[1, -1, -1], [1, -1, 1], [1, 1, 1], [1, 1, -1]],
+        [[-1, 1, -1], [-1, 1, 1], [1, 1, 1], [1, 1, -1]],
+        [[-1, -1, -1], [-1, -1, 1], [1, -1, 1], [1, -1, -1]],
+        [[-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1]],
+        [[-1, -1, 1], [-1, 1, 1], [1, 1, 1], [1, -1, 1]]
+    ], scale);
+
+    var m = arrayToMesh(cone(10, 10, 20));
+    ctx.font = "12px Arial";
+    var charmap = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'";
+    var nf = m.length + 1;
+    var splitmap = Array.from({ length: nf }, (_, i) => charmap.slice(-i*~(charmap.length/nf), -(i + 1)*~(charmap.length/nf)));
+    setInterval(() => {
+        ctx.clearRect(0, 0, 1000, 1000);
+        rotate3d(m, vec3(0.005, 0.005, 0));
+        var projected = mesh2d(m).sort((a, b) => a.dist - b.dist);
+        for (var x = -canvas.width/2; x < canvas.width/2; x += 10) {
+            for (var y = -canvas.height/2; y < canvas.height/2; y += 10) {
+                for (var i in projected) {
+                    var id = parseInt(projected[i].id);
+                    var shape = projected[i].face;
+                    var dist = projected[i].dist;
+                    if (encloses(vec2(x, y), shape)) {
+                        ctx.fillStyle = "#333";
+                        ctx.clearRect(x + canvas.width/2, y + canvas.height/2, 10, 10);
+                        var variate = id + Math.round((Math.random() - 0.5)*2);
+                        variate = variate < 0 ? 0 : (variate > 5 ? 5 : variate);
+                        var char = splitmap[variate][Math.round(Math.random()*(splitmap[variate].length - 1))];
+                        ctx.fillText(splitmap[id], x + canvas.width/2, y + canvas.height/2);
+                        break;
+                    }
+                }
+            }
+        }
+    }, 10);
+
+    function encloses(point, shape) {
+        var intersect = false;
+        for (var i = 0, j = shape.length - 1; i < shape.length; j = i++) {
+            if (((shape[i].y > point.y) != (shape[j].y > point.y)) && (point.x < (shape[j].x - shape[i].x)*(point.y - shape[i].y)/(shape[j].y - shape[i].y) + shape[i].x)) intersect = !intersect;
+        }
+        return intersect;
+    }
+</script>

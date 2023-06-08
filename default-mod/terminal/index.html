@@ -140,75 +140,8 @@
             uspace: "&#10240;",
             tspace: "\u00a0"
         }
-        const alphanum = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ";
 
-        const clock = [`   ___  
-  / _ \\ 
- | | | |
- | | | |
- | |_| |
-  \\___/ `,
-`  __ 
- /_ |
-  | |
-  | |
-  | |
-  |_|`,
-`  ___  
- |__ \\ 
-    ) |
-   / / 
-  / /_ 
- |____|
-`,
-`  ____  
- |___ \\ 
-   __) |
-  |__ < 
-  ___) |
- |____/ `,
-`  _  _   
- | || |  
- | || |_ 
- |__   _|
-    | |  
-    |_|  `,
-`  _____ 
- | ____|
- | |__  
- |___ \\ 
-  ___) |
- |____/ `,
-`    __  
-   / /  
-  / /_  
- | '_ \\ 
- | (_) |
-  \\___/ `,
-`  ______ 
- |____  |
-     / / 
-    / /  
-   / /   
-  /_/    `,
-`   ___  
-  / _ \\ 
- | (_) |
-  > _ < 
- | (_) |
-  \\___/ `,
-`   ___  
-  / _ \\ 
- | (_) |
-  \\__, |
-    / / 
-   /_/  `,
-`  _ 
- (_)
-    
-  _ 
- (_)`];
-        const clockchar = (n) => clock[n].split("\n").map((c) => c.replaceAll(" ", symbols.uspace)).join("<br>");
+        boot();
 
         function boot() {
             newline();
@@ -233,13 +166,13 @@
             });
         }
 
-        startup();
         function startup() {
             line("Type H for command help");
-            line("Press M to toggle mode");
+            line("Press M to change mode");
+
+            line("Press M to change mode");
             showcursor(true);
             resetcursor();
-            setInterval(update, 10);
         }
 
         function progressBar(total, speed = 100, size = 8) {
@@ -266,62 +199,20 @@
         function progressWheel(time) {
             return new Promise((resolve, reject) => {
                 var iter = 0;
-                const draw = (value) => text(symbols.wheel[iter % 4]);
-                draw();
-                drawSeq();
-                function drawSeq() {
+                text(symbols.wheel[0]);
+                var seq = () => {
                     backspace();
-                    draw(Math.round(iter));
+                    text(symbols.wheel[iter % 4]);
                     iter++;
-                    if (iter <= time/100) setTimeout(drawSeq, 100);
+                    if (iter <= time/100) setTimeout(seq, 100);
                     else {
-                        iter = time/100;
                         backspace();
                         text("Done");
                         setTimeout(resolve, 100);
                     }
-                }
+                };
+                seq();
             });
-        }
-
-        function repeatInterval(callback, delay, count) {
-            return new Promise((resolve, reject) => {
-                var n = 0;
-                var interval = setInterval(() => {
-                    callback();
-                    if (++n == count) resolve(clearInterval(interval));
-                }, delay);
-            });
-        }
-
-        function numFlood() {
-            return new Promise((resolve, reject) => {
-                var halph = "ABCDEF0123456789";
-                var randhalph = () => halph[Math.round(Math.random()*(halph.length - 1))];
-                repeatInterval(() => {
-                    clear();
-                    for (var j = 0; j < 50; j++) {
-                        line("x" + j + "\t");
-                        for (var i = 0; i < 50; i++) text(randhalph() + randhalph() + " ");
-                    }
-                }, 100, 10).then(resolve);
-            });
-        }
-
-        function options(options) {
-            line("Select:");
-            for (var opt of options) line("> " + opt);
-            document.addEventListener("keydown", (e) => {
-                return linecount() - options.length;
-            });
-        }
-
-        function update() {
-            if (Object.values(keys).includes(true)) {
-                for (var [key, val] of Object.entries(keys)) {
-                    //if (val) insert(key);
-                }
-            }
         }
 
         document.onkeydown = (e) => {
@@ -352,7 +243,8 @@
                 if (pcurs[0] > linecount() - 1) pcurs[0] = linecount() - 1;
                 placecursor(...pcurs);
             }
-            else if (alphanum.includes(e.key)) insert(e.key == " " ? symbols.tspace : e.key);
+            else if (e.key == "m") changeMode();
+            //else if (alphanum.includes(e.key)) insert(e.key == " " ? symbols.tspace : e.key);
         }
 
         document.onkeyup = (e) => keys[e.key] = false;
