@@ -102,11 +102,46 @@
         return arr.map((c) => c.map((k) => vec3(...k.map((j) => j*scale))));
     }
 
-    function sphere(radius) {
-        
+    function sphere(radius, segments) {
+        var points = [];
+        for (var i = -segments/2; i < segments/2; i++) {
+            var r = radius*i;
+            for (var t = 0; t < 2*Math.PI; t += 2*Math.PI / segments) {
+                var x = r*Math.cos(t);
+                var y = r*Math.sin(t);
+                points.push([x, y, radius*Math.cos(i)]);
+            }
+        }
+        var faces = []
+        for (var i in points) {
+            faces.push(points[i],points[i+1],points[i+segments+1], points[i + segments])
+        }
+        return points;
     }
 
-    function cone(radius = 5, segments = 5, height = 5) {
+    function sphereArray(radius = 5, segments = 5) {
+        var segsize = radius/segments;
+        var pcloud = {};
+        for (var h = -radius; h <= radius; h += segsize) {
+            var r = radius*Math.sqrt(1 - (h/radius)**2);
+            for (var t = 0, tt = 0; t < 2*Math.PI; t += 2*Math.PI/segments, tt++) {
+                var x = r*Math.cos(t);
+                var y = r*Math.sin(t);
+                if (!pcloud.hasOwnProperty(h)) pcloud[h] = {};
+                pcloud[h][tt] = [x, y, h];
+            }
+        }
+        var faces = [];
+        for (var h = -radius + segsize; h < radius + segsize; h += segsize) {
+            for (var tt = 1; tt < segments; tt++) {
+                faces.push([pcloud[h - segsize][tt - 1], pcloud[h - segsize][tt], pcloud[h][tt], pcloud[h][tt - 1]]);
+            }
+            faces.push([pcloud[h - segsize][tt - 1], pcloud[h - segsize][0], pcloud[h][0], pcloud[h][tt - 1]]);
+        }
+        return faces;
+    }
+
+    function coneArray(radius = 5, segments = 5, height = 5) {
         var circleFace = [];
         for (var t = 0; t < 2*Math.PI; t += 2*Math.PI/segments) {
             var x = radius*Math.cos(t);
@@ -121,16 +156,18 @@
         return faces;
     }
 
-    var cube = (scale) => arrayToMesh([
-        [[-1, -1, -1], [-1, -1, 1], [-1, 1, 1], [-1, 1, -1]],
-        [[1, -1, -1], [1, -1, 1], [1, 1, 1], [1, 1, -1]],
-        [[-1, 1, -1], [-1, 1, 1], [1, 1, 1], [1, 1, -1]],
-        [[-1, -1, -1], [-1, -1, 1], [1, -1, 1], [1, -1, -1]],
-        [[-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1]],
-        [[-1, -1, 1], [-1, 1, 1], [1, 1, 1], [1, -1, 1]]
-    ], scale);
+    function cubeArray(size) {
+        return [
+            [[-size, -size, -size], [-size, -size, size], [-size, size, size], [-size, size, -size]],
+            [[size, -size, -size], [size, -size, size], [size, size, size], [size, size, -size]],
+            [[-size, size, -size], [-size, size, size], [size, size, size], [size, size, -size]],
+            [[-size, -size, -size], [-size, -size, size], [size, -size, size], [size, -size, -size]],
+            [[-size, -size, -size], [size, -size, -size], [size, size, -size], [-size, size, -size]],
+            [[-size, -size, size], [-size, size, size], [size, size, size], [size, -size, size]]
+        ];
+    }
 
-    var m = arrayToMesh(cone(10, 10, 20));
+    var m = arrayToMesh(cubeArray(15));
     ctx.font = "12px Arial";
     var charmap = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'";
     var nf = m.length + 1;
@@ -151,7 +188,7 @@
                         var variate = id + Math.round((Math.random() - 0.5)*2);
                         variate = variate < 0 ? 0 : (variate > 5 ? 5 : variate);
                         var char = splitmap[variate][Math.round(Math.random()*(splitmap[variate].length - 1))];
-                        ctx.fillText(splitmap[id], x + canvas.width/2, y + canvas.height/2);
+                        ctx.fillText(splitmap[id % (splitmap.length - 1)][id], x + canvas.width/2, y + canvas.height/2);
                         break;
                     }
                 }
