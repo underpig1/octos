@@ -184,7 +184,7 @@
                 function drawSeq() {
                     seqreturn(/\|.*?\|/g);
                     draw(Math.round(iter));
-                    iter += Math.random() * speed;
+                    iter += Math.random()*speed;
                     if (iter <= total) setTimeout(drawSeq, 10);
                     else {
                         iter = total;

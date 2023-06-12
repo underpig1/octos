@@ -8,18 +8,24 @@
     canvas.style.width = "100vw";
     canvas.style.height = "100vh";
 
-    var vec3 = (x, y, z) => {
+    const vec3 = (x, y, z) => {
         return { x, y, z };
     }
-    var vec2 = (x, y) => {
+    const vec2 = (x, y) => {
         return { x, y };
     }
+    const dot = (a, b) => a.x*b.x + a.y*b.y + a.z*b.z;
+    const scale = (a, s) => vec3(a.x*s, a.y*s, a.z*s);
+    const add = (a, b) => vec3(a.x + b.x, a.y + b.y, a.z + b.z);
+    const sub = (a, b) => vec3(a.x - b.x, a.y - b.y, a.z - b.z);
+    const cross = (a, b) => vec3(a.y*b.z - b.y*a.z, a.z*b.x - a.x*b.z, a.x*b.y - b.x*a.y);
+    const magnitude = (a) => Math.sqrt(a.x**2 + a.y**2 + a.z**2);
 
     var c = vec3(0, 0, -100);
     var r = vec3(0, 0, 0);
     var e = vec3(0, 0, 1000);
 
-    function project3d(a) {
+    function project3(a) {
         var x = a.x - c.x;
         var y = a.y - c.y;
         var z = a.z - c.z;
@@ -31,33 +37,33 @@
         return vec2(px, py);
     }
 
-    function line2d(a, b) {
+    function line2(a, b) {
         ctx.beginPath();
         ctx.moveTo(a.x + 150, a.y + 75);
         ctx.lineTo(b.x + 150, b.y + 75);
         ctx.stroke();
     }
 
-    function line3d(a, b) {
-        line2d(project3d(a), project3d(b));
+    function line3(a, b) {
+        line2(project3(a), project3(b));
     }
 
-    function face3d(f) {
-        for (var i = 0; i < f.length - 1; i++) line3d(f[i], f[i + 1]);
-        line3d(f[i], f[0]);
+    function face3(f) {
+        for (var i = 0; i < f.length - 1; i++) line3(f[i], f[i + 1]);
+        line3(f[i], f[0]);
     }
 
-    function mesh3d(m) {
-        for (var i = 0; i < m.length; i++) face3d(m[i]);
+    function mesh3(m) {
+        for (var i = 0; i < m.length; i++) face3(m[i]);
     }
 
-    function mesh2d(m) {
+    function mesh2(m) {
         var faces = [];
-        for (var i in m) faces.push({ face: m[i].map((c) => project3d(c)), dist: distanceFromCamera([m[i]]), id: i });
+        for (var i in m) faces.push({ face: m[i].map((c) => project3(c)), dist: distanceFromCamera(centerOfMass([m[i]])), id: i });
         return faces;
     }
 
-    function rotate3d(m, t, a = vec3(0, 0, 0)) {
+    function rotate3(m, t, a = vec3(0, 0, 0)) {
         var ca = Math.cos(t.x), sa = Math.sin(t.x), cb = Math.cos(t.y), sb = Math.sin(t.y), cc = Math.cos(t.z), sc = Math.sin(t.z);
         for (var f of m) {
             for (var p of f) {
@@ -93,34 +99,150 @@
         }
     }
 
-    function distanceFromCamera(m) {
-        var ct = centerOfMass(m);
-        return Math.sqrt((c.x - ct.x)**2 + (c.y - ct.y)**2 + (c.z - ct.z)**2);
+    function cameraNormal() {
+        var n = vec3(-Math.sin(r.y), Math.sin(r.x)*Math.cos(r.y), -Math.cos(r.x)*Math.cos(r.y));
+        return scale(n, 1/magnitude(n));
+    }
+
+    function raycast(face, shift) {
+        var tf = face.slice(0, 3);
+        var nface = cross(sub(tf[0], tf[1]), sub(tf[0], tf[2]));
+        nface = scale(nface, 1/magnitude(nface));
+        var dface = -nface.x*tf[0].x - nface.y*tf[0].y - nface.z*tf[0].z;
+
+        var ncamera = cameraNormal();
+        var shifted = vec3(shift.x, shift.y, 0);
+        rotate3([[shifted]], r, vec3(0, 0, 0));
+        shifted = add(shifted, e);
+        var lvec = sub(shifted, c);
+
+        var p = add(shifted, scale(lvec, dot(sub(tf[0], shifted), nface)/dot(lvec, nface)));
+        var dist = Math.abs(dot(ncamera, sub(p, c)));
+        return dist;
+    }
+
+    function depthBuffer(face, width, height, interval = 10) {
+        var buffer = [];
+        for (var x = -width/2; x <= width/2; x += interval) {
+            for (var y = -height/2; y <= height/2; y += interval) {
+                buffer.push(raycast(face, vec2(x, y)));
+            }
+        }
+        return buffer;
+    }
+
+    function renderDepth(m) {
+        var width = canvas.width/2;
+        var height = canvas.height/2;
+        var interval = 10;
+        var buffers = [];
+        var bufferw = width/interval;
+        var bufferh = height/interval;
+        var projected = m.map((c) => c.map((a) => project3(a)));
+        for (var i in m) buffers.push({ id: i, depth: depthBuffer(m[i], width, height, interval) });
+        var bi = 0;
+        for (var x = -width/2; x < width/2; x += interval) {
+            for (var y = -height/2; y < height/2; y += interval) {
+                var depths = [];
+                for (var buffer of buffers) {
+                    var shape = projected[buffer.id];
+                    if (encloses(vec2(x, y), shape)) depths.push({ id: buffer.id, depth: buffer.depth[bi] });
+                }
+                if (depths.length > 0) {
+                    var id = depths.sort((a, b) => a.depth - b.depth)[0].id;
+                    var depth = depths.sort((a, b) => a.depth - b.depth)[0].depth;
+                    ctx.fillText(charmap[Math.round(depth - 24) % charmap.length], x + canvas.width/2, y + canvas.height/2);
+                    depth = (depth - 50)*3;
+                    ctx.fillStyle = `rgb(${depth}, ${depth}, ${depth})`;
+                    ctx.fillRect(x + canvas.width/2, y + canvas.height/2, interval, interval);
+                }
+                bi++;
+            }
+        }
+    }
+
+    function distanceFromCamera(p) {
+        var n = cameraNormal();
+        return Math.abs(dot(n, sub(p, c)));
+    }
+
+    function interpolateDepth(face, p) {
+        var nface = cross(sub(face[0], face[1]), sub(face[0], face[2]));
+        nface = scale(nface, 1/magnitude(nface));
+        var dface = -nface.x*face[0].x - nface.y*face[0].y - nface.z*face[0].z;
+        var depth = -(nface.x*p.x + nface.y*p.y + dface)/nface.z;
+        return depth;
+    }
+
+    function depthInterpolator(face) {
+        var tf = face.slice(0, 3);
+        var nface = cross(sub(tf[0], tf[1]), sub(tf[0], tf[2]));
+        var dface = -nface.x*tf[0].x - nface.y*tf[0].y - nface.z*tf[0].z;
+        return (p) => -(nface.x*p.x + nface.y*p.y + dface)/nface.z;
+    }
+
+    function projectFaceWithDepth(f) {
+        var face = [];
+        for (var p of f) {
+            var projected = project3(p);
+            var dist = distanceFromCamera(p);
+            face.push(vec3(projected.x, projected.y, dist));
+        }
+        return face;
+    }
+    
+    function projectFace(face) {
+        return face.map((c) => project3(c));
+    }
+
+    function triangulateForRender(m) {
+        var trim = [];
+        for (var f of m) {
+            if (f.face.length > 3) {
+                for (var i = 0; i < f.face.length - 2; i++) {
+                    var tri = vec3(f.face[0], f.face[i + 1], f.face[i + 2]);
+                    trim.push({ id: f.id, ...f });
+                }
+            }
+            else trim.push(f);
+        }
+        return trim;
+    }
+
+    function renderZ(m) {
+        var mesh = [];
+        for (var j in m) {
+            if (m[j].length > 3) {
+                for (var i = 0; i < m[j].length - 2; i++) {
+                    var face = [m[j][0], m[j][i + 1], m[j][i + 2]];
+                    mesh.push({ id: j, face });
+                }
+            }
+            else mesh.push({ id: j, face: m[j] });
+        }
+        var projected = [];
+        for (var i in mesh) projected.push({ id: mesh[i].id, projectedFace: projectFace(mesh[i].face), interpolate: depthInterpolator(projectFaceWithDepth(mesh[i].face)) });
+        for (var x = -canvas.width/2; x < canvas.width/2; x += 10) {
+            for (var y = -canvas.height/2; y < canvas.height/2; y += 10) {
+                var target = projected.filter((c) => encloses(vec2(x, y), c.projectedFace)).sort((a, b) => a.interpolate(vec2(x, y)) - b.interpolate(vec2(x, y)))[0];
+                if (target) {
+                    var id = parseInt(target.id);
+                    ctx.clearRect(x + canvas.width/2, y + canvas.height/2, 10, 10);
+                    var variate = id + Math.round((Math.random() - 0.5)*2);
+                    variate = variate < 0 ? 0 : (variate > 5 ? 5 : variate);
+                    var char = splitmap[variate][Math.round(Math.random()*(splitmap[variate].length - 1))];
+                    ctx.fillText(charmap[id % charmap.length], x + canvas.width/2, y + canvas.height/2);
+                }
+            }
+        }
     }
 
     function arrayToMesh(arr, scale = 1) {
         return arr.map((c) => c.map((k) => vec3(...k.map((j) => j*scale))));
     }
 
-    function sphere(radius, segments) {
-        var points = [];
-        for (var i = -segments/2; i < segments/2; i++) {
-            var r = radius*i;
-            for (var t = 0; t < 2*Math.PI; t += 2*Math.PI / segments) {
-                var x = r*Math.cos(t);
-                var y = r*Math.sin(t);
-                points.push([x, y, radius*Math.cos(i)]);
-            }
-        }
-        var faces = []
-        for (var i in points) {
-            faces.push(points[i],points[i+1],points[i+segments+1], points[i + segments])
-        }
-        return points;
-    }
-
     function sphereArray(radius = 5, segments = 5) {
-        var segsize = radius/segments;
+        var segsize = radius/segments*2;
         var pcloud = {};
         for (var h = -radius; h <= radius; h += segsize) {
             var r = radius*Math.sqrt(1 - (h/radius)**2);
@@ -132,13 +254,30 @@
             }
         }
         var faces = [];
-        for (var h = -radius + segsize; h < radius + segsize; h += segsize) {
+        for (var h = -radius + segsize; h <= radius; h += segsize) {
             for (var tt = 1; tt < segments; tt++) {
-                faces.push([pcloud[h - segsize][tt - 1], pcloud[h - segsize][tt], pcloud[h][tt], pcloud[h][tt - 1]]);
+                try {
+                    faces.push([pcloud[h - segsize][tt - 1], pcloud[h - segsize][tt], pcloud[h][tt], pcloud[h][tt - 1]]);
+                }
+                catch {}
             }
             faces.push([pcloud[h - segsize][tt - 1], pcloud[h - segsize][0], pcloud[h][0], pcloud[h][tt - 1]]);
         }
         return faces;
+    }
+
+    function triangulateFaces(arr) {
+        var triarr = [];
+        for (var f of arr) {
+            if (f.length > 3) {
+                for (var i = 0; i < f.length - 2; i++) {
+                    var tri = [f[0], f[i + 1], f[i + 2]];
+                    triarr.push(tri);
+                }
+            }
+            else triarr.push(f);
+        }
+        return triarr;
     }
 
     function coneArray(radius = 5, segments = 5, height = 5) {
@@ -152,6 +291,7 @@
         var faces = [circleFace];
         var tip = [0, 0, height];
         for (var i = 0; i < circleFace.length - 1; i++) faces.push([circleFace[i], circleFace[i + 1], tip]);
+        faces.push([circleFace[i], circleFace[0], tip]);
 
         return faces;
     }
@@ -167,15 +307,29 @@
         ];
     }
 
-    var m = arrayToMesh(cubeArray(15));
-    ctx.font = "12px Arial";
-    var charmap = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'";
-    var nf = m.length + 1;
-    var splitmap = Array.from({ length: nf }, (_, i) => charmap.slice(-i*~(charmap.length/nf), -(i + 1)*~(charmap.length/nf)));
-    setInterval(() => {
-        ctx.clearRect(0, 0, 1000, 1000);
-        rotate3d(m, vec3(0.005, 0.005, 0));
-        var projected = mesh2d(m).sort((a, b) => a.dist - b.dist);
+    function donutArray(radius = 5, segments = 5, radialSegments = 5, girth = 5) {
+        var pcloud = {};
+        for (var r = 0, ri = 0; r < 2 * Math.PI; r += 2 * Math.PI / segments, ri++) {
+            pcloud[ri] = {};
+            var pos = vec3(radius * Math.cos(r), radius * Math.sin(r), 0);
+            for (var t = 0, ti = 0; t < 2 * Math.PI; t += 2 * Math.PI / radialSegments, ti++) {
+                var rotary = vec3(girth * Math.cos(t), 0, girth * Math.sin(t));
+                rotary = add(rotate3([[rotary]], vec3(r, 0, 0), vec3(0, 0, 0))[0][0], pos);
+                pcloud[ri][ti] = [rotary.x, rotary.y, rotary.z];
+            }
+        }
+        var faces = [];
+        for (var ri = 1; ri < segments; ri++) {
+            for (var ti = 1; ti < radialSegments; ti++) faces.push([pcloud[ri - 1][ti - 1], pcloud[ri][ti - 1], pcloud[ri][ti], pcloud[ri - 1][ti]]);
+            faces.push([pcloud[ri - 1][0], pcloud[ri][0], pcloud[ri][ti - 1], pcloud[ri - 1][ti - 1]]);
+        }
+        for (var ti = 1; ti < radialSegments; ti++) faces.push([pcloud[ri - 1][ti - 1], pcloud[0][ti - 1], pcloud[0][ti], pcloud[ri - 1][ti]]);
+        faces.push([pcloud[ri - 1][0], pcloud[ri][0], pcloud[ri][ti - 1], pcloud[ri - 1][ti - 1]]);
+        return faces;
+    }
+
+    function renderBasic(m) {
+        var projected = mesh2(m).sort((a, b) => a.dist - b.dist);
         for (var x = -canvas.width/2; x < canvas.width/2; x += 10) {
             for (var y = -canvas.height/2; y < canvas.height/2; y += 10) {
                 for (var i in projected) {
@@ -183,23 +337,38 @@
                     var shape = projected[i].face;
                     var dist = projected[i].dist;
                     if (encloses(vec2(x, y), shape)) {
-                        ctx.fillStyle = "#333";
                         ctx.clearRect(x + canvas.width/2, y + canvas.height/2, 10, 10);
-                        var variate = id + Math.round((Math.random() - 0.5)*2);
+                        var variate = id + Math.round((Math.random() - 0.5) * 2);
                         variate = variate < 0 ? 0 : (variate > 5 ? 5 : variate);
                         var char = splitmap[variate][Math.round(Math.random()*(splitmap[variate].length - 1))];
-                        ctx.fillText(splitmap[id % (splitmap.length - 1)][id], x + canvas.width/2, y + canvas.height/2);
+                        ctx.fillText(charmap[id % charmap.length], x + canvas.width/2, y + canvas.height/2);
                         break;
                     }
                 }
             }
         }
-    }, 10);
+    }
 
-    function encloses(point, shape) {
+    function render() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        renderZ(m);
+        rotate3(m, vec3(0.005, 0.005, 0.005));
+        t++;
+    }
+
+    var m = arrayToMesh(coneArray(25, 15, 15));
+    ctx.font = "12px Arial";
+    ctx.fillStyle = "#333";
+    var charmap = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'";
+    var nf = m.length + 1;
+    var splitmap = Array.from({ length: nf }, (_, i) => charmap.slice(-i*~(charmap.length/nf), -(i + 1)*~(charmap.length/nf)));
+    var t = 0;
+    setInterval(render, 10);
+
+    function encloses(p, shape) {
         var intersect = false;
         for (var i = 0, j = shape.length - 1; i < shape.length; j = i++) {
-            if (((shape[i].y > point.y) != (shape[j].y > point.y)) && (point.x < (shape[j].x - shape[i].x)*(point.y - shape[i].y)/(shape[j].y - shape[i].y) + shape[i].x)) intersect = !intersect;
+            if (((shape[i].y > p.y) != (shape[j].y > p.y)) && (p.x < (shape[j].x - shape[i].x)*(p.y - shape[i].y)/(shape[j].y - shape[i].y) + shape[i].x)) intersect = !intersect;
         }
         return intersect;
     }

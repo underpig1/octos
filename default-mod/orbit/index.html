@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        html,
+        body {
+            background-color: black;
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        var objects = [];
+        var id = 0;
+        var g = 0.1;
+        var t = performance.now();
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        canvas.style.width = "100vw";
+        canvas.style.height = "100vh";
+
+        function renderObject(x, y, rot, color, size = 10, shape = "square") {
+            ctx.fillStyle = color;
+            ctx.strokeStyle = "#333";
+            ctx.lineWidth = 4;
+            ctx.lineJoin = "round";
+            if (shape == "square") {
+                var rect = [];
+                for (var i = 1; i < 5; i++) {
+                    var vlen = size*Math.sqrt(2)/2;
+                    var angle = Math.PI/2*i + Math.PI/4 + rot;
+                    rect.push([vlen*Math.cos(angle) + x, vlen*Math.sin(angle) + y]);
+                }
+                ctx.beginPath();
+                ctx.moveTo(rect[0][0], rect[0][1]);
+                for (var v of rect.slice(1).concat(rect.slice(0, 2))) ctx.lineTo(v[0], v[1]);
+                ctx.fill();
+                ctx.stroke();
+            }
+            else if (shape == "circle") {
+                ctx.beginPath();
+                ctx.arc(x, y, size/2, 0, 2*Math.PI);
+                ctx.fill();
+                ctx.stroke();
+            }
+        }
+
+        function object(x = 100, y = 100, color = "red", shape = "square", mass = 20, vel = [0, 0], fixed = false) {
+            var obj = { id: JSON.parse(JSON.stringify(id)), pos: [x, y], color, shape, size: mass/10, mass, vel: vel, fixed, rvel: Math.random()/1000, acc: [0, 0], rot: Math.random()*Math.PI/4, colliding: {} };
+            objects.push(obj);
+            objects.sort((a, b) => b.size - a.size);
+            id++;
+            return obj;
+        }
+
+        for (var i = 1; i < 100; i++) object(canvas.width/2 + 500*Math.cos(2*Math.PI*i/10), canvas.height/2 + 500*Math.sin(2*Math.PI*i/10), "green", "square", (Math.random() + 0.5)*50, [Math.cos(Math.PI/2 + 2*Math.PI*i/10)/5, Math.sin(Math.PI/2 + 2*Math.PI*i/10)/5]);
+        object(canvas.width/2, canvas.height/2, "red", "circle", 10000, [0, 0], true);
+
+        update();
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            var dt = performance.now() - t;
+            for (var obj of objects) {
+                renderObject(obj.pos[0], obj.pos[1], obj.rot, obj.color, obj.size, obj.shape);
+                if (!obj.fixed) {
+                    obj.pos[0] += obj.vel[0]*dt;
+                    obj.pos[1] += obj.vel[1]*dt;
+                    obj.vel[0] += obj.acc[0]*dt;
+                    obj.vel[1] += obj.acc[1]*dt;
+                    obj.acc[0] = 0;
+                    obj.acc[1] = 0;
+                    obj.rot += obj.rvel*dt;
+                    for (var attractor of objects) {
+                        if (attractor.id != obj.id) {
+                            handleCollisions(obj, attractor);
+                            if (!obj.colliding[attractor.id]) {
+                                var acc = getAcceleration(obj, attractor);
+                                obj.acc[0] += acc[0];
+                                obj.acc[1] += acc[1];
+                            }
+                        }
+                    }
+                }
+            }
+            requestAnimationFrame(update);
+            t = performance.now();
+        }
+
+        function getAcceleration(a, b) {
+            var dist = Math.sqrt((a.pos[0] - b.pos[0])**2 + (a.pos[1] - b.pos[1])**2);
+            if (dist == 0) return [0, 0];
+            var acc = g*b.mass/dist**2;
+            var dir = [(b.pos[0] - a.pos[0])/dist*acc/2, (b.pos[1] - a.pos[1])/dist*acc/2];
+            return dir;
+        }
+
+        function handleCollisions(a, b) {
+            var dist = Math.sqrt((a.pos[0] - b.pos[0])**2 + (a.pos[1] - b.pos[1])**2);
+            if (dist*2 < a.size + b.size + 8) {
+                if (!a.colliding[b.id]) {
+                    a.acc = [0, 0];
+                    a.rvel = Math.random()/200;
+                }
+                a.colliding[b.id] = true;
+            }
+            else a.colliding[b.id] = false;
+        }
+
+        function merge(a, b) {
+            a.size = a.size + b.size;
+            a.mass = a.mass + b.mass;
+            a.pos = [(a.pos[0] + b.pos[0])/2, (a.pos[1] + b.pos[1])/2];
+            a.vel = [a.vel[0] + b.vel[0], a.vel[1] + b.vel[1]].map((c) => c/a.mass);
+            a.rvel *= 0.9;
+            objects.splice(objects.indexOf(b), 1);
+        }
+
+        function setLerpProperty(property, to, callback) {
+            var from = JSON.parse(JSON.stringify(property));
+            var t = 0;
+            var delay = 1;
+            var ncall = 10;
+            var callLerp = () => setTimeout(() => {
+                if (t < 1) {
+                    property = lerp(from, to, t);
+                    callback(property);
+                    callLerp();
+                }
+                t += 1/ncall;
+                delay = -(Math.cos(Math.PI*t) - 1)/2;
+            }, delay);
+            callLerp();
+        }
+
+        function lerp(from, to, t) {
+            return from + (to - from)*t;
+        }
+    </script>
+</body>
+
+</html>
