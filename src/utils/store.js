@@ -9,7 +9,7 @@ var prefs;
 const userDataPath = (electron.app || electron.remote.app).getPath("userData");
 const prefPath = path.join(userDataPath, "preferences.json");
 const modsPath = path.join(userDataPath, "mods");
-const defaultsPath = "default-mod";
+const defaultsPath = path.join(__dirname, "../..", "default-mod");
 
 initStore();
 filterFolders();

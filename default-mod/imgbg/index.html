@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css" rel="stylesheet">
     <style>
         body {
             display: flex;
@@ -110,7 +111,7 @@
             right: 15px;
             width: 30px;
             height: 30px;
-            opacity: 1;
+            opacity: 0.5;
         }
 
         .accessory {
@@ -119,7 +120,7 @@
             padding-left: 15px;
             padding-right: 15px;
             font-size: 8vh;
-            color: white;
+            --color: white;
             font-family: sans-serif;
             font-weight: bolder;
             display: none;
@@ -173,7 +174,13 @@
         }
 
         .calender {
+            color: var(--color);
             font-size: 20pt;
+        }
+
+        .clock {
+            color: var(--color);
+            font-size: 64pt;
         }
 
         .template {
@@ -370,10 +377,11 @@
 
         .image img {
             box-sizing: border-box;
-            min-width: 200px;
-            min-height: 200px;
+            height: 200px;
+            width: auto;
             grid-row-start: 1;
             grid-column-start: 1;
+            background: transparent;
         }
 
         .image .img-tooltip {
@@ -385,11 +393,32 @@
             line-height: 200px;
             font-weight: normal;
             font-size: 12px;
-            border-radius: 5px;
             color: gray;
             grid-row-start: 1;
             grid-column-start: 1;
             font-family: sans-serif !important;
+            transition: color 0.1s;
+        }
+
+        .image.editing .img-tooltip {
+            color: transparent;
+        }
+
+        .medianav {
+            display: block;
+            color: var(--color);
+            font-size: 35px;
+        }
+
+        .play-btn {
+            font-size: 60px;
+        }
+
+        .media {
+            width: 180px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
     </style>
 </head>
@@ -436,8 +465,13 @@
     <div class="accessory calender template" id="calender-template">
         <div class="date"><span class="d-day">Sunday</span>, <span class="d-month">May</span> <span class="d-date">23</span></div>
     </div>
+    <div class="accessory media template" id="media-template">
+        <i class="medianav ri-skip-back-fill" onclick="mediaBack()"></i>
+        <i class="medianav ri-play-circle-fill play-btn" onclick="mediaPlayPause(this)"></i>
+        <i class="medianav ri-skip-forward-fill" onclick="mediaForward()"></i>
+    </div>
     <div class="accessory image template" id="image-template">
-        <input id="file-upload" type="file"><span class="img-tooltip">+ Double click to add image</span></img></input>
+        <img src="" /><span class="img-tooltip" onclick="handleImageClick(this)">+ Double click to add image</span>
     </div>
     <div id="background"></div>
     <script>
@@ -456,15 +490,36 @@
         var movetimer = 0;
         var styling = false;
         var stylingacc;
+        var imgtimer = 0;
+        var imgclickstart = 0;
+        var imgclicked = false;
+        var mediaplaying = false;
+        var prevmediaplaying = false;
         fileUpload.onchange = selectBackground;
 
         window.storage.getStorage("url").then((url) => setBackground(url));
         getAccessoriesFromStorage();
         window.dev.toggleDevTools();
         layoutButton();
+        window.media.isPlaying().then((data) => mediaplaying = data);
+
+        function mediaPlayPause(el) {
+            mediaplaying = !mediaplaying;
+            updateMedia();
+            window.media.send.pausePlay();
+        }
+
+        function mediaBack() {
+            window.media.send.prevTrack();
+        }
+
+        function mediaForward() {
+            window.media.send.nextTrack();
+        }
 
         function toggleEdit() {
             editing = !editing;
+            deselectAll();
             for (var accessory of accessories()) {
                 if (editing) accessory.classList.add("editing");
                 else accessory.classList.remove("editing");
@@ -478,15 +533,23 @@
             }
         }
 
+        function deselectAll() {
+            stylingacc = null;
+            for (const el of accessories()) el.classList.remove("styling");
+            styling = false;
+            layoutEditor.classList.remove("styling");
+        }
+
         function selectStyle(el) {
             if (el.classList.contains("color")) {
                 for (var color of colors) color.classList.remove("active");
-                stylingacc.style.color = el.style.background;
+                stylingacc.style.setProperty("--color", el.style.background);
             }
             else if (el.classList.contains("font")) {
                 for (var font of fonts) font.classList.remove("active");
                 stylingacc.style.fontFamily = el.style.fontFamily;
             }
+            updateAccessoryStorage();
             el.classList.add("active");
         }
 
@@ -510,17 +573,32 @@
             for (const el of accessories()) el.classList.add("active");
             bgchosen = true;
         }
+
+        function updateMedia() {
+            for (var btn of document.getElementsByClassName("play-btn")) {
+                if (mediaplaying) {
+                    btn.classList.remove("ri-play-circle-fill");
+                    btn.classList.add("ri-pause-circle-fill");
+                }
+                else {
+                    btn.classList.remove("ri-pause-circle-fill");
+                    btn.classList.add("ri-play-circle-fill");
+                }
+            }
+        }
         
         function updateAccessories() {
             var date = new Date();
             var min = date.getMinutes().toString();
-            for (var t_hr of document.getElementsByClassName("t-hr")) t_hr.innerHTML = date.getHours() % 12;
+            for (var t_hr of document.getElementsByClassName("t-hr")) t_hr.innerHTML = date.getHours() == 12 ? 12 : date.getHours() % 12;
             for (var t_min of document.getElementsByClassName("t-min")) t_min.innerHTML = min.length == 1 ? "0" + min : min;
             for (var d_day of document.getElementsByClassName("d-day")) d_day.innerHTML = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][date.getDay()];
             for (var d_month of document.getElementsByClassName("d-month")) d_month.innerHTML = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][date.getMonth()];
             for (var d_date of document.getElementsByClassName("d-date")) d_date.innerHTML = date.getDate();
+            updateMedia();
         }
 
+        updateAccessories();
         setInterval(updateAccessories, 500);
 
         function updateAccessoryStorage() {
@@ -529,24 +607,25 @@
                 store[el.id] = {
                     top: el.style.top,
                     left: el.style.left,
-                    color: el.style.color,
+                    color: getComputedStyle(el).getPropertyValue("--color"),
                     type: [...el.classList].filter((c) => c != "accessory" && c != "active" && c != "editing")[0],
                     transform: el.style.transform,
+                    font: el.style.fontFamily,
                     data: el.getAttribute("data")
                 };
             }
             window.storage.setStorage("dacc", store);
         }
 
-        function createAccessory(top = "100px", left = "100px", color = "white", type = "clock", transform = "scale(1)", data = "") {
+        function createAccessory(top = "100px", left = "100px", color = "white", type = "clock", transform = "scale(1)", font = "sans-serif", data = "") {
             var template = document.getElementById(type + "-template");
             var accessory = template.cloneNode(true);
             accessory.style.top = top;
             accessory.style.left = left;
-            accessory.style.color = color;
+            accessory.style.setProperty("--color", color);
             accessory.style.transform = transform;
             accessory.id = id;
-            accessory.style.fontFamily = "sans-serif";
+            accessory.style.fontFamily = font;
             accessory.setAttribute("data", data);
             id++;
             accessory.classList.remove("template");
@@ -556,6 +635,11 @@
             document.body.appendChild(accessory);
             updateAccessoryStorage();
             if (editing) selectAccessory(accessory);
+
+            if (type == "image") {
+                accessory.querySelector("img").src = accessory.getAttribute("data");
+                if (data) accessory.querySelector(".img-tooltip").style.opacity = "0";
+            }
         }
 
         function getAccessoriesFromStorage() {
@@ -563,7 +647,7 @@
                 if (store) {
                     for (var id of Object.keys(store)) {
                         var data = store[id];
-                        createAccessory(data.top, data.left, data.color, data.type, data.transform, data.data);
+                        createAccessory(data.top, data.left, data.color, data.type, data.transform, data.font, data.data);
                     }
                 }
             });
@@ -580,7 +664,7 @@
                 else font.classList.remove("active");
             }
             for (var color of colors) {
-                if (color.style.background == el.style.color) color.classList.add("active");
+                if (color.style.background == getComputedStyle(el).getPropertyValue("--color")) color.classList.add("active");
                 else color.classList.remove("active");
             }
         }
@@ -604,7 +688,7 @@
                         document.onmouseup = null;
                         document.onmousemove = null;
                         var rect = el.getBoundingClientRect();
-                        if ((rect.top > window.innerHeight || rect.right > window.innerWidth || rect.top < 0 || rect.left < 0) && !scaling) el.remove();
+                        if ((rect.top > window.innerHeight || rect.right > window.innerWidth || rect.top < 0 || rect.left < 0) && !scaling) el.remove() & deselectAll();
                         else updateAccessoryStorage();
                     }
                     document.onmousemove = (e) => {
@@ -638,9 +722,34 @@
             });
         }
 
+        function handleImageClick(el) {
+            imgtimer = performance.now();
+            var dt = imgtimer - imgclickstart;
+            if (dt < 500 && dt > 50) {
+                imgclicked = true;
+                setTimeout(() => imgclicked = false, 500);
+                window.storage.requestFile().then((path) => {
+                    el.parentNode.setAttribute("data", path);
+                    el.parentNode.querySelector("img").src = path;
+                    el.style.opacity = "0";
+                    updateAccessoryStorage();
+                });
+            }
+            else if (!imgclicked) {
+                imgclickstart = performance.now();
+            }
+        }
+
         document.onkeydown = (e) => {
             if (e.key == "e") toggleEdit();
         }
+        document.addEventListener("mousedown", (e) => {
+            if (document.elementFromPoint(e.clientX, e.clientY) == document.body) deselectAll();
+        });
+        document.addEventListener("playbackstatus", (e) => {
+            mediaplaying = e.detail.status == "playing";
+            updateMedia();
+        });
     </script>
 </body>
 </html>

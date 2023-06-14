@@ -18,7 +18,7 @@ function replaceWidgets() {
 }
 
 function readWidget(name) {
-    return fs.readFileSync(path.join("default-widget", name, "index.html"));
+    return fs.readFileSync(path.join(__dirname, "../..", "default-widget", name, "index.html"));
 }
 
 function injectHTMLByNameScript(name) {
@@ -47,7 +47,7 @@ for (const widget of widgets) {
 }
 
 function getAllWidgetNames(name) {
-    return fs.readdirSync("default-widget", { withFileTypes: true }).filter((dirent) => dirent.isDirectory()).map((dirent) => dirent.name);
+    return fs.readdirSync(path.join(__dirname, "../..", "default-widget"), { withFileTypes: true }).filter((dirent) => dirent.isDirectory()).map((dirent) => dirent.name);
 }
 
 module.exports = { injectHTMLByNameScript, setStylesByNameScript, getAllWidgetNames };

@@ -1,12 +1,12 @@
 const { app, BrowserWindow, ipcMain, screen, Menu, MenuItem, Tray, dialog, nativeTheme } = require("electron");
-const wp = require("../wallpaper");
 const path = require("path");
+const wp = require(path.join(__dirname, "../wallpaper"));
 const { getPrefs, selectMod, getSelectedConfig, addMod, getSelectedEntry, filterFolders, updateSettings, revertSettings, setLocalStorage, getLocalStorage } = require("./utils/store.js");
-const { modifier, keyCode } = require("./utils/ascii.js");
+const { modifier, keyCode } = require(path.join(__dirname, "./utils/ascii.js"));
 const { send } = require("process");
-const { syncPlaybackInfo, asyncPlaybackInfo, sendMediaEvent } = require("./utils/winrt.js");
-const { injectHTMLByNameScript, setStylesByNameScript, getAllWidgetNames } = require("./utils/widget.js");
-const mainApp = require("./app/main.js");
+const { syncPlaybackInfo, asyncPlaybackInfo, sendMediaEvent } = require(path.join(__dirname, "./utils/winrt.js"));
+const { injectHTMLByNameScript, setStylesByNameScript, getAllWidgetNames } = require(path.join(__dirname, "./utils/widget.js"));
+const mainApp = require(path.join(__dirname, "./app/main.js"));
 var win, tray, cmenu, settings;
 var prevMouse = { position: {} };
 var prevKeyboard = [];
@@ -118,8 +118,10 @@ function load() {
 }
 
 function requestFile(extensions = false) {
-    dialog.showOpenDialog({ filters: (extensions ? [{ extensions: extensions }] : []), properties: ["openFile"] }).then((content) => {
-        if (!content.canceled) return content.filePaths[0];
+    return new Promise((resolve, reject) => {
+        dialog.showOpenDialog({ filters: (extensions ? [{ extensions: extensions }] : []), properties: ["openFile"] }).then((content) => {
+            if (!content.canceled) resolve(content.filePaths[0]);
+        });
     });
 }
 
