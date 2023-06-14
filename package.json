@@ -9,7 +9,8 @@
     "build-all-node-modules": ".\\node_modules\\.bin\\electron-rebuild.cmd",
     "start": "electron-forge start",
     "package": "electron-forge package",
-    "make": "electron-forge make"
+    "make": "electron-forge make",
+    "inspect": "electron-forge start --inspect-electron"
   },
   "dependencies": {
     "@nodert-win10-21h1/windows.media.control": "^0.1.6",

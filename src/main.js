@@ -74,7 +74,7 @@ function createTrayMenu(modItems = []) {
 }
 
 function createTray() {
-    tray = new Tray("img/tray.png");
+    tray = new Tray(path.join(__dirname, "../img/tray.png"));
     tray.setToolTip("Octos");
     createTrayMenu();
 }
@@ -155,7 +155,7 @@ function createSettings() {
         }
     });
 
-    settings.loadFile("src/settings/main.html");
+    settings.loadFile(path.join(__dirname, "settings/main.html"));
     settings.hide();
 }
 

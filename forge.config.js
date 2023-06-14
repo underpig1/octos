@@ -1,22 +1,27 @@
 module.exports = {
-  packagerConfig: {},
+  packagerConfig: {
+    icon: "img/tray"
+  },
   rebuildConfig: {},
   makers: [
     {
-      name: '@electron-forge/maker-squirrel',
-      config: {},
-    },
-    {
-      name: '@electron-forge/maker-zip',
-      platforms: ['darwin'],
-    },
-    {
-      name: '@electron-forge/maker-deb',
-      config: {},
-    },
-    {
-      name: '@electron-forge/maker-rpm',
-      config: {},
-    },
+      name: "@electron-forge/maker-wix",
+      config: {
+        language: 1033,
+        manufacturer: "Octos"
+      }
+    }
   ],
+  publishers: [
+    {
+      name: "@electron-forge/publisher-github",
+      config: {
+        repository: {
+          owner: "underpig1",
+          name: "octos"
+        },
+        prerelease: true
+      }
+    }
+  ]
 };
