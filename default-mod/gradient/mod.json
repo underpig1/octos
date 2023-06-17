@@ -1,0 +1,16 @@
+{
+    "name": "Gradient",
+    "entry": "index.html",
+    "prefs": {
+        "primary-color": {
+            "type": "color-picker",
+            "value": "red",
+            "description": "Primary color"
+        },
+        "secondary-color": {
+            "type": "color-picker",
+            "value": "green",
+            "description": "Secondary color"
+        }
+    }
+}

@@ -18,7 +18,50 @@
         }
     },
     "local": {
-        "ethereal": {}
+        "Custom mod": {}
+    },
+    "prefs": {
+        "Custom mod": {
+            "color-data-id": {
+                "type": "color",
+                "value": "red",
+                "label": "Color data"
+            },
+            "file-data-id": {
+                "type": "file",
+                "value": "",
+                "label": "File data"
+            },
+            "slider-data-id": {
+                "type": "slider",
+                "value": "0",
+                "min": "0",
+                "max": "10",
+                "step": "10",
+                "label": "Slider data"
+            },
+            "text-data-id": {
+                "type": "text",
+                "value": "",
+                "label": "Text data"
+            },
+            "number-data-id": {
+                "type": "number",
+                "value": "",
+                "min": "0",
+                "max": "10",
+                "label": "Number data"
+            },
+            "checkbox-data-id": {
+                "type": "checkbox",
+                "value": "true",
+                "label": "Checkbox data"
+            },
+            "label-id": {
+                "type": "label",
+                "label": "Label info"
+            }
+        }
     },
     "settings": {
         "taskbar": {

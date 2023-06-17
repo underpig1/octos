@@ -1,0 +1,22 @@
+<html lang="en">
+
+<head>
+    <script type="module"
+        src="https://cdn.jsdelivr.net/npm/@microsoft/fast-components/dist/fast-components.min.js"></script>
+</head>
+
+<body>
+    <fast-card>
+        <h3>Card title</h3>
+        <p>At purus lectus quis habitant commodo, cras. Aliquam malesuada velit a tortor. Felis orci tellus netus risus et
+            ultricies augue aliquet.</p>
+        <fast-button>Learn more</fast-button>
+    </fast-card>
+    <script>
+        import { provideFASTDesignSystem, fastCard } from "@microsoft/fast-components";
+
+        provideFASTDesignSystem().register(fastCard());
+    </script>
+</body>
+
+</html>

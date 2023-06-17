@@ -335,14 +335,14 @@
         }
 
         var clock_chars = [
-` #########
-###########
-###     ####
-###     ####
-###     ####
-###     ####
-###########
- #########`,
+` ##########
+############
+###      ###
+###      ###
+###      ###
+###      ###
+############
+ ##########`,
 `  ######
  #######
     ####
@@ -440,8 +440,9 @@
             var hrs = date.getHours() == 12 ? "12" : ("" + date.getHours() % 12);
             var min = (("" + date.getMinutes()).length == 1 ? "0" : "") + date.getMinutes();
             var spacing = 120;
+            var leftmargin = 135;
             if (mode == 4) var pos = vec2(canvas.width/2 - (hrs + min).length*60, canvas.height/2 - 60);
-            else if (canvas.width > 1800) var pos = vec2(120, canvas.height/2 - 60);
+            else if (canvas.width > 1800) var pos = vec2(leftmargin, canvas.height/2 - 60);
             else var pos = vec2(100, 100);
             for (var char in hrs) {
                 var cmap = clock_chars[parseInt(hrs[char])];
@@ -457,11 +458,11 @@
                 pos.x += spacing;
             }
             if (mode == 4) pos.x = canvas.width/2 - (hrs + min).length*60;
-            else pos.x = 120;
+            else pos.x = leftmargin;
             pos.y += 140;
             ctx.font = "18px Roboto Mono";
             ctx.fillText(`${["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][date.getDay()]}, ${["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][date.getMonth()]} ${date.getDate()}`, pos.x, pos.y);
-            pos = vec2(120, canvas.height - 100);
+            pos = vec2(leftmargin, canvas.height - 100);
             ctx.font = "12px Roboto Mono";
             var brightness = (Math.sin(t/2) + 1)*100;
             ctx.shadowBlur = 0;
@@ -488,6 +489,7 @@
             ctx.lineWidth = 3;
             render3();
             render2();
+            setTimeout(() => requestAnimationFrame(render), 100);
         }
 
         var m = arrayToMesh(cubeArray(16));
@@ -498,7 +500,7 @@
         var t = 0;
         var promptMode = true;
         var mode = 0;
-        setInterval(render, 10);
+        render();
 
         document.addEventListener("keydown", (e) => {
             if (e.key == "m") {

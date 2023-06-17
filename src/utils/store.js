@@ -62,11 +62,17 @@ function addMod(modPath) {
                 var config = getConfigFromFolderPath(path.join(modsPath, folder));
                 var name = config.name;
                 if (name == "Custom mod") name = folder;
+                var modPrefs = config.prefs;
+                if (modPrefs) {
+                    if (!prefs.prefs) prefs.prefs = {};
+                    if (!prefs.prefs[name]) prefs.prefs[name] = { defaults: modPrefs, local: modPrefs };
+                    else prefs.prefs[name].defaults = modPrefs;
+                }
                 addModData(name, folder);
                 writePrefs();
-                resolve(true);
+                resolve(name);
             }
-            else reject(false);
+            else reject();
         });
     });
 }
@@ -143,6 +149,35 @@ function getLocalStorage(id) {
         prefs.local[prefs.selected][id] = {};
         writePrefs();
         return null;
+    }
+}
+
+function getModPrefs(field) {
+    if (prefs.prefs[prefs.selected]) {
+        var modPrefs = prefs.prefs[prefs.selected].local;
+        if (modPrefs) {
+            if (modPrefs[field]) return modPrefs[field].value;
+        }
+    }
+    return null;
+}
+
+function setModPrefs(field, content) {
+    if (prefs.prefs[prefs.selected]) {
+        var modPrefs = prefs.prefs[prefs.selected].local;
+        if (modPrefs) {
+            if (modPrefs[field]) {
+                modPrefs[field].value = content;
+                writePrefs();
+            }
+        }
+    }
+}
+
+function resetDefaultModPrefs() {
+    if (prefs.prefs[prefs.selected]) {
+        prefs.prefs[prefs.selected].local = prefs.prefs[prefs.selected].defaults;
+        writePrefs();
     }
 }
 
@@ -266,4 +301,4 @@ function fillObject(defer, overwrite) {
 
 // EXPORT
 
-module.exports = { getPrefs, initStore, selectMod, getSelectedModData, getSelectedConfig, removeMod, addMod, getSelectedEntry, restorePrefsDefaults, loadDefaultMods, filterFolders, updateSettings, revertSettings, setLocalStorage, getLocalStorage };
+module.exports = { getPrefs, initStore, selectMod, getSelectedModData, getSelectedConfig, removeMod, addMod, getSelectedEntry, restorePrefsDefaults, loadDefaultMods, filterFolders, updateSettings, revertSettings, setLocalStorage, getLocalStorage, getModPrefs, setModPrefs, resetDefaultModPrefs };

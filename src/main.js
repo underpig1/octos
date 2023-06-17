@@ -1,7 +1,9 @@
+#!/usr/bin/env node
+
 const { app, BrowserWindow, ipcMain, screen, Menu, MenuItem, Tray, dialog, nativeTheme } = require("electron");
 const path = require("path");
 const wp = require(path.join(__dirname, "../wallpaper"));
-const { getPrefs, selectMod, getSelectedConfig, addMod, getSelectedEntry, filterFolders, updateSettings, revertSettings, setLocalStorage, getLocalStorage } = require("./utils/store.js");
+const { getPrefs, selectMod, getSelectedConfig, addMod, getSelectedEntry, filterFolders, updateSettings, revertSettings, setLocalStorage, getLocalStorage, getModPrefs, setModPrefs, resetDefaultModPrefs, removeMod } = require("./utils/store.js");
 const { modifier, keyCode } = require(path.join(__dirname, "./utils/ascii.js"));
 const { send } = require("process");
 const { syncPlaybackInfo, asyncPlaybackInfo, sendMediaEvent } = require(path.join(__dirname, "./utils/winrt.js"));
@@ -13,6 +15,7 @@ var prevKeyboard = [];
 var prevMediaState = {};
 var options = retrieveOptions();
 const isActive = () => ["octos", ""].includes(wp.fgTitle());
+parseArgs();
 
 function createWindow() {
     const bounds = screen.getPrimaryDisplay().bounds;
@@ -66,11 +69,42 @@ function createTrayMenu(modItems = []) {
         { type: "separator" },
         { id: "visibility", label: "Toggle visibility", type: "checkbox", checked: true, click: toggle },
         { id: "toggledev", label: "Toggle devtools", type: "checkbox", checked: false, click: toggleDev },
+        { label: "Open mod settings", type: "normal", click: modSettings },
         { type: "separator" },
         { label: "Refresh", type: "normal", click: refresh },
         { label: "Exit", type: "normal", click: exit }
     ]);
     tray.setContextMenu(cmenu);
+}
+
+function modSettings() {
+    
+}
+
+function parseArgs() {
+    if (process.argv.length >= 4) {
+        var args = process.argv.slice(2).join(" ");
+        var dir = path.resolve(process.cwd(), args.replaceAll(/\'|\"/g, ""));
+        if (process.argv[2] == "init") {
+            const fs = require("fs-extra");
+            fs.copySync(path.join(process.argv[1], "../example/init-mod"), dir, { overwrite: false });
+            fs.renameSync(path.join(dir, "init-mod"), path.join(dir, args.toLowerCase().split(/\s|_/g).join("-")));
+            var filepath = path.join(dir, "mod.json");
+            var config = require(filepath);
+            config.title = args;
+            fs.writeFile(filepath, JSON.stringify(config));
+        }
+        else if (process.argv[2] == "run") {
+            if (require("fs").existsSync(dir)) {
+                addMod(dir).then((name) => {
+                    selectMod(name);
+                    refresh();
+                    setTimeout(() => removeMod(name), 1000);
+                });
+            }
+            else console.log("No directory provided");
+        }
+    }
 }
 
 function createTray() {
@@ -238,7 +272,7 @@ app.whenReady().then(() => {
     init();
 
     if (options.events.mouse || options.events.keyboard || options.events.media) setInterval(handleEvents, 1);
-    if (options.events.media) setInterval(asyncPlaybackInfo, 1000);
+    if (options.events.media) setInterval(asyncPlaybackInfo, 100);
 
     win.webContents.send("path", path.join(__dirname, "renderer.js"));
 
@@ -304,6 +338,11 @@ app.whenReady().then(() => {
         if (type == "getStorage" && id) return getLocalStorage(id);
         else if (type == "setStorage" && id && content) return setLocalStorage(id, content);
         else if (type == "requestFile") return requestFile(arguments[2]);
+    });
+    ipcMain.handle("prefs", (e, type, field = "", content = "") => {
+        // getStorage, setStorage, requestFile
+        if (type == "get" && field) return getModPrefs(field);
+        else if (type == "set" && field && content) return setModPrefs(field, content);
     });
     ipcMain.handle("toggle-dev-tools", toggleDev);
 });

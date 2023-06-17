@@ -56,8 +56,13 @@ contextBridge.exposeInMainWorld("storage", {
     getStorage: async (id) => await ipcRenderer.invoke("get-storage", "getStorage", id),
     setStorage: async (id, content) => await ipcRenderer.invoke("get-storage", "setStorage", id, content),
     requestFile: async (extensions = false) => await ipcRenderer.invoke("get-storage", "requestFile", extensions)
-})
+});
 
 contextBridge.exposeInMainWorld("dev", {
     toggleDevTools: async (id) => await ipcRenderer.invoke("toggle-dev-tools", "getStorage", id)
-})
+});
+
+contextBridge.exposeInMainWorld("prefs", {
+    set: async (field = "", content = "") => await ipcRenderer.invoke("prefs", "set", field, content),
+    get: async (field = "") => await ipcRenderer.invoke("prefs", "get", field)
+});
