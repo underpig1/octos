@@ -72,7 +72,7 @@ function addMod(modPath) {
                 writePrefs();
                 resolve(name);
             }
-            else reject();
+            else resolve();
         });
     });
 }
@@ -186,24 +186,21 @@ function resetDefaultModPrefs() {
 function copyModFolder(target) {
     return new Promise((resolve, reject) => {
         var folderName = path.basename(target);
-        fs.copy(target, path.join(modsPath, folderName)).then(() => resolve(folderName));
+        fs.copy(target, path.join(modsPath, folderName)).then(() => resolve(folderName)).catch(() => {});
     });
 }
 
 function unzipAndCopyModFolder(target) {
     return new Promise((resolve, reject) => {
-        var tempPath = path.join(modsPath, "temp");
-        fs.createReadStream(target).on("entry", entry => entry.autodrain()).pipe(unzipper.Extract({ path: tempPath })).promise().then(() => {
-            var dirs = fs.readdirSync(tempPath, { withFileTypes: true }).filter(dirent => dirent.isDirectory());
-            if (dirs.length > 0) {
-                var folderName = dirs[0].name;
-                var tempFolder = path.join(tempPath, folderName);
-                fs.copySync(tempFolder, path.join(modsPath, folderName));
-                //fs.removeSync(tempFolder);
-                resolve(folderName);
-            }
-            reject(false);
-        });
+        var folderName = path.basename(target).replace(/\.omod$/, "").replace(/\.zip$/, "");
+        var destination = path.join(modsPath, folderName);
+        if (!fs.existsSync(destination)) fs.mkdirSync(destination);
+        else fs.emptyDirSync(destination);
+        fs.createReadStream(target).on("entry", entry => entry.autodrain()).pipe(unzipper.Parse()).on("entry", (entry) => {
+            entry.pipe(fs.createWriteStream(path.join(destination, entry.path)));
+        }).on("finish", () => {
+            resolve(folderName);
+        }).on("error", () => {});
     });
 }
 

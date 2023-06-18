@@ -1,11 +1,11 @@
-#!/usr/bin/env node
+process.env.NODE_NO_WARNINGS = "1";
+process.on("unhandledRejection", () => {});
 
 const { app, BrowserWindow, ipcMain, screen, Menu, MenuItem, Tray, dialog, nativeTheme } = require("electron");
 const path = require("path");
 const wp = require(path.join(__dirname, "../wallpaper"));
 const { getPrefs, selectMod, getSelectedConfig, addMod, getSelectedEntry, filterFolders, updateSettings, revertSettings, setLocalStorage, getLocalStorage, getModPrefs, setModPrefs, resetDefaultModPrefs, removeMod } = require("./utils/store.js");
 const { modifier, keyCode } = require(path.join(__dirname, "./utils/ascii.js"));
-const { send } = require("process");
 const { syncPlaybackInfo, asyncPlaybackInfo, sendMediaEvent } = require(path.join(__dirname, "./utils/winrt.js"));
 const { injectHTMLByNameScript, setStylesByNameScript, getAllWidgetNames } = require(path.join(__dirname, "./utils/widget.js"));
 const mainApp = require(path.join(__dirname, "./app/main.js"));
@@ -15,7 +15,6 @@ var prevKeyboard = [];
 var prevMediaState = {};
 var options = retrieveOptions();
 const isActive = () => ["octos", ""].includes(wp.fgTitle());
-parseArgs();
 
 function createWindow() {
     const bounds = screen.getPrimaryDisplay().bounds;
@@ -69,7 +68,6 @@ function createTrayMenu(modItems = []) {
         { type: "separator" },
         { id: "visibility", label: "Toggle visibility", type: "checkbox", checked: true, click: toggle },
         { id: "toggledev", label: "Toggle devtools", type: "checkbox", checked: false, click: toggleDev },
-        { label: "Open mod settings", type: "normal", click: modSettings },
         { type: "separator" },
         { label: "Refresh", type: "normal", click: refresh },
         { label: "Exit", type: "normal", click: exit }
@@ -77,34 +75,109 @@ function createTrayMenu(modItems = []) {
     tray.setContextMenu(cmenu);
 }
 
-function modSettings() {
-    
+function parseArgs() {
+    const yargs = require("yargs/yargs");
+    const { hideBin } = require("yargs/helpers");
+
+    yargs(hideBin(process.argv)).command("init [title] [path]", "create a new mod in the given directory", (yargs) => {
+        return yargs.positional("title", {
+            describe: "title of mod",
+            default: "very cool mod"
+        }).positional("path", {
+            describe: "directory in which to create a new mod folder",
+            default: process.cwd()
+        });
+    }, (argv) => {
+        initMod(path.resolve(process.cwd(), argv.path), argv.title);
+    }).command("run [path]", "run mod at the given path", (yargs) => {
+        return yargs.positional("path", {
+            describe: "path to the file or directory containing the target mod",
+            default: process.cwd()
+        });
+    }, (argv) => {
+        var target = path.resolve(process.cwd(), argv.path);
+        runMod(target);
+        if (argv.debug) {
+            cmenu.getMenuItemById("toggledev").checked = true;
+            win.webContents.openDevTools({ mode: "detach" });
+        }
+        console.log("Running mod at " + target);
+    }).option("devtools", {
+        alias: "d",
+        type: "boolean",
+        description: "run with Chrome DevTools enabled"
+    }).command("build [path]", "build mod at the given path into a .omod", (yargs) => {
+        return yargs.positional("path", {
+            describe: "path to the file or directory containing the target mod",
+            default: process.cwd()
+        });
+    }, (argv) => {
+        buildMod(path.resolve(process.cwd(), argv.path));
+    }).command("add [path]", "install mod at the given filepath", (yargs) => {
+        return yargs.positional("path", {
+            describe: "path to the file containing the target mod",
+            default: process.cwd()
+        });
+    }, (argv) => {
+        var dir = path.resolve(process.cwd(), argv.path);
+        if (require("fs").existsSync(dir)) {
+            addMod(dir).then((name) => {
+                selectMod(name);
+                refresh();
+            });
+        }
+        else console.error("Provided directory does not exist");
+    }).parse();
 }
 
-function parseArgs() {
-    if (process.argv.length >= 4) {
-        var args = process.argv.slice(2).join(" ");
-        var dir = path.resolve(process.cwd(), args.replaceAll(/\'|\"/g, ""));
-        if (process.argv[2] == "init") {
-            const fs = require("fs-extra");
-            fs.copySync(path.join(process.argv[1], "../example/init-mod"), dir, { overwrite: false });
-            fs.renameSync(path.join(dir, "init-mod"), path.join(dir, args.toLowerCase().split(/\s|_/g).join("-")));
+function initMod(working, title) {
+    const fs = require("fs-extra");
+    if (fs.existsSync(working)) {
+        var dir = path.join(working, title);
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir);
+            fs.copySync(path.resolve(__dirname, "../example/init-mod"), dir, { overwrite: false });
             var filepath = path.join(dir, "mod.json");
             var config = require(filepath);
-            config.title = args;
-            fs.writeFile(filepath, JSON.stringify(config));
+            config.title = title;
+            fs.writeFile(filepath, JSON.stringify(config, null, 2));
+            console.log("Created new mod folder at " + dir);
         }
-        else if (process.argv[2] == "run") {
-            if (require("fs").existsSync(dir)) {
-                addMod(dir).then((name) => {
-                    selectMod(name);
-                    refresh();
-                    setTimeout(() => removeMod(name), 1000);
-                });
-            }
-            else console.log("No directory provided");
-        }
+        else console.error(`Mod with name ${title} already exists at ${dir}`);
     }
+    else console.error(`Directory ${working} does not exist`);
+    app.quit();
+    process.kill(0);
+}
+
+function buildMod(dir) {
+    const archiver = require("archiver");
+    const fs = require("fs");
+    const archive = archiver("zip", { zlib: { level: 9 } });
+    var outpath = dir + ".omod";
+    const stream = fs.createWriteStream(outpath);
+
+    console.log("Building mod...");
+    stream.on("close", () => {
+        console.log("Mod created at " + outpath);
+        app.quit();
+        process.kill(0);
+    });
+    archive.directory(dir, false).on("error", (err) => {
+        console.error("There was an issue building your mod. See documentation for manual build.");
+    }).pipe(stream);
+    archive.finalize();
+}
+
+function runMod(dir) {
+    if (require("fs").existsSync(dir)) {
+        addMod(dir).then((name) => {
+            selectMod(name);
+            refresh();
+            setTimeout(() => removeMod(name), 1000);
+        });
+    }
+    else console.error("Provided directory does not exist");
 }
 
 function createTray() {
@@ -268,14 +341,7 @@ function injectScript(script) {
     return win.webContents.executeJavaScript(script);
 }
 
-app.whenReady().then(() => {
-    init();
-
-    if (options.events.mouse || options.events.keyboard || options.events.media) setInterval(handleEvents, 1);
-    if (options.events.media) setInterval(asyncPlaybackInfo, 100);
-
-    win.webContents.send("path", path.join(__dirname, "renderer.js"));
-
+function attachHandlers() {
     ipcMain.on("close", (e) => {
         const webContents = e.sender;
         const win = BrowserWindow.fromWebContents(webContents);
@@ -315,11 +381,11 @@ app.whenReady().then(() => {
         else if (type == "artist") return prevMediaState.artist;
         else if (type == "secondsElapsed") return prevMediaState.secondsElapsed;
         else if (type == "secondsTotal") return prevMediaState.secondsTotal;
-        else if (type == "percentElapsed") return prevMediaState.secondsElapsed/prevMediaState.secondsTotal;
+        else if (type == "percentElapsed") return prevMediaState.secondsElapsed / prevMediaState.secondsTotal;
         else if (type == "isPlaying") return prevMediaState.status == "playing";
     });
     ipcMain.handle("get-mouse", (e, type) => {
-        if (type == "position") return {x: wp.mousePosition()[0], y: wp.mousePosition()[1]};
+        if (type == "position") return { x: wp.mousePosition()[0], y: wp.mousePosition()[1] };
         else if (type == "active") return isActive();
         else if (type == "leftButtonPressed") return wp.leftMousePressed();
         else if (type == "middleButtonPressed") return wp.middleMousePressed();
@@ -345,4 +411,15 @@ app.whenReady().then(() => {
         else if (type == "set" && field && content) return setModPrefs(field, content);
     });
     ipcMain.handle("toggle-dev-tools", toggleDev);
+}
+
+parseArgs();
+app.whenReady().then(() => {
+    init();
+
+    if (options.events.mouse || options.events.keyboard || options.events.media) setInterval(handleEvents, 1);
+    if (options.events.media) setInterval(asyncPlaybackInfo, 100);
+
+    win.webContents.send("path", path.join(__dirname, "renderer.js"));
+    attachHandlers();
 });
