@@ -11,11 +11,7 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "inspect": "electron-forge start --inspect-electron",
-    "build": "npm run make",
-    "argtest": "electron-forge start -- add file name.omod --editor"
-  },
-  "bin": {
-    "octos": "src/bin.js"
+    "build": "npm run make"
   },
   "dependencies": {
     "@nodert-win10-21h1/windows.media.control": "^0.1.6",

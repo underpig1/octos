@@ -1,6 +1,6 @@
 module.exports = {
     packagerConfig: {
-        icon: "img/tray.png"
+        icon: "./img/octos.ico"
     },
     rebuildConfig: {},
     makers: [
@@ -21,6 +21,9 @@ module.exports = {
                     name: "octos"
                 },
                 prerelease: true
+            },
+            config: {
+                icon: "./img/octos.ico",
             }
         }
     ],
@@ -29,8 +32,9 @@ module.exports = {
             async (buildPath, electronVersion, platform, arch) => {
                 require("child_process").execSync(`REG ADD HKCU\\Software\\Classes\\.omod /ve /d "octos.OctosFile" /f
 REG ADD HKCU\\Software\\Classes\\octos.OctosFile /ve /d "Octos File" /f
-REG ADD HKCU\\Software\\Classes\\octos.OctosFile\\DefaultIcon /ve /d "${path.join(buildPath, "img/omod.ico")}" /f
-REG ADD HKCU\\Software\\Classes\\octos.OctosFile\\Shell\\Open\\Command /ve /d "\"${path.join(buildPath, "octos.exe")}\" add \"%1\"" /f`, { windowsHide: true });
+REG ADD HKCU\\Software\\Classes\\octos.OctosFile\\DefaultIcon /ve /d "${path.join(__dirname, "img/omod.ico")}" /f
+REG ADD HKCU\\Software\\Classes\\octos.OctosFile\\Shell\\Open\\Command /ve /d "\"${path.join(buildPath, "octos.exe")}\" add \"%1\"" /f
+SET PATH=%PATH%;${path.join(buildPath, "octos.exe")}`, { windowsHide: true });
             },
         ],
     },

@@ -120,12 +120,7 @@ function parseArgs() {
         });
     }, (argv) => {
         var dir = path.resolve(process.cwd(), argv.path);
-        if (require("fs").existsSync(dir)) {
-            addMod(dir).then((name) => {
-                selectMod(name);
-                refresh();
-            });
-        }
+        if (require("fs").existsSync(dir)) addMod(dir);
         else console.error("Provided directory does not exist");
     }).parse();
 }
