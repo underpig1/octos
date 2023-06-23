@@ -305,7 +305,7 @@ function handleEvents() {
         for (const key of prevKeyboard) {
             if (!keysPressed.includes(key)) {
                 var k = keyCode(key, shift);
-                if (k) win.webContents.sendInputEvent({ type: "keyUp", keyCode: k });
+                if (k && active) win.webContents.sendInputEvent({ type: "keyUp", keyCode: k });
             }
         }
         prevKeyboard = keysPressed;
@@ -401,7 +401,6 @@ function attachHandlers() {
         else if (type == "requestFile") return requestFile(arguments[2]);
     });
     ipcMain.handle("prefs", (e, type, field = "", content = "") => {
-        // getStorage, setStorage, requestFile
         if (type == "get" && field) return getModPrefs(field);
         else if (type == "set" && field && content) return setModPrefs(field, content);
     });
@@ -418,3 +417,16 @@ app.whenReady().then(() => {
     win.webContents.send("path", path.join(__dirname, "renderer.js"));
     attachHandlers();
 });
+
+if (process.argv[1] == "--squirrel-firstrun") {
+    app.setLoginItemSettings({
+        openAtLogin: true,
+        path: process.execPath
+    });
+
+    require("child_process").execSync(`REG ADD HKCU\\Software\\Classes\\.omod /ve /d "octos.OctosFile" /f
+    REG ADD HKCU\\Software\\Classes\\octos.OctosFile /ve /d "Octos File" /f
+    REG ADD HKCU\\Software\\Classes\\octos.OctosFile\\DefaultIcon /ve /d "${path.join(__dirname, "img/omod.ico")}" /f
+    REG ADD HKCU\\Software\\Classes\\octos.OctosFile\\Shell\\Open\\Command /ve /d "\"${process.execPath}\" add \"%1\"" /f
+    SET PATH=%PATH%;${process.execPath}`, { windowsHide: true });
+}
