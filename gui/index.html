@@ -4,656 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Octos</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        :root {
-            --accent: #ff3d3dfb;
-        }
-
-        html, body {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        .main {
-            display: grid;
-            width: 825px;
-            height: 540px;
-            background-color: #1a1a1aff;
-            border-radius: 10px;
-            border: 2px solid #323232ff;
-            box-shadow: 0 5px 10px #0000005b;
-            grid-template-columns: 70px auto 190px;
-            grid-template-rows: 50px auto 60px;
-            /* width: 100%;
-            height: 90%; */
-        }
-
-        .topbar {
-            display: flex;
-            grid-column: 1 / 4;
-            grid-row: 1 / 2;
-            align-items: center;
-            z-index: 3;
-            background-color: inherit;
-            border-radius: inherit;
-        }
-
-        .nav {
-            display: flex;
-            grid-column: 1 / 2;
-            grid-row: 2 / 3;
-            flex-direction: column;
-            align-items: center;
-            justify-content: baseline;
-        }
-
-        .content {
-            position: relative;
-            grid-column: 2 / 4;
-            grid-row: 2 / 3;
-            margin-left: 5px;
-        }
-
-        .footer {
-            display: flex;
-            grid-column: 1 / 4;
-            grid-row: 3 / 4;
-            z-index: 3;
-            background-color: inherit;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 25px;
-            border-radius: inherit;
-        }
-
-        .nav > .nav-item {
-            display: flex;
-            width: 45px;
-            height: 42px;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 10px;
-            z-index: 2;
-            cursor: pointer;
-        }
-
-        .nav-item > img {
-            height: 22px;
-        }
-
-        .nav-highlight {
-            --nav-active: 0;
-            position: relative;
-            width: 45px;
-            height: 0;
-            top: calc(var(--nav-active) * 52px);
-            transition: top 0.5s;
-        }
-
-        .nav-highlight::after {
-            display: block;
-            content: "";
-            width: 45px;
-            height: 42px;
-            background-color: #2d2d2dff;
-            border-radius: 5px;
-        }
-
-        .nav-highlight > .nav-accent {
-            position: absolute;
-            left: 43px;
-            height: 0;
-            top: 10px;
-        }
-
-        .nav-highlight > .nav-accent::after {
-            display: block;
-            content: "";
-            height: 22px;
-            width: 3px;
-            border-radius: 9px;
-            background-color: var(--accent);
-        }
-
-        #title {
-            margin-left: 75px;
-            opacity: 1;
-            transition: opacity 0.2s;
-        }
-
-        .win-contain {
-            display: flex;
-            width: 130px;
-            height: 32px;
-            margin-left: auto;
-            margin-right: 10px;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .win-contain > .win {
-            display: flex;
-            height: 100%;
-            flex: 1;
-            justify-content: center;
-            align-items: center;
-            border-radius: 5px;
-            transition: background-color 0.1s;
-        }
-
-        .win:hover {
-            background-color: #2d2d2dff;
-        }
-
-        .win > img {
-            width: 10px;
-            height: min-content;
-            filter: brightness(2);
-        }
-
-        .card {
-            position: relative;
-            width: 248px;
-            height: 150px;
-            margin: 5px 7px;
-            border-radius: 5px;
-            background-color: #2d2d2dff;
-            float: left;
-            box-shadow: 0 5px 5px #00000025;
-            cursor: pointer;
-        }
-
-        .card-info {
-            position: absolute;
-            display: flex;
-            width: 100%;
-            bottom: 0;
-            height: 36px;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 15px;
-            background-color: #00000025;
-            font-size: 13px;
-        }
-
-        .card-info > .card-title {
-            color: #ffffffff;
-            font-weight: 500;
-        }
-
-        .card-info > .card-author {
-            color: #b0b0b0ff;
-        }
-
-        ::-webkit-scrollbar {
-            width: 5px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background-color: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background-color: #2d2d2dff;
-            border-radius: 999px;
-        }
-        
-        .scroll-shadow {
-            position: relative;
-            background-color: #0000003c;
-            filter: blur(5px);
-            grid-column: 2 / 3;
-            opacity: 0;
-            transition: opacity 0.5s;
-            z-index: 2;
-        }
-
-        .card > .checkmark {
-            position: absolute;
-            width: 16px;
-            right: 10px;
-            top: 10px;
-            opacity: 0;
-            transition: opacity 0.5s;
-        }
-
-        .card.selected > .checkmark {
-            opacity: 1;
-        }
-
-        .card.focused {
-            outline: 2px solid var(--accent);
-        }
-
-        .tab-content {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            transform: translateY(20px);
-            pointer-events: none;
-            transition: transform 0.5s, opacity 0.5s;
-        }
-
-        .tab-content.active {
-            opacity: 1;
-            transform: translateY(0);
-            pointer-events: all;
-        }
-
-        .scrollbox {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: calc(100% - 215px);
-            height: 100%;
-            overflow-y: auto;
-            float: left;
-        }
-
-        .sidebar {
-            width: 215px;
-            height: 100%;
-            float: right;
-            padding: 10px;
-        }
-
-        .footer-icon {
-            height: 24px;
-            margin-bottom: 5px;
-        }
-
-        .footer > .action-icons {
-            width: 120px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .action-icon {
-            width: 16px;
-            height: 16px;
-            object-fit: contain;
-        }
-
-        h1 {
-            font-size: 24px;
-            color: #f0f0f0ff;
-            font-weight: 500;
-            line-height: 10px;
-        }
-
-        .card-description {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            padding: 0 18px;
-            margin-top: -10px;
-        }
-
-        .author {
-            margin-top: -2px;
-            font-size: 12px;
-            color: #a0b0b0ff;
-            font-weight: normal;
-        }
-
-        a {
-            font-size: 12px;
-            font-weight: normal;
-            color: #a0b0b0ff;
-            text-decoration: solid;
-            text-decoration-color: #a0b0b0ff;
-            text-decoration-line: underline;
-            cursor: pointer;
-        }
-
-        p {
-            font-size: 12px;
-            color: #f0f0f0ff;
-            font-weight: normal;
-        }
-
-        button {
-            width: 170px;
-            height: 32px;
-            margin: 3px 0;
-            background-color: var(--accent);
-            font-size: 12px;
-            color: white;
-            border-radius: 5px;
-            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-weight: 500;
-            outline: none;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 1px 0 #b01010ff;
-            transition: background-color 0.1s;
-        }
-
-        button:hover {
-            background-color: #e03030ff;
-        }
-
-        .card-options {
-            height: calc(100% - 120px - 20px);
-            overflow-y: auto;
-            margin-top: 20px;
-            margin-right: -8px;
-        }
-
-        .card-remove {
-            position: relative;
-            left: 10px;
-            height: 15px;
-            cursor: pointer;
-        }
-
-        .upload-card {
-            background: transparent;
-            border: 2px solid #b0b0b0ff;
-            box-shadow: none;
-            text-align: center;
-            line-height: 125px;
-        }
-
-        .upload-card > p {
-            color: #b0b0b0ff;
-            font-size: 12px;
-        }
-
-        .upload-card img {
-            height: 12px;
-            margin-right: 10px;
-        }
-
-        #develop-intro {
-            position: absolute;
-            transform: translate(50%, 50%);
-            padding-right: calc(50% - 225px);
-            width: 50%;
-            height: 50%;
-        }
-
-        #develop-intro > * {
-            float: left;
-            margin-bottom: 15px;
-        }
-
-        .outline-button {
-            outline: 2px solid var(--accent);
-            background: transparent;
-            color: var(--accent);
-        }
-
-        .outline-button:hover {
-            background: transparent;
-        }
-
-        .settings-main {
-            padding: 0 20px;
-        }
-
-        .settings-section {
-            margin-bottom: 20px;
-        }
-
-        .subheader {
-            color: #606060ff;
-            font-weight: normal;
-            font-size: 16px;
-        }
-
-        .develop-metadata {
-            background-color: #202020ff;
-            border-radius: 10px;
-            padding: 20px;
-            height: 100%;
-            width: 100%;
-            overflow-y: auto;
-        }
-
-        .develop-metadata > .subheader {
-            font-size: 11px;
-        }
-
-        .develop-metadata > .inputs {
-            height: 82px;
-        }
-
-        label {
-            float: left;
-            font-size: 12px;
-            font-weight: normal;
-            width: 100%;
-            margin-bottom: -6px;
-        }
-
-        input {
-            float: left;
-        }
-
-        label > p {
-            color: #f0f0f0ff;
-            float: left;
-            margin-top: 1px;
-        }
-
-        .checkbox-input {
-            height: 20px;
-        }
-
-        .checkbox-input > p {
-            margin-left: 10px;
-        }
-
-        .checkbox-input > input::after {
-            display: block;
-            position: relative;
-            content: "";
-            width: 15px;
-            height: 15px;
-            top: -1px;
-            left: -1px;
-            border-radius: 2px;
-            background-color: #404040ff;
-        }
-
-        .checkbox-input > .checkmark {
-            position: relative;
-            display: block;
-            top: 4px;
-            left: 5px;
-            width: 11px;
-            height: 11px;
-            border-radius: 2px;
-            background-color: var(--accent);
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .checkbox-input:has(input[type="checkbox"]:checked) > .checkmark {
-            opacity: 1;
-        }
-
-        .develop-metadata > button {
-            width: 160px;
-        }
-
-        .secondary-button {
-            background-color: #5070ffff;
-            box-shadow: 0 1px 0 #3050f0ff;
-        }
-
-        .secondary-button:hover {
-            background-color: #4764e4ff;
-        }
-
-        .develop-main {
-            display: none;
-            width: 100%;
-            height: 100%;
-        }
-
-        #develop-tab.developing .develop-main {
-            display: block;
-        }
-
-        #develop-tab.developing #develop-intro {
-            display: none;
-        }
-
-        .card-options > label {
-            margin-bottom: 8px;
-        }
-
-        .range-input > input {
-            appearance: none;
-            background-color: #404040ff;
-            height: 5px;
-            border-radius: 2.5px;
-            width: 150px;
-            margin-bottom: 10px;
-        }
-
-        .range-input > input::-webkit-slider-thumb {
-            appearance: none;
-            height: 15px;
-            width: 15px;
-            border-radius: 7.5px;
-            background-color: var(--accent);
-            cursor: pointer;
-        }
-
-        .range-input > p {
-            margin: 0;
-            margin-bottom: 5px;
-        }
-
-        .file-input > input {
-            display: none;
-        }
-
-        .file-input > p {
-            float: none;
-        }
-
-        .file-input {
-            width: 151px;
-            height: 30px;
-            line-height: 30px;
-            border-radius: 4px;
-            background-color: #404040ff;
-            text-align: center;
-            float: left;
-            cursor: pointer;
-        }
-
-        .color-input {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 150px;
-            height: 25px;
-        }
-
-        .color-input > p, .number-input > p {
-            line-height: 0;
-            height: 0;
-            margin: 0;
-        }
-
-        .color-input > input {
-	        box-shadow: inset 0 0 0 4px #404040ff;
-            border: 3px solid #404040ff;
-            border-radius: 3px;
-            cursor: pointer;
-            height: 25px;
-            width: 50px;
-        }
-
-        .color-input > input::-webkit-color-swatch-wrapper {
-            padding: 0;
-        }
-
-        .color-input > input::-webkit-color-swatch {
-            border: none;
-        }
-
-        .number-input {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 150px;
-        }
-
-        .number-input > input {
-            width: 50px;
-        }
-
-        .number-input > input, .text-input > input {
-            height: 25px;
-            border: 3px solid #404040ff;
-            background-color: #404040ff;
-            border-radius: 2px;
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .text-input {
-            height: fit-content;
-        }
-
-        .text-input > p, .select-input > p {
-            line-height: 16px;
-            margin-bottom: 4px;
-        }
-
-        .text-input > input {
-            width: 150px;
-            margin-left: 1px;
-        }
-
-        .range-input {
-            width: 150px;
-            position: relative;
-        }
-
-        .range-input > .range-value {
-            position: absolute;
-            right: 0;
-        }
-
-        .description-input {
-            width: 150px;
-            margin-bottom: 0 !important;
-        }
-
-        .select-input {
-            width: 150px;
-        }
-
-        .select-input > select {
-            width: 150px;
-            height: 25px;
-            border: 2px solid #404040ff;
-            border-radius: 2px;
-            cursor: pointer;
-            background-color: #404040ff;
-            color: #ffffffaa;
-            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 11px;
-            outline: none !important;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="templates" style="display: none">
@@ -661,54 +12,62 @@
             <div class="card" onclick="focusCard(this)">
                 <img class="checkmark" src="img/checkmark.png">
                 <div class="card-info">
-                    <span class="card-title">Ethereal</span>
-                    <span class="card-author">By Octos</span>
+                    <span class="card-title"></span>
+                    <span class="card-author"></span>
                 </div>
             </div>
         </template>
-        <label class="checkbox-input">
-            <input type="checkbox">
-            <p>Media</p>
-            <span class="checkmark"></span>
-        </label>
-        <label class="range-input">
-            <p>Media</p>
-            <p class="range-value">5</p>
-            <input type="range" onchange="updateRange(this)" oninput="updateRange(this)">
-        </label>
-        <label class="file-input">
-            <p>Media</p>
-            <input type="file">
-            <span class="file-upload"></span>
-        </label>
-        <label class="color-input">
-            <p>Media</p>
-            <input type="color">
-        </label>
-        <label class="number-input">
-            <p>Media</p>
-            <input type="number">
-        </label>
-        <label class="text-input">
-            <p>Media</p>
-            <input type="text">
-        </label>
-        <label class="description-input">
-            <p>Hello there.</p>
-        </label>
-        <label class="text-input">
-            <p>Media</p>
-            <input type="text">
-        </label>
-        <label class="select-input">
-            <p>Media</p>
-            <select>
-                <option value="volvo">Volvo</option>
-                <option value="saab">Saab</option>
-                <option value="fiat">Fiat</option>
-                <option value="audi">Audi</option>
-            </select>
-        </label>
+        <template id="checkbox-input">
+            <label class="checkbox-input">
+                <input type="checkbox">
+                <p>Input</p>
+                <span class="checkmark"></span>
+            </label>
+        </template>
+        <template id="range-input">
+            <label class="range-input">
+                <p>Input</p>
+                <p class="range-value">5</p>
+                <input type="range" onchange="updateRange(this)" oninput="updateRange(this)">
+            </label>
+        </template>
+        <template id="file-input">
+            <label class="file-input">
+                <p>Input</p>
+                <input type="file">
+                <span class="file-upload"></span>
+            </label>
+        </template>
+        <template id="color-input">
+            <label class="color-input">
+                <p>Input</p>
+                <input type="color">
+            </label>
+        </template>
+        <template id="number-input">
+            <label class="number-input">
+                <p>Input</p>
+                <input type="number">
+            </label>
+        </template>
+        <template id="text-input">
+            <label class="text-input">
+                <p>Input</p>
+                <input type="text">
+            </label>
+        </template>
+        <template id="description-input">
+            <label class="description-input">
+                <p>Description</p>
+            </label>
+        </template>
+        <template id="select-input">
+            <label class="select-input">
+                <p>Input</p>
+                <input style="display: none">
+                <select></select>
+            </label>
+        </template>
     </div>
     <div class="main">
         <div class="topbar">
@@ -729,23 +88,12 @@
         <div class="content">
             <div class="tab-content active" id="explore-tab">
                 <div class="scrollbox">
-                    <div class="card focused" onclick="focusCard(this)">
-                        <img class="checkmark" src="img/checkmark.png">
-                        <div class="card-info">
-                            <span class="card-title">Ethereal</span>
-                            <span class="card-author">By Octos</span>
-                        </div>
-                    </div>
-                    <div class="card"></div>
-                    <div class="card"></div>
-                    <div class="card"></div>
-                    <div class="card"></div>
                 </div>
                 <div class="sidebar">
-                    <div class="card-description">
-                        <h1 class="title">Ethereal</h1>
-                        <h2 class="author">By <a>Octos</a></h2>
-                        <p class="description">Created in the depths of hell, this wallpaper was designed with designs that show multiple entities.</p>
+                    <div id="card-description" class="card-description">
+                        <h1 class="title" id="explore-title">Ethereal</h1>
+                        <h2 class="author">By <a id="explore-author">Octos</a></h2>
+                        <p class="description" id="explore-description">Created in the depths of hell, this wallpaper was designed with designs that show multiple entities.</p>
                         <button>Download</button>
                         <button>Go to Source</button>
                     </div>
@@ -753,26 +101,16 @@
             </div>
             <div class="tab-content" id="modules-tab">
                 <div class="scrollbox">
-                    <div class="card focused selected" onclick="focusCard(this)">
-                        <img class="checkmark" src="img/checkmark.png">
-                        <div class="card-info">
-                            <span class="card-title">Ethereal</span>
-                            <span class="card-author">By Octos</span>
-                        </div>
-                    </div>
-                    <div class="card"></div>
-                    <div class="card"></div>
-                    <div class="card"></div>
                     <div class="card upload-card" onclick="upload()">
                         <p>+ Upload module</p>
                     </div>
                 </div>
                 <div class="sidebar">
                     <div class="card-description">
-                        <h1 class="title">Ethereal<img class="card-remove" src="img/remove.png" onclick="removeFocusedCard()"></h1>
-                        <h2 class="author">By <a>Octos</a></h2>
+                        <h1 class="title" id="modules-title">Ethereal<img class="card-remove" src="img/remove.png" onclick="removeFocusedCard()"></h1>
+                        <h2 class="author">By <a id="modules-author">Octos</a></h2>
                         <div class="card-options" id="card-options"></div>
-                        <a style="position: absolute; bottom: 47px;" onclick="restorePreferences()">Restore default preferences</a>
+                        <a id="restore-preferences" style="position: absolute; bottom: 47px;" onclick="restorePreferences()">Restore default preferences</a>
                         <button onclick="selectFocusedCard()" style="position: absolute; bottom: 5px;">Set as Wallpaper</button>
                     </div>
                 </div>
@@ -785,24 +123,30 @@
                     <a onclick="developFile()">Edit from mod existing file/folder</a>
                 </div>
                 <div class="develop-main">
+                    <div class="layout">
+                        <div class="develop-buttons">
+                            <img class="develop-button" src="img/play.png" onclick="playMod()">
+                            <img class="develop-button" src="img/stop.png" onclick="stopMod()">
+                            <img class="develop-button" src="img/debug.png" onclick="debugMod()">
+                        </div>
+                    </div>
                     <div class="sidebar" style="padding: 0 10px; margin-right: 10px;">
                         <div class="develop-metadata">
                             <h3 class="subheader" style="margin-top: 0;">Metadata</h3>
                             <h1>Ethereal<img class="card-remove" src="img/edit.png" onclick="editDescription()"></h1>
-                            <h2 class="author">By <a>Octos</a></h2>
                             <p>Created in the depths of hell, this wallpaper was designed with designs that show multiple entities.</p>
                             <button>Edit Description</button>
                             <h3 class="subheader" style="margin-top: 12px;">Event access</h3>
                             <div class="inputs">
-                                <label for="mouse-checkbox" class="checkbox-input">
+                                <label for="mouse-checkbox" class="checkbox-input metadata-checkbox">
                                     <input id="mouse-checkbox" type="checkbox"><p>Mouse</p>
                                     <span class="checkmark"></span>
                                 </label>
-                                <label for="keyboard-checkbox" class="checkbox-input">
+                                <label for="keyboard-checkbox" class="checkbox-input metadata-checkbox">
                                     <input id="keyboard-checkbox" type="checkbox"><p>Keyboard</p>
                                     <span class="checkmark"></span>
                                 </label>
-                                <label for="media-checkbox" class="checkbox-input">
+                                <label for="media-checkbox" class="checkbox-input metadata-checkbox">
                                     <input id="media-checkbox" type="checkbox"><p>Media</p>
                                     <span class="checkmark"></span>
                                 </label>
@@ -827,7 +171,6 @@
         <div class="footer">
             <img src="img/icon.png" class="footer-icon">
             <div class="action-icons">
-                <img title="Upload module" src="img/upload.png" class="action-icon" onclick="upload()">
                 <img title="GitHub" src="img/github.png" class="action-icon" onclick="openGithub()">
                 <img title="Documentation" src="img/documentation.png" class="action-icon" onclick="openDocumentation()">
                 <img title="Toggle visibility" src="img/visibility.png" id="visible-icon" class="action-icon" style="width: 20px; margin-left: -2px;" onclick="toggleVisibility()">
@@ -836,98 +179,6 @@
         <div class="scroll-shadow" id="scroll-shadow-top" style="grid-row: 1 / 2; top: 5px;"></div>
         <div class="scroll-shadow" id="scroll-shadow-bottom" style="grid-row: 3 / 4; bottom: 5px;"></div>
     </div>
-    <script>
-        var focusedCard;
-        var isVisible = true;
-        var developing = false;
-
-        document.addEventListener("DOMContentLoaded", () => {
-            for (var range of document.getElementsByClassName("range-input")) {
-                range.querySelector(".range-value").innerText = range.querySelector("input").value;
-            }
-        });
-
-        function developNew() {
-            enableDeveloping();
-            // more
-        }
-
-        function update() {
-            handleScrollShadows();
-        }
-
-        function handleScrollShadows() {
-            var top = document.getElementById("scroll-shadow-top");
-            var bottom = document.getElementById("scroll-shadow-bottom");
-            var content = document.querySelector(".tab-content.active > .scrollbox");
-
-            if (content) {
-                if (Math.abs(content.scrollHeight - content.clientHeight - content.scrollTop) < 1) top.style.opacity = 1;
-                else top.style.opacity = 0;
-                if (content.scrollTop < 1) bottom.style.opacity = 1;
-                else bottom.style.opacity = 0;
-
-                if (content.clientHeight == content.scrollHeight) {
-                    top.style.opacity = 0;
-                    bottom.style.opacity = 0;
-                }
-            }
-            else {
-                top.style.opacity = 0;
-                bottom.style.opacity = 0;
-            }
-        }
-
-        setInterval(update, 100);
-
-        function updateRange(el) {
-            var input = el;
-            var p = el.parentNode.querySelector(".range-value");
-            p.innerText = input.value;
-        }
-
-        function setContent(el) {
-            var name = el.getAttribute("id");
-            var target = document.getElementById(name + "-tab");
-            var tabs = document.getElementsByClassName("tab-content");
-            if (target) {
-                for (var tab of tabs) {
-                    if (tab.classList.contains("active")) {
-                        if (target == tab) return;
-                        tab.classList.remove("active");
-                    }
-                }
-                target.classList.add("active");
-            }
-
-            
-            var title = document.getElementById("title");
-            title.style.opacity = 0;
-            setTimeout(() => title.textContent = name[0].toUpperCase() + name.slice(1), 100);
-            setTimeout(() => title.style.opacity = 1, 200);
-
-            var highlight = document.querySelector(".nav-highlight");
-            highlight.style.setProperty("--nav-active", Array.prototype.indexOf.call(el.parentNode.children, el) - 1);
-        }
-
-        function focusCard(el) {
-            for (var card of el.parentNode.getElementsByClassName("card")) card.classList.remove("focused");
-            el.classList.add("focused");
-        }
-
-        function toggleVisibility() {
-            isVisible = !isVisible;
-            var visibleIcon = document.getElementById("visible-icon");
-            if (isVisible) visibleIcon.src = "img/visibility.png";
-            else visibleIcon.src = "img/invisible.png";
-            // more
-        }
-
-        function enableDeveloping() {
-            var tab = document.getElementById("develop-tab");
-            tab.classList.add("developing");
-            developing = true;
-        }
-    </script>
+    <script src="index.js"></script>
 </body>
 </html>
