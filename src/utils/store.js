@@ -59,15 +59,10 @@ function addMod(modPath) {
     return new Promise((resolve, reject) => {
         handleModFolderCopy(modPath).then((folder) => {
             if (folder) {
-                var config = getConfigFromFolderPath(path.join(modsPath, folder));
+                var config = getConfigFromFolderPath(resolveModFolder(folder));
                 var name = config.name;
-                if (name == "Custom mod") name = folder;
-                var modPrefs = config.prefs;
-                if (modPrefs) {
-                    if (!prefs.prefs) prefs.prefs = {};
-                    if (!prefs.prefs[name]) prefs.prefs[name] = { defaults: modPrefs, local: modPrefs };
-                    else prefs.prefs[name].defaults = modPrefs;
-                }
+                if (name == "Custom mod" || name == "" || !name) name = folder;
+                addModMetadata(name, config, folder);
                 addModData(name, folder);
                 writePrefs();
                 resolve(name);
@@ -186,14 +181,14 @@ function resetDefaultModPrefs() {
 function copyModFolder(target) {
     return new Promise((resolve, reject) => {
         var folderName = path.basename(target);
-        fs.copy(target, path.join(modsPath, folderName)).then(() => resolve(folderName)).catch(() => {});
+        fs.copy(target, resolveModFolder(folderName)).then(() => resolve(folderName)).catch(() => {});
     });
 }
 
 function unzipAndCopyModFolder(target) {
     return new Promise((resolve, reject) => {
         var folderName = path.basename(target).replace(/\.omod$/, "").replace(/\.zip$/, "");
-        var destination = path.join(modsPath, folderName);
+        var destination = resolveModFolder(folderName);
         if (!fs.existsSync(destination)) fs.mkdirSync(destination);
         else fs.emptyDirSync(destination);
         fs.createReadStream(target).on("entry", entry => entry.autodrain()).pipe(unzipper.Parse()).on("entry", (entry) => {
@@ -237,6 +232,29 @@ function addModData(name, folder) {
     else prefs.mods.push(newData);
 }
 
+function addModMetadata(name, config, folder) {
+    var modPrefs = config.prefs;
+    if (modPrefs) {
+        if (!prefs.prefs) prefs.prefs = {};
+        if (!prefs.prefs[name]) prefs.prefs[name] = { defaults: modPrefs, local: modPrefs };
+        else prefs.prefs[name].defaults = modPrefs;
+    }
+    if (!prefs.configs) prefs.configs = {};
+    prefs.configs[name] = config;
+    var relativeImagePath = config.image;
+    if (relativeImagePath) {
+        if (!prefs.images) prefs.images = {};
+        try {
+            new URL(relativeImagePath);
+        }
+        catch (err) {
+            relativeImagePath = path.resolve(resolveModFolder(folder), config.image);
+        }
+        prefs.images[name] = relativeImagePath;
+    }
+    return name;
+}
+
 function getModData(name) {
     return prefs.mods.find((value) => value.name == name);
 }
@@ -269,7 +287,7 @@ function readModConfig(name) {
 }
 
 function checkModFolderExists(folder) {
-    if (folder) return fs.existsSync(path.join(modsPath, folder));
+    if (folder) return fs.existsSync(resolveModFolder(folder));
     return false;
 }
 

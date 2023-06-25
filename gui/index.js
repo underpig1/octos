@@ -1,7 +1,15 @@
-var focusedCard;
+var focusedCards = { explore: null, modules: null };
+var selectedID;
 var isVisible = true;
 var developing = false;
 var inputGetters = {};
+var installedMods = {};
+var activeTab = document.querySelector(".tab-content.active");
+
+window.link.getVisibility().then((state) => {
+    isVisible = state;
+    updateVisibilityIcon();
+});
 
 document.addEventListener("DOMContentLoaded", () => {
     for (var range of document.getElementsByClassName("range-input")) {
@@ -14,8 +22,40 @@ function developNew() {
     // more
 }
 
+function exit() {
+    window.link.close();
+}
+
+function minimize() {
+    window.link.minimize();
+}
+
+function fullscreen() {
+    window.link.fullscreen();
+}
+
 function update() {
     handleScrollShadows();
+}
+
+window.onresize = () => {
+    updateResponsiveElements();
+}
+
+function updateResponsiveElements() {
+    var computed = window.getComputedStyle(document.querySelector(".card"));
+    const getCSSVariable = (prop) => parseInt(window.getComputedStyle(document.body).getPropertyValue(prop));
+    // var cardWidth = parseInt(computed.getPropertyValue("width")) + parseInt(computed.getPropertyValue("margin-left")) + parseInt(computed.getPropertyValue("margin-right"));
+    // var totalSpace = document.querySelector(".content").clientWidth;
+    // var scrollboxWidth = totalSpace - getCSSVariable("--default-sidebar-width");
+    // var numberOfCards = Math.floor(scrollboxWidth/cardWidth);
+    // var newSidebarWidth = totalSpace - numberOfCards*cardWidth - 10;
+    // document.documentElement.style.setProperty("--sidebar-width", newSidebarWidth + "px");
+
+    var scrollboxWidth = document.querySelector(".content").clientWidth - getCSSVariable("--sidebar-width");
+    var cardWidth = getCSSVariable("--default-card-width") + parseInt(computed.getPropertyValue("margin-left")) + parseInt(computed.getPropertyValue("margin-right"));
+    document.documentElement.style.setProperty("--card-width", scrollboxWidth / Math.floor(scrollboxWidth / cardWidth) - 20 + "px");
+    for (var shadow of document.getElementsByClassName("scroll-shadow")) shadow.style.width = scrollboxWidth + "px";
 }
 
 function handleScrollShadows() {
@@ -50,6 +90,7 @@ function updateRange(el) {
 
 function setContent(el) {
     var name = el.getAttribute("id");
+    activeTab = name;
     var target = document.getElementById(name + "-tab");
     var tabs = document.getElementsByClassName("tab-content");
     if (target) {
@@ -74,14 +115,42 @@ function setContent(el) {
 function focusCard(el) {
     for (var card of el.parentNode.getElementsByClassName("card")) card.classList.remove("focused");
     el.classList.add("focused");
+    focusedCards[activeTab] = el;
+    updateCardDescription();
+}
+
+function getFocusedCardData() {
+    return focusedCards[activeTab] ? installedMods[focusedCards[activeTab].id] : null;
+}
+
+function updateCardDescription() {
+    var cardData = getFocusedCardData();
+    setCardDescription(activeTab, cardData.name, cardData.author, cardData.description, cardData.options);
+}
+
+function setCardDescription(prefix = "explore", title = "", author = "", description = "", options = null) {
+    const cardDescription = document.getElementById(prefix + "-card-description");
+    cardDescription.querySelector(".title-content").innerText = title;
+    if (author) cardDescription.querySelector(".author").innerHTML = `By <a class="author-content">${author}</a>`;
+    else cardDescription.querySelector(".author").innerHTML = "";
+    cardDescription.querySelector(".description").innerText = description;
+    if (options) {
+        setCardOptions(options);
+        cardDescription.classList.remove("empty");
+    }
+    else cardDescription.classList.add("empty");
+}
+
+function updateVisibilityIcon() {
+    var visibleIcon = document.getElementById("visible-icon");
+    if (isVisible) visibleIcon.src = "img/visibility.png";
+    else visibleIcon.src = "img/invisible.png";
 }
 
 function toggleVisibility() {
     isVisible = !isVisible;
-    var visibleIcon = document.getElementById("visible-icon");
-    if (isVisible) visibleIcon.src = "img/visibility.png";
-    else visibleIcon.src = "img/invisible.png";
-    // more
+    updateVisibilityIcon();
+    window.link.setVisibility(isVisible);
 }
 
 function enableDeveloping() {
@@ -98,7 +167,7 @@ function createInput(options, id) {
     if (type == "dropdown") type = "select";
     var template = document.getElementById(type + "-input");
     if (template) {
-        var div = template.content.cloneNode(true);
+        var div = template.content.cloneNode(true).firstElementChild;
         if (options.label) div.querySelector("p").innerText = options.label;
         var input = div.querySelector("input");
         if (options.value) input.setAttribute("value", options.value);
@@ -150,4 +219,64 @@ function setCardOptions(json) {
     for (var id of Object.keys(json)) {
         createInput(json[id], id);
     }
+}
+
+function createCard(id = "", title = "Mod name", author = null, backgroundImage = "") {
+    var template = document.getElementById("card-template");
+    var div = template.content.cloneNode(true).firstElementChild;
+    div.querySelector(".card-title").innerText = title;
+    div.querySelector(".card-author").innerText = author ? "By " + author : "";
+    div.id = id;
+    if (backgroundImage) div.style.backgroundImage = `url('${backgroundImage}')`;
+    return div;
+}
+
+function updateDevelopMetadata() {
+    var mousePerms = document.getElementById("mouse-checkbox").checked;
+    var keyboardPerms = document.getElementById("keyboard-checkbox").checked;
+    var mediaPerms = document.getElementById("media-checkbox").checked;
+    // more
+}
+
+function updateMods() {
+    window.link.getPrefs().then((prefs) => {
+        const modScrollbox = document.getElementById("modules-scrollbox");
+        var tempFocus = Object.keys(installedMods).length > 0 ? installedMods[focusedCards.modules.id].name : null;
+        installedMods = {};
+        modScrollbox.innerHTML = "";
+        var modNames = prefs.mods.map((x) => x.name);
+        for (var id in modNames) {
+            var name = modNames[id];
+            var img = prefs.images ? prefs.images[name] : null;
+            var config = prefs.configs[name];
+            var author = config ? config.author : null;
+            var modPrefs = prefs.prefs ? prefs.prefs[name] : null;
+            var card = createCard(id, name, author, img);
+            if ((!tempFocus && id == 0) || tempFocus == name) {
+                for (var child of modScrollbox.children) child.classList.remove("focused");
+                card.classList.add("focused");
+                focusedCards.modules = card;
+            }
+            if (prefs.selected == name) {
+                for (var child of modScrollbox.children) child.classList.remove("selected");
+                card.classList.add("selected");
+                selectedID = id;
+            }
+            modScrollbox.appendChild(card);
+            installedMods[id] = { name, img, author, el: card, config, options: modPrefs };
+        }
+        var uploadCard = document.getElementById("card-upload-template").content.cloneNode(true).firstElementChild;
+        modScrollbox.appendChild(uploadCard);
+        updateCardDescription();
+    });
+}
+
+function selectFocusedCard() {
+    const modScrollbox = document.getElementById("modules-scrollbox");
+    var focusedCard = focusedCards.modules;
+    for (var child of modScrollbox.children) child.classList.remove("selected");
+    focusedCard.classList.add("selected");
+    selectedID = focusedCard.id;
+    var name = installedMods[selectedID].name;
+    window.link.selectMod(name);
 }

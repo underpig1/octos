@@ -17,6 +17,10 @@ export class MediaController {
     async playState() {
         return window.media.isPlaying();
     }
+
+    on(event, listener) {
+        if (["track", "playbackstatus", "playbacktime"].includes(event)) document.addEventListener(event, (e) => listener(e.detail));
+    }
 }
 
 export class Storage {

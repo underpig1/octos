@@ -4,6 +4,10 @@
 
 :root {
     --accent: #ff3d3dfb;
+    --sidebar-width: 215px;
+    --default-sidebar-width: 215px;
+    --card-width: 248px;
+    --default-card-width: 248px;
 }
 
 html,
@@ -18,12 +22,12 @@ body {
 
 .main {
     display: grid;
-    width: 825px;
-    height: 540px;
+    width: 100%;
+    height: 100%;
     background-color: #1a1a1aff;
     border-radius: 10px;
     border: 2px solid #323232ff;
-    box-shadow: 0 5px 10px #0000005b;
+    /* box-shadow: 0 5px 10px #0000005b; */
     grid-template-columns: 70px auto 190px;
     grid-template-rows: 50px auto 60px;
     /* width: 100%;
@@ -38,6 +42,8 @@ body {
     z-index: 3;
     background-color: inherit;
     border-radius: inherit;
+    -webkit-user-select: none;
+    -webkit-app-region: drag;
 }
 
 .nav {
@@ -141,6 +147,7 @@ body {
     align-items: center;
     border-radius: 5px;
     transition: background-color 0.1s;
+    -webkit-app-region: no-drag;
 }
 
 .win:hover {
@@ -155,8 +162,8 @@ body {
 
 .card {
     position: relative;
-    width: 248px;
-    height: 150px;
+    width: var(--card-width);
+    height: calc(var(--card-width)/248*150);
     margin: 5px 7px;
     border-radius: 5px;
     background-color: #2d2d2dff;
@@ -208,6 +215,7 @@ body {
     opacity: 0;
     transition: opacity 0.5s;
     z-index: 2;
+    margin-right: 25px;
 }
 
 .card>.checkmark {
@@ -247,14 +255,14 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    width: calc(100% - 215px);
+    width: calc(100% - var(--sidebar-width));
     height: 100%;
     overflow-y: auto;
     float: left;
 }
 
 .sidebar {
-    width: 215px;
+    width: var(--sidebar-width);
     height: 100%;
     float: right;
     padding: 10px;
@@ -294,7 +302,7 @@ h1 {
 }
 
 .author {
-    margin-top: -2px;
+    margin-top: -3px;
     font-size: 12px;
     color: #a0b0b0ff;
     font-weight: normal;
@@ -311,13 +319,14 @@ a {
 }
 
 p {
-    font-size: 12px;
+    font-size: 13px;
     color: #f0f0f0ff;
     font-weight: normal;
 }
 
 button {
     width: 170px;
+    max-width: 100%;
     height: 32px;
     margin: 3px 0;
     background-color: var(--accent);
@@ -356,12 +365,11 @@ button:hover {
     border: 2px solid #b0b0b0ff;
     box-shadow: none;
     text-align: center;
-    line-height: 125px;
+    line-height: calc(var(--card-width)/248*150);
 }
 
 .upload-card>p {
     color: #b0b0b0ff;
-    font-size: 12px;
 }
 
 .upload-card img {
@@ -371,10 +379,11 @@ button:hover {
 
 #develop-intro {
     position: absolute;
-    transform: translate(50%, 50%);
-    padding-right: calc(50% - 225px);
-    width: 50%;
-    height: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 225px;
+    height: fit-content;
 }
 
 #develop-intro>* {
@@ -410,14 +419,14 @@ button:hover {
     background-color: #202020ff;
     border-radius: 10px;
     padding: 20px;
-    height: 98%;
+    height: 97%;
     width: 100%;
     overflow-y: auto;
     box-shadow: 0 0 5px #000000aa;
 }
 
 .develop-metadata>.subheader {
-    font-size: 11px;
+    font-size: 13px;
 }
 
 .develop-metadata>.inputs {
@@ -426,7 +435,7 @@ button:hover {
 
 label {
     float: left;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: normal;
     width: 100%;
     margin-bottom: -6px;
@@ -670,8 +679,8 @@ label>p {
     position: relative;
     background-color: #202020ff;
     border-radius: 10px;
-    width: calc(100% - 230px);
-    height: 98%;
+    width: calc(100% - 245px);
+    height: 97%;
     float: left;
     box-shadow: 0 0 5px #000000aa;
 }
@@ -697,9 +706,34 @@ label>p {
 
 .title {
     width: 150px;
-    text-overflow: ellipsis;
-    white-space: pre-line;
-    margin: 10px 0;
-    line-height: 22px;
-    overflow: hidden;
+    margin: 6px 0;
+    line-height: 30px;
+    margin-top: -2px;
+}
+
+#modules-card-description.empty>.card-options {
+    height: 0;
+}
+
+#modules-card-description.empty>#restore-preferences {
+    display: none;
+}
+
+#modules-card-description.empty>#set-wallpaper {
+    position: static !important;
+    width: 100% !important;
+}
+
+.sidebar:has(.develop-metadata) {
+    width: 230px;
+}
+
+.sidebar button {
+    width: 100%;
+}
+
+@media only screen and (min-width: 900px) {
+    :root {
+        --sidebar-width: 300px;
+    }
 }

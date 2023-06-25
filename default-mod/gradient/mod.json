@@ -3,14 +3,14 @@
     "entry": "index.html",
     "prefs": {
         "primary-color": {
-            "type": "color-picker",
+            "type": "color",
             "value": "red",
-            "description": "Primary color"
+            "label": "Primary color"
         },
         "secondary-color": {
-            "type": "color-picker",
+            "type": "color",
             "value": "green",
-            "description": "Secondary color"
+            "label": "Secondary color"
         }
     }
 }

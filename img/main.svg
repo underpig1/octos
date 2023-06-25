@@ -367,7 +367,8 @@
        y1="817.00647"
        x2="777.26251"
        y2="690.29584"
-       gradientUnits="userSpaceOnUse" />
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(0.18708867)" />
     <filter
        inkscape:collect="always"
        style="color-interpolation-filters:sRGB"
@@ -504,9 +505,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="32"
-     inkscape:cx="1481.266"
-     inkscape:cy="-1567.0689"
+     inkscape:zoom="1.4142136"
+     inkscape:cx="2608.8806"
+     inkscape:cy="-3088.293"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -552,7 +553,7 @@
     <rect
        ry="3.224653"
        y="664.87463"
-       x="554.74811"
+       x="554.93518"
        height="760.62061"
        width="238.84418"
        id="rect1688"
@@ -8095,9 +8096,9 @@
     <rect
        ry="1.5958252"
        y="1067.7178"
-       x="614.32324"
-       height="43.556385"
-       width="92.228821"
+       x="640.70276"
+       height="43.556396"
+       width="65.84938"
        id="rect2118"
        style="opacity:1;fill:#1a1a1a;fill-opacity:1;stroke:none;stroke-width:0.16500001;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal" />
     <text
@@ -8116,5 +8117,45 @@
        style="fill:none;stroke:#5070ff;stroke-width:0.365;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 399.824,709.84482 h 1.2722 c 0,0 0.0437,-0.64754 -0.647,-0.64754 -0.69062,0 -0.6252,0.64754 -0.6252,0.64754 z m -0.29443,1.72807 -0.38531,0.38564 0.37441,-0.37473 v -0.90222 h -0.53798 0.54161 v -0.81129 l -0.36711,-0.36743 0.37802,0.37835 h 0.916 0.916 l 0.37802,-0.37835 -0.36712,0.36743 v 0.81129 h 0.54162 -0.53798 v 0.90222 l 0.37441,0.37473 -0.38532,-0.38564 c 0,0 -0.35955,0.33322 -0.91963,0.31031 -0.56008,0.0229 -0.91964,-0.31031 -0.91964,-0.31031 z"
        inkscape:connector-curvature="0" />
+    <rect
+       style="opacity:1;fill:#1a1a1a;fill-opacity:1;stroke:none;stroke-width:0.16500001;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       id="rect2247"
+       width="24.035048"
+       height="43.556396"
+       x="614.51031"
+       y="1067.7178"
+       ry="1.5958252" />
+    <text
+       id="text2255"
+       y="1071.8428"
+       x="616.81848"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.86577046px;line-height:1.25;font-family:menlo;-inkscape-font-specification:menlo;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:menlo;-inkscape-font-specification:menlo;fill:#ffffff;fill-opacity:1;stroke-width:0.26458332"
+         y="1071.8428"
+         x="616.81848"
+         sodipodi:role="line"
+         id="tspan2257">ethereal</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:menlo;-inkscape-font-specification:menlo;fill:#ffffff;fill-opacity:1;stroke-width:0.26458332"
+         y="1074.1749"
+         x="616.81848"
+         sodipodi:role="line"
+         id="tspan2261">| index.html</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:menlo;-inkscape-font-specification:menlo;fill:#ffffff;fill-opacity:1;stroke-width:0.26458332"
+         y="1076.5072"
+         x="616.81848"
+         sodipodi:role="line"
+         id="tspan2267">| mod.json</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.8003881px;line-height:1.25;font-family:menlo;-inkscape-font-specification:menlo;letter-spacing:0px;word-spacing:0px;fill:#606060;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
+       x="643.47577"
+       y="1071.6609"
+       id="text2278"><tspan
+         sodipodi:role="line"
+         id="tspan2276"
+         x="643.47577"
+         y="1071.6609"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:menlo;-inkscape-font-specification:menlo;fill:#606060;fill-opacity:1;stroke-width:0.26458332;">ethereal &gt; mod.json</tspan></text>
   </g>
 </svg>

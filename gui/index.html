@@ -17,9 +17,14 @@
                 </div>
             </div>
         </template>
+        <template id="card-upload-template">
+            <div class="card upload-card" onclick="upload()">
+                <p>+ Upload module</p>
+            </div>
+        </template>
         <template id="checkbox-input">
             <label class="checkbox-input">
-                <input type="checkbox">
+                <input type="checkbox" onchange="updateCardOptions()">
                 <p>Input</p>
                 <span class="checkmark"></span>
             </label>
@@ -28,32 +33,32 @@
             <label class="range-input">
                 <p>Input</p>
                 <p class="range-value">5</p>
-                <input type="range" onchange="updateRange(this)" oninput="updateRange(this)">
+                <input type="range" onchange="updateRange(this)" oninput="updateRange(this)" onchange="updateCardOptions()">
             </label>
         </template>
         <template id="file-input">
             <label class="file-input">
                 <p>Input</p>
-                <input type="file">
+                <input type="file" onchange="updateCardOptions()">
                 <span class="file-upload"></span>
             </label>
         </template>
         <template id="color-input">
             <label class="color-input">
                 <p>Input</p>
-                <input type="color">
+                <input type="color" onchange="updateCardOptions()">
             </label>
         </template>
         <template id="number-input">
             <label class="number-input">
                 <p>Input</p>
-                <input type="number">
+                <input type="number" onchange="updateCardOptions()">
             </label>
         </template>
         <template id="text-input">
             <label class="text-input">
                 <p>Input</p>
-                <input type="text">
+                <input type="text" onchange="updateCardOptions()">
             </label>
         </template>
         <template id="description-input">
@@ -64,7 +69,7 @@
         <template id="select-input">
             <label class="select-input">
                 <p>Input</p>
-                <input style="display: none">
+                <input style="display: none" onchange="updateCardOptions()">
                 <select></select>
             </label>
         </template>
@@ -73,9 +78,9 @@
         <div class="topbar">
             <h3 class="subheader" id="title">Explore</h3>
             <div class="win-contain">
-                <div class="win"><img src="img/minimize.png" onclick="minimize()"></div>
-                <div class="win"><img src="img/fullscreen.png" onclick="fullscreen()"></div>
-                <div class="win"><img src="img/exit.png" onclick="exit()"></div>
+                <div class="win" onclick="minimize()"><img src="img/minimize.png"></div>
+                <div class="win" onclick="fullscreen()"><img src="img/fullscreen.png"></div>
+                <div class="win" onclick="exit()"><img src="img/exit.png"></div>
             </div>
         </div>
         <div class="nav">
@@ -87,38 +92,34 @@
         </div>
         <div class="content">
             <div class="tab-content active" id="explore-tab">
-                <div class="scrollbox">
-                </div>
+                <div class="scrollbox" id="explore-scrollbox"></div>
                 <div class="sidebar">
-                    <div id="card-description" class="card-description">
-                        <h1 class="title" id="explore-title">Ethereal</h1>
-                        <h2 class="author">By <a id="explore-author">Octos</a></h2>
-                        <p class="description" id="explore-description">Created in the depths of hell, this wallpaper was designed with designs that show multiple entities.</p>
+                    <div id="explore-card-description" class="card-description">
+                        <h1 class="title">Ethereal</h1>
+                        <h2 class="author">By <a class="author-content">Octos</a></h2>
+                        <p class="description">Created in the depths of hell, this wallpaper was designed with designs that show multiple entities.</p>
                         <button>Download</button>
                         <button>Go to Source</button>
                     </div>
                 </div>
             </div>
             <div class="tab-content" id="modules-tab">
-                <div class="scrollbox">
-                    <div class="card upload-card" onclick="upload()">
-                        <p>+ Upload module</p>
-                    </div>
-                </div>
+                <div class="scrollbox" id="modules-scrollbox"></div>
                 <div class="sidebar">
-                    <div class="card-description">
-                        <h1 class="title" id="modules-title">Ethereal<img class="card-remove" src="img/remove.png" onclick="removeFocusedCard()"></h1>
-                        <h2 class="author">By <a id="modules-author">Octos</a></h2>
+                    <div id="modules-card-description" class="card-description">
+                        <h1 class="title"><span class="title-content">Ethereal</span><img class="card-remove" src="img/remove.png" onclick="removeFocusedCard()"></h1>
+                        <h2 class="author">By <a class="author-content">Octos</a></h2>
+                        <p class="description">Created in the depths of hell, this wallpaper was designed with designs that show multiple entities.</p>
                         <div class="card-options" id="card-options"></div>
                         <a id="restore-preferences" style="position: absolute; bottom: 47px;" onclick="restorePreferences()">Restore default preferences</a>
-                        <button onclick="selectFocusedCard()" style="position: absolute; bottom: 5px;">Set as Wallpaper</button>
+                        <button id="set-wallpaper" onclick="selectFocusedCard()" style="position: absolute; bottom: 5px; width: auto; left: 15px; right: 15px;">Set as Wallpaper</button>
                     </div>
                 </div>
             </div>
             <div class="tab-content" id="develop-tab">
                 <div id="develop-intro">
                     <h1>Mod creator</h1>
-                    <p>Welcome to the developer menu! Here you can find tools and information in order to create your own awesome mods.</p>
+                    <p style="margin-top: 2px;">Welcome to the developer menu! Here you can find tools and information in order to create your own awesome mods.</p>
                     <button class="outline-button" onclick="developNew()" style="margin-top: 12px; margin-bottom: 10px;">Create new mod</button>
                     <a onclick="developFile()">Edit from mod existing file/folder</a>
                 </div>
@@ -139,15 +140,15 @@
                             <h3 class="subheader" style="margin-top: 12px;">Event access</h3>
                             <div class="inputs">
                                 <label for="mouse-checkbox" class="checkbox-input metadata-checkbox">
-                                    <input id="mouse-checkbox" type="checkbox"><p>Mouse</p>
+                                    <input id="mouse-checkbox" type="checkbox" onchange="updateDevelopMetadata()" checked><p>Mouse</p>
                                     <span class="checkmark"></span>
                                 </label>
                                 <label for="keyboard-checkbox" class="checkbox-input metadata-checkbox">
-                                    <input id="keyboard-checkbox" type="checkbox"><p>Keyboard</p>
+                                    <input id="keyboard-checkbox" type="checkbox" onchange="updateDevelopMetadata()" checked><p>Keyboard</p>
                                     <span class="checkmark"></span>
                                 </label>
                                 <label for="media-checkbox" class="checkbox-input metadata-checkbox">
-                                    <input id="media-checkbox" type="checkbox"><p>Media</p>
+                                    <input id="media-checkbox" type="checkbox" onchange="updateDevelopMetadata()" checked><p>Media</p>
                                     <span class="checkmark"></span>
                                 </label>
                             </div>

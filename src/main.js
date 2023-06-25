@@ -8,8 +8,7 @@ const { getPrefs, selectMod, getSelectedConfig, addMod, getSelectedEntry, filter
 const { modifier, keyCode } = require(path.join(__dirname, "./utils/ascii.js"));
 const { syncPlaybackInfo, asyncPlaybackInfo, sendMediaEvent } = require(path.join(__dirname, "./utils/winrt.js"));
 const { injectHTMLByNameScript, setStylesByNameScript, getAllWidgetNames } = require(path.join(__dirname, "./utils/widget.js"));
-const mainApp = require(path.join(__dirname, "./app/main.js"));
-var win, tray, cmenu, settings;
+var win, tray, cmenu, settings, gui;
 var prevMouse = { position: {} };
 var prevKeyboard = [];
 var prevMediaState = {};
@@ -38,6 +37,43 @@ function createWindow() {
     // win.setAlwaysOnTop(true, "pop-up-menu", -1); // for mac
 }
 
+function createGUI() {
+    gui = new BrowserWindow({
+        width: 825,
+        height: 540,
+        minWidth: 825,
+        minHeight: 540,
+        transparent: true,
+        frame: false,
+        webPreferences: {
+            preload: path.join(__dirname, "../gui/link.js"),
+            nodeIntegration: false,
+            contextIsolation: true
+        }
+    });
+    
+    gui.loadFile(path.join(__dirname, "../gui/index.html"));
+    gui.hide();
+
+    gui.on("close", function (e) {
+        e.preventDefault();
+        gui.hide();
+    });
+}
+
+function showGUI() {
+    gui.show();
+}
+
+function hideGUI() {
+    gui.hide();
+}
+
+function fullscreenGUI() {
+    if (!gui.isMaximized()) gui.maximize();
+    else gui.unmaximize();
+}
+
 function loadHTML() {
     var entry = getSelectedEntry();
     if (entry.isUrl) win.loadURL(entry.path);
@@ -60,7 +96,7 @@ function init() {
 
 function createTrayMenu(modItems = []) {
     cmenu = Menu.buildFromTemplate([
-        // { label: "Open app", type: "normal", click: mainApp.show },
+        { label: "Show", type: "normal", click: showGUI },
         { type: "separator" },
         { label: "Add mod", type: "normal", click: load },
         { id: "mods", label: "Installed mods", type: "submenu", submenu: Menu.buildFromTemplate(modItems) },
@@ -69,6 +105,7 @@ function createTrayMenu(modItems = []) {
         { id: "visibility", label: "Toggle visibility", type: "checkbox", checked: true, click: toggle },
         { id: "toggledev", label: "Toggle devtools", type: "checkbox", checked: false, click: toggleDev },
         { type: "separator" },
+        { id: "toggleboot", label: "Opens at boot", type: "checkbox", checked: true, click: toggleBoot },
         { label: "Refresh", type: "normal", click: refresh },
         { label: "Exit", type: "normal", click: exit }
     ]);
@@ -178,6 +215,7 @@ function runMod(dir) {
 function createTray() {
     tray = new Tray(path.join(__dirname, "../img/tray.png"));
     tray.setToolTip("Octos");
+    tray.on("click", showGUI);
     createTrayMenu();
 }
 
@@ -203,7 +241,7 @@ function updateModList() {
     });
     for (const name of names) name.click = () => setModByName(name.label);
     createTrayMenu(names);
-    mainApp.dispatch("updateMods();");
+    if (gui.webContents) gui.webContents.executeJavaScript("updateMods()");
 }
 
 function load() {
@@ -244,6 +282,7 @@ function exit() {
     app.isQuiting = true;
     app.quit();
     tray.destroy();
+    process.exit(1);
 }
 
 function createSettings() {
@@ -404,11 +443,30 @@ function attachHandlers() {
         if (type == "get" && field) return getModPrefs(field);
         else if (type == "set" && field && content) return setModPrefs(field, content);
     });
+    ipcMain.on("close-gui", hideGUI);
+    ipcMain.on("minimize-gui", hideGUI);
+    ipcMain.on("fullscreen-gui", fullscreenGUI);
+    ipcMain.on("set-visibility", (e, state) => state ? win.show() : win.hide());
     ipcMain.handle("toggle-dev-tools", toggleDev);
+    ipcMain.handle("get-visibility", win.isVisible);
+    ipcMain.handle("get-prefs", getPrefs);
+    ipcMain.on("select-mod", (e, name) => setModByName(name));
+}
+
+function setOpenAtBoot(state) {
+    app.setLoginItemSettings({
+        openAtLogin: state,
+        path: process.execPath
+    });
+}
+
+function toggleBoot() {
+    setOpenAtBoot(cmenu.getMenuItemById("toggleboot").checked);
 }
 
 parseArgs();
 app.whenReady().then(() => {
+    createGUI();
     init();
 
     if (options.events.mouse || options.events.keyboard || options.events.media) setInterval(handleEvents, 1);
@@ -416,17 +474,15 @@ app.whenReady().then(() => {
 
     win.webContents.send("path", path.join(__dirname, "renderer.js"));
     attachHandlers();
-});
 
-if (process.argv[1] == "--squirrel-firstrun") {
-    app.setLoginItemSettings({
-        openAtLogin: true,
-        path: process.execPath
-    });
+    if (process.argv[1] == "--squirrel-firstrun") {
+        showGUI();
+        setOpenAtBoot(true);
 
-    require("child_process").execSync(`REG ADD HKCU\\Software\\Classes\\.omod /ve /d "octos.OctosFile" /f
+        require("child_process").execSync(`REG ADD HKCU\\Software\\Classes\\.omod /ve /d "octos.OctosFile" /f
     REG ADD HKCU\\Software\\Classes\\octos.OctosFile /ve /d "Octos File" /f
     REG ADD HKCU\\Software\\Classes\\octos.OctosFile\\DefaultIcon /ve /d "${path.join(__dirname, "img/omod.ico")}" /f
     REG ADD HKCU\\Software\\Classes\\octos.OctosFile\\Shell\\Open\\Command /ve /d "\"${process.execPath}\" add \"%1\"" /f
     SET PATH=%PATH%;${process.execPath}`, { windowsHide: true });
-}
+    }
+});
