@@ -162,7 +162,7 @@ function parseArgs() {
     }).parse();
 }
 
-function initMod(working, title) {
+function initMod(working, title, terminate = true) {
     const fs = require("fs-extra");
     if (fs.existsSync(working)) {
         var dir = path.join(working, title);
@@ -178,11 +178,13 @@ function initMod(working, title) {
         else console.error(`Mod with name ${title} already exists at ${dir}`);
     }
     else console.error(`Directory ${working} does not exist`);
-    app.quit();
-    process.kill(0);
+    if (!terminate) {
+        app.quit();
+        process.kill(0);
+    }
 }
 
-function buildMod(dir) {
+function buildMod(dir, terminate = true) {
     const archiver = require("archiver");
     const fs = require("fs");
     const archive = archiver("zip", { zlib: { level: 9 } });
@@ -192,8 +194,10 @@ function buildMod(dir) {
     console.log("Building mod...");
     stream.on("close", () => {
         console.log("Mod created at " + outpath);
-        app.quit();
-        process.kill(0);
+        if (terminate) {
+            app.quit();
+            process.kill(0);
+        }
     });
     archive.directory(dir, false).on("error", (err) => {
         console.error("There was an issue building your mod. See documentation for manual build.");
@@ -451,6 +455,23 @@ function attachHandlers() {
     ipcMain.handle("get-visibility", win.isVisible);
     ipcMain.handle("get-prefs", getPrefs);
     ipcMain.on("select-mod", (e, name) => setModByName(name));
+    ipcMain.on("remove-mod", (e, name) => {
+        removeMod(name);
+        updateModList();
+    });
+    ipcMain.on("upload", load);
+    // ipcMain.handle("init-mod", () => {
+    //     return new Promise((resolve, reject) => dialog.showOpenDialog(gui, "Choose a folder for your mod", { properties: ["openDirectory"]}).then((result) => {
+    //         if (!result.canceled) {
+    //             if (result.filePaths.length > 0) {
+    //                 initMod(result.filePaths[0], "myMod", false);
+    //                 resolve(result);
+    //             };
+    //         }
+    //         else resolve(null);
+    //     }));
+    // });
+    // ipcMain.handle("run-mod", (dir) => runMod(dir, false));
 }
 
 function setOpenAtBoot(state) {

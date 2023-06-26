@@ -17,7 +17,7 @@ body {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    user-select: none;
 }
 
 .main {
@@ -370,6 +370,7 @@ button:hover {
 
 .upload-card>p {
     color: #b0b0b0ff;
+    margin: 0;
 }
 
 .upload-card img {
@@ -732,7 +733,75 @@ label>p {
     width: 100%;
 }
 
-@media only screen and (min-width: 900px) {
+#modal-container {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 10px;
+    display: flex;
+    background-color: #000000aa;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    pointer-events: none;
+    transition: opacity 0.5s;
+}
+
+#modal-container.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.modal {
+    position: relative;
+    width: 350px;
+    height: 170px;
+    background-color: #1a1a1aff;
+    border-radius: 10px;
+    border: 2px solid #323232ff;
+    padding: 20px 30px;
+    transform: translateY(25px);
+    transition: transform 0.5s;
+}
+
+#modal-container.active > .modal {
+    transform: translateY(0);
+}
+
+.modal-buttons {
+    position: absolute;
+    display: flex;
+    left: 30px;
+    right: 30px;
+    bottom: 20px;
+    justify-content: space-between;
+}
+
+.modal-buttons > button {
+    width: 140px;
+}
+
+.modal-buttons > button.cancel {
+    background-color: #404040ff;
+    box-shadow: 0 1px 0 #2c2c2cff;
+}
+
+.modal-buttons > button.cancel:hover {
+    background-color: #383838ff;
+}
+
+button.inactive {
+    transition: none;
+    background-color: #404040ff;
+    box-shadow: 0 1px 0 #2c2c2cff;
+    color: #979797ff;
+    cursor: no-drop;
+}
+
+@media only screen and (min-width: 903px) {
     :root {
         --sidebar-width: 300px;
     }

@@ -5,6 +5,7 @@ var developing = false;
 var inputGetters = {};
 var installedMods = {};
 var activeTab = document.querySelector(".tab-content.active");
+var modalListener = () => null;
 
 window.link.getVisibility().then((state) => {
     isVisible = state;
@@ -12,9 +13,8 @@ window.link.getVisibility().then((state) => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-    for (var range of document.getElementsByClassName("range-input")) {
-        range.querySelector(".range-value").innerText = range.querySelector("input").value;
-    }
+    for (var range of document.getElementsByClassName("range-input")) updateRange(range);
+    for (var img of document.getElementsByTagName("img")) img.draggable = false;
 });
 
 function developNew() {
@@ -64,14 +64,13 @@ function handleScrollShadows() {
     var content = document.querySelector(".tab-content.active > .scrollbox");
 
     if (content) {
-        if (Math.abs(content.scrollHeight - content.clientHeight - content.scrollTop) < 1) top.style.opacity = 1;
-        else top.style.opacity = 0;
-        if (content.scrollTop < 1) bottom.style.opacity = 1;
-        else bottom.style.opacity = 0;
-
-        if (content.clientHeight == content.scrollHeight) {
-            top.style.opacity = 0;
-            bottom.style.opacity = 0;
+        top.style.opacity = 0;
+        bottom.style.opacity = 0;
+        if (content.clientHeight < content.scrollHeight) {
+            var minScrollPos = content.scrollTop < 1;
+            var maxScrollPos = Math.abs(content.scrollHeight - content.clientHeight - content.scrollTop) < 1;
+            if (!minScrollPos) top.style.opacity = 1;
+            if (!maxScrollPos) bottom.style.opacity = 1;
         }
     }
     else {
@@ -139,6 +138,8 @@ function setCardDescription(prefix = "explore", title = "", author = "", descrip
         cardDescription.classList.remove("empty");
     }
     else cardDescription.classList.add("empty");
+    if (selectedID == focusedCards.modules.id) cardDescription.querySelector("button").classList.add("inactive");
+    else cardDescription.querySelector("button").classList.remove("inactive");
 }
 
 function updateVisibilityIcon() {
@@ -241,7 +242,7 @@ function updateDevelopMetadata() {
 function updateMods() {
     window.link.getPrefs().then((prefs) => {
         const modScrollbox = document.getElementById("modules-scrollbox");
-        var tempFocus = Object.keys(installedMods).length > 0 ? installedMods[focusedCards.modules.id].name : null;
+        var tempFocus = Object.keys(installedMods).length > 0 ? focusedCards.modules ? installedMods[focusedCards.modules.id].name : null : null;
         installedMods = {};
         modScrollbox.innerHTML = "";
         var modNames = prefs.mods.map((x) => x.name);
@@ -265,6 +266,13 @@ function updateMods() {
             modScrollbox.appendChild(card);
             installedMods[id] = { name, img, author, el: card, config, options: modPrefs };
         }
+        var focusCheck = false;
+        for (var mod of modScrollbox.childNodes) focusCheck = focusCheck || mod.classList.contains("focused");
+        if (!focusCheck) {
+            var firstCard = modScrollbox.querySelector(".card");
+            firstCard.classList.add("focused");
+            focusedCards.modules = firstCard;
+        }
         var uploadCard = document.getElementById("card-upload-template").content.cloneNode(true).firstElementChild;
         modScrollbox.appendChild(uploadCard);
         updateCardDescription();
@@ -279,4 +287,38 @@ function selectFocusedCard() {
     selectedID = focusedCard.id;
     var name = installedMods[selectedID].name;
     window.link.selectMod(name);
+}
+
+function removeFocusedCard() {
+    modalListener = (state) => {
+        if (state) window.link.removeMod(getFocusedCardData().name);
+    }
+    modalDialog("Remove mod", "Are you sure you want to remove this mod?");
+}
+
+function modalDialog(title = "Modal title", description = "Modal description") {
+    const modal = document.getElementById("modal-container");
+    modal.querySelector(".modal-title").innertText = title;
+    modal.querySelector(".modal-description").innerText = description;
+    modal.classList.add("active");
+}
+
+function modalResponse(state) {
+    const modal = document.getElementById("modal-container");
+    modal.classList.remove("active");
+    modalListener(state);
+}
+
+function uploadMod() {
+    window.link.upload();
+}
+
+populateExplore();
+
+function populateExplore() {
+    const exploreScrollbox = document.getElementById("explore-scrollbox");
+    var card = createCard("explore-0", "title", "author", "");
+    exploreScrollbox.appendChild(card);
+    card = createCard("explore-1", "title", "author", "");
+    exploreScrollbox.appendChild(card);
 }

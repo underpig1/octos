@@ -8,4 +8,6 @@ contextBridge.exposeInMainWorld("link", {
     getVisibility: async () => await ipcRenderer.invoke("get-visibility"),
     getPrefs: async () => await ipcRenderer.invoke("get-prefs"),
     selectMod: (name) => ipcRenderer.send("select-mod", name),
+    removeMod: (name) => ipcRenderer.send("remove-mod", name),
+    upload: () => ipcRenderer.send("upload")
 })

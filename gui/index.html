@@ -18,7 +18,7 @@
             </div>
         </template>
         <template id="card-upload-template">
-            <div class="card upload-card" onclick="upload()">
+            <div class="card upload-card" onclick="uploadMod()">
                 <p>+ Upload module</p>
             </div>
         </template>
@@ -179,6 +179,16 @@
         </div>
         <div class="scroll-shadow" id="scroll-shadow-top" style="grid-row: 1 / 2; top: 5px;"></div>
         <div class="scroll-shadow" id="scroll-shadow-bottom" style="grid-row: 3 / 4; bottom: 5px;"></div>
+    </div>
+    <div id="modal-container">
+        <div class="modal">
+            <h1 class="modal-title">Remove mod</h1>
+            <p class="modal-description">Cannot undo</p>
+            <div class="modal-buttons">
+                <button class="cancel" onclick="modalResponse(false)">Cancel</button>
+                <button onclick="modalResponse(true)">OK</button>
+            </div>
+        </div>
     </div>
     <script src="index.js"></script>
 </body>
