@@ -8,6 +8,7 @@ const { getPrefs, selectMod, getSelectedConfig, addMod, getSelectedEntry, filter
 const { modifier, keyCode } = require(path.join(__dirname, "./utils/ascii.js"));
 const { syncPlaybackInfo, asyncPlaybackInfo, sendMediaEvent } = require(path.join(__dirname, "./utils/winrt.js"));
 const { injectHTMLByNameScript, setStylesByNameScript, getAllWidgetNames } = require(path.join(__dirname, "./utils/widget.js"));
+const { requestSourceModData, requestModImageByName, addSourceModByName, goToModSource } = require(path.join(__dirname, "./utils/request.js"))
 var win, tray, cmenu, settings, gui;
 var prevMouse = { position: {} };
 var prevKeyboard = [];
@@ -460,6 +461,17 @@ function attachHandlers() {
         updateModList();
     });
     ipcMain.on("upload", load);
+    ipcMain.handle("request-source-mod-data", requestSourceModData);
+    ipcMain.handle("request-source-image", (e, name) => requestModImageByName(name));
+    ipcMain.handle("download-mod", (e, name) => {
+        return new Promise((resolve, reject) => {
+            addSourceModByName(name, (filepath) => {
+                if (filepath) addMod(filepath).then(resolve).catch(reject);
+                else reject();
+            }).catch(reject);
+        });
+    });
+    ipcMain.on("go-to-mod-source", (e, name) => goToModSource(name));
     // ipcMain.handle("init-mod", () => {
     //     return new Promise((resolve, reject) => dialog.showOpenDialog(gui, "Choose a folder for your mod", { properties: ["openDirectory"]}).then((result) => {
     //         if (!result.canceled) {

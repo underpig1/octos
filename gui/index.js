@@ -4,8 +4,10 @@ var isVisible = true;
 var developing = false;
 var inputGetters = {};
 var installedMods = {};
-var activeTab = document.querySelector(".tab-content.active");
+var exploreMods = {};
+var activeTab = "explore";
 var modalListener = () => null;
+var downloadingCards = [];
 
 window.link.getVisibility().then((state) => {
     isVisible = state;
@@ -119,7 +121,12 @@ function focusCard(el) {
 }
 
 function getFocusedCardData() {
-    return focusedCards[activeTab] ? installedMods[focusedCards[activeTab].id] : null;
+    if (focusedCards[activeTab]) {
+        var id = focusedCards[activeTab].id;
+        if (activeTab == "modules") return installedMods[id];
+        else if (activeTab == "explore") return exploreMods[id];
+    }
+    return null;
 }
 
 function updateCardDescription() {
@@ -138,8 +145,18 @@ function setCardDescription(prefix = "explore", title = "", author = "", descrip
         cardDescription.classList.remove("empty");
     }
     else cardDescription.classList.add("empty");
-    if (selectedID == focusedCards.modules.id) cardDescription.querySelector("button").classList.add("inactive");
+    if (selectedID == focusedCards.modules.id && prefix == "modules") cardDescription.querySelector("button").classList.add("inactive");
     else cardDescription.querySelector("button").classList.remove("inactive");
+    if (prefix == "explore") {
+        if (downloadingCards.includes(focusedCards[prefix].id)) {
+            cardDescription.querySelector("button").classList.add("inactive");
+            cardDescription.querySelector("button").innerText = "Downloading...";
+        }
+        else {
+            cardDescription.querySelector("button").classList.remove("inactive");
+            cardDescription.querySelector("button").innerText = "Download";
+        }
+    }
 }
 
 function updateVisibilityIcon() {
@@ -276,6 +293,7 @@ function updateMods() {
         var uploadCard = document.getElementById("card-upload-template").content.cloneNode(true).firstElementChild;
         modScrollbox.appendChild(uploadCard);
         updateCardDescription();
+        populateExplore();
     });
 }
 
@@ -298,7 +316,7 @@ function removeFocusedCard() {
 
 function modalDialog(title = "Modal title", description = "Modal description") {
     const modal = document.getElementById("modal-container");
-    modal.querySelector(".modal-title").innertText = title;
+    modal.querySelector(".modal-title").innerText = title;
     modal.querySelector(".modal-description").innerText = description;
     modal.classList.add("active");
 }
@@ -313,12 +331,58 @@ function uploadMod() {
     window.link.upload();
 }
 
+function downloadFocusedCard() {
+    var id = focusedCards.explore.id;
+    var name = exploreMods[id].name;
+    downloadingCards.push(id);
+    updateCardDescription();
+    window.link.downloadMod(name).then(() => {
+        downloadingCards.splice(downloadingCards.indexOf(id), 1);
+        updateCardDescription();
+    }).catch(() => {
+        downloadingCards.splice(downloadingCards.indexOf(id), 1);
+        updateCardDescription();
+        modalListener = (state) => {
+            if (state) downloadFocusedCard();
+        }
+        modalDialog("Download failed", "There may be something wrong with your Internet. Try again?");
+    });
+}
+
+function goToSource() {
+    var id = focusedCards.explore.id;
+    var name = exploreMods[id].name;
+    window.link.goToSource(name);
+}
+
 populateExplore();
 
 function populateExplore() {
-    const exploreScrollbox = document.getElementById("explore-scrollbox");
-    var card = createCard("explore-0", "title", "author", "");
-    exploreScrollbox.appendChild(card);
-    card = createCard("explore-1", "title", "author", "");
-    exploreScrollbox.appendChild(card);
+    window.link.request.modData().then((data) => {
+        const exploreScrollbox = document.getElementById("explore-scrollbox");
+        exploreScrollbox.innerHTML = "";
+        exploreMods = {};
+        for (var id in Object.keys(data)) {
+            var name = Object.keys(data)[id];
+            var modData = data[name];
+            for (var card of Object.values(installedMods)) {
+                if (card.name != name || card.description != modData.description || card.author != modData.author) {
+                    if (modData.image) {
+                        window.link.request.modImage(name).then((data) => {
+                            var card = createCard("explore-" + id, name, modData.author, data);
+                            exploreScrollbox.appendChild(card);
+                            exploreMods["explore-" + id] = { name, author: modData.author, description: modData.description }
+                            updateCardDescription();
+                        });
+                    }
+                    else {
+                        var card = createCard("explore-" + id, name, modData.author, null);
+                        exploreScrollbox.appendChild(card);
+                        exploreMods["explore-" + id] = { name, author: modData.author, description: modData.description }
+                        updateCardDescription();
+                    }
+                }
+            }
+        }
+    });
 }

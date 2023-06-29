@@ -68,7 +68,7 @@ function addMod(modPath) {
                 resolve(name);
             }
             else resolve();
-        });
+        }).catch(reject);
     });
 }
 
@@ -200,9 +200,9 @@ function unzipAndCopyModFolder(target) {
 }
 
 function handleModFolderCopy(target) {
-    var isdir = fs.lstatSync(target).isDirectory();
-    if (isdir) return copyModFolder(target);
-    else return unzipAndCopyModFolder(target);
+    if (target.endsWith(".omod") || target.endsWith(".zip")) return unzipAndCopyModFolder(target);
+    else if (fs.lstatSync(target).isDirectory()) return copyModFolder(target);
+    else return Promise.reject();
 }
 
 function checkSelectedExists() {
