@@ -4,7 +4,7 @@ process.on("unhandledRejection", () => {});
 const { app, BrowserWindow, ipcMain, screen, Menu, MenuItem, Tray, dialog, nativeTheme } = require("electron");
 const path = require("path");
 const wp = require(path.join(__dirname, "../wallpaper"));
-const { getPrefs, selectMod, getSelectedConfig, addMod, getSelectedEntry, filterFolders, updateSettings, revertSettings, setLocalStorage, getLocalStorage, getModPrefs, setModPrefs, resetDefaultModPrefs, removeMod } = require("./utils/store.js");
+const { getPrefs, selectMod, getSelectedConfig, addMod, getSelectedEntry, filterFolders, updateSettings, revertSettings, setLocalStorage, getLocalStorage, getModPrefs, setModPrefs, resetDefaultModPrefs, removeMod, getUserPrefs, setUserPrefs } = require("./utils/store.js");
 const { modifier, keyCode } = require(path.join(__dirname, "./utils/ascii.js"));
 const { syncPlaybackInfo, asyncPlaybackInfo, sendMediaEvent } = require(path.join(__dirname, "./utils/winrt.js"));
 const { injectHTMLByNameScript, setStylesByNameScript, getAllWidgetNames } = require(path.join(__dirname, "./utils/widget.js"));
@@ -97,7 +97,7 @@ function init() {
 
 function createTrayMenu(modItems = []) {
     cmenu = Menu.buildFromTemplate([
-        { label: "Show", type: "normal", click: showGUI },
+        { label: "Open", type: "normal", click: showGUI },
         { type: "separator" },
         { label: "Add mod", type: "normal", click: load },
         { id: "mods", label: "Installed mods", type: "submenu", submenu: Menu.buildFromTemplate(modItems) },
@@ -448,6 +448,7 @@ function attachHandlers() {
         if (type == "get" && field) return getModPrefs(field);
         else if (type == "set" && field && content) return setModPrefs(field, content);
     });
+
     ipcMain.on("close-gui", hideGUI);
     ipcMain.on("minimize-gui", hideGUI);
     ipcMain.on("fullscreen-gui", fullscreenGUI);
@@ -472,6 +473,42 @@ function attachHandlers() {
         });
     });
     ipcMain.on("go-to-mod-source", (e, name) => goToModSource(name));
+    ipcMain.on("refresh", refresh);
+    ipcMain.on("set-user-prefs", (e, field = "", content = "") => setUserPrefs(field, content));
+    ipcMain.handle("get-user-prefs", (e, field = "") => getUserPrefs(field));
+    ipcMain.handle("new-develop-mod", () => {
+        return new Promise((resolve, reject) => dialog.showOpenDialog(gui, "Choose a folder for your mod", { properties: ["openDirectory"] }).then((result) => {
+            if (!result.canceled) {
+                if (result.filePaths.length > 0) {
+                    initMod(result.filePaths[0], "myMod", false);
+                    resolve(result);
+                };
+            }
+            else resolve(null);
+        }));
+    });
+    ipcMain.handle("rename-develop-mod", (e, dir, name) => {
+        if (dir && name) {
+            var folder = path.join(path.dirname(dir), name);
+            require("fs").renameSync(dir, folder);
+            return folder;
+        }
+        else return null;
+    });
+    ipcMain.handle("open-mod", () => {
+        return new Promise((resolve, reject) => dialog.showOpenDialog(gui, "Choose a mod folder to open", { properties: ["openDirectory"] }).then((result) => {
+            if (!result.canceled) {
+                if (result.filePaths.length > 0) resolve(result.filePaths[0]);
+            }
+            else resolve(null);
+        }));
+    });
+    ipcMain.on("run-mod", (e, dir) => runMod(dir));
+    ipcMain.on("stop-mod", refresh);
+    ipcMain.on("toggle-debug", (e, state) => {
+        if (state) win.webContents.openDevTools({ mode: "detach" });
+        else win.webContents.closeDevTools();
+    });
     // ipcMain.handle("init-mod", () => {
     //     return new Promise((resolve, reject) => dialog.showOpenDialog(gui, "Choose a folder for your mod", { properties: ["openDirectory"]}).then((result) => {
     //         if (!result.canceled) {

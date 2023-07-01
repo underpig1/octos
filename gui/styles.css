@@ -404,6 +404,8 @@ button:hover {
 
 .settings-main {
     padding: 0 20px;
+    width: 98%;
+    padding-right: calc(98% - 500px);
 }
 
 .settings-section {
@@ -799,6 +801,10 @@ button.inactive {
     box-shadow: 0 1px 0 #2c2c2cff;
     color: #979797ff;
     cursor: no-drop;
+}
+
+.card-description.inactive {
+    display: none;
 }
 
 @media only screen and (min-width: 903px) {

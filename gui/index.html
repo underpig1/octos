@@ -19,7 +19,7 @@
         </template>
         <template id="card-upload-template">
             <div class="card upload-card" onclick="uploadMod()">
-                <p>+ Upload module</p>
+                <p>+ Add module</p>
             </div>
         </template>
         <template id="checkbox-input">
@@ -160,11 +160,47 @@
             </div>
             <div class="tab-content" id="settings-tab">
                 <div class="settings-main scrollbox">
+                    <p class="subheader">System</p>
                     <div class="settings-section">
-                        <p class="subheader">System</p>
                         <h1>Permissions</h1>
-                        <p>Created in the depths of hell, this wallpaper was designed with designs that show multiple entities.</p>
-                        <button>Hello</button>
+                        <p>Disable any of the following to prevent modules from accessing system information. Note that this may prevent some modules from working as expected.</p>
+                        <div class="card-options">
+                            <label class="checkbox-input">
+                                <input type="checkbox" onchange="updateUserPrefs('perm-mouse', this.value)" checked>
+                                <p>Mouse events</p>
+                                <span class="checkmark"></span>
+                            </label>
+                            <label class="checkbox-input">
+                                <input type="checkbox" onchange="updateUserPrefs('perm-keyboard', this.value)" checked>
+                                <p>Keyboard events</p>
+                                <span class="checkmark"></span>
+                            </label>
+                            <label class="checkbox-input">
+                                <input type="checkbox" onchange="updateUserPrefs('perm-media', this.value)" checked>
+                                <p>Media events</p>
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h1>Startup</h1>
+                        <p>Change whether or not Octos should run on system startup/boot.</p>
+                        <div class="card-options">
+                            <label class="checkbox-input">
+                                <input type="checkbox" onchange="updateUserPrefs('boot', this.value)" checked>
+                                <p>Run on boot</p>
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <p class="subheader">Mods</p>
+                    <div class="settings-section">
+                        <h1>Mods</h1>
+                        <div style="width: 170px">
+                            <button onclick="openModFolder()">Open mod folder</button>
+                            <button onclick="wipe()">Wipe all mods</button>
+                            <button onclick="openDocumentation()">Open documentation</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -172,7 +208,7 @@
         <div class="footer">
             <img src="img/icon.png" class="footer-icon">
             <div class="action-icons">
-                <img title="GitHub" src="img/github.png" class="action-icon" onclick="openGithub()">
+                <img title="Refresh" src="img/refresh.png" class="action-icon" onclick="refresh()">
                 <img title="Documentation" src="img/documentation.png" class="action-icon" onclick="openDocumentation()">
                 <img title="Toggle visibility" src="img/visibility.png" id="visible-icon" class="action-icon" style="width: 20px; margin-left: -2px;" onclick="toggleVisibility()">
             </div>

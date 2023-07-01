@@ -1,4 +1,5 @@
 const source = "https://raw.githubusercontent.com/underpig1/octos-community/master/";
+const viewSource = "https://github.com/underpig1/octos-community/tree/master/";
 const path = require("path");
 
 function requestWriteFile(url, path) {
@@ -62,8 +63,8 @@ function addSourceModByName(name, callback) {
     downloadModByName(name).then((filepath) => callback(filepath)).catch(() => callback(false));
 }
 
-function goToModSource(name) {
-    requestModDataByName(name).then((data) => require("shell").openExternal(path.join(source, data.path)));
+function goToModSource(name, callback) {
+    requestModDataByName(name).then((data) => require("electron").shell.openExternal(path.join(viewSource, data.path)));
 }
 
 module.exports = { requestSourceModData, requestModImageByName, addSourceModByName, goToModSource };

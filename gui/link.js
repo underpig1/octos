@@ -12,9 +12,20 @@ contextBridge.exposeInMainWorld("link", {
     upload: () => ipcRenderer.send("upload"),
     request: {
         modData: async () => await ipcRenderer.invoke("request-source-mod-data"),
-        addMod: async (name) => await ipcRenderer.invoke("add-source-mod"),
-        modImage: async (path) => await ipcRenderer.invoke("request-source-image")
+        addMod: async (name) => await ipcRenderer.invoke("add-source-mod", name),
+        modImage: async (path) => await ipcRenderer.invoke("request-source-image", path)
     },
     downloadMod: async (name) => await ipcRenderer.invoke("download-mod", name),
-    goToSource: (name) => ipcRenderer.send("go-to-mod-source", name)
+    goToSource: (name) => ipcRenderer.send("go-to-mod-source", name),
+    refresh: () => ipcRenderer.send("refresh"),
+    userPrefs: {
+        get: async (field) => await ipcRenderer.invoke("get-user-prefs", field),
+        set: (field, content) => ipcRenderer.send("set-user-prefs", field, content)
+    },
+    newMod: async () => await ipcRenderer.invoke("new-develop-mod"),
+    renameMod: async (path, name) => await ipcRenderer.invoke("rename-develop-mod", path, name),
+    openMod: async () => await ipcRenderer.invoke("open-develop-mod"),
+    runMod: (path) => ipcRenderer.send("run-mod", path),
+    stopMod: () => ipcRenderer.send("stop-running-mod"),
+    toggleDebug: (state) => ipcRenderer.send("toggle-debug", state)
 })

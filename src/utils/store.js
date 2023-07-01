@@ -169,6 +169,21 @@ function setModPrefs(field, content) {
     }
 }
 
+function getUserPrefs(field) {
+    if (field && prefs.user) {
+        if (prefs.user[field]) return prefs.user[field];
+    }
+    else return prefs.user;
+}
+
+function setUserPrefs(field, content) {
+    if (field && content) {
+        if (!prefs.user) prefs.user = {}
+        prefs.user[field] = content;
+        writePrefs();
+    }
+}
+
 function resetDefaultModPrefs() {
     if (prefs.prefs[prefs.selected]) {
         prefs.prefs[prefs.selected].local = prefs.prefs[prefs.selected].defaults;
@@ -316,4 +331,4 @@ function fillObject(defer, overwrite) {
 
 // EXPORT
 
-module.exports = { getPrefs, initStore, selectMod, getSelectedModData, getSelectedConfig, removeMod, addMod, getSelectedEntry, restorePrefsDefaults, loadDefaultMods, filterFolders, updateSettings, revertSettings, setLocalStorage, getLocalStorage, getModPrefs, setModPrefs, resetDefaultModPrefs };
+module.exports = { getPrefs, initStore, selectMod, getSelectedModData, getSelectedConfig, removeMod, addMod, getSelectedEntry, restorePrefsDefaults, loadDefaultMods, filterFolders, updateSettings, revertSettings, setLocalStorage, getLocalStorage, getModPrefs, setModPrefs, resetDefaultModPrefs, getUserPrefs, setUserPrefs };
