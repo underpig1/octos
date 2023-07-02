@@ -121,7 +121,7 @@
                     <h1>Mod creator</h1>
                     <p style="margin-top: 2px;">Welcome to the developer menu! Here you can find tools and information in order to create your own awesome mods.</p>
                     <button class="outline-button" onclick="developNew()" style="margin-top: 12px; margin-bottom: 10px;">Create new mod</button>
-                    <a onclick="developFile()">Edit from mod existing file/folder</a>
+                    <a onclick="developFile()">Edit from mod existing folder</a>
                 </div>
                 <div class="develop-main">
                     <div class="layout">
@@ -134,26 +134,26 @@
                     <div class="sidebar" style="padding: 0 10px; margin-right: 10px;">
                         <div class="develop-metadata">
                             <h3 class="subheader" style="margin-top: 0;">Metadata</h3>
-                            <h1>Ethereal<img class="card-remove" src="img/edit.png" onclick="editDescription()"></h1>
-                            <p>Created in the depths of hell, this wallpaper was designed with designs that show multiple entities.</p>
-                            <button>Edit Description</button>
+                            <h1 class="title" style="margin-bottom: -4px;"><span id="develop-name">Ethereal</span><img class="card-remove" src="img/edit.png" onclick="renameMod()"></h1>
+                            <p id="develop-description">Created in the depths of hell, this wallpaper was designed with designs that show multiple entities.</p>
+                            <button onclick="editModDescription()">Edit Description</button>
                             <h3 class="subheader" style="margin-top: 12px;">Event access</h3>
                             <div class="inputs">
                                 <label for="mouse-checkbox" class="checkbox-input metadata-checkbox">
-                                    <input id="mouse-checkbox" type="checkbox" onchange="updateDevelopMetadata()" checked><p>Mouse</p>
+                                    <input id="mouse-checkbox" type="checkbox" onchange="updateDevelopModInfo()" checked><p>Mouse</p>
                                     <span class="checkmark"></span>
                                 </label>
                                 <label for="keyboard-checkbox" class="checkbox-input metadata-checkbox">
-                                    <input id="keyboard-checkbox" type="checkbox" onchange="updateDevelopMetadata()" checked><p>Keyboard</p>
+                                    <input id="keyboard-checkbox" type="checkbox" onchange="updateDevelopModInfo()" checked><p>Keyboard</p>
                                     <span class="checkmark"></span>
                                 </label>
                                 <label for="media-checkbox" class="checkbox-input metadata-checkbox">
-                                    <input id="media-checkbox" type="checkbox" onchange="updateDevelopMetadata()" checked><p>Media</p>
+                                    <input id="media-checkbox" type="checkbox" onchange="updateDevelopModInfo()" checked><p>Media</p>
                                     <span class="checkmark"></span>
                                 </label>
                             </div>
                             <button onclick="openModFolder()">Open mod folder</button>
-                            <button class="secondary-button" onclick="build()">Build and share</button>
+                            <button class="secondary-button" onclick="buildMod()">Build and share</button>
                         </div>
                     </div>
                 </div>
@@ -166,17 +166,17 @@
                         <p>Disable any of the following to prevent modules from accessing system information. Note that this may prevent some modules from working as expected.</p>
                         <div class="card-options">
                             <label class="checkbox-input">
-                                <input type="checkbox" onchange="updateUserPrefs('perm-mouse', this.value)" checked>
+                                <input class="settings-input" id="perm-mouse" type="checkbox" onchange="updateUserPrefs(this)" checked>
                                 <p>Mouse events</p>
                                 <span class="checkmark"></span>
                             </label>
                             <label class="checkbox-input">
-                                <input type="checkbox" onchange="updateUserPrefs('perm-keyboard', this.value)" checked>
+                                <input class="settings-input" id="perm-keyboard" type="checkbox" onchange="updateUserPrefs(this)" checked>
                                 <p>Keyboard events</p>
                                 <span class="checkmark"></span>
                             </label>
                             <label class="checkbox-input">
-                                <input type="checkbox" onchange="updateUserPrefs('perm-media', this.value)" checked>
+                                <input class="settings-input" id="perm-media" type="checkbox" onchange="updateUserPrefs(this)" checked>
                                 <p>Media events</p>
                                 <span class="checkmark"></span>
                             </label>
@@ -187,7 +187,7 @@
                         <p>Change whether or not Octos should run on system startup/boot.</p>
                         <div class="card-options">
                             <label class="checkbox-input">
-                                <input type="checkbox" onchange="updateUserPrefs('boot', this.value)" checked>
+                                <input class="settings-input" id="boot" type="checkbox" onchange="updateUserPrefs(this)" checked>
                                 <p>Run on boot</p>
                                 <span class="checkmark"></span>
                             </label>
@@ -202,6 +202,7 @@
                             <button onclick="openDocumentation()">Open documentation</button>
                         </div>
                     </div>
+                    <button onclick="restoreUserPrefs()">Revert changes</button>
                 </div>
             </div>
         </div>
@@ -220,6 +221,7 @@
         <div class="modal">
             <h1 class="modal-title">Remove mod</h1>
             <p class="modal-description">Cannot undo</p>
+            <input class="modal-textbox" type="text" placeholder="Type here...">
             <div class="modal-buttons">
                 <button class="cancel" onclick="modalResponse(false)">Cancel</button>
                 <button onclick="modalResponse(true)">OK</button>

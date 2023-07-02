@@ -1,10 +1,10 @@
 process.env.NODE_NO_WARNINGS = "1";
 process.on("unhandledRejection", () => {});
 
-const { app, BrowserWindow, ipcMain, screen, Menu, MenuItem, Tray, dialog, nativeTheme } = require("electron");
+const { app, BrowserWindow, ipcMain, screen, Menu, MenuItem, Tray, dialog, nativeTheme, shell } = require("electron");
 const path = require("path");
 const wp = require(path.join(__dirname, "../wallpaper"));
-const { getPrefs, selectMod, getSelectedConfig, addMod, getSelectedEntry, filterFolders, updateSettings, revertSettings, setLocalStorage, getLocalStorage, getModPrefs, setModPrefs, resetDefaultModPrefs, removeMod, getUserPrefs, setUserPrefs } = require("./utils/store.js");
+const { getPrefs, selectMod, getSelectedConfig, addMod, getSelectedEntry, filterFolders, updateSettings, revertSettings, setLocalStorage, getLocalStorage, getModPrefs, setModPrefs, resetDefaultModPrefs, removeMod, getUserPrefs, setUserPrefs, editConfig, setModOptions, restoreUserPrefs } = require("./utils/store.js");
 const { modifier, keyCode } = require(path.join(__dirname, "./utils/ascii.js"));
 const { syncPlaybackInfo, asyncPlaybackInfo, sendMediaEvent } = require(path.join(__dirname, "./utils/winrt.js"));
 const { injectHTMLByNameScript, setStylesByNameScript, getAllWidgetNames } = require(path.join(__dirname, "./utils/widget.js"));
@@ -160,10 +160,12 @@ function parseArgs() {
         var dir = path.resolve(process.cwd(), argv.path);
         if (require("fs").existsSync(dir)) addMod(dir);
         else console.error("Provided directory does not exist");
+        app.quit();
+        process.kill(0);
     }).parse();
 }
 
-function initMod(working, title, terminate = true) {
+function initMod(working, title, terminate = true, override = false) {
     const fs = require("fs-extra");
     if (fs.existsSync(working)) {
         var dir = path.join(working, title);
@@ -179,7 +181,7 @@ function initMod(working, title, terminate = true) {
         else console.error(`Mod with name ${title} already exists at ${dir}`);
     }
     else console.error(`Directory ${working} does not exist`);
-    if (!terminate) {
+    if (terminate) {
         app.quit();
         process.kill(0);
     }
@@ -285,9 +287,11 @@ function refresh() {
 function exit() {
     wp.setTaskbar(true);
     app.isQuiting = true;
-    app.quit();
     tray.destroy();
-    process.exit(1);
+    win.close();
+    if (gui) gui.close();
+    app.quit();
+    app.exit(0);
 }
 
 function createSettings() {
@@ -306,8 +310,10 @@ function createSettings() {
 }
 
 function handleEvents() {
+    if (!win) return;
     var active = isActive();
-    if (options.events.mouse) {
+    var user = getPrefs().user;
+    if (options.events.mouse && user["perm-mouse"]) {
         var position = wp.mousePosition();
         var mouse = {
             position: { x: position[0], y: position[1] },
@@ -325,7 +331,7 @@ function handleEvents() {
         }
         prevMouse = mouse;
     }
-    if (options.events.keyboard) {
+    if (options.events.keyboard && user["perm-keyboard"]) {
         var keystate = wp.keyboard();
         var keysPressed = [];
         var shift = false;
@@ -354,7 +360,7 @@ function handleEvents() {
         }
         prevKeyboard = keysPressed;
     }
-    if (options.events.media) {
+    if (options.events.media && user["perm-media"]) {
         var info = syncPlaybackInfo();
         if (prevMediaState.title != info.title || prevMediaState.arist != info.arist) dispatchEvent("track", { title: info.title, artist: info.artist });
         if (prevMediaState.status != info.status) dispatchEvent("playbackstatus", { status: info.status });
@@ -454,7 +460,9 @@ function attachHandlers() {
     ipcMain.on("fullscreen-gui", fullscreenGUI);
     ipcMain.on("set-visibility", (e, state) => state ? win.show() : win.hide());
     ipcMain.handle("toggle-dev-tools", toggleDev);
-    ipcMain.handle("get-visibility", win.isVisible);
+    ipcMain.handle("get-visibility", () => {
+        if (win) return win.isVisible;
+    });
     ipcMain.handle("get-prefs", getPrefs);
     ipcMain.on("select-mod", (e, name) => setModByName(name));
     ipcMain.on("remove-mod", (e, name) => {
@@ -477,11 +485,12 @@ function attachHandlers() {
     ipcMain.on("set-user-prefs", (e, field = "", content = "") => setUserPrefs(field, content));
     ipcMain.handle("get-user-prefs", (e, field = "") => getUserPrefs(field));
     ipcMain.handle("new-develop-mod", () => {
-        return new Promise((resolve, reject) => dialog.showOpenDialog(gui, "Choose a folder for your mod", { properties: ["openDirectory"] }).then((result) => {
+        return new Promise((resolve, reject) => dialog.showOpenDialog(gui, { properties: ["openDirectory", "promptToCreate"] }).then((result) => {
             if (!result.canceled) {
                 if (result.filePaths.length > 0) {
-                    initMod(result.filePaths[0], "myMod", false);
-                    resolve(result);
+                    var dir = result.filePaths[0];
+                    initMod(dir, "my-mod", false, true);
+                    resolve(path.join(dir, "my-mod"));
                 };
             }
             else resolve(null);
@@ -489,14 +498,15 @@ function attachHandlers() {
     });
     ipcMain.handle("rename-develop-mod", (e, dir, name) => {
         if (dir && name) {
+            const fs = require("fs");
             var folder = path.join(path.dirname(dir), name);
-            require("fs").renameSync(dir, folder);
+            if (fs.existsSync(dir)) fs.renameSync(dir, folder);
             return folder;
         }
-        else return null;
+        else return dir;
     });
-    ipcMain.handle("open-mod", () => {
-        return new Promise((resolve, reject) => dialog.showOpenDialog(gui, "Choose a mod folder to open", { properties: ["openDirectory"] }).then((result) => {
+    ipcMain.handle("open-develop-mod", () => {
+        return new Promise((resolve, reject) => dialog.showOpenDialog(gui, { properties: ["openDirectory", "promptToCreate"] }).then((result) => {
             if (!result.canceled) {
                 if (result.filePaths.length > 0) resolve(result.filePaths[0]);
             }
@@ -504,11 +514,54 @@ function attachHandlers() {
         }));
     });
     ipcMain.on("run-mod", (e, dir) => runMod(dir));
-    ipcMain.on("stop-mod", refresh);
+    ipcMain.on("stop-mod", () => {
+        setModByName(getPrefs().mods[0]);
+        refresh();
+    });
     ipcMain.on("toggle-debug", (e, state) => {
-        if (state) win.webContents.openDevTools({ mode: "detach" });
+        if (state == null) {
+            if (win.webContents.isDevToolsOpened()) win.webContents.closeDevTools();
+            else win.webContents.openDevTools({ mode: "detach" });
+        }
+        else if (state) win.webContents.openDevTools({ mode: "detach" });
         else win.webContents.closeDevTools();
     });
+    ipcMain.handle("get-develop-config", (e, dir) => new Promise((resolve, reject) => editConfig(dir, (content, callback) => resolve(content), (err) => reject(err))));
+    ipcMain.on("set-develop-config", (e, dir, replace) => editConfig(dir, (content, callback) => callback(replace)));
+    ipcMain.on("set-mod-prefs", (e, name, options) => {
+        var prefs = getPrefs().prefs;
+        if (prefs) {
+            if (prefs[name]) {
+                for (var id of Object.keys(options)) {
+                    if (prefs[name].local[id]) prefs[name].local[id].value = options[id];
+                }
+                setModOptions(prefs);
+                dispatchEvent("prefschange", { prefs: options });
+            }
+        }
+    });
+    ipcMain.on("restore-default-mod-prefs", (e, name) => {
+        var prefs = getPrefs().prefs;
+        if (prefs) {
+            if (prefs[name]) {
+                prefs[name].local = prefs[name].defaults;
+                setModOptions(prefs);
+                var options = {}
+                for (var id of Object.keys(prefs[name].local)) options[id] = prefs[name].local[id].value;
+                dispatchEvent("prefschange", { prefs: options });
+            }
+        }
+    });
+    ipcMain.on("restore-default-user-prefs", restoreUserPrefs);
+    ipcMain.on("open-mod-folder", (e, dir) => shell.openExternal(dir));
+    ipcMain.on("build-mod", (e, dir) => {
+        buildMod(dir, false);
+        shell.openExternal(path.dirname(dir));
+    })
+    // ipcMain.handle("get-mod-prefs", (e, name) => {
+    //     return getModPrefs(name = name);
+    // });
+    // ipcMain.on("set-mod-prefs", (e, name, field, content) => setModPrefs(field = field, content = content, name = name));
     // ipcMain.handle("init-mod", () => {
     //     return new Promise((resolve, reject) => dialog.showOpenDialog(gui, "Choose a folder for your mod", { properties: ["openDirectory"]}).then((result) => {
     //         if (!result.canceled) {
@@ -534,12 +587,23 @@ function toggleBoot() {
     setOpenAtBoot(cmenu.getMenuItemById("toggleboot").checked);
 }
 
+function addToPath() {
+    require("child_process").execSync(`REG ADD HKCU\\Software\\Classes\\.omod /ve /d "octos.OctosFile" /f
+REG ADD HKCU\\Software\\Classes\\octos.OctosFile /ve /d "Octos File" /f
+REG ADD HKCU\\Software\\Classes\\octos.OctosFile\\DefaultIcon /ve /d "${path.join(__dirname, "img/omod.ico")}" /f
+REG ADD HKCU\\Software\\Classes\\octos.OctosFile\\Shell\\Open\\Command /ve /d "\"${process.execPath}\" add \"%1\"" /f
+SET PATH=%PATH%;${process.execPath}`, { windowsHide: true });
+}
+
 parseArgs();
 app.whenReady().then(() => {
     createGUI();
     init();
 
-    if (options.events.mouse || options.events.keyboard || options.events.media) setInterval(handleEvents, 1);
+    if (options.events.mouse || options.events.keyboard || options.events.media) {
+        var user = getPrefs().user;
+        if (user["perm-mouse"] || user["perm-keyboard"] || user["perm-media"]) setInterval(handleEvents, 1);
+    }
     if (options.events.media) setInterval(asyncPlaybackInfo, 100);
 
     win.webContents.send("path", path.join(__dirname, "renderer.js"));
@@ -548,11 +612,6 @@ app.whenReady().then(() => {
     if (process.argv[1] == "--squirrel-firstrun") {
         showGUI();
         setOpenAtBoot(true);
-
-        require("child_process").execSync(`REG ADD HKCU\\Software\\Classes\\.omod /ve /d "octos.OctosFile" /f
-    REG ADD HKCU\\Software\\Classes\\octos.OctosFile /ve /d "Octos File" /f
-    REG ADD HKCU\\Software\\Classes\\octos.OctosFile\\DefaultIcon /ve /d "${path.join(__dirname, "img/omod.ico")}" /f
-    REG ADD HKCU\\Software\\Classes\\octos.OctosFile\\Shell\\Open\\Command /ve /d "\"${process.execPath}\" add \"%1\"" /f
-    SET PATH=%PATH%;${process.execPath}`, { windowsHide: true });
+        addToPath();
     }
 });

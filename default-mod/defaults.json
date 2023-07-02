@@ -63,6 +63,18 @@
             }
         }
     },
+    "user": {
+        "perm-mouse": true,
+        "perm-keyboard": true,
+        "perm-media": true,
+        "boot": true
+    },
+    "user-defaults": {
+        "perm-mouse": true,
+        "perm-keyboard": true,
+        "perm-media": true,
+        "boot": true
+    },
     "settings": {
         "taskbar": {
             "alwaysHideNative": false,

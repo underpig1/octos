@@ -8,6 +8,7 @@
     --default-sidebar-width: 215px;
     --card-width: 248px;
     --default-card-width: 248px;
+    --input-width: 100%;
 }
 
 html,
@@ -347,10 +348,12 @@ button:hover {
 }
 
 .card-options {
-    height: calc(100% - 120px - 20px);
+    height: calc(100% - 120px);
     overflow-y: auto;
     margin-top: 20px;
-    margin-right: -8px;
+    margin-right: -10px;
+    padding-right: 10px;
+    padding-top: 1px;
 }
 
 .card-remove {
@@ -531,7 +534,7 @@ label>p {
     background-color: #404040ff;
     height: 5px;
     border-radius: 2.5px;
-    width: 150px;
+    width: 100%;
     margin-bottom: 10px;
 }
 
@@ -556,15 +559,17 @@ label>p {
 .file-input>p {
     float: none;
     width: 100%;
+    height: 100%;
     text-align: center;
     padding: 0 5px;
 }
 
 .file-input {
-    width: 151px;
+    width: var(--input-width);
     height: 30px;
     line-height: 30px;
     border-radius: 4px;
+    margin-top: 5px;
     background-color: #404040ff;
     text-align: center;
     float: left;
@@ -575,7 +580,7 @@ label>p {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 150px;
+    width: var(--input-width);
     height: 25px;
 }
 
@@ -609,7 +614,7 @@ label>p {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 150px;
+    width: var(--input-width);
 }
 
 .number-input>input {
@@ -627,7 +632,7 @@ label>p {
 }
 
 .text-input {
-    height: fit-content;
+    height: 50px;
 }
 
 .text-input>p,
@@ -637,12 +642,12 @@ label>p {
 }
 
 .text-input>input {
-    width: 150px;
+    width: var(--input-width);
     margin-left: 1px;
 }
 
 .range-input {
-    width: 150px;
+    width: var(--input-width);
     position: relative;
 }
 
@@ -653,16 +658,16 @@ label>p {
 }
 
 .description-input {
-    width: 150px;
+    width: var(--input-width);
     margin-bottom: 0 !important;
 }
 
 .select-input {
-    width: 150px;
+    width: var(--input-width);
 }
 
 .select-input>select {
-    width: 150px;
+    width: var(--input-width);
     height: 25px;
     border: 2px solid #404040ff;
     border-radius: 2px;
@@ -708,7 +713,7 @@ label>p {
 }
 
 .title {
-    width: 150px;
+    width: var(--input-width);
     margin: 6px 0;
     line-height: 30px;
     margin-top: -2px;
@@ -805,6 +810,36 @@ button.inactive {
 
 .card-description.inactive {
     display: none;
+}
+
+#modal-container .modal-textbox {
+    display: none;
+    height: 25px;
+    width: 100%;
+    padding: 15px 8px;
+    margin-top: 3px;
+    margin-bottom: 25px;
+    border: 3px solid #404040ff;
+    background-color: #404040ff;
+    border-radius: 4px;
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#modal-container.textbox .modal-textbox {
+    display: block;
+}
+
+#modal-container.textbox p {
+    display: none;
+}
+
+input:focus {
+    outline: 1px solid var(--accent);
+}
+
+input[type="checkbox"]:focus {
+    outline: none;
 }
 
 @media only screen and (min-width: 903px) {

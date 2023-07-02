@@ -1,13 +1,13 @@
 var focusedIDs = { explore: null, modules: null };
 var selectedID;
 var isVisible = true;
-var developing = false;
 var inputGetters = {};
 var installedMods = {};
 var exploreMods = {};
 var activeTab = "explore";
 var modalListener = () => null;
 var downloadingCards = [];
+var develop = {}
 
 window.link.getVisibility().then((state) => {
     isVisible = state;
@@ -20,11 +20,95 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function developNew() {
-    window.link.newMod().then(() => {
+    window.link.newMod().then((dir) => {
+        develop.dir = dir;
+        develop.name = dir.split(/\\|\//g).pop();
+        develop.description = "This is a very cool mod you made."
         enableDeveloping();
+        updateDevelopModInfo();
+    }).catch(() => {});
+}
+
+function developFile() {
+    window.link.openMod().then((dir) => {
+        develop.dir = dir;
+        window.link.developConfig.get(dir).then((config) => {
+            if (config) {
+                develop.name = config.name;
+                develop.description = config.description;
+                develop.events = config.options ? config.options.events : {};
+            }
+            enableDeveloping();
+            updateDevelopModInfo();
+        });
+    }).catch(() => {});
+}
+
+function renameMod(name) {
+    modalDialog("Rename mod", "", develop.name ? develop.name : "Mod name");
+    modalListener = (state, text) => {
+        if (state) {
+            if (develop.dir) {
+                develop.name = text;
+                window.link.renameMod(develop.dir, text).then((dir) => develop.dir = dir);
+                updateDevelopModInfo();
+            }
+        }
+    }
+}
+
+function editConfig(listener) {
+    window.link.developConfig.get(develop.dir).then((config) => window.link.developConfig.set(develop.dir, listener(config)));
+}
+
+function editModDescription(name) {
+    modalDialog("Edit description", "", develop.description ? develop.description : "Mod description");
+    modalListener = (state, text) => {
+        if (state) {
+            develop.description = text;
+            updateDevelopModInfo();
+        }
+    }
+}
+
+function openModFolder() {
+    window.link.openModFolder(develop.dir);
+}
+
+function buildMod() {
+    window.link.buildMod(develop.dir);
+}
+
+function updateDevelopModInfo() {
+    if (develop) {
+        document.getElementById("develop-name").innerText = develop.name;
+        document.getElementById("develop-description").innerText = develop.description;
+    }
+    develop.events = {
+        mouse: document.getElementById("mouse-checkbox").checked,
+        keyboard: document.getElementById("keyboard-checkbox").checked,
+        media: document.getElementById("media-checkbox").checked,
+    }
+    editConfig((config) => {
+        config.name = develop.name;
+        config.description = develop.description;
+        if (!config.options) config.options = {};
+        config.options.events = develop.events;
+        return config;
     });
-    window.link.openMod()
-    // more
+    updateWorking();
+}
+
+function playMod() {
+    if (develop) window.link.runMod(develop.dir);
+}
+
+function stopMod() {
+    window.link.stopMod();
+}
+
+function debugMod() {
+    window.link.toggleDebug();
 }
 
 function exit() {
@@ -196,7 +280,11 @@ function toggleVisibility() {
 function enableDeveloping() {
     var tab = document.getElementById("develop-tab");
     tab.classList.add("developing");
-    developing = true;
+}
+
+function disableDeveloping() {
+    var tab = document.getElementById("develop-tab");
+    tab.classList.remove("developing");
 }
 
 function createInput(options, id) {
@@ -204,6 +292,8 @@ function createInput(options, id) {
     var type = options.type;
     var getter = () => null;
     if (!type) type = "checkbox";
+    if (type == "color-picker") type = "color";
+    if (options.description && !options.label) options.label = options.description;
     if (type == "dropdown") type = "select";
     var template = document.getElementById(type + "-input");
     if (template) {
@@ -261,6 +351,26 @@ function setCardOptions(json) {
     }
 }
 
+function restorePreferences() {
+    modalDialog("Restore preferences", "Are you sure you want to restore default mod preferences? This action is irreversible.");
+    modalListener = (state) => {
+        if (focusedIDs.modules && state) {
+            var focusedCard = getFocusedCardData();
+            window.link.getPrefs().then((prefs) => {
+                if (prefs.prefs) {
+                    var options = prefs.prefs[focusedCard.name];
+                    if (options) {
+                        var defaults = options.defaults;
+                        focusedCard.options = defaults;
+                        window.link.restoreModPrefs();
+                        updateCardDescription();
+                    }
+                }
+            });
+        }
+    }
+}
+
 function createCard(id = "", title = "Mod name", author = null, backgroundImage = "") {
     var template = document.getElementById("card-template");
     var div = template.content.cloneNode(true).firstElementChild;
@@ -271,11 +381,20 @@ function createCard(id = "", title = "Mod name", author = null, backgroundImage 
     return div;
 }
 
-function updateDevelopMetadata() {
-    var mousePerms = document.getElementById("mouse-checkbox").checked;
-    var keyboardPerms = document.getElementById("keyboard-checkbox").checked;
-    var mediaPerms = document.getElementById("media-checkbox").checked;
-    // more
+function updateCardOptions() {
+    if (focusedIDs.modules) {
+        var focusedCard = getFocusedCardData();
+        var name = focusedCard.name;
+        var modData = focusedCard.options;
+        getInput();
+        var options = {};
+        for (var id of Object.keys(inputGetters)) {
+            var value = getInput(id);
+            modData[id].value = value;
+            options[id] = getInput(id);
+        }
+        if (Object.keys(options).length > 0) window.link.setModPrefs(name, options);
+    }
 }
 
 function updateMods() {
@@ -290,7 +409,7 @@ function updateMods() {
             var img = prefs.images ? prefs.images[name] : null;
             var config = prefs.configs[name];
             var author = config ? config.author : null;
-            var modPrefs = prefs.prefs ? prefs.prefs[name] : null;
+            var modPrefs = prefs.prefs ? prefs.prefs[name] ? prefs.prefs[name].local : null : null;
             var card = createCard(id, name, author, img);
             if ((!tempFocus && id == 0) || tempFocus == name) {
                 for (var child of modScrollbox.children) child.classList.remove("focused");
@@ -336,17 +455,22 @@ function removeFocusedCard() {
     modalDialog("Remove mod", "Are you sure you want to remove this mod?");
 }
 
-function modalDialog(title = "Modal title", description = "Modal description") {
+function modalDialog(title = "Modal title", description = "Modal description", textbox = null) {
     const modal = document.getElementById("modal-container");
     modal.querySelector(".modal-title").innerText = title;
     modal.querySelector(".modal-description").innerText = description;
     modal.classList.add("active");
+    if (textbox) {
+        modal.classList.add("textbox");
+        modal.querySelector(".modal-textbox").value = textbox;
+    }
+    else modal.classList.remove("textbox");
 }
 
 function modalResponse(state) {
     const modal = document.getElementById("modal-container");
     modal.classList.remove("active");
-    modalListener(state);
+    modalListener(state, modal.querySelector(".modal-textbox").value);
 }
 
 function uploadMod() {
@@ -377,7 +501,51 @@ function goToSource() {
     window.link.goToSource(name);
 }
 
+function restoreUserPrefs() {
+    modalDialog("Restore settings", "Are you sure you want to restore default settings?");
+    modalListener = (state) => {
+        if (state) {
+            window.link.userPrefs.restore();
+            retrieveUserPrefs();
+        }
+    }
+}
+
+function updateUserPrefs(el) {
+    var field = el.id;
+    if (el.type == "checkbox") var value = el.checked;
+    else var value = el.value;
+    window.link.userPrefs.set(field, value);
+}
+
+function retrieveUserPrefs() {
+    var inputs = document.getElementsByClassName("settings-input");
+    const pass = (el) => window.link.userPrefs.get(el.id).then((value) => {
+        if (value != null) {
+            if (el.type == "checkbox") el.checked = value;
+            else el.value = value;
+        }
+    });
+    for (var el of inputs) pass(el);
+}
+
+function updateWorking() {
+    window.link.userPrefs.set("working", develop);
+}
+
+function retrieveWorking() {
+    window.link.userPrefs.get("working").then((content) => {
+        if (content) {
+            develop = content;
+            enableDeveloping();
+            updateDevelopModInfo();
+        }
+    });
+}
+
+retrieveUserPrefs();
 populateExplore();
+retrieveWorking()
 
 function populateExplore() {
     window.link.request.modData().then((data) => {

@@ -20,12 +20,21 @@ contextBridge.exposeInMainWorld("link", {
     refresh: () => ipcRenderer.send("refresh"),
     userPrefs: {
         get: async (field) => await ipcRenderer.invoke("get-user-prefs", field),
-        set: (field, content) => ipcRenderer.send("set-user-prefs", field, content)
+        set: (field, content) => ipcRenderer.send("set-user-prefs", field, content),
+        restore: () => ipcRenderer.send("restore-default-user-prefs")
     },
     newMod: async () => await ipcRenderer.invoke("new-develop-mod"),
     renameMod: async (path, name) => await ipcRenderer.invoke("rename-develop-mod", path, name),
     openMod: async () => await ipcRenderer.invoke("open-develop-mod"),
     runMod: (path) => ipcRenderer.send("run-mod", path),
-    stopMod: () => ipcRenderer.send("stop-running-mod"),
-    toggleDebug: (state) => ipcRenderer.send("toggle-debug", state)
+    stopMod: () => ipcRenderer.send("stop-mod"),
+    toggleDebug: (state) => ipcRenderer.send("toggle-debug", state),
+    developConfig: {
+        get: async (path) => await ipcRenderer.invoke("get-develop-config", path),
+        set: (path, data) => ipcRenderer.send("set-develop-config", path, data)
+    },
+    setModPrefs: (name, options) => ipcRenderer.send("set-mod-prefs", name, options),
+    restoreModPrefs: (name) => ipcRenderer.send("restore-default-mod-prefs", name),
+    openModFolder: (dir) => ipcRenderer.send("open-mod-folder", dir),
+    buildMod: (dir) => ipcRenderer.send("build-mod", dir)
 })

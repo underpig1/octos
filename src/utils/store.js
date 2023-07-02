@@ -4,6 +4,7 @@ const fs = require("fs-extra");
 const unzipper = require("unzipper");
 
 const defaults = require("../../default-mod/defaults.json");
+const { write } = require("fs");
 
 var prefs;
 const userDataPath = (electron.app || electron.remote.app).getPath("userData");
@@ -151,7 +152,7 @@ function getModPrefs(field) {
     if (prefs.prefs[prefs.selected]) {
         var modPrefs = prefs.prefs[prefs.selected].local;
         if (modPrefs) {
-            if (modPrefs[field]) return modPrefs[field].value;
+            if (modPrefs[field] != null) return modPrefs[field].value;
         }
     }
     return null;
@@ -161,7 +162,7 @@ function setModPrefs(field, content) {
     if (prefs.prefs[prefs.selected]) {
         var modPrefs = prefs.prefs[prefs.selected].local;
         if (modPrefs) {
-            if (modPrefs[field]) {
+            if (modPrefs[field] != null) {
                 modPrefs[field].value = content;
                 writePrefs();
             }
@@ -169,19 +170,32 @@ function setModPrefs(field, content) {
     }
 }
 
+function restoreUserPrefs() {
+    prefs.user = JSON.parse(JSON.stringify(prefs["user-defaults"]));
+}
+
 function getUserPrefs(field) {
-    if (field && prefs.user) {
-        if (prefs.user[field]) return prefs.user[field];
-    }
-    else return prefs.user;
+    if (prefs.user[field] != null) return prefs.user[field];
 }
 
 function setUserPrefs(field, content) {
-    if (field && content) {
-        if (!prefs.user) prefs.user = {}
-        prefs.user[field] = content;
-        writePrefs();
+    if (!prefs.user) prefs.user = {}
+    prefs.user[field] = content;
+    writePrefs();
+}
+
+function editConfig(dir, listener, reject) {
+    if (fs.existsSync(dir)) {
+        var configPath = getConfigPathFromFolderPath(dir);
+        var config = getConfigFromFolderPath(dir);
+        if (!configPath || !config) reject();
+        else if (listener) listener(config, (content) => fs.writeFileSync(configPath, JSON.stringify(content, null, 4)));
     }
+}
+
+function setModOptions(content) {
+    prefs.prefs = content;
+    writePrefs();
 }
 
 function resetDefaultModPrefs() {
@@ -331,4 +345,4 @@ function fillObject(defer, overwrite) {
 
 // EXPORT
 
-module.exports = { getPrefs, initStore, selectMod, getSelectedModData, getSelectedConfig, removeMod, addMod, getSelectedEntry, restorePrefsDefaults, loadDefaultMods, filterFolders, updateSettings, revertSettings, setLocalStorage, getLocalStorage, getModPrefs, setModPrefs, resetDefaultModPrefs, getUserPrefs, setUserPrefs };
+module.exports = { getPrefs, initStore, selectMod, getSelectedModData, getSelectedConfig, removeMod, addMod, getSelectedEntry, restorePrefsDefaults, loadDefaultMods, filterFolders, updateSettings, revertSettings, setLocalStorage, getLocalStorage, getModPrefs, setModPrefs, resetDefaultModPrefs, getUserPrefs, setUserPrefs, editConfig, setModOptions, restoreUserPrefs };

@@ -47,6 +47,10 @@ export class UserPreferences {
     async write(field = "", value = "") {
         return window.prefs.set(field, value)
     }
+
+    on(event, listener) {
+        if (event == "change") document.addEventListener("prefschange", (e) => listener(e.detail));
+    }
 }
 
 export const system = {
