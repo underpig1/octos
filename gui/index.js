@@ -193,7 +193,8 @@ function setContent(el) {
 
     var title = document.getElementById("title");
     title.style.opacity = 0;
-    setTimeout(() => title.textContent = name[0].toUpperCase() + name.slice(1), 100);
+    const nameMap = { "explore": "Explore", "modules": "Installed modules", "develop": "Developer menu", "settings": "Settings" }
+    setTimeout(() => title.textContent = nameMap[name], 100);
     setTimeout(() => title.style.opacity = 1, 200);
 
     var highlight = document.querySelector(".nav-highlight");
@@ -225,22 +226,24 @@ function getFocusedCardData() {
 function updateCardDescription() {
     cleanFocus();
     var cardData = getFocusedCardData();
-    if (cardData) setCardDescription(activeTab, cardData.name, cardData.author, cardData.description, cardData.options);
+    if (cardData) setCardDescription(activeTab, cardData.name, cardData.author, cardData.description, cardData.options, cardData.installed);
 }
 
 function cleanFocus() {
     const cardDescription = document.getElementById(activeTab + "-card-description");
-    var activeIndex = activeTab == "modules" ? installedMods : exploreMods;
-    if (Object.keys(activeIndex).length == 0) {
-        cardDescription.classList.add("inactive");
-    }
-    else {
-        cardDescription.classList.remove("inactive");
-        if (focusedIDs[activeTab] == null || !document.getElementById(focusedIDs[activeTab]).classList.contains("focused")) focusCard(document.getElementById(Object.keys(activeIndex)[0]));
+    if (cardDescription) {
+        var activeIndex = activeTab == "modules" ? installedMods : exploreMods;
+        if (Object.keys(activeIndex).length == 0) {
+            cardDescription.classList.add("inactive");
+        }
+        else {
+            cardDescription.classList.remove("inactive");
+            if (focusedIDs[activeTab] == null || !document.getElementById(focusedIDs[activeTab]).classList.contains("focused")) focusCard(document.getElementById(Object.keys(activeIndex)[0]));
+        }
     }
 }
 
-function setCardDescription(prefix = "explore", title = "", author = "", description = "", options = null) {
+function setCardDescription(prefix = "explore", title = "", author = "", description = "", options = null, installed = false) {
     const cardDescription = document.getElementById(prefix + "-card-description");
     cardDescription.querySelector(".title-content").innerText = title;
     if (author) cardDescription.querySelector(".author").innerHTML = `By <a class="author-content">${author}</a>`;
@@ -251,18 +254,32 @@ function setCardDescription(prefix = "explore", title = "", author = "", descrip
         cardDescription.classList.remove("empty");
     }
     else cardDescription.classList.add("empty");
-    if (selectedID == focusedIDs.modules && prefix == "modules") cardDescription.querySelector("button").classList.add("inactive");
-    else cardDescription.querySelector("button").classList.remove("inactive");
+
+    setButtonDisabled = (state) => {
+        var button = cardDescription.querySelector("button");
+        button.disabled = state;
+        if (state) button.classList.add("inactive");
+        else button.classList.remove("inactive");
+    }
+
+    var buttonDisabled = true;
+    if (selectedID == focusedIDs.modules && prefix == "modules") buttonDisabled = true;
+    else buttonDisabled = false;
     if (prefix == "explore") {
         if (downloadingCards.includes(focusedIDs[prefix])) {
-            cardDescription.querySelector("button").classList.add("inactive");
+            buttonDisabled = true;
             cardDescription.querySelector("button").innerText = "Downloading...";
         }
-        else {
-            cardDescription.querySelector("button").classList.remove("inactive");
+        else if (installed === false) {
+            buttonDisabled = false;
             cardDescription.querySelector("button").innerText = "Download";
         }
+        else {
+            buttonDisabled = true;
+            cardDescription.querySelector("button").innerText = "Downloaded";
+        }
     }
+    setButtonDisabled(buttonDisabled);
 }
 
 function updateVisibilityIcon() {
@@ -377,7 +394,7 @@ function createCard(id = "", title = "Mod name", author = null, backgroundImage 
     div.querySelector(".card-title").innerText = title;
     div.querySelector(".card-author").innerText = author ? "By " + author : "";
     div.id = id;
-    if (backgroundImage) div.style.backgroundImage = `url('${backgroundImage}')`;
+    if (backgroundImage) div.style.backgroundImage = `url('${backgroundImage.replace(/\\/g, "/")}')`;
     return div;
 }
 
@@ -434,7 +451,7 @@ function updateMods() {
         var uploadCard = document.getElementById("card-upload-template").content.cloneNode(true).firstElementChild;
         modScrollbox.appendChild(uploadCard);
         updateCardDescription();
-        populateExplore();
+        updateDownloadedMods();
     });
 }
 
@@ -450,7 +467,25 @@ function selectFocusedCard() {
 
 function removeFocusedCard() {
     modalListener = (state) => {
-        if (state) window.link.removeMod(getFocusedCardData().name);
+        if (state) {
+            var name = getFocusedCardData().name;
+            if (focusedIDs.modules == selectedID) {
+                for (var id of Object.keys(installedMods)) {
+                    if (id != selectedID) {
+                        focusCard(document.getElementById(id));
+                        selectFocusedCard();
+                        break;
+                    }
+                }
+            }
+            window.link.removeMod(name);
+            for (var id of Object.keys(exploreMods)) {
+                if (exploreMods[id] == name) {
+                    exploreMods[focusedIDs.explore].installed = false;
+                    document.getElementById(id).classList.remove("installed");
+                }
+            }
+        }
     }
     modalDialog("Remove mod", "Are you sure you want to remove this mod?");
 }
@@ -484,10 +519,16 @@ function downloadFocusedCard() {
     updateCardDescription();
     window.link.downloadMod(name).then(() => {
         downloadingCards.splice(downloadingCards.indexOf(id), 1);
+        exploreMods[id].installed = true;
+        document.getElementById(id).classList.add("installed");
         updateCardDescription();
-    }).catch(() => {
+        updateMods();
+    }).catch((err) => {
         downloadingCards.splice(downloadingCards.indexOf(id), 1);
+        exploreMods[id].installed = true;
+        document.getElementById(id).classList.add("installed");
         updateCardDescription();
+        updateMods();
         modalListener = (state) => {
             if (state) downloadFocusedCard();
         }
@@ -543,9 +584,28 @@ function retrieveWorking() {
     });
 }
 
-retrieveUserPrefs();
-populateExplore();
-retrieveWorking()
+function updateDownloadedMods() {
+    for (var id of Object.keys(exploreMods)) {
+        var modData = exploreMods[id];
+        var installed = false;
+        for (var card of Object.values(installedMods)) {
+            if (card.name == modData.name && card.description == modData.description && card.author == modData.author) {
+                installed = true;
+                break;
+            }
+        }
+        modData.installed = installed;
+        var card = document.getElementById(id);
+        if (installed) card.classList.add("installed");
+        else card.classList.remove("installed");
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    retrieveUserPrefs();
+    populateExplore();
+    retrieveWorking();
+});
 
 function populateExplore() {
     window.link.request.modData().then((data) => {
@@ -555,24 +615,24 @@ function populateExplore() {
         for (var id in Object.keys(data)) {
             var name = Object.keys(data)[id];
             var modData = data[name];
-            var valid = true;
-            for (var card of Object.values(installedMods)) valid = !valid || !(card.name == name && card.description == modData.description && card.author == modData.author);
-            if (valid) {
-                if (modData.image) {
-                    window.link.request.modImage(name).then((data) => {
-                        var card = createCard("explore-" + id, name, modData.author, data);
-                        exploreScrollbox.appendChild(card);
-                        exploreMods["explore-" + id] = { name, author: modData.author, description: modData.description }
-                        updateCardDescription();
-                    });
-                }
-                else {
-                    var card = createCard("explore-" + id, name, modData.author, null);
+            if (modData.image) {
+                window.link.request.modImage(name).then((data) => {
+                    var card = createCard("explore-" + id, name, modData.author, data);
                     exploreScrollbox.appendChild(card);
+                    //if (!valid) card.classList.add("selected");
                     exploreMods["explore-" + id] = { name, author: modData.author, description: modData.description }
                     updateCardDescription();
-                }
+                    updateDownloadedMods();
+                });
+            }
+            else {
+                var card = createCard("explore-" + id, name, modData.author, null);
+                exploreScrollbox.appendChild(card);
+                //if (!valid) card.classList.add("selected");
+                exploreMods["explore-" + id] = { name, author: modData.author, description: modData.description }
+                updateCardDescription();
             }
         }
+        updateDownloadedMods();
     });
 }

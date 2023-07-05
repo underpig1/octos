@@ -53,7 +53,7 @@ function requestModImageByName(name) {
 function downloadModByName(name) {
     return new Promise((resolve, reject) => requestModDataByName(name).then((data) => {
         var filepath = data.path;
-        var temp = path.join(require("os").tmpdir(), name);
+        var temp = path.join(require("os").tmpdir(), path.basename(filepath));
         if (filepath && temp) resolve(requestWriteFile(path.join(source, filepath), temp));
         else reject();
     }).catch(reject));

@@ -171,6 +171,8 @@ body {
     float: left;
     box-shadow: 0 5px 5px #00000025;
     cursor: pointer;
+    background-size: cover;
+    background-position: center center;
 }
 
 .card-info {
@@ -219,7 +221,7 @@ body {
     margin-right: 25px;
 }
 
-.card>.checkmark {
+.card>.checkmark, .card>.downloaded {
     position: absolute;
     width: 16px;
     right: 10px;
@@ -228,7 +230,7 @@ body {
     transition: opacity 0.5s;
 }
 
-.card.selected>.checkmark {
+.card.selected>.checkmark, .card.installed>.downloaded {
     opacity: 1;
 }
 
@@ -840,6 +842,33 @@ input:focus {
 
 input[type="checkbox"]:focus {
     outline: none;
+}
+
+#modules-empty, #explore-empty {
+    display: none;
+    position: absolute;
+    width: 150px;
+    left: 50%;
+    right: 50%;
+    top: 50%;
+    right: 50%;
+    opacity: 0;
+    transform: translate(-50%, -50%);
+    transition: opacity 0.5s;
+    z-index: 5;
+    text-decoration: none;
+    text-align: center;
+    font-size: 16px;
+    width: 200px;
+}
+
+#modules-tab:has(#modules-scrollbox:empty) #modules-empty, #explore-tab:has(#explore-scrollbox:empty) #explore-empty {
+    display: block;
+    opacity: 1;
+}
+
+#modules-tab:has(#modules-scrollbox:empty) .sidebar, #explore-tab:has(#modules-scrollbox:empty) .sidebar {
+    display: none;
 }
 
 @media only screen and (min-width: 903px) {

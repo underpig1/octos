@@ -11,6 +11,7 @@
         <template id="card-template">
             <div class="card" onclick="focusCard(this)">
                 <img class="checkmark" src="img/checkmark.png">
+                <img class="downloaded" src="img/downloaded.png">
                 <div class="card-info">
                     <span class="card-title"></span>
                     <span class="card-author"></span>
@@ -19,7 +20,7 @@
         </template>
         <template id="card-upload-template">
             <div class="card upload-card" onclick="uploadMod()">
-                <p>+ Add module</p>
+                <p>+ Add module from file</p>
             </div>
         </template>
         <template id="checkbox-input">
@@ -85,13 +86,14 @@
         </div>
         <div class="nav">
             <div class="nav-highlight"><span class="nav-accent"></span></div>
-            <div class="nav-item" id="explore" onclick="setContent(this)"><img src="img/explore.png"></div>
-            <div class="nav-item" id="modules" onclick="setContent(this)"><img src="img/modules.png"></div>
-            <div class="nav-item" id="develop" onclick="setContent(this)"><img src="img/develop.png"></div>
-            <div class="nav-item" id="settings" onclick="setContent(this)"><img src="img/settings.png"></div>
+            <div class="nav-item" id="explore" onclick="setContent(this)"><img src="img/explore.png" title="Explore mods"></div>
+            <div class="nav-item" id="modules" onclick="setContent(this)"><img src="img/modules.png" title="Installed mods"></div>
+            <div class="nav-item" id="develop" onclick="setContent(this)"><img src="img/develop.png" title="Developer menu"></div>
+            <div class="nav-item" id="settings" onclick="setContent(this)"><img src="img/settings.png" title="Preferences"></div>
         </div>
         <div class="content">
             <div class="tab-content active" id="explore-tab">
+                <a id="explore-empty" style="cursor: default !important;">Error loading explore page</a>
                 <div class="scrollbox" id="explore-scrollbox"></div>
                 <div class="sidebar">
                     <div id="explore-card-description" class="card-description">
@@ -99,11 +101,12 @@
                         <h2 class="author">By <a class="author-content">Octos</a></h2>
                         <p class="description">Created in the depths of hell, this wallpaper was designed with designs that show multiple entities.</p>
                         <button onclick="downloadFocusedCard()">Download</button>
-                        <button onclick="goToSource()">Go to Source</button>
+                        <button class="secondary-button" onclick="goToSource()">Go to source</button>
                     </div>
                 </div>
             </div>
             <div class="tab-content" id="modules-tab">
+                <a id="modules-empty" onclick="uploadMod()">Looks like you don't have any mods installed. Click to install a module from file.</a>
                 <div class="scrollbox" id="modules-scrollbox"></div>
                 <div class="sidebar">
                     <div id="modules-card-description" class="card-description">
@@ -193,16 +196,25 @@
                             </label>
                         </div>
                     </div>
-                    <p class="subheader">Mods</p>
+                    <p class="subheader">Configuration</p>
                     <div class="settings-section">
                         <h1>Mods</h1>
+                        <p>Review your installed mods.</p>
                         <div style="width: 170px">
-                            <button onclick="openModFolder()">Open mod folder</button>
-                            <button onclick="wipe()">Wipe all mods</button>
-                            <button onclick="openDocumentation()">Open documentation</button>
+                            <button onclick="openModsFolder()">Open mods folder</button>
+                            <button onclick="findMoreMods()">Find more mods</button>
                         </div>
                     </div>
-                    <button onclick="restoreUserPrefs()">Revert changes</button>
+                    <div class="settings-section">
+                        <h1>Developer</h1>
+                        <p>Check out some resources to help you make and share your own awesome mods.</p>
+                        <div style="width: 170px">
+                            <button onclick="openDocumentation()">Documentation</button>
+                            <button onclick="shareMod()">Share your mod</button>
+                        </div>
+                    </div>
+                    <p>Revert back to default settings.</p>
+                    <button class="secondary-button" onclick="restoreUserPrefs()">Revert changes</button>
                 </div>
             </div>
         </div>

@@ -14,6 +14,7 @@ var prevMouse = { position: {} };
 var prevKeyboard = [];
 var prevMediaState = {};
 var options = retrieveOptions();
+var prevUser = {}
 const isActive = () => ["octos", ""].includes(wp.fgTitle());
 
 function createWindow() {
@@ -386,6 +387,15 @@ function injectScript(script) {
     return win.webContents.executeJavaScript(script);
 }
 
+function updateUserPrefs() {
+    var user = getPrefs().user;
+    if (user) {
+        setOpenAtBoot(user.boot);
+        //if (prevUser["desktop-icons"] != user["desktop-icons"]) setDesktopIcons(user["desktop-icons"]);
+        prevUser = JSON.parse(JSON.stringify(user));
+    }
+}
+
 function attachHandlers() {
     ipcMain.on("close", (e) => {
         const webContents = e.sender;
@@ -475,14 +485,17 @@ function attachHandlers() {
     ipcMain.handle("download-mod", (e, name) => {
         return new Promise((resolve, reject) => {
             addSourceModByName(name, (filepath) => {
-                if (filepath) addMod(filepath).then(resolve).catch(reject);
+                if (filepath) resolve(addMod(filepath));
                 else reject();
-            }).catch(reject);
+            });
         });
     });
     ipcMain.on("go-to-mod-source", (e, name) => goToModSource(name));
     ipcMain.on("refresh", refresh);
-    ipcMain.on("set-user-prefs", (e, field = "", content = "") => setUserPrefs(field, content));
+    ipcMain.on("set-user-prefs", (e, field = "", content = "") => {
+        setUserPrefs(field, content);
+        updateUserPrefs();
+    });
     ipcMain.handle("get-user-prefs", (e, field = "") => getUserPrefs(field));
     ipcMain.handle("new-develop-mod", () => {
         return new Promise((resolve, reject) => dialog.showOpenDialog(gui, { properties: ["openDirectory", "promptToCreate"] }).then((result) => {
@@ -588,17 +601,26 @@ function toggleBoot() {
 }
 
 function addToPath() {
-    require("child_process").execSync(`REG ADD HKCU\\Software\\Classes\\.omod /ve /d "octos.OctosFile" /f
-REG ADD HKCU\\Software\\Classes\\octos.OctosFile /ve /d "Octos File" /f
-REG ADD HKCU\\Software\\Classes\\octos.OctosFile\\DefaultIcon /ve /d "${path.join(__dirname, "img/omod.ico")}" /f
-REG ADD HKCU\\Software\\Classes\\octos.OctosFile\\Shell\\Open\\Command /ve /d "\"${process.execPath}\" add \"%1\"" /f
-SET PATH=%PATH%;${process.execPath}`, { windowsHide: true });
+    const { execSync } = require("child_process");
+    execSync(`REG ADD HKCU\\Software\\Classes\\.omod /ve /d "octos.OctosFile" /f`);
+    execSync(`REG ADD HKCU\\Software\\Classes\\octos.OctosFile /ve /d "Octos File" /f`);
+    execSync(`REG ADD HKCU\\Software\\Classes\\octos.OctosFile\\DefaultIcon /ve /d "${path.join(__dirname, "img/omod.ico")}" /f`);
+    execSync(`REG ADD HKCU\\Software\\Classes\\octos.OctosFile\\Shell\\Open\\Command /ve /d "\"${process.execPath}\" add \"%1\"" /f`);
+    execSync(`SET PATH=%PATH%;${process.execPath}`);
+}
+
+function setDesktopIcons(state = true) {
+    const { execSync } = require("child_process");
+    execSync(`REG ADD "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced" /v HideIcons /t REG_DWORD /d ${state ? 0 : 1} /f`)
+    execSync(`taskkill /f /im explorer.exe`);
+    execSync(`start explorer.exe`);
 }
 
 parseArgs();
 app.whenReady().then(() => {
     createGUI();
     init();
+    updateUserPrefs();
 
     if (options.events.mouse || options.events.keyboard || options.events.media) {
         var user = getPrefs().user;
