@@ -7,12 +7,12 @@
 ```html
 <html>
     <head>
-        <script type="module" src="https://unpkg.com/octos@latest/octos.js"></script>
+        <script src="https://unpkg.com/octos@latest/octos.js"></script>
     </head>
     <body>
         <script>
-            const media = new MediaController();
-            console.log(media);
+            const controller = new octos.MediaController();
+            console.log(controller);
         </script>
     </body>
 </html>

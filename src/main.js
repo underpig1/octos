@@ -9,6 +9,7 @@ const { modifier, keyCode } = require(path.join(__dirname, "./utils/ascii.js"));
 const { syncPlaybackInfo, asyncPlaybackInfo, sendMediaEvent } = require(path.join(__dirname, "./utils/winrt.js"));
 const { injectHTMLByNameScript, setStylesByNameScript, getAllWidgetNames } = require(path.join(__dirname, "./utils/widget.js"));
 const { requestSourceModData, requestModImageByName, addSourceModByName, goToModSource } = require(path.join(__dirname, "./utils/request.js"))
+const { readDirectory, openPath, getIconFromPath, pathExists, isDirectory } = require(path.join(__dirname, "./utils/files.js"));
 var win, tray, cmenu, settings, gui;
 var prevMouse = { position: {} };
 var prevKeyboard = [];
@@ -464,6 +465,13 @@ function attachHandlers() {
         if (type == "get" && field) return getModPrefs(field);
         else if (type == "set" && field && content) return setModPrefs(field, content);
     });
+    ipcMain.handle("file-system", (e, type, dir = "%desktop%") => {
+        if (type == "readdir") return readDirectory(dir);
+        else if (type == "open") return openPath(dir);
+        else if (type == "icon") return getIconFromPath(dir);
+        else if (type == "exists") return pathExists(dir);
+        else if (type == "isDir") return isDirectory(dir);
+    })
 
     ipcMain.on("close-gui", hideGUI);
     ipcMain.on("minimize-gui", hideGUI);

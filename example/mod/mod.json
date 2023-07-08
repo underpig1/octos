@@ -1,6 +1,0 @@
-{
-    "name": "Example mod",
-    "author": "me",
-    "description": "This is an example mod",
-    "entry": "index.js"
-}

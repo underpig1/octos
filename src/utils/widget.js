@@ -22,11 +22,12 @@ function readWidget(name) {
 }
 
 function injectHTMLByNameScript(name) {
-    return `document.querySelector("widget[name='${name}']").innerHTML=\`${readWidget(name)}\``
+    return `var widgets = document.querySelectorAll("widget[name='${name}']")
+for (const widget of widgets) widget.innerHTML=\`${readWidget(name)}\``;
 }
 
 function setStylesByNameScript(name) {
-    return `var widgets = document.querySelectorAll("[name='${name}']");
+    return `var widgets = document.querySelectorAll("widget[name='${name}']");
 for (const widget of widgets) {
     /*var widgetStyles = window.getComputedStyle(widget);
     var propNames = [], propValues = [];
@@ -43,7 +44,7 @@ for (const widget of widgets) {
 
     var fn = new Function(widget.querySelector("script").innerText);
     fn();
-}`
+}`;
 }
 
 function getAllWidgetNames(name) {

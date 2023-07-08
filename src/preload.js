@@ -66,3 +66,11 @@ contextBridge.exposeInMainWorld("prefs", {
     set: async (field = "", content = "") => await ipcRenderer.invoke("prefs", "set", field, content),
     get: async (field = "") => await ipcRenderer.invoke("prefs", "get", field)
 });
+
+contextBridge.exposeInMainWorld("files", {
+    readdir: async (dir = "") => await ipcRenderer.invoke("file-system", "readdir", dir),
+    open: async (path = "") => await ipcRenderer.invoke("file-system", "open", path),
+    icon: async (path = "") => await ipcRenderer.invoke("file-system", "icon", path),
+    exists: async (path = "") => await ipcRenderer.invoke("file-system", "exists", path),
+    isDir: async (path = "") => await ipcRenderer.invoke("file-system", "isDir", path)
+});

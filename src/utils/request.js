@@ -44,9 +44,9 @@ function requestModImageByName(name) {
         if (imgpath) {
             var url = path.join(source, imgpath);
             if (url) resolve(requestImageDataURL(url));
-            else reject();
+            else resolve(null);
         }
-        else reject();
+        else resolve(null);
     }).catch(reject));
 }
 

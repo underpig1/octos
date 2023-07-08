@@ -1,59 +1,86 @@
-export class MediaController {
-    async send(type = "pause-play") {
-        if (type == "prev-track") return window.media.send.prevTrack();
-        else if (type == "pause-play") return window.media.send.pausePlay();
-        else if (type == "next-track") return window.media.send.nextTrack();
-        else return null;
+const octos = (() => {
+    class MediaController {
+        async send(type = "pause-play") {
+            if (type == "prev-track") return window.media.send.prevTrack();
+            else if (type == "pause-play") return window.media.send.pausePlay();
+            else if (type == "next-track") return window.media.send.nextTrack();
+            else return null;
+        }
+
+        async retrieve(type = "title") {
+            if (type == "title") return window.media.getTitle();
+            else if (type == "artist") return window.media.getArtist();
+            else if (type == "seconds-elapsed") return window.media.getSecondsElapsed();
+            else if (type == "seconds-total") return window.media.getSecondsTotal();
+            else if (type == "amount-elapsed") return window.media.getPercentElapsed();
+        }
+
+        async playState() {
+            return window.media.isPlaying();
+        }
+
+        on(event, listener) {
+            if (["track", "playbackstatus", "playbacktime"].includes(event)) document.addEventListener(event, (e) => listener(e.detail));
+        }
     }
 
-    async retrieve(type = "title") {
-        if (type == "title") return window.media.getTitle();
-        else if (type == "artist") return window.media.getArtist();
-        else if (type == "seconds-elapsed") return window.media.getSecondsElapsed();
-        else if (type == "seconds-total") return window.media.getSecondsTotal();
-        else if (type == "amount-elapsed") return window.media.getPercentElapsed();
+    class Storage {
+        async read(id = "") {
+            return window.storage.getStorage(id);
+        }
+
+        async write(id = "", content = "") {
+            return window.storage.setStorage(id, content);
+        }
     }
 
-    async playState() {
-        return window.media.isPlaying();
+    class FileDialog {
+        async request(extensions = []) {
+            return window.storage.requestFile(extensions);
+        }
     }
 
-    on(event, listener) {
-        if (["track", "playbackstatus", "playbacktime"].includes(event)) document.addEventListener(event, (e) => listener(e.detail));
-    }
-}
+    class UserPreferences {
+        async read(field = "") {
+            return window.prefs.get(field);
+        }
 
-export class Storage {
-    async read(id = "") {
-        return window.storage.getStorage(id);
-    }
+        async write(field = "", value = "") {
+            return window.prefs.set(field, value)
+        }
 
-    async write(id = "", content = "") {
-        return window.storage.setStorage(id, content);
-    }
-}
-
-export class FileDialog {
-    async request(extensions = []) {
-        return window.storage.requestFile(extensions);
-    }
-}
-
-export class UserPreferences {
-    async read(field = "") {
-        return window.prefs.get(field);
+        on(event, listener) {
+            if (event == "change") document.addEventListener("prefschange", (e) => listener(e.detail));
+        }
     }
 
-    async write(field = "", value = "") {
-        return window.prefs.set(field, value)
+    class FileSystem {
+        async readdir(path = "") {
+            return window.files.readdir(path);
+        }
+
+        async open(path = "") {
+            return window.files.open(path);
+        }
+
+        async extractIcon(path = "") {
+            return window.files.icon(path);
+        }
+
+        async pathExists(path = "") {
+            return window.files.exists(path);
+        }
+
+        async isDirectory(path = "") {
+            return window.files.isDir(path);
+        }
     }
 
-    on(event, listener) {
-        if (event == "change") document.addEventListener("prefschange", (e) => listener(e.detail));
+    const system = {
+        getTheme: async () => window.system.getTheme(),
+        toggleDevTools: async () => window.dev.toggleDevTools()
     }
-}
 
-export const system = {
-    getTheme: async () => window.system.getTheme(),
-    toggleDevTools: async () => window.dev.toggleDevTools()
-}
+    exports = { MediaController, Storage, FileDialog, UserPreferences, system, FileSystem }
+    return exports;
+})();

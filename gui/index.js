@@ -612,27 +612,19 @@ function populateExplore() {
         const exploreScrollbox = document.getElementById("explore-scrollbox");
         exploreScrollbox.innerHTML = "";
         exploreMods = {};
-        for (var id in Object.keys(data)) {
-            var name = Object.keys(data)[id];
-            var modData = data[name];
-            if (modData.image) {
-                window.link.request.modImage(name).then((data) => {
+        (async () => {
+            for (var id = 0, p = Promise.resolve(); id < Object.keys(data).length; id++) {
+                var name = Object.keys(data)[id];
+                var modData = data[name];
+                await window.link.request.modImage(name).then((data) => {
                     var card = createCard("explore-" + id, name, modData.author, data);
                     exploreScrollbox.appendChild(card);
-                    //if (!valid) card.classList.add("selected");
                     exploreMods["explore-" + id] = { name, author: modData.author, description: modData.description }
-                    updateCardDescription();
-                    updateDownloadedMods();
                 });
             }
-            else {
-                var card = createCard("explore-" + id, name, modData.author, null);
-                exploreScrollbox.appendChild(card);
-                //if (!valid) card.classList.add("selected");
-                exploreMods["explore-" + id] = { name, author: modData.author, description: modData.description }
-                updateCardDescription();
-            }
-        }
+        })();
         updateDownloadedMods();
+        cleanFocus();
+        updateCardDescription();
     });
 }
