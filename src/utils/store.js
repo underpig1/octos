@@ -53,6 +53,18 @@ function removeMod(name) {
     var data = getModData(name);
     var index = prefs.mods.indexOf(data);
     prefs.mods.splice(index, 1);
+    if (prefs.prefs) {
+        if (prefs.prefs[name]) delete prefs.prefs[name];
+    }
+    if (prefs.local) {
+        if (prefs.local[name]) delete prefs.local[name];
+    }
+    if (prefs.images) {
+        if (prefs.images[name]) delete prefs.images[name];
+    }
+    if (prefs.configs) {
+        if (prefs.configs[name]) delete prefs.configs[name];
+    }
     writePrefs();
 }
 
@@ -148,11 +160,12 @@ function getLocalStorage(id) {
     }
 }
 
-function getModPrefs(field) {
+function getModPrefs(field = null) {
     if (prefs.prefs[prefs.selected]) {
         var modPrefs = prefs.prefs[prefs.selected].local;
         if (modPrefs) {
             if (modPrefs[field] != null) return modPrefs[field].value;
+            else return modPrefs;
         }
     }
     return null;

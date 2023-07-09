@@ -1,16 +1,26 @@
 {
     "name": "Gradient",
     "entry": "index.html",
+    "author": "Octos",
+    "description": "A simple analog desktop clock with a calming color-changing gradient background.",
     "prefs": {
         "primary-color": {
             "type": "color",
-            "value": "red",
+            "value": "#78c4ce",
             "label": "Primary color"
         },
         "secondary-color": {
             "type": "color",
-            "value": "green",
+            "value": "#8d8ed3",
             "label": "Secondary color"
+        },
+        "speed": {
+            "type": "range",
+            "value": "50",
+            "min": "0",
+            "max": "100",
+            "label": "Scroll speed"
         }
-    }
+    },
+    "image": "gradient.png"
 }

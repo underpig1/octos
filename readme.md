@@ -1,36 +1,75 @@
 <div align="center">
-<img src="img/icon.png" />
+<img src="img/tray.png" />
 <h1>Octos - HTML Live Wallpaper Engine</h1>
 <p>Create, distribute, and explore live, interactive wallpapers on Windows made with HTML, CSS, and JS.</p>
+<img src="https://github.com/underpig1/octos/actions/workflows/ci.yml/badge.svg">
+<img src="https://github.com/underpig1/octos/actions/workflows/publish.yml/badge.svg">
+<img src="https://badge.fury.io/js/octos.svg">
 </div>
 
-## Native API
-> Interact with native Windows processes like Media Player, Local Storage, and File System
-```javascript
-console.log("Skipping to next track...");
-window.media.nextTrack();
-window.media.getTitle().then((title) => console.log(title + " is currently playing!"));
+# [Documentation](https://underpig1.github.io/octos/docs/?t=installation) | [Download](https://github.com/underpig1/octos/releases) | [Quickstart](https://underpig1.github.io/octos/docs/?t=quickstart)
 
-document.addEventListener("playbackstatus", (e) => {
-    if (e.detail.status == "playing") console.log("Song playing!");
-});
-```
-Learn more with the [Native API Documentation]()
-
-## Mouse and Keyboard Support
-> Full mouse and keyboard support for interactive wallpapers
-
-## Widget Library
-> Get started with a handful of premade desktop widgets
-```html
-<body>
-    <widget name="media-player"></widget>
-</body>
-```
+<img src="img/gallery/demo.gif" alt="Demo" width="800px">
 
 # Installation
-Installation instructions
 
-Check out the [Getting Started Guide]() to jump right in.
+Download the Octos app for Windows.
 
 # Gallery
+
+<img src="img/gallery/ethereal.gif" alt="Ethereal" width="600px">
+
+### Ethereal
+An interactive media player that ripples as you pass your mouse over it.
+
+<img src="img/gallery/terminal.gif" alt="Terminal" width="600px">
+
+### Terminal
+A digital clock with a live old TV effect and customizable 3D text art.
+
+<img src="img/gallery/imgbg.gif" alt="Image Background" width="600px">
+
+### Image Background
+Set your background to any image/gif/video and add widgets like a media controller, clock, and calender.
+
+<img src="img/gallery/gradient.png" alt="Gradient" width="600px">
+
+### Gradient
+A simple analog desktop clock with a calming color-changing gradient background.
+
+# Native API
+Making your own live wallpaper is super easy with Octos' native API.
+
+```html
+<html>
+    <body>
+        <p>Now playing: <span id="song-title"></span></p>
+        <button onclick="nextTrack()">Next track</button>
+
+        <script src="https://unpkg.com/octos@latest/octos.js"></script>
+        <script>
+            const controller = new octos.MediaController();
+
+            controller.on("track", (e) => {
+                document.getElementById("song-title").innerText = e.title;
+            });
+
+            function nextTrack() {
+                controller.send("next-track");
+            }
+        </script>
+    </body>
+</html>
+```
+
+Use the Octos API to:
+- Get playback info
+- Media/playback controls
+- Read and write to local storage
+- Access file system
+- Read and write user preferences
+- Access system information
+- [Learn more with the API Docs]()
+
+# Share your Wallpaper
+Once you make your own awesome wallpaper, share it with the world.

@@ -95,6 +95,7 @@ function init() {
     createTray();
     updateModList();
     createSettings();
+    sendModPrefs();
 }
 
 function createTrayMenu(modItems = []) {
@@ -234,6 +235,7 @@ function setModByName(name) {
         refresh();
     }
     updateModList();
+    sendModPrefs();
 }
 
 function toggleDev() {
@@ -397,6 +399,20 @@ function updateUserPrefs() {
     }
 }
 
+function sendModPrefs() {
+    var modPrefs = getPrefs().prefs;
+    var selected = getPrefs().selected;
+    if (modPrefs) {
+        if (modPrefs[selected]) {
+            if (modPrefs[selected].local) {
+                var options = {}
+                for (var id of Object.keys(modPrefs[selected].local)) options[id] = modPrefs[selected].local[id].value;
+                dispatchEvent("prefschange", { prefs: options });
+            }
+        }
+    }
+}
+
 function attachHandlers() {
     ipcMain.on("close", (e) => {
         const webContents = e.sender;
@@ -557,7 +573,7 @@ function attachHandlers() {
                     if (prefs[name].local[id]) prefs[name].local[id].value = options[id];
                 }
                 setModOptions(prefs);
-                dispatchEvent("prefschange", { prefs: options });
+                if (name == getPrefs().selected) dispatchEvent("prefschange", { prefs: options });
             }
         }
     });
@@ -565,11 +581,11 @@ function attachHandlers() {
         var prefs = getPrefs().prefs;
         if (prefs) {
             if (prefs[name]) {
-                prefs[name].local = prefs[name].defaults;
+                prefs[name].local = JSON.parse(JSON.stringify(prefs[name].defaults));
                 setModOptions(prefs);
                 var options = {}
                 for (var id of Object.keys(prefs[name].local)) options[id] = prefs[name].local[id].value;
-                dispatchEvent("prefschange", { prefs: options });
+                if (name == getPrefs().selected) dispatchEvent("prefschange", { prefs: options });
             }
         }
     });

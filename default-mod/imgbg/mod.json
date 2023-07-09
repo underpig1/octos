@@ -1,4 +1,6 @@
 {
     "name": "Image Background",
-    "entry": "index.html"
+    "entry": "index.html",
+    "image": "imgbg.png",
+    "author": "Octos"
 }

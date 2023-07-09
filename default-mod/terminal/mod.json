@@ -1,4 +1,6 @@
 {
     "name": "Terminal",
-    "entry": "3d.html"
+    "entry": "3d.html",
+    "author": "Octos",
+    "image": "terminal.png"
 }

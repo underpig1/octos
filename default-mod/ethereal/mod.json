@@ -1,6 +1,7 @@
 {
     "name": "Ethereal",
     "entry": "index.html",
+    "author": "Octos",
     "options": {
         "events": {
             "mouse": true,
@@ -8,5 +9,5 @@
             "media": true
         }
     },
-    "image": "preview.png"
+    "image": "ethereal.png"
 }

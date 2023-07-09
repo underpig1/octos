@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@2.2.0/fonts/remixicon.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-light.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/octos.ico">
     <title>Octos Documentation</title>
     <style>
         * {
@@ -513,6 +514,31 @@
             transform: translateY(-50%);
         }
 
+        .sidebar-extra {
+            position: absolute;
+            height: 140px;
+            border-radius: 15px;
+            background-color: #ff333328;
+            bottom: 35px;
+            left: 15px;
+            right: 15px;
+            color: #ff4040ff;
+            padding: 15px 20px;
+            cursor: pointer;
+        }
+
+        .sidebar-extra h1 {
+            font-size: 12pt;
+            margin: 2px 0;
+        }
+
+        .sidebar-extra p {
+            font-size: 10pt;
+            color: #00000080;
+            margin: 0;
+            font-weight: 500;
+        }
+
         @media only screen and (max-width: 1200px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -575,7 +601,7 @@
         <div class="left">
             <i class="menu ri-menu-2-line" onclick="toggleMenu()"></i>
             <img onclick="openRepro()" class="icon" src="../img/tray.png" aria-hidden="true">
-            <h1 onclick="openRepro()">Octos docs</h1>
+            <h1 onclick="window.location.reload()">Octos docs</h1>
             <h2 id="version">v1.0.0</h2>
         </div>
         <div class="right">
@@ -606,6 +632,10 @@
             <h1 class="tab" id="tab-user-prefs" onclick="setTab(this)">UserPreferences</h1>
             <h1 class="tab" id="tab-storage" onclick="setTab(this)">Storage</h1>
             <h1 class="tab" id="tab-system" onclick="setTab(this)">system</h1>
+            <div class="sidebar-extra" onclick="openIssues()">
+                <h1>Hey there!</h1>
+                <p>Octos is currently in a very early stage. If you have a suggestion, feature request, an issue, or some feedback, I'd love to hear it!</p>
+            </div>
         </div>
         <div class="content">
             <div id="md">
@@ -784,6 +814,10 @@
             window.open("https://github.com/underpig1/octos/releases");
         }
 
+        function openIssues() {
+            window.open("https://github.com/underpig1/octos/issues/new");
+        }
+
         function toggleSearch(state = null) {
             const searchbox = document.querySelector(".searchbox");
             const searchbar = document.getElementById("searchbar");
@@ -824,6 +858,7 @@
         }
 
         function search(value) {
+            value = value.trim();
             clearSearchResults();
             if (value) {
                 var exhausted = [];

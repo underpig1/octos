@@ -34,7 +34,7 @@
             <label class="range-input">
                 <p>Input</p>
                 <p class="range-value">5</p>
-                <input type="range" onchange="updateRange(this)" oninput="updateRange(this)" onchange="updateCardOptions()">
+                <input type="range" onchange="updateRange(this); updateCardOptions();" oninput="updateRange(this)">
             </label>
         </template>
         <template id="file-input">

@@ -379,7 +379,7 @@ function restorePreferences() {
                     if (options) {
                         var defaults = options.defaults;
                         focusedCard.options = defaults;
-                        window.link.restoreModPrefs();
+                        window.link.restoreModPrefs(focusedCard.name);
                         updateCardDescription();
                     }
                 }
@@ -439,7 +439,7 @@ function updateMods() {
                 selectedID = id;
             }
             modScrollbox.appendChild(card);
-            installedMods[id] = { name, img, author, el: card, config, options: modPrefs };
+            installedMods[id] = { name, img, author, el: card, config, options: modPrefs, description: config.description };
         }
         var focusCheck = false;
         for (var mod of modScrollbox.childNodes) focusCheck = focusCheck || mod.classList.contains("focused");
@@ -622,9 +622,9 @@ function populateExplore() {
                     exploreMods["explore-" + id] = { name, author: modData.author, description: modData.description }
                 });
             }
+            updateDownloadedMods();
+            cleanFocus();
+            updateCardDescription();
         })();
-        updateDownloadedMods();
-        cleanFocus();
-        updateCardDescription();
     });
 }

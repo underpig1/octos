@@ -194,7 +194,7 @@ body {
 }
 
 .card-info>.card-author {
-    color: #b0b0b0ff;
+    color: #ffffff85;
 }
 
 ::-webkit-scrollbar {
@@ -528,7 +528,7 @@ label>p {
 }
 
 .card-options>label {
-    margin-bottom: 8px;
+    margin-bottom: 12px;
 }
 
 .range-input>input {

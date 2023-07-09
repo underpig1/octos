@@ -6,7 +6,7 @@
     <title>Gradient</title>
     <style>
         html {
-            background: linear-gradient(-45deg, #78c4ce, #8d8ed3, #cf78e3, #ed66a7);
+            background-image: linear-gradient(-45deg, #78c4ce, #8d8ed3, #cf78e3, #ed66a7);
             background-size: 400% 400%;
             animation: gradient 55s ease infinite;
             height: 100vh;
@@ -72,6 +72,19 @@
             radialLine(0, 35, 2*Math.PI*(1/4 - hr/12));
             radialLine(0, 48, 2*Math.PI*(1/4 - min/60));
         }
+
+        function updatePrefs(prefs) {
+            var primary = prefs["primary-color"];
+            var secondary = prefs["secondary-color"];
+            var speed = prefs["speed"];
+
+            var target = document.documentElement;
+            target.style.backgroundImage = `linear-gradient(-45deg, ${primary}, ${secondary}, ${primary}, ${secondary})`;
+            target.style.animationDuration = 100 - parseInt(speed) + "s";
+            console.log(primary, secondary, speed);
+        }
+
+        document.addEventListener("prefschange", (e) => updatePrefs(e.detail.prefs));
 
         ctx.strokeStyle = "#eee";
         ctx.lineWidth = 5;
