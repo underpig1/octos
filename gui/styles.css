@@ -91,7 +91,7 @@ body {
 }
 
 .nav-highlight {
-    --nav-active: 0;
+    --nav-active: 1;
     position: relative;
     width: 45px;
     height: 0;

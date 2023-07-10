@@ -1,15 +1,19 @@
-<div align="center">
 <img src="img/tray.png" />
 <h1>Octos - HTML Live Wallpaper Engine</h1>
 <p>Create, distribute, and explore live, interactive wallpapers on Windows made with HTML, CSS, and JS.</p>
-<img src="https://github.com/underpig1/octos/actions/workflows/ci.yml/badge.svg">
-<img src="https://github.com/underpig1/octos/actions/workflows/publish.yml/badge.svg">
-<img src="https://badge.fury.io/js/octos.svg">
+<div>
+<img src="https://github.com/underpig1/octos/actions/workflows/ci.yml/badge.svg" float="left">
+<img src="https://github.com/underpig1/octos/actions/workflows/publish.yml/badge.svg" float="left">
+<img src="https://badge.fury.io/js/octos.svg" float="left">
 </div>
 
-# [Documentation](https://underpig1.github.io/octos/docs/?t=installation) | [Download](https://github.com/underpig1/octos/releases) | [Quickstart](https://underpig1.github.io/octos/docs/?t=quickstart)
+[API Documentation](https://underpig1.github.io/octos/docs/?t=installation) | [Installation](https://underpig1.github.io/octos/docs/?t=installation) | [Quickstart](https://underpig1.github.io/octos/docs/?t=quickstart)
 
 <img src="img/gallery/demo.gif" alt="Demo" width="800px">
+
+## :construction: Thanks for testing out Octos!
+
+Right now, Octos is in an early stage of development. To help out, consider [submitting a feature request or reporting an issue](https://github.com/underpig1/octos/issues/new). And of course, if you have an awesome wallpaper you made that you want to share, consider [publishing it](https://underpig1.github.io/octos/docs/?t=installation) on the platform. As always, check out the [API docs](https://underpig1.github.io/octos/docs/?t=installation) for resources and guides. Thanks!
 
 # Installation
 
@@ -20,17 +24,23 @@ Download the Octos app for Windows.
 <img src="img/gallery/ethereal.gif" alt="Ethereal" width="600px">
 
 ### Ethereal
-An interactive media player that ripples as you pass your mouse over it.
+An interactive media player that ripples as your mouse passes over it.
+
+<br>
 
 <img src="img/gallery/terminal.gif" alt="Terminal" width="600px">
 
 ### Terminal
 A digital clock with a live old TV effect and customizable 3D text art.
 
+<br>
+
 <img src="img/gallery/imgbg.gif" alt="Image Background" width="600px">
 
 ### Image Background
 Set your background to any image/gif/video and add widgets like a media controller, clock, and calender.
+
+<br>
 
 <img src="img/gallery/gradient.png" alt="Gradient" width="600px">
 

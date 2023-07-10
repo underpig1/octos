@@ -4,7 +4,7 @@ var isVisible = true;
 var inputGetters = {};
 var installedMods = {};
 var exploreMods = {};
-var activeTab = "explore";
+var activeTab = "modules";
 var modalListener = () => null;
 var downloadingCards = [];
 var develop = {}

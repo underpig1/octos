@@ -1,6 +1,10 @@
 module.exports = {
     packagerConfig: {
-        icon: "./img/octos.ico"
+        icon: "./img/octos.ico",
+        ignore: [
+            "./docs",
+            "./img/gallery"
+        ]
     },
     rebuildConfig: {},
     makers: [
