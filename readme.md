@@ -1,11 +1,11 @@
-<img src="img/tray.png" />
-<h1>Octos - HTML Live Wallpaper Engine</h1>
-<p>Create, distribute, and explore live, interactive wallpapers on Windows made with HTML, CSS, and JS.</p>
-<div>
-<img src="https://github.com/underpig1/octos/actions/workflows/ci.yml/badge.svg" float="left">
-<img src="https://github.com/underpig1/octos/actions/workflows/npm-publish.yml/badge.svg" float="left">
-<img src="https://badge.fury.io/js/octos.svg" float="left">
-</div>
+![Octos icon](img/tray.png)
+
+# Octos - HTML Live Wallpaper Engine
+Create, distribute, and explore live, interactive wallpapers on Windows made with HTML, CSS, and JS.
+
+[![CI](https://github.com/underpig1/octos/actions/workflows/ci.yml/badge.svg)](https://github.com/underpig1/octos/actions/workflows/ci.yml)
+[![NPM Publish](https://github.com/underpig1/octos/actions/workflows/npm-publish.yml/badge.svg)](https://github.com/underpig1/octos/actions/workflows/npm-publish.yml)
+[![NPM Package](https://badge.fury.io/js/octos.svg)](https://www.npmjs.com/package/octos)
 
 [API Documentation](https://underpig1.github.io/octos/docs/?t=installation) | [Installation](https://underpig1.github.io/octos/docs/?t=installation) | [Quickstart](https://underpig1.github.io/octos/docs/?t=quickstart)
 
