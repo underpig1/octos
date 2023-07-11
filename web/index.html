@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/octos.ico">
+    <title>Octos</title>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            background-color: #202020ff;
+            font-family: 'Roboto', sans-serif;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow: hidden;
+        }
+
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 65px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .links {
+            display: flex;
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 300px;
+            font-size: 12pt;
+            justify-content: space-between;
+            padding-right: 35px;
+            align-items: center;
+            height: 100%;
+        }
+
+        a {
+            cursor: pointer;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        h1 {
+            color: white;
+            font-size: 32pt;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        p {
+            color: #868686ff;
+            font-size: 12pt;
+            margin: 5px;
+        }
+
+        .main {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            left: 50%;
+            right: 50%;
+            top: 50%;
+            bottom: 50%;
+            width: 500px;
+            height: 150px;
+            align-items: center;
+            transform: translate(-50%, -50%);
+        }
+
+        .hero {
+            width: 100%;
+            height: 100%;
+        }
+
+        .background {
+            position: absolute;
+            width: 100%;
+            top: 50%;
+            bottom: 50%;
+            transform: translateY(-50%);
+            -webkit-text-fill-color: transparent;
+            -webkit-text-stroke: 1px #ff4040ff;
+        }
+
+        button {
+            position: absolute;
+            color: white;
+            font-size: 10pt;
+            font-weight: 700;
+            width: 165px;
+            height: 45px;
+            background-color: #ff4040ff;
+            box-shadow: 0 5px 0 #c02020ff;
+            outline: none;
+            border: none;
+            cursor: pointer;
+            bottom: 0;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+
+        button:hover {
+            transform: translateY(2px);
+            box-shadow: 0 3px 0 #c02020ff;
+        }
+
+        button:active {
+            transform: translateY(5px);
+            box-shadow: 0 0 0 #c02020ff;
+        }
+
+        .icon {
+            position: absolute;
+            top: 50%;
+            bottom: 50%;
+            transform: translateY(-50%);
+            left: 30px;
+            width: 30px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <img class="icon" src="icon.png">
+        <div class="links">
+            <a>Download</a>
+            <a>API Docs</a>
+            <a>GitHub</a>
+        </div>
+    </div>
+    <div class="hero">
+        <img class="background" src="octos.png">
+        <div class="main">
+            <h1>THE NEW DESKTOP</h1>
+            <p>Live HTML wallpaper engine for Windows</p>
+            <button>DOWNLOAD</button>
+        </div>
+    </div>
+    <script>
+        const background = document.querySelector(".background");
+        const main = document.querySelector(".main");
+        const nav = document.querySelector(".nav");
+
+        document.onmousemove = (e) => {
+            var x = (e.clientX - window.innerWidth/2)/50;
+            var y = (e.clientY - window.innerHeight/2)/50;
+            background.style.transform = `translate(${-x}px, calc(-50% + ${-y}px))`;
+            main.style.transform = `translate(calc(-50% + ${x/2}px), calc(-50% + ${y/2}px))`;
+            nav.style.transform = `translate(${x/2}px, ${y/2}px)`;
+        }
+    </script>
+</body>
+</html>

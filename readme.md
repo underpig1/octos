@@ -3,7 +3,7 @@
 <p>Create, distribute, and explore live, interactive wallpapers on Windows made with HTML, CSS, and JS.</p>
 <div>
 <img src="https://github.com/underpig1/octos/actions/workflows/ci.yml/badge.svg" float="left">
-<img src="https://github.com/underpig1/octos/actions/workflows/publish.yml/badge.svg" float="left">
+<img src="https://github.com/underpig1/octos/actions/workflows/npm-publish.yml/badge.svg" float="left">
 <img src="https://badge.fury.io/js/octos.svg" float="left">
 </div>
 
@@ -13,7 +13,7 @@
 
 ## :construction: Thanks for testing out Octos!
 
-Right now, Octos is in an early stage of development. To help out, consider [submitting a feature request or reporting an issue](https://github.com/underpig1/octos/issues/new). And of course, if you have an awesome wallpaper you made that you want to share, consider [publishing it](https://underpig1.github.io/octos/docs/?t=installation) on the platform. As always, check out the [API docs](https://underpig1.github.io/octos/docs/?t=installation) for resources and guides. Thanks!
+Octos is currently in an early stage of development. To help out, consider [submitting a feature request or reporting an issue](https://github.com/underpig1/octos/issues/new). And of course, if you have an awesome wallpaper you made that you want to share, consider [publishing it](https://underpig1.github.io/octos/docs/?t=installation) on the platform. As always, check out the [API docs](https://underpig1.github.io/octos/docs/?t=installation) for resources and guides. Thanks!
 
 # Installation
 

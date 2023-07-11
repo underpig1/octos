@@ -29,6 +29,21 @@
   "devDependencies": {
     "@electron-forge/cli": "^6.1.1",
     "@electron-forge/maker-wix": "^6.2.1",
+    "@electron-forge/publisher-github": "^6.2.1",
     "electron": "^23.3.6"
+  },
+  "config": {
+    "forge": {
+      "publishers": {
+        "name": "@electron-forge/publisher-github",
+        "config": {
+          "repository": {
+            "owner": "underpig1",
+            "name": "octos"
+          },
+          "draft": true
+        }
+      }
+    }
   }
 }
