@@ -94,7 +94,7 @@ function init() {
     loadHTML();
     createTray();
     updateModList();
-    createSettings();
+    //createSettings();
     sendModPrefs();
 }
 
