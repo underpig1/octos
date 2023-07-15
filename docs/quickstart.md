@@ -1,4 +1,4 @@
-# Developer's Quickstart
+# Quickstart
 `mod.json`
 ```json
 

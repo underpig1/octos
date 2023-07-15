@@ -3,7 +3,8 @@ module.exports = {
         icon: "./img/octos.ico",
         ignore: [
             "./docs",
-            "./img/gallery"
+            "./img/gallery",
+            "./octos-community"
         ]
     },
     rebuildConfig: {},
