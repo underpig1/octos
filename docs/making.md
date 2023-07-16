@@ -1,19 +1,27 @@
 # Making a mod
 
-Getting started with developing for Octos is easy. This guide will get you started with making your own wallpapers fast.
+Making wallpapers with HTML, CSS, and JS is easy with Octos. Follow this guide for a thorough introduction to making your own mod.
 
-### With the Developer Menu
+### Developer Menu
 
-### With the CLI
-In the command line, run `octos init` to make a new mod
+In the Octos app, navigate to the develop menu to access tools and resources to help you make your own mod. You can get started by creating a new mod or opening an existing mod folder.
 
-# File structure
-```
+![Develop menu](../img/gallery/develop-menu.png)
+
+### CLI
+
+Alternatively, you can use the command line to initialize, test, and bundle your mod. In the command line, run `octos init [name]` to create a new mod.
+
+[Learn more about using the CLI...](?t=using-the-cli)
+
+## File structure
+A basic mod folder looks like this:
+```text
 my-mod
 | index.html
 | mod.json
 ```
-Store any files you need for your mod in single folder containing a `mod.json` file. Change the `mod.json` to set mod settings and configure mod behavior.
+Store any files you need for your mod in a single folder containing a `mod.json` file. Change the `mod.json` to set mod settings and configure mod behavior.
 
 A basic `mod.json` might look something like this:
 ```json
@@ -25,9 +33,9 @@ A basic `mod.json` might look something like this:
 ```
 Change `"entry"` to the relative path to the HTML file or URL to a webpage that is rendered when a user starts up your mod.
 
-[Learn more about mod.json...](https://underpig1.github.io/octos/docs/?t=mod-json)
+[Learn more about mod.json...](?t=mod-json)
 
-# Example
+## Example
 See an example of a simple wallpaper that shows some text in the middle of the screen.
 
 `index.html`:
@@ -57,7 +65,7 @@ See an example of a simple wallpaper that shows some text in the middle of the s
 }
 ```
 
-# Native API
+## Native API
 Use the Octos API to power up your wallpaper with any of the following:
 - Get playback info
 - Media/playback controls
@@ -67,38 +75,8 @@ Use the Octos API to power up your wallpaper with any of the following:
 - Access system information
 - And more...
 
-To get started, include the following script tag in your HTML file:
-```html
-<script src="https://unpkg.com/octos@latest/octos.js"></script>
-```
-Or directly download the [octos.js](https://raw.githubusercontent.com/underpig1/octos/master/octos.js) file and include it in your mod folder:
-```html
-<script src="octos.js"></script>
-```
+To get started, [check out the API Docs...](?t=using-api)
 
-[Learn more with the API Docs...](https://underpig1.github.io/octos/docs/?t=using-api)
+## Next steps
 
-# Testing
-Test your mod to see how it runs without having to build/package it.
-
-### With the Developer Menu
-
-### With the CLI
-In the command line, run `octos run path/to/mod/folder` to test out your mod.
-
-[Learn more about testing...](https://underpig1.github.io/octos/docs/?t=testing)
-
-# Package and share
-
-Once you finalize your mod, you'll need to bundle it into a `.omod` file for others to download and install.
-
-### With the Developer Menu
-
-### With the CLI
-In the command line, run `octos build path/to/mod/folder` to bundle it into a distributable `.omod` file.
-
-[Learn more about sharing your mod...](https://underpig1.github.io/octos/docs/?t=building)
-
-# Publish
-
-[See the pulishing guide](https://underpig1.github.io/octos/docs/?t=publish) for more information about sharing your mod on the platform for others to download through the app. Contributions are always appreciated!
+So you made a really cool mod. Now learn how to [test it](?t=testing), [package and share it](?t=packaging), and [publish it for the Explore page](?t=publishing).

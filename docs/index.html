@@ -171,7 +171,6 @@
         .navitems {
             width: fit-content;
             height: fit-content;
-            margin-bottom: 20px;
         }
 
         .navitems > h1 {
@@ -191,6 +190,7 @@
             position: absolute;
             content: "";
             left: -15px;
+            top: 1px;
             height: 100%;
             width: 2px;
             background-color: #ff4040ff;
@@ -253,6 +253,7 @@
             position: relative;
             font-size: 32pt;
             color: #333;
+            margin-bottom: 20px;
         }
 
         .content h3, .content h4, .content h5, .content h6 {
@@ -539,6 +540,61 @@
             font-weight: 500;
         }
 
+        #md-content a {
+            text-decoration: none;
+            color: #ff4040ff;
+        }
+
+        #md-content a:hover {
+            text-decoration: underline;
+        }
+
+        #md-content code:not(.hljs) {
+            color: #3b3b3b;
+            background-color: #fafafa;
+            padding: 2px 4px;
+        }
+
+        #md-content code {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 10pt;
+            box-shadow: 0 0 2px #0000004a;
+            border-radius: 2px;
+        }
+
+        #md-content p, #md-content li {
+            color: #333333;
+            line-height: 24px;
+        }
+
+        #md-content blockquote > p {
+            color: #a3a3a3 !important;
+            margin: 0;
+        }
+        
+        #md-content blockquote::after {
+            content: "";
+            position: absolute;
+            background-color: #c9c9c9;
+            width: 3px;
+            height: 100%;
+            display: block;
+            left: 0;
+            top: 0;
+        }
+        
+        #md-content blockquote {
+            background-color: #ffffff;
+            margin: 0;
+            padding: 8px 18px;
+            position: relative;
+            color: #9d9b9b;
+        }
+
+        #md-content h2 {
+            color: #333;
+        }
+
         @media only screen and (max-width: 1200px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -616,22 +672,22 @@
     <div class="container">
         <div class="sidebar">
             <h2>GETTING STARTED</h2>
-            <h1 class="tab" id="tab-installation" class="active" onclick="setTab(this)">Installation</h1>
-            <h1 class="tab" id="tab-quickstart" onclick="setTab(this)">Quickstart</h1>
-            <h1 class="tab" id="tab-quickstart" onclick="setTab(this)">Get more mods</h1>
+            <h1 class="tab" id="tab-contents" onclick="setTab(this)">Table of contents</h1>
+            <h1 class="tab" id="tab-installation" class="active" onclick="setTab(this)">Quickstart</h1>
             <h2>GUIDES</h2>
             <h1 class="tab" id="tab-making" onclick="setTab(this)">Making a mod</h1>
-            <h1 class="tab" id="tab-making" onclick="setTab(this)">Building a mod</h1>
-            <h1 class="tab" id="tab-publish" onclick="setTab(this)">Publishing a mod</h1>
-            <h1 class="tab" id="tab-cli" onclick="setTab(this)">CLI</h1>
+            <h1 class="tab" id="tab-packaging" onclick="setTab(this)">Packaging a mod</h1>
+            <h1 class="tab" id="tab-publishing" onclick="setTab(this)">Publishing a mod</h1>
+            <h1 class="tab" id="tab-testing" onclick="setTab(this)">Testing your mod</h1>
+            <h1 class="tab" id="tab-using-the-cli" onclick="setTab(this)">Using the CLI</h1>
+            <h1 class="tab" id="tab-using-the-api" onclick="setTab(this)">Using the API</h1>
             <h1 class="tab" id="tab-mod-json" onclick="setTab(this)">mod.json</h1>
-            <h1 class="tab" id="tab-using-api" onclick="setTab(this)">Using the API</h1>
             <h1 class="tab" id="tab-widgets" onclick="setTab(this)">Widgets</h1>
             <h2>API REFERENCE</h2>
             <h1 class="tab" id="tab-file-dialog" onclick="setTab(this)">FileDialog</h1>
             <h1 class="tab" id="tab-file-system" onclick="setTab(this)">FileSystem</h1>
             <h1 class="tab" id="tab-media-controller" onclick="setTab(this)">MediaController</h1>
-            <h1 class="tab" id="tab-user-prefs" onclick="setTab(this)">UserPreferences</h1>
+            <h1 class="tab" id="tab-user-preferences" onclick="setTab(this)">UserPreferences</h1>
             <h1 class="tab" id="tab-storage" onclick="setTab(this)">Storage</h1>
             <h1 class="tab" id="tab-system" onclick="setTab(this)">system</h1>
             <div class="sidebar-extra" onclick="openIssues()">

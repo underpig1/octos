@@ -128,10 +128,12 @@
                 </div>
                 <div class="develop-main">
                     <div class="layout">
+                        <img src="img/back.png" class="develop-back" onclick="disableDeveloping()">
+                        <div id="layout-console"></div>
                         <div class="develop-buttons">
-                            <img class="develop-button" src="img/play.png" onclick="playMod()">
-                            <img class="develop-button" src="img/stop.png" onclick="stopMod()">
-                            <img class="develop-button" src="img/debug.png" onclick="debugMod()">
+                            <img class="develop-button" src="img/play.png" title="Run" onclick="playMod()">
+                            <img class="develop-button" src="img/stop.png" title="Pause" onclick="stopMod()">
+                            <img class="develop-button" src="img/debug.png" title="Debug" onclick="debugMod()">
                         </div>
                     </div>
                     <div class="sidebar" style="padding: 0 10px; margin-right: 10px;">
@@ -157,6 +159,7 @@
                             </div>
                             <button onclick="openModFolder()">Open mod folder</button>
                             <button class="secondary-button" onclick="buildMod()">Build and share</button>
+                            <button class="secondary-button" onclick="openDocumentation()">Documentation</button>
                         </div>
                     </div>
                 </div>
@@ -210,7 +213,7 @@
                         <p>Check out some resources to help you make and share your own awesome mods.</p>
                         <div style="width: 170px">
                             <button onclick="openDocumentation()">Documentation</button>
-                            <button onclick="shareMod()">Share your mod</button>
+                            <button onclick="shareMod()">Publish your mod</button>
                         </div>
                     </div>
                     <p>Revert back to default settings.</p>

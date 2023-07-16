@@ -505,12 +505,12 @@ label>p {
 }
 
 .secondary-button {
-    background-color: #5070ffff;
-    box-shadow: 0 1px 0 #3050f0ff;
+    background-color: #1f7de9ff;
+    box-shadow: 0 1px 0 #1d72d3ff;
 }
 
 .secondary-button:hover {
-    background-color: #4764e4ff;
+    background-color: #1d72d3ff;
 }
 
 .develop-main {
@@ -698,13 +698,13 @@ label>p {
 .develop-buttons {
     display: flex;
     position: absolute;
-    bottom: 15px;
-    left: 15px;
+    bottom: 20px;
+    right: 20px;
     border-radius: 8px;
     background-color: #2d2d2dff;
     align-items: center;
     justify-content: space-around;
-    width: 110px;
+    width: 125px;
     height: 45px;
     padding: 0 5px;
 }
@@ -869,6 +869,32 @@ input[type="checkbox"]:focus {
 
 #modules-tab:has(#modules-scrollbox:empty) .sidebar, #explore-tab:has(#modules-scrollbox:empty) .sidebar {
     display: none;
+}
+
+.develop-back {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    width: 22px;
+    cursor: pointer;
+    z-index: 2;
+}
+
+#layout-console {
+    position: absolute;
+    margin: 10px;
+    width: calc(100% - 20px);
+    height: calc(100% - 20px);
+    border-radius: 8px;
+    background-color: #1a1a1aff;
+    color: #ffffffc7;
+    font-family: monospace;
+    font-size: 11pt;
+    padding: 50px 20px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    white-space: break-spaces;
+    padding-bottom: 65px;
 }
 
 @media only screen and (min-width: 903px) {

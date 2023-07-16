@@ -36,5 +36,7 @@ contextBridge.exposeInMainWorld("link", {
     setModPrefs: (name, options) => ipcRenderer.send("set-mod-prefs", name, options),
     restoreModPrefs: (name) => ipcRenderer.send("restore-default-mod-prefs", name),
     openModFolder: (dir) => ipcRenderer.send("open-mod-folder", dir),
-    buildMod: (dir) => ipcRenderer.send("build-mod", dir)
+    buildMod: (dir) => ipcRenderer.send("build-mod", dir),
+    openExternalLink: (url) => ipcRenderer.send("open-external-link", url),
+    openModsFolder: () => ipcRenderer.send("open-mods-folder"),
 })

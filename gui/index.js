@@ -19,6 +19,16 @@ document.addEventListener("DOMContentLoaded", () => {
     for (var img of document.getElementsByTagName("img")) img.draggable = false;
 });
 
+function writeToDevelopConsole(content, end = "\n") {
+    const layoutConsole = document.getElementById("layout-console");
+    layoutConsole.innerText += content + end;
+    layoutConsole.scrollTo({ top: layoutConsole.scrollHeight });
+}
+
+function clearDevelopConsole() {
+    document.getElementById("layout-console").innerText = "";
+}
+
 function developNew() {
     window.link.newMod().then((dir) => {
         develop.dir = dir;
@@ -26,6 +36,9 @@ function developNew() {
         develop.description = "This is a very cool mod you made."
         enableDeveloping();
         updateDevelopModInfo();
+        clearDevelopConsole();
+        writeToDevelopConsole("Loaded mod at..." + develop.dir);
+        writeToDevelopConsole("Mod name: " + develop.name);
     }).catch(() => {});
 }
 
@@ -40,6 +53,9 @@ function developFile() {
             }
             enableDeveloping();
             updateDevelopModInfo();
+            clearDevelopConsole();
+            writeToDevelopConsole("Loaded mod at..." + develop.dir);
+            writeToDevelopConsole("Mod name: " + develop.name);
         });
     }).catch(() => {});
 }
@@ -72,17 +88,19 @@ function editModDescription(name) {
 }
 
 function openModFolder() {
+    writeToDevelopConsole("Opening mod folder at " + develop.dir);
     window.link.openModFolder(develop.dir);
 }
 
 function buildMod() {
+    writeToDevelopConsole("Building mod at " + develop.dir);
     window.link.buildMod(develop.dir);
 }
 
 function updateDevelopModInfo() {
     if (develop) {
-        document.getElementById("develop-name").innerText = develop.name;
-        document.getElementById("develop-description").innerText = develop.description;
+        document.getElementById("develop-name").innerText = develop.name ? develop.name : "Mod name";
+        document.getElementById("develop-description").innerText = develop.description ? develop.description : "";
     }
     develop.events = {
         mouse: document.getElementById("mouse-checkbox").checked,
@@ -94,20 +112,45 @@ function updateDevelopModInfo() {
         config.description = develop.description;
         if (!config.options) config.options = {};
         config.options.events = develop.events;
+        writeToDevelopConsole("Updated mod config:");
+        writeToDevelopConsole(JSON.stringify(config, null, 4));
         return config;
     });
     updateWorking();
 }
 
+function openModsFolder() {
+    window.link.openModsFolder();
+}
+
+function findMoreMods() {
+    window.link.openExternalLink("https://github.com/underpig1/octos-community");
+}
+
+function openGitHub() {
+    window.link.openExternalLink("https://github.com/underpig1/octos");
+}
+
+function openDocumentation() {
+    window.link.openExternalLink("https://underpig1.github.io/octos/docs/");
+}
+
+function shareMod() {
+    window.link.openExternalLink("https://underpig1.github.io/octos/docs/?t=publish");
+}
+
 function playMod() {
+    writeToDevelopConsole("Running mod at " + develop.dir);
     if (develop) window.link.runMod(develop.dir);
 }
 
 function stopMod() {
+    writeToDevelopConsole("Stopping mod");
     window.link.stopMod();
 }
 
 function debugMod() {
+    writeToDevelopConsole("Toggling debug menu");
     window.link.toggleDebug();
 }
 
@@ -340,11 +383,11 @@ function createInput(options, id) {
             }
             getter = () => select.options[select.selectedIndex].text;
         }
-        else if (type == "range") {
+        else if (type == "range" || type == "number") {
             if (options.min) input.setAttribute("min", options.min);
             if (options.max) input.setAttribute("max", options.max);
             if (options.step) input.setAttribute("step", options.step);
-            updateRange(input);
+            if (type == "range") updateRange(input);
         }
         inputGetters[id] = getter;
         cardOptions.appendChild(div);

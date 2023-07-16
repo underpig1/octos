@@ -7,16 +7,13 @@ const octos = (() => {
             else return null;
         }
 
-        async retrieve(type = "title") {
+        async request(type = "title") {
             if (type == "title") return window.media.getTitle();
             else if (type == "artist") return window.media.getArtist();
             else if (type == "seconds-elapsed") return window.media.getSecondsElapsed();
             else if (type == "seconds-total") return window.media.getSecondsTotal();
             else if (type == "amount-elapsed") return window.media.getPercentElapsed();
-        }
-
-        async playState() {
-            return window.media.isPlaying();
+            else if (type == "state") return window.media.isPlaying();
         }
 
         on(event, listener) {
@@ -35,18 +32,40 @@ const octos = (() => {
     }
 
     class FileDialog {
-        async request(extensions = []) {
-            return window.storage.requestFile(extensions);
+        constructor(options) {
+            if (options.type == "directory") this.type = "directory";
+            else this.type = "file";
+            if (options.extensions) this.extensions = options.extensions;
+            else this.extensions = [];
+            this.events = [];
+        }
+
+        request() {
+            window.storage.requestFile(this.extensions).then((filepath) => {
+                for (var e of this.events) {
+                    if (e.event == "finish") e.listener({ filepath });
+                }
+            }).catch((err) => {
+                for (var e of this.events) {
+                    if (e.event == "error") e.listener(err);
+                }
+            });
+            return this;
+        }
+
+        on(event, listener) {
+            this.events.push({ event, listener });
+            return this;
         }
     }
 
     class UserPreferences {
-        async read(field = "") {
-            return window.prefs.get(field);
+        async read(id = "") {
+            return window.prefs.get(id);
         }
 
-        async write(field = "", value = "") {
-            return window.prefs.set(field, value)
+        async write(id = "", value = "") {
+            return window.prefs.set(id, value)
         }
 
         on(event, listener) {

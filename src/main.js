@@ -268,11 +268,12 @@ function load() {
     });
 }
 
-function requestFile(extensions = false) {
+function requestFile(extensions = false, directory = false) {
     return new Promise((resolve, reject) => {
-        dialog.showOpenDialog({ filters: (extensions ? [{ extensions: extensions }] : []), properties: ["openFile"] }).then((content) => {
+        dialog.showOpenDialog({ filters: (extensions ? [{ extensions: extensions }] : []), properties: [directory ? "openDirectory" : "openFile"] }).then((content) => {
             if (!content.canceled) resolve(content.filePaths[0]);
-        });
+            else reject("User canceled file dialog");
+        }).catch((err) => reject(err));
     });
 }
 
@@ -475,7 +476,7 @@ function attachHandlers() {
         // getStorage, setStorage, requestFile
         if (type == "getStorage" && id) return getLocalStorage(id);
         else if (type == "setStorage" && id && content) return setLocalStorage(id, content);
-        else if (type == "requestFile") return requestFile(arguments[2]);
+        else if (type == "requestFile") return requestFile(id, content);
     });
     ipcMain.handle("prefs", (e, type, field = "", content = "") => {
         if (type == "get" && field) return getModPrefs(field);
@@ -594,7 +595,9 @@ function attachHandlers() {
     ipcMain.on("build-mod", (e, dir) => {
         buildMod(dir, false);
         shell.openExternal(path.dirname(dir));
-    })
+    });
+    ipcMain.on("open-external-link", (e, url) => shell.openExternal(url));
+    ipcMain.on("open-mods-folder", (e) => shell.openPath("%AppData%/octos/mods"));
     // ipcMain.handle("get-mod-prefs", (e, name) => {
     //     return getModPrefs(name = name);
     // });
