@@ -34,4 +34,4 @@ Create, distribute, and explore live, interactive wallpapers on Windows made wit
 
 ## &#x1F6A7; Pardon the mess: thanks for testing out Octos!
 
-Octos is currently in an early stage of development. To help out, consider [submitting a feature request or reporting an issue](https://github.com/underpig1/octos/issues/new). And of course, if you have an awesome wallpaper you made that you want to share, consider [publishing it](https://underpig1.github.io/octos/docs/?t=publish) on the platform. As always, check out the [API docs](https://underpig1.github.io/octos/docs/?t=installation) for resources and guides. Thanks!
+Octos is currently in an early stage of development. To help out, consider [submitting a feature request or reporting an issue](https://github.com/underpig1/octos/issues/new). And of course, if you have an awesome wallpaper you made that you want to share, consider [publishing it](https://underpig1.github.io/octos/docs/?t=publish) on the platform. As always, check out the [API docs](https://underpig1.github.io/octos/docs/?t=using-the-api) for resources and guides. Thanks!

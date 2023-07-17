@@ -65,7 +65,7 @@ See an example of a simple wallpaper that shows some text in the middle of the s
 }
 ```
 
-## Native API
+## Octos Native API
 Use the Octos API to power up your wallpaper with any of the following:
 - Get playback info
 - Media/playback controls

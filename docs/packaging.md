@@ -9,4 +9,4 @@ Click "Build and share" to export your mod in the `.omod` file format.
 In the command line, run `octos build path/to/mod/folder` to bundle your mod folder into a distributable `.omod` file.
 
 ### Publish
-If you want Octos users to be able to see and install your mod from the Explore page, see the [pulishing guide](https://underpig1.github.io/octos/docs/?t=publish) for more details.
+If you want Octos users to be able to see and install your mod from the Explore page, see the [pulishing guide](https://underpig1.github.io/octos/docs/?t=publishing) for more details.

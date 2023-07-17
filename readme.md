@@ -7,13 +7,13 @@ Create, distribute, and explore live, interactive wallpapers on Windows made wit
 [![NPM Publish](https://github.com/underpig1/octos/actions/workflows/npm-publish.yml/badge.svg)](https://github.com/underpig1/octos/actions/workflows/npm-publish.yml)
 [![NPM Package](https://badge.fury.io/js/octos.svg)](https://www.npmjs.com/package/octos)
 
-[Documentation](https://underpig1.github.io/octos/docs/?t=installation) | [Installation](https://underpig1.github.io/octos/docs/?t=installation) | [Quickstart](https://underpig1.github.io/octos/docs/?t=quickstart)
+[Documentation](https://underpig1.github.io/octos/docs) | [Quickstart](https://underpig1.github.io/octos/docs/?t=installation) | [API Docs](https://underpig1.github.io/octos/docs/?t=file-dialog)
 
 ![Octos GUI](img/gallery/main.png)
 
 ## :construction: Pardon the mess: thanks for testing out Octos!
 
-Octos is currently in an early stage of development. To help out, consider [submitting a feature request or reporting an issue](https://github.com/underpig1/octos/issues/new). And of course, if you have an awesome wallpaper you made that you want to share, consider [publishing it](https://underpig1.github.io/octos/docs/?t=publish) on the platform. As always, check out the [API docs](https://underpig1.github.io/octos/docs/?t=installation) for resources and guides. Thanks!
+Octos is currently in an early stage of development. To help out, consider [submitting a feature request or reporting an issue](https://github.com/underpig1/octos/issues/new). And of course, if you have an awesome wallpaper you made that you want to share, consider [publishing it](https://underpig1.github.io/octos/docs/?t=publishing) on the platform. As always, check out the [API docs](https://underpig1.github.io/octos/docs/?t=installation) for resources and guides. Thanks!
 
 # Installation
 
@@ -54,7 +54,7 @@ Set your background to any image/gif/video and add widgets like a media controll
 ### Gradient
 A simple analog desktop clock with a calming color-changing gradient background.
 
-# Native API
+# Octos Native API
 Making your own live wallpaper is super easy with Octos' native API.
 
 ```html
@@ -86,9 +86,9 @@ Use the Octos API to:
 - Access file system
 - Read and write user preferences
 - Access system information
-- [Learn more with the API Docs](https://underpig1.github.io/octos/docs/?t=using-api)
+- [Learn more with the API Docs](https://underpig1.github.io/octos/docs/?t=using-the-api)
 
 # Share your Wallpaper
 Once you make your own awesome wallpaper, share it for other people to download from the Octos explore page.
 
-See the [publishing guide](https://underpig1.github.io/octos/docs/?t=publish) for more details. Visit the [Octos community](https://github.com/underpig1/octos-community/tree/master) to see more mods available for download. 
+See the [publishing guide](https://underpig1.github.io/octos/docs/?t=publishing) for more details. Visit the [Octos community](https://github.com/underpig1/octos-community/tree/master) to see more mods available for download. 
