@@ -2,3 +2,6 @@ node_modules
 out/
 .vscode
 octos-community
+Output
+Octos-win32-x64
+setup.iss

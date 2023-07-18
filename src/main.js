@@ -4,7 +4,7 @@ process.on("unhandledRejection", () => {});
 const { app, BrowserWindow, ipcMain, screen, Menu, MenuItem, Tray, dialog, nativeTheme, shell } = require("electron");
 const path = require("path");
 const wp = require(path.join(__dirname, "../wallpaper"));
-const { getPrefs, selectMod, getSelectedConfig, addMod, getSelectedEntry, filterFolders, updateSettings, revertSettings, setLocalStorage, getLocalStorage, getModPrefs, setModPrefs, resetDefaultModPrefs, removeMod, getUserPrefs, setUserPrefs, editConfig, setModOptions, restoreUserPrefs } = require("./utils/store.js");
+const { getPrefs, selectMod, getSelectedConfig, addMod, getSelectedEntry, filterFolders, updateSettings, revertSettings, setLocalStorage, getLocalStorage, getModPrefs, setModPrefs, resetDefaultModPrefs, removeMod, getUserPrefs, setUserPrefs, editConfig, setModOptions, loadDefaultMods, restoreUserPrefs } = require("./utils/store.js");
 const { modifier, keyCode } = require(path.join(__dirname, "./utils/ascii.js"));
 const { syncPlaybackInfo, asyncPlaybackInfo, sendMediaEvent } = require(path.join(__dirname, "./utils/winrt.js"));
 const { injectHTMLByNameScript, setStylesByNameScript, getAllWidgetNames } = require(path.join(__dirname, "./utils/widget.js"));
@@ -297,6 +297,8 @@ function exit() {
     if (gui) gui.close();
     app.quit();
     app.exit(0);
+    win = null;
+    gui = null;
 }
 
 function createSettings() {
@@ -315,7 +317,7 @@ function createSettings() {
 }
 
 function handleEvents() {
-    if (!win) return;
+    if (!win || app.isQuiting || !win.isVisible) return;
     var active = isActive();
     var user = getPrefs().user;
     if (options.events.mouse && user["perm-mouse"]) {
@@ -633,7 +635,7 @@ function addToPath() {
     execSync(`REG ADD HKCU\\Software\\Classes\\octos.OctosFile /ve /d "Octos File" /f`);
     execSync(`REG ADD HKCU\\Software\\Classes\\octos.OctosFile\\DefaultIcon /ve /d "${path.join(__dirname, "img/omod.ico")}" /f`);
     execSync(`REG ADD HKCU\\Software\\Classes\\octos.OctosFile\\Shell\\Open\\Command /ve /d "\"${process.execPath}\" add \"%1\"" /f`);
-    execSync(`SET PATH=%PATH%;${process.execPath}`);
+    execSync(`SETX PATH "%PATH%;${process.execPath}"`);
 }
 
 function setDesktopIcons(state = true) {
@@ -643,24 +645,48 @@ function setDesktopIcons(state = true) {
     execSync(`start explorer.exe`);
 }
 
-parseArgs();
-app.whenReady().then(() => {
-    createGUI();
-    init();
-    updateUserPrefs();
-
-    if (options.events.mouse || options.events.keyboard || options.events.media) {
-        var user = getPrefs().user;
-        if (user["perm-mouse"] || user["perm-keyboard"] || user["perm-media"]) setInterval(handleEvents, 1);
+function handleDotInit() {
+    const dotinit = path.resolve(app.getPath("userData"), ".init");
+    var firstrun = false;
+    try {
+        const fs = require("fs");
+        fs.closeSync(fs.openSync(dotinit, "wx"));
+        firstrun = true;
+    } catch (e) {
+        if (e.code === "EEXIST") firstrun = false;
+        else firstrun = true;
     }
-    if (options.events.media) setInterval(asyncPlaybackInfo, 100);
-
-    win.webContents.send("path", path.join(__dirname, "renderer.js"));
-    attachHandlers();
-
-    if (process.argv[1] == "--squirrel-firstrun") {
+    if (firstrun || process.argv[1] == "--squirrel-firstrun") {
         showGUI();
         setOpenAtBoot(true);
         addToPath();
+        loadDefaultMods();
     }
-});
+}
+
+parseArgs();
+const instLock = app.requestSingleInstanceLock();
+if (!instLock) app.quit();
+else {
+    app.on("second-instance", (e, cmd, cwd) => {
+        if (gui) {
+            gui.show();
+            gui.focus();
+        }
+    });
+    app.on("ready", () => {
+        createGUI();
+        init();
+        updateUserPrefs();
+
+        if (options.events.mouse || options.events.keyboard || options.events.media) {
+            var user = getPrefs().user;
+            if (user["perm-mouse"] || user["perm-keyboard"] || user["perm-media"]) setInterval(handleEvents, 1);
+        }
+        if (options.events.media) setInterval(asyncPlaybackInfo, 100);
+
+        win.webContents.send("path", path.join(__dirname, "renderer.js"));
+        attachHandlers();
+        handleDotInit();
+    });
+}

@@ -4,7 +4,10 @@ module.exports = {
         ignore: [
             "./docs",
             "./img/gallery",
-            "./octos-community"
+            "./octos-community",
+            "./wallpaper/node_modules",
+            "./node_modules",
+            "./web"
         ]
     },
     rebuildConfig: {},

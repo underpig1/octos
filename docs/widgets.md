@@ -1,4 +1,6 @@
-# Widgets (more coming soon!)
+# Widgets
+
+> Under construction: more coming soon in the next patch
 
 Use a library of premade widgets directly in your mods to build your own wallpaper fast.
 

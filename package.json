@@ -1,17 +1,15 @@
 {
   "name": "octos",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "author": "underpig1",
   "description": "HTML live wallpaper engine",
   "main": "src/main.js",
   "scripts": {
     "build-native": "cd wallpaper&npm install",
     "rebuild": ".\\node_modules\\.bin\\electron-rebuild.cmd",
-    "start": "electron-forge start",
-    "package": "electron-forge package",
+    "start": "electron .",
     "make": "electron-forge make",
-    "inspect": "electron-forge start --inspect-electron",
-    "build": "npm run make"
+    "package": "electron-forge package"
   },
   "dependencies": {
     "@nodert-win10-21h1/windows.media.control": "^0.1.6",
@@ -30,7 +28,8 @@
     "@electron-forge/cli": "^6.1.1",
     "@electron-forge/maker-wix": "^6.2.1",
     "@electron-forge/publisher-github": "^6.2.1",
-    "electron": "^23.3.6"
+    "electron": "^23.3.6",
+    "electron-packager": "^17.1.1"
   },
   "config": {
     "forge": {

@@ -333,6 +333,7 @@
             transition: opacity 0.5s, transform 0.5s;
             font-weight: 400;
             user-select: none;
+            pointer-events: none;
         }
 
         .modal i {
@@ -342,6 +343,7 @@
         .modal.active {
             opacity: 0.8;
             transform: translateY(0);
+            pointer-events: all;
         }
 
         .next {
@@ -593,6 +595,11 @@
 
         #md-content h2 {
             color: #333;
+            margin-top: 30px;
+        }
+
+        #md-content img {
+            max-width: 100%;
         }
 
         @media only screen and (max-width: 1200px) {
@@ -782,7 +789,9 @@
         }
 
         function nextPage() {
-            setContent(Object.keys(pages)[nextIndex]);
+            var id = Object.keys(pages)[nextIndex];
+            setContent(id);
+            window.history.pushState({ id }, "", "?t=" + id);
         }
 
         function setTab(el) {
@@ -796,7 +805,7 @@
         }
 
         function parseHeadings(md) {
-            var headings = md.querySelectorAll("h1, h2, h3");
+            var headings = md.querySelectorAll("h1, h2");
             const navitems = document.querySelector(".navitems");
             navitems.innerHTML = "";
             for (var el of headings) {
@@ -833,7 +842,7 @@
                 var target = els[scrolls.indexOf(Math.min(...scrolls))];
                 for (var el of document.getElementsByClassName("navitem")) el.classList.remove("active");
                 var t = document.getElementById("navitem-" + target.id);
-                t.classList.add("active");
+                if (t) t.classList.add("active");
             }
         }
 

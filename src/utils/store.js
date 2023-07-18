@@ -19,7 +19,6 @@ filterFolders();
 
 function initStore() {
     prefs = fillObject(defaults, handleFile(prefPath, defaults));
-    if (process.argv[1] == "--squirrel-firstrun") loadDefaultMods();
 }
 
 function selectMod(name) {
