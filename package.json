@@ -5,44 +5,52 @@
   "description": "HTML live wallpaper engine",
   "main": "src/main.js",
   "scripts": {
-    "build-native": "cd wallpaper&npm install",
-    "rebuild": ".\\node_modules\\.bin\\electron-rebuild.cmd",
-    "start": "electron .",
-    "make": "electron-forge make",
+    "start": "electron-forge start",
+    "rebuild": "cd wallpaper&npm install&cd ../&\".\\node_modules\\.bin\\electron-rebuild.cmd\"&electron-forge build",
     "package": "electron-forge package"
   },
   "dependencies": {
     "@nodert-win10-21h1/windows.media.control": "^0.1.6",
     "@nodert-win10-21h1/windows.storage.streams": "^0.1.6",
     "archiver": "^5.3.1",
-    "electron-log": "^4.4.8",
-    "electron-prebuilt-compile": "^1.3.2",
     "electron-rebuild": "^3.2.9",
-    "electron-settings": "^4.0.2",
-    "electron-squirrel-startup": "^1.0.0",
-    "electron-wix-msi": "^5.0.0",
     "fs-extra": "^11.1.0",
-    "unzipper": "^0.10.11"
+    "unzipper": "^0.10.11",
+    "yargs": "^17.7.2"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.1.1",
     "@electron-forge/maker-wix": "^6.2.1",
+    "@electron-forge/maker-zip": "^6.2.1",
     "@electron-forge/publisher-github": "^6.2.1",
     "electron": "^23.3.6",
     "electron-packager": "^17.1.1"
   },
   "config": {
     "forge": {
-      "publishers": {
-        "name": "@electron-forge/publisher-github",
-        "config": {
-          "repository": {
-            "owner": "underpig1",
-            "name": "octos"
-          },
-          "draft": true
+      "packagerConfig": {
+        "icon": "./img/octos.ico",
+        "ignore": "^/(docs|img/gallery|octos-community|wallpaper|web|\\.vscode|\\.github|\\.git)"
+      },
+      "rebuildConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-zip"
         }
-      }
+      ],
+      "publishers": [
+        {
+          "name": "@electron-forge/publisher-github",
+          "config": {
+            "repository": {
+              "owner": "underpig1",
+              "name": "octos"
+            },
+            "prerelease": true,
+            "icon": "./img/octos.ico"
+          }
+        }
+      ]
     }
   }
 }

@@ -31,3 +31,5 @@ const wp = require("wallpaper")
 | `trackArtist()` | Returns the artist of the playing track |
 | `trackTimeline()` | Returns the timeline of the playing track |
 | `playbackStatus()` | Returns the playback status of the playing track (playing, paused, stopped, changing, closed, opened) |
+
+# Build errors? Remove `node_modules/`, `bin/`, and `build/` before running `npm install` again

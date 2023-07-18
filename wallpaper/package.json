@@ -7,10 +7,10 @@
   },
   "gypfile": true,
   "devDependencies": {
+    "electron": "^23.1.2",
     "electron-rebuild": "^3.2.9"
   },
   "dependencies": {
-    "bindings": "^1.5.0",
-    "electron": "^23.1.2"
+    "bindings": "^1.5.0"
   }
 }
