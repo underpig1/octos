@@ -1,14 +1,5 @@
 # Using the API
 
-Use the Octos API to do any of the following with your custom mod:
-- Get playback info
-- Media/playback controls
-- Read and write to local storage
-- Access file system
-- Read and write user preferences
-- Access system information
-- And more
-
 ## Getting started
 
 ### CDN
@@ -50,14 +41,14 @@ This simple mod uses the MediaController class to display the name of the curren
 </html>
 ```
 
-## Classes
+## Contents
 
-The Octos API contains the following classes:
-- [FileDialog](?t=file-dialog)
-- [FileSystem](?t=file-system)
-- [MediaController](?t=media-controller)
-- [UserPreferences](?t=user-preferences)
-- [Storage](?t=storage)
-- [system](?t=system)
+The Octos API contains the following features:
+- [FileDialog](?t=file-dialog) - Request files/directories from the user
+- [FileSystem](?t=file-system) - Access user's file system
+- [MediaController](?t=media-controller) - Send requests and read media playback data
+- [UserPreferences](?t=user-preferences) - Read and write preferences for your mod
+- [Storage](?t=storage) - Read and write to local storage
+- [system](?t=system) - Access system-level information
 
-## Visit the [API reference](?t=file-dialog) to learn more.
+Visit the [API reference](?t=file-dialog) to learn more.

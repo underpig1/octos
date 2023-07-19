@@ -49,7 +49,8 @@ contextBridge.exposeInMainWorld("system", {
         else if (await ipcRenderer.invoke("get-system", "themeHighContrast")) return "contrast";
         else if (await ipcRenderer.invoke("get-system", "themeInverted")) return "inverted";
         else return "default";
-    }
+    },
+    request: async (type) => await ipcRenderer.invoke("get-system", type)
 });
 
 contextBridge.exposeInMainWorld("storage", {

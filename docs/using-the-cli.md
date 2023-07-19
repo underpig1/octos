@@ -22,7 +22,7 @@ Use the `build` command to package the mod folder at the given path into the .om
 octos build [path]
 ```
 
-Use the `add` command to add the mod folder or .omod file at the given path into the user's installed mods library.
+Use the `add` command to add the mod folder or .omod file at the given path into your installed mod library.
 
 ```text
 octos add [path]

@@ -6,9 +6,6 @@
 
 Visit [Octos Releases](https://github.com/underpig1/octos/releases) to download the latest binaries. Note: your OS may give a Smartscreen warning. I haven't yet gotten around to certifying/signing the app. Right now, I just want to get your impressions and testing on the app, but in the next phase (soon) I'll be working on that as well as hopefully publishing to the Microsoft Store.
 
-If you have npm, you can use it instead to just test out the app without installing.
-Clone the repository and run `npm install` and `npm start`.
-
 ## Usage
 
 Once you install Octos, run the executable to start the app. When active, Octos lives in your system tray.

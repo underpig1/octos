@@ -470,9 +470,17 @@ function attachHandlers() {
     });
     ipcMain.handle("get-system", (e, type) => {
         // themeDark, themeHighContrast, themeInverted
+        const os = require("os");
         if (type == "themeDark") return nativeTheme.shouldUseDarkColors;
         else if (type == "themeHighContrast") return nativeTheme.shouldUseHighContrastColors;
         else if (type == "themeInverted") return nativeTheme.shouldUseInvertedColorScheme;
+        else if (type == "cpus") return os.cpus();
+        else if (type == "arch") return os.arch();
+        else if (type == "machine") return os.machine();
+        else if (type == "os") return os.release();
+        else if (type == "mem") return os.totalmem();
+        else if (type == "freemem") return os.freemem();
+        else if (type == "uptime") return os.uptime();
     });
     ipcMain.handle("get-storage", (e, type, id = "", content = "") => {
         // getStorage, setStorage, requestFile

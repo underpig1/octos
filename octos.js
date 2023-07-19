@@ -1,5 +1,51 @@
 const octos = (() => {
     class MediaController {
+        async pausePlay() {
+            window.media.send.pausePlay();
+        }
+
+        async prevTrack() {
+            window.media.send.prevTrack();
+        }
+
+        async nextTrack() {
+            window.media.send.nextTrack();
+        }
+
+        async getTrack() {
+            return {
+                title: await window.media.getTitle(),
+                artist: await window.media.getArtist(),
+                secondsElapsed: await window.media.getSecondsElapsed(),
+                secondsTotal: await window.media.getSecondsTotal(),
+                playing: await window.media.isPlaying()
+            }
+        }
+
+        async getTrackTitle() {
+            return window.media.getTitle();
+        }
+
+        async getTrackArtist() {
+            return window.media.getArtist();
+        }
+
+        async getTrackSecondsElapsed() {
+            return window.media.getSecondsElapsed();
+        }
+
+        async getTrackSecondsTotal() {
+            return window.media.getSecondsTotal();
+        }
+
+        async getTrackPercentElapsed() {
+            return window.media.getPercentElapsed();
+        }
+
+        async isPlaying() {
+            return window.media.isPlaying();
+        }
+
         async send(type = "pause-play") {
             if (type == "prev-track") return window.media.send.prevTrack();
             else if (type == "pause-play") return window.media.send.pausePlay();
@@ -96,8 +142,16 @@ const octos = (() => {
     }
 
     const system = {
+        // cpus, arch, machine, os, mem, freemem, uptime
         getTheme: async () => window.system.getTheme(),
-        toggleDevTools: async () => window.dev.toggleDevTools()
+        toggleDevTools: async () => window.dev.toggleDevTools(),
+        getCpus: async () => window.system.request("cpus"),
+        getArch: async () => window.system.request("arch"),
+        getMachine: async () => window.system.request("machine"),
+        getOS: async () => window.system.request("os"),
+        getTotalMem: async () => window.system.request("mem"),
+        getFreeMem: async () => window.system.request("freemem"),
+        getUptime: async () => window.system.request("uptime"),
     }
 
     exports = { MediaController, Storage, FileDialog, UserPreferences, system, FileSystem }

@@ -5,7 +5,7 @@
 Create, distribute, and explore live, interactive wallpapers on Windows made with HTML, CSS, and JS.
 
 [![CI](https://github.com/underpig1/octos/actions/workflows/ci.yml/badge.svg)](https://github.com/underpig1/octos/actions/workflows/ci.yml)
-[![NPM Publish](https://github.com/underpig1/octos/actions/workflows/npm-publish.yml/badge.svg)](https://github.com/underpig1/octos/actions/workflows/npm-publish.yml)
+[![Publish](https://github.com/underpig1/octos/actions/workflows/publish.yml/badge.svg)](https://github.com/underpig1/octos/actions/workflows/publish.yml)
 [![NPM Package](https://badge.fury.io/js/octos.svg)](https://www.npmjs.com/package/octos)
 
 ![Octos GUI](../img/gallery/main.png)

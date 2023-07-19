@@ -27,7 +27,89 @@ Returns: `event` containing `secondsElapsed` and `secondsTotal` as integers
 Emitted when the playback time changes.
 
 ## Methods
+```js
+// pausePlay, prevTrack, nextTrack, getTrack, getTrackTitle, getTrackArtist, getTrackSecondsElapsed, getTrackSecondsTotal, getTrackPercentElapsed, isPlaying
+// title, artist, secondsElapsed, secondsTotal, playing
+```
+```js
+controller.pausePlay()
+```
 
+Toggles the play state of media playback.
+<br><br>
+```js
+controller.prevTrack()
+```
+
+Changes playback to the previous track in the queue.
+<br><br>
+```js
+controller.nextTrack()
+```
+
+Changes playback to the next track in the queue.
+<br><br>
+```js
+controller.getTrack()
+```
+
+Returns: `Promise<Object>` - Resolves as an Object containing the following track data:
+- `title` string - The title of the track
+- `artist` string - The artist of the track
+- `secondsElapsed` number - The time in seconds elapsed
+- `secondsTotal` number - The total time in seconds
+- `playing` boolean - The play state of the track
+
+Requests data for the current track.
+<br><br>
+```js
+controller.getTrackTitle()
+```
+
+Returns: `Promise<string>` - Resolves as a string containing the title of the current track
+
+Requests the title of the current track.
+<br><br>
+```js
+controller.getTrackArtist()
+```
+
+Returns: `Promise<string>` - Resolves as a string containing the artist of the current track
+
+Requests the artist of the current track.
+<br><br>
+```js
+controller.getTrackSecondsElapsed()
+```
+
+Returns: `Promise<number>` - Resolves as a string containing the time in seconds elapsed
+
+Requests the time in seconds elapsed on the current track.
+<br><br>
+```js
+controller.getTrackSecondsTotal()
+```
+
+Returns: `Promise<number>` - Resolves as a number containing the total time in seconds
+
+Requests the total time in seconds of the current track.
+<br><br>
+```js
+controller.getTrackPercentElapsed()
+```
+
+Returns: `Promise<number>` - Resolves as a float less than or equal to 1 containing the fraction of time elapsed out of the total time on the track
+
+Requests the percent of time that has elapsed on the current track.
+<br><br>
+```js
+controller.isPlaying()
+```
+
+Returns: `Promise<boolean>` - Resolves as `true` if the current media is playing and `false` if it has stopped or has been paused
+
+Requests the play state of media playback.
+<br><br>
 ```js
 controller.send([type])
 ```

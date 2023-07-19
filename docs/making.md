@@ -75,7 +75,7 @@ Use the Octos API to power up your wallpaper with any of the following:
 - Access system information
 - And more...
 
-To get started, [check out the API Docs...](?t=using-api)
+To get started, [check out the API Docs...](?t=using-the-api)
 
 ## Next steps
 
