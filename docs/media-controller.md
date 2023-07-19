@@ -28,10 +28,6 @@ Emitted when the playback time changes.
 
 ## Methods
 ```js
-// pausePlay, prevTrack, nextTrack, getTrack, getTrackTitle, getTrackArtist, getTrackSecondsElapsed, getTrackSecondsTotal, getTrackPercentElapsed, isPlaying
-// title, artist, secondsElapsed, secondsTotal, playing
-```
-```js
 controller.pausePlay()
 ```
 
