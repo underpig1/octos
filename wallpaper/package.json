@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "exports.js",
   "scripts": {
-    "install": "node-gyp rebuild&.\\node_modules\\.bin\\electron-rebuild.cmd"
+    "build": "node-gyp rebuild&\".\\node_modules\\.bin\\electron-rebuild.cmd\"",
+    "config": "node-gyp configure"
   },
   "gypfile": true,
   "devDependencies": {

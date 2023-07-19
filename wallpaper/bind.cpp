@@ -26,6 +26,7 @@ void AttachExport(const FunctionCallbackInfo<Value> &args)
 
 void DetachExport(const FunctionCallbackInfo<Value> &args)
 {
+    windowHandleBuffer = (unsigned char *)node::Buffer::Data(args[0]);
     Detach(windowHandleBuffer);
 }
 

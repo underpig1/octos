@@ -1,7 +1,7 @@
 const addon = require("bindings")("wallpaper");
 
-exports.attach = (win) => addon.attach(win.getNativeWindowHandle());
-exports.detach = (win) => addon.detach(win.getNativeWindowHandle());
+exports.attach = (handle) => addon.attach(handle);
+exports.detach = (handle) => addon.detach(handle);
 exports.mousePosition = addon.mposition;
 exports.leftMousePressed = addon.lmpressed;
 exports.inForeground = addon.infg;

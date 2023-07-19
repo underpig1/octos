@@ -4,7 +4,7 @@
 Create, distribute, and explore live, interactive wallpapers on Windows made with HTML, CSS, and JS.
 
 [![CI](https://github.com/underpig1/octos/actions/workflows/ci.yml/badge.svg)](https://github.com/underpig1/octos/actions/workflows/ci.yml)
-[![NPM Publish](https://github.com/underpig1/octos/actions/workflows/npm-publish.yml/badge.svg)](https://github.com/underpig1/octos/actions/workflows/npm-publish.yml)
+[![Publish](https://github.com/underpig1/octos/actions/workflows/publish.yml/badge.svg)](https://github.com/underpig1/octos/actions/workflows/publish.yml)
 [![NPM Package](https://badge.fury.io/js/octos.svg)](https://www.npmjs.com/package/octos)
 
 [Documentation](https://underpig1.github.io/octos/docs) | [Quickstart](https://underpig1.github.io/octos/docs/?t=installation) | [API Docs](https://underpig1.github.io/octos/docs/?t=file-dialog)
@@ -26,7 +26,7 @@ Clone the repository and run `npm install` to install any dependencies and `npm 
 
 # Gallery
 
-Here are some sample mods I threw together to demo the app's capabilities. All of them are available through the Octos app. [Contribute](https://underpig1.github.io/octos/docs/?t=publish)
+Here are some sample mods I threw together to demo the app's capabilities. All of them are available through the Octos app. [Contribute your own...](https://underpig1.github.io/octos/docs/?t=publishing)
 
 <img src="img/gallery/ethereal.gif" alt="Ethereal" width="600px">
 
@@ -91,4 +91,4 @@ Use the Octos API to:
 # Share your Wallpaper
 Once you make your own awesome wallpaper, share it for other people to download from the Octos explore page.
 
-See the [publishing guide](https://underpig1.github.io/octos/docs/?t=publishing) for more details. Visit the [Octos community](https://github.com/underpig1/octos-community/tree/master) to see more mods available for download. 
+See the [publishing guide](https://underpig1.github.io/octos/docs/?t=publishing) for more details. Visit the [community library](https://github.com/underpig1/octos-community/tree/master) to see more mods available for download. 

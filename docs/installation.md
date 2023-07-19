@@ -19,4 +19,4 @@ To see the quick access menu, right click on the tray icon. Here you can quickly
 
 ![Octos app](../img/gallery/main.png)
 
-The Octos app lets you explore community modules, view and manage your installed mods, create new mods for yourself or to share, and configure some app/system settings.
+The Octos app lets you explore community modules, view and manage your installed mods library, create new mods for yourself or to share, and configure app/system settings.

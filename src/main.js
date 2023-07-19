@@ -1,9 +1,9 @@
 process.env.NODE_NO_WARNINGS = "1";
-process.on("unhandledRejection", () => {});
+process.on("unhandledRejection", () => { });
 
 const { app, BrowserWindow, ipcMain, screen, Menu, MenuItem, Tray, dialog, nativeTheme, shell } = require("electron");
 const path = require("path");
-const wp = require(path.join(__dirname, "../wallpaper"));
+const wp = require(path.join(__dirname, "./utils/addon.js"));
 const { getPrefs, selectMod, getSelectedConfig, addMod, getSelectedEntry, filterFolders, updateSettings, revertSettings, setLocalStorage, getLocalStorage, getModPrefs, setModPrefs, resetDefaultModPrefs, removeMod, getUserPrefs, setUserPrefs, editConfig, setModOptions, loadDefaultMods, restoreUserPrefs } = require("./utils/store.js");
 const { modifier, keyCode } = require(path.join(__dirname, "./utils/ascii.js"));
 const { syncPlaybackInfo, asyncPlaybackInfo, sendMediaEvent } = require(path.join(__dirname, "./utils/winrt.js"));
@@ -81,7 +81,7 @@ function loadHTML() {
     var entry = getSelectedEntry();
     if (entry.isUrl) win.loadURL(entry.path);
     else win.loadFile(entry.path);
-    wp.attach(win);
+    wp.attach(win.getNativeWindowHandle());
 
     win.webContents.on("dom-ready", () => {
         win.webContents.insertCSS("body { user-select: none; margin: 0; } widget { display: block; }");
@@ -631,12 +631,16 @@ function toggleBoot() {
 
 function addToPath() {
     const { execSync } = require("child_process");
+    // const vers = require(path.join(__dirname, "../package.json")).version;
+    // const execPath = path.join(process.env.LOCALAPPDATA, "octos", "app-" + vers, "octos.exe");
     execSync(`REG ADD HKCU\\Software\\Classes\\.omod /ve /d "octos.OctosFile" /f`);
     execSync(`REG ADD HKCU\\Software\\Classes\\octos.OctosFile /ve /d "Octos File" /f`);
     execSync(`REG ADD HKCU\\Software\\Classes\\octos.OctosFile\\DefaultIcon /ve /d "${path.join(__dirname, "img/omod.ico")}" /f`);
     execSync(`REG ADD HKCU\\Software\\Classes\\octos.OctosFile\\Shell\\Open\\Command /ve /d "\"${process.execPath}\" add \"%1\"" /f`);
     execSync(`SETX PATH "%PATH%;${process.execPath}"`);
 }
+
+addToPath();
 
 function setDesktopIcons(state = true) {
     const { execSync } = require("child_process");
