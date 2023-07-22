@@ -10,6 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
-      - run: del /s /q %LocalAppData%/node-gyp/Cache/*
+      - run: for /d %G in ("%LocalAppData%\node-gyp\Cache\*") do rd /s /q "%~G"
+      - run: rmdir "%LocalAppData%\node-gyp\Cache\*"
       - run: npm install
       - run: npm run make
