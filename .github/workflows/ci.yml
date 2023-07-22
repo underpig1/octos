@@ -11,8 +11,6 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
       - shell: powershell
-        run: |
-          npm install --global node-gyp@latest
-          npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
+        run: Remove-Item %LocalAppData%/node-gyp/Cache -Recurse
       - run: npm install
       - run: npm run make
