@@ -29,11 +29,11 @@ Returns: `Promise<Object[]>` - Resolves as an array of objects containing the in
 - `model` string - CPU model
 - `speed` number - Speed of the CPU in ms
 - `times` Object - CPU times
-    `user` number - Time spent in user mode in ms
-    `nice` number - Time spent in nice mode in ms
-    `sys` number - Time spent in sys mode in ms
-    `idle` number - Time spent in idle mode in ms
-    `irq` number - Time spent in irq mode in ms
+   - `user` number - Time spent in user mode in ms
+   - `nice` number - Time spent in nice mode in ms
+   - `sys` number - Time spent in sys mode in ms
+   - `idle` number - Time spent in idle mode in ms
+   - `irq` number - Time spent in irq mode in ms
 
 
 Requests the CPU information for the current device.
