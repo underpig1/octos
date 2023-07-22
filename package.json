@@ -1,6 +1,6 @@
 {
   "name": "octos",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "author": "underpig1",
   "description": "HTML live wallpaper engine",
   "main": "src/main.js",
@@ -37,8 +37,7 @@
       "rebuildConfig": {},
       "makers": [
         {
-          "name": "@electron-forge/maker-squirrel",
-          "name": "@electron-forge/maker-zip"
+          "name": "@electron-forge/maker-squirrel"
         }
       ],
       "publishers": [
@@ -55,5 +54,10 @@
         }
       ]
     }
-  }
+  },
+  "files": [
+    "octos.js",
+    "readme.md",
+    "img/*"
+  ]
 }

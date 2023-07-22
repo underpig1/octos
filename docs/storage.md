@@ -22,7 +22,7 @@ store.read(id)
 
 - `id` string - The ID of the storage to read
 
-Returns: `Promise` - Resolves with the data stored at the given ID.
+Returns: `Promise<Object>` - Resolves with the data stored at the given ID.
 
 Reads the data stored with `store.write` at the given ID.
 
@@ -32,13 +32,14 @@ Reads and updates the user's "score":
 
 ```js
 var userScore = 0;
+const store = new octos.Storage();
 
-store.read("userScore").then((data) => {
-    if (data) userScore = data;
+store.read("my-storage").then((data) => {
+    if (data) userScore = data.score;
 });
 
 function updateScore() {
     userScore++;
-    store.write("userScore", userScore);
+    store.write("my-storage", { score: userScore });
 }
 ```

@@ -6,6 +6,8 @@ Access and control the user's media playback.
 new MediaController()
 ```
 
+The MediaController class can only send control requests (like `pausePlay`) when prompted by user input like a button press (see example below).
+
 ## Events
 
 ### `track`
@@ -16,7 +18,7 @@ Emitted when the playback track changes.
 
 ### `playbackstatus`
 
-Returns: `event` containing `status` as a string (can be one of `"playing"`, `"paused"`, `"stopped"`)
+Returns: `event` containing `status` as a string (can be one of `'playing'`, `'paused'`, `'stoppe'"`, `'opened'`)
 
 Emitted when the playback status changes.
 
@@ -138,7 +140,7 @@ Sends a request for the controller to send back media playback info.
 Creates a simple media playback control interface with a "skip to next track" button and displays the current playing track title:
 
 ```js
-const controller = new MediaController();
+const controller = new octos.MediaController();
 
 const trackTitle = document.createElement("h1");
 document.body.appendChild(trackTitle);
@@ -146,6 +148,6 @@ controller.on("track", (e) => trackTitle.innerText = e.title);
 
 const btn = document.createElement("button");
 btn.innerText = "Skip to next track";
-btn.onclick = () => controller.send("next-track");
+btn.onclick = controller.nextTrack;
 document.body.appendChild(btn);
 ```

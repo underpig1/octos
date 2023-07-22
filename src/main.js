@@ -481,6 +481,7 @@ function attachHandlers() {
         else if (type == "mem") return os.totalmem();
         else if (type == "freemem") return os.freemem();
         else if (type == "uptime") return os.uptime();
+        else if (type == "cpu-usage") return process.cpuUsage();
     });
     ipcMain.handle("get-storage", (e, type, id = "", content = "") => {
         // getStorage, setStorage, requestFile
@@ -607,7 +608,7 @@ function attachHandlers() {
         shell.openExternal(path.dirname(dir));
     });
     ipcMain.on("open-external-link", (e, url) => shell.openExternal(url));
-    ipcMain.on("open-mods-folder", (e) => shell.openPath("%AppData%/octos/mods"));
+    ipcMain.on("open-mods-folder", (e) => shell.openPath(path.join(process.env.APPDATA, "octos/mods")));
     // ipcMain.handle("get-mod-prefs", (e, name) => {
     //     return getModPrefs(name = name);
     // });
@@ -645,10 +646,8 @@ function addToPath() {
     execSync(`REG ADD HKCU\\Software\\Classes\\octos.OctosFile /ve /d "Octos File" /f`);
     execSync(`REG ADD HKCU\\Software\\Classes\\octos.OctosFile\\DefaultIcon /ve /d "${path.join(__dirname, "img/omod.ico")}" /f`);
     execSync(`REG ADD HKCU\\Software\\Classes\\octos.OctosFile\\Shell\\Open\\Command /ve /d "\"${process.execPath}\" add \"%1\"" /f`);
-    execSync(`SETX PATH "%PATH%;${process.execPath}"`);
+    //execSync(`SETX PATH "%PATH%;${process.execPath}"`);
 }
-
-addToPath();
 
 function setDesktopIcons(state = true) {
     const { execSync } = require("child_process");

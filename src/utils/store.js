@@ -55,9 +55,9 @@ function removeMod(name) {
     if (prefs.prefs) {
         if (prefs.prefs[name]) delete prefs.prefs[name];
     }
-    if (prefs.local) {
-        if (prefs.local[name]) delete prefs.local[name];
-    }
+    // if (prefs.local) {
+    //     if (prefs.local[name]) delete prefs.local[name];
+    // }
     if (prefs.images) {
         if (prefs.images[name]) delete prefs.images[name];
     }

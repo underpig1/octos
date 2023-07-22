@@ -2,6 +2,8 @@
 
 Octos provides an easy-to-use command line interface with tools for developers.
 
+Note: you may need to add the `octos.exe` application folder to your system's `PATH` environmental variable before use.
+
 ## CLI reference
 
 Use the `init` command to intialize a mod with the given name at the given path (defaults to working directory).

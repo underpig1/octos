@@ -34,7 +34,7 @@ This simple mod uses the MediaController class to display the name of the curren
             });
 
             function nextTrack() {
-                controller.send("next-track");
+                controller.nextTrack();
             }
         </script>
     </body>

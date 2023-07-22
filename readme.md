@@ -1,4 +1,4 @@
-![Octos icon](img/tray.png)
+![Octos icon](./img/tray.png)
 
 # Octos - HTML Live Wallpaper Engine
 Create, distribute, and explore live, interactive wallpapers on Windows made with HTML, CSS, and JS.
@@ -7,9 +7,9 @@ Create, distribute, and explore live, interactive wallpapers on Windows made wit
 [![Publish](https://github.com/underpig1/octos/actions/workflows/publish.yml/badge.svg)](https://github.com/underpig1/octos/actions/workflows/publish.yml)
 [![NPM Package](https://badge.fury.io/js/octos.svg)](https://www.npmjs.com/package/octos)
 
-[Documentation](https://underpig1.github.io/octos/docs) | [Quickstart](https://underpig1.github.io/octos/docs/?t=installation) | [API Docs](https://underpig1.github.io/octos/docs/?t=file-dialog)
+[Download](https://github.com/underpig1/octos/releases) | [Documentation](https://underpig1.github.io/octos/docs) | [Quickstart](https://underpig1.github.io/octos/docs/?t=installation) | [API Docs](https://underpig1.github.io/octos/docs/?t=using-the-api)
 
-![Octos GUI](img/gallery/main.png)
+![Octos GUI](./img/gallery/main.png)
 
 ## :construction: Pardon the mess: thanks for testing out Octos!
 
@@ -19,37 +19,36 @@ Octos is currently in an early stage of development. To help out, consider [subm
 
 > Download the Octos app for Windows (under construction)
 
-Visit [releases](https://github.com/underpig1/octos/releases) to download the latest binaries. Note: your OS may give a Smartscreen warning. I haven't yet gotten around to certifying/signing the app. Right now, I just want to get your impressions and testing on the app, but in the next phase (soon) I'll be working on that as well as hopefully publishing to the Microsoft Store.
+Visit [releases](https://github.com/underpig1/octos/releases) to download the latest binaries.
 
-If you have npm, you can use it instead to just test out the app without installing.
-Clone the repository and run `npm install` to install any dependencies and `npm start`.
+Note: your OS may give a Smartscreen warning. I haven't yet gotten around to certifying/signing the app. Right now, I just want to get your impressions and testing on the app, but in the next phase (soon) I'll be working on that as well as hopefully publishing to the Microsoft Store.
 
 # Gallery
 
 Here are some sample mods I threw together to demo the app's capabilities. All of them are available through the Octos app. [Contribute your own...](https://underpig1.github.io/octos/docs/?t=publishing)
 
-<img src="img/gallery/ethereal.gif" alt="Ethereal" width="600px">
+<img src="./img/gallery/ethereal.gif" alt="Ethereal" width="600px">
 
 ### Ethereal
 An interactive media player that ripples as your mouse passes over it.
 
 <br>
 
-<img src="img/gallery/terminal.gif" alt="Terminal" width="600px">
+<img src="./img/gallery/terminal.gif" alt="Terminal" width="600px">
 
 ### Terminal
 A digital clock with a live old TV effect and customizable 3D text art.
 
 <br>
 
-<img src="img/gallery/imgbg.gif" alt="Image Background" width="600px">
+<img src="./img/gallery/imgbg.gif" alt="Image Background" width="600px">
 
 ### Image Background
 Set your background to any image/gif/video and add widgets like a media controller, clock, and calender.
 
 <br>
 
-<img src="img/gallery/gradient.png" alt="Gradient" width="600px">
+<img src="./img/gallery/gradient.png" alt="Gradient" width="600px">
 
 ### Gradient
 A simple analog desktop clock with a calming color-changing gradient background.
@@ -72,7 +71,7 @@ Making your own live wallpaper is super easy with Octos' native API.
             });
 
             function nextTrack() {
-                controller.send("next-track");
+                controller.nextTrack();
             }
         </script>
     </body>

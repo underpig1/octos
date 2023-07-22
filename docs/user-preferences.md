@@ -64,14 +64,14 @@ In your `mod.json`:
 
 In your HTML file:
 ```js
-const prefs = new UserPreferences();
+const prefs = new octos.UserPreferences();
 
 prefs.on("change", (e) => {
     if (e.prefs["dark-mode"]) {
         document.body.style.backgroundColor = "black";
     }
     else {
-        document.body.style.backgroundColor = e.prefs["background-color"]
+        document.body.style.backgroundColor = e.prefs["background-color"];
     }
-})
+});
 ```

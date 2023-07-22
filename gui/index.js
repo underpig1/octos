@@ -136,7 +136,7 @@ function openDocumentation() {
 }
 
 function shareMod() {
-    window.link.openExternalLink("https://underpig1.github.io/octos/docs/?t=publish");
+    window.link.openExternalLink("https://underpig1.github.io/octos/docs/?t=publishing");
 }
 
 function playMod() {
