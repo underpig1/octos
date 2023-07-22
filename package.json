@@ -9,7 +9,7 @@
     "make": "electron-forge make",
     "rebuild": "cd wallpaper&npm build&cd ../&\".\\node_modules\\.bin\\electron-rebuild.cmd\"",
     "package": "electron-forge package",
-    "test": "node src/main.js"
+    "test": "node ./src/main.js"
   },
   "dependencies": {
     "@nodert-win10-21h1/windows.media.control": "^0.1.6",
