@@ -10,6 +10,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
-      - run: rm -f %LocalAppData%\node-gyp\Cache
+      - run: rm -Force %LocalAppData%\node-gyp\Cache
       - run: npm install
       - run: npm run make
