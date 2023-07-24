@@ -218,9 +218,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.061871845"
-     inkscape:cx="11017.276"
-     inkscape:cy="-9846.7678"
+     inkscape:zoom="0.12374369"
+     inkscape:cx="4136.3749"
+     inkscape:cy="-1186.9557"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -592,7 +592,7 @@
     <rect
        inkscape:export-ydpi="25.397648"
        inkscape:export-xdpi="25.397648"
-       inkscape:export-filename="C:\Users\chase\Downloads\download2.png"
+       inkscape:export-filename="C:\Users\chase\Downloads\ethereal-celestial.png"
        y="41.243473"
        x="2303.198"
        height="1080"
@@ -601,7 +601,10 @@
        style="opacity:1;fill:url(#linearGradient1669);fill-opacity:1;stroke:#808080;stroke-width:0.1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers" />
     <g
        transform="translate(1679.6308,88.439452)"
-       id="g1565">
+       id="g1565"
+       inkscape:export-filename="C:\Users\chase\Downloads\ethereal-celestial.png"
+       inkscape:export-xdpi="25.397648"
+       inkscape:export-ydpi="25.397648">
       <path
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:81.85191345px;line-height:1.25;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:0.87939698;stroke:none;stroke-width:2.04629779"
          d="m 770.34997,854.32873 v 57.95099 h 40.4347 v -11.95018 h -26.9291 V 888.2972 h 24.0647 v -11.21379 h -24.0647 v -10.88615 h 25.4558 v -11.86853 z m 44.1528,0 v 11.95018 h 16.3701 v 46.00081 h 13.9971 v -46.00081 h 16.37 v -11.95018 z m 82.8308,0 v 21.93613 h -21.9139 v 11.78688 h 21.9139 v 24.22798 h 13.9966 v -57.95099 z m 35.2706,0 v 11.86853 h 33.3414 v -11.86853 z m 56.6882,0 v 11.29544 h 5.8824 c 4.1744,0 9.33123,1.06404 9.33123,6.46627 0,5.89334 -5.64793,7.03936 -10.14983,7.03936 h -5.0638 v 10.14977 h 3.2634 l 12.52333,23.00015 h 16.3699 l -15.1421,-24.80107 c 7.4485,-2.29186 12.0318,-7.85774 12.0318,-15.63368 0,-13.26 -11.0497,-17.51624 -22.18163,-17.51624 z m 51.12093,0 v 11.86853 h 34.6234 v -11.86853 z m 101.9876,0 v 57.95099 h 36.5057 v -12.19564 h -22.4275 v -45.75535 z m -28.1714,1.64383 -6.6808,16.70182 6.1614,17.01447 h -12.9671 l -4.4856,11.21378 h 21.3 l 4.5015,11.37709 h 15.5521 z m -181.62533,21.11085 v 11.21379 h 31.9502 v -11.21379 z m 107.80913,0 v 11.21379 h 33.2323 v -11.21379 z m -107.80913,23.24613 v 11.95018 h 34.8147 v -11.95018 z m 107.80913,0 v 11.95018 h 36.0973 v -11.95018 z"
@@ -614,7 +617,10 @@
        d="m 3402.3641,41.243473 h 820.8341 V 1121.2438 H 3086.376 Z"
        id="rect1613"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="ccccc" />
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="C:\Users\chase\Downloads\ethereal-celestial.png"
+       inkscape:export-xdpi="25.397648"
+       inkscape:export-ydpi="25.397648" />
     <g
        id="g1659"
        transform="translate(2292.0476,1189.6726)">
@@ -743,42 +749,63 @@
        d="m 954.04617,457.87222 a 29.482142,29.482142 0 0 0 11.81082,39.9859 29.482142,29.482142 0 0 0 35.42671,-5.60625 30.01668,30.01668 0 0 1 -18.55419,-3.3187 30.01668,30.01668 0 0 1 -12.02511,-40.7113 30.01668,30.01668 0 0 1 3.57793,-5.17064 29.482142,29.482142 0 0 0 -20.23616,14.82099 z"
        id="path1567"
        inkscape:connector-curvature="0"
-       transform="matrix(1.0900953,-0.02490663,0.02490663,1.0900953,2139.5328,20.89526)" />
+       transform="matrix(1.0900953,-0.02490663,0.02490663,1.0900953,2139.5328,20.89526)"
+       inkscape:export-filename="C:\Users\chase\Downloads\ethereal-celestial.png"
+       inkscape:export-xdpi="25.397648"
+       inkscape:export-ydpi="25.397648" />
     <path
        inkscape:connector-curvature="0"
        id="path1569"
        d="m 3190.8582,492.76135 c -8.1249,15.78572 -1.9148,35.16912 13.8709,43.29428 12.9323,6.6363 28.7088,3.76885 38.4788,-6.99371 -6.9327,1.15598 -14.0534,0.0496 -20.3085,-3.15558 -20.0707,-7.27577 -23.0859,-27.83538 -14.1225,-44.07969 1.0533,-2.0353 2.3174,-3.95437 3.7715,-5.7256 -9.3497,2.04751 -17.3008,8.15479 -21.6902,16.6603 z"
        style="opacity:1;fill:#fff0f0;fill-opacity:1;stroke:none;stroke-width:0.03831065;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
-       sodipodi:nodetypes="ccccccc" />
+       sodipodi:nodetypes="ccccccc"
+       inkscape:export-filename="C:\Users\chase\Downloads\ethereal-celestial.png"
+       inkscape:export-xdpi="25.397648"
+       inkscape:export-ydpi="25.397648" />
     <path
        inkscape:connector-curvature="0"
        id="path1571"
        d="m 954.04617,457.87222 a 29.482142,29.482142 0 0 0 11.81082,39.9859 29.482142,29.482142 0 0 0 35.42671,-5.60625 30.01668,30.01668 0 0 1 -18.55419,-3.3187 30.01668,30.01668 0 0 1 -12.02511,-40.7113 30.01668,30.01668 0 0 1 3.57793,-5.17064 29.482142,29.482142 0 0 0 -20.23616,14.82099 z"
        style="opacity:1;fill:#ffffff;fill-opacity:0.42713569;stroke:none;stroke-width:0.03513514;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers;filter:url(#filter2126)"
-       transform="matrix(2.3150614,-0.05289481,0.05289481,2.3150614,930.90414,-530.26718)" />
+       transform="matrix(2.3150614,-0.05289481,0.05289481,2.3150614,930.90414,-530.26718)"
+       inkscape:export-filename="C:\Users\chase\Downloads\ethereal-celestial.png"
+       inkscape:export-xdpi="25.397648"
+       inkscape:export-ydpi="25.397648" />
     <circle
        r="139.09525"
        cy="506.6301"
        cx="3264.0151"
        id="circle1609"
-       style="opacity:1;fill:none;fill-opacity:0.56470588;stroke:#ffffff;stroke-width:0.69999999;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.25098039;paint-order:stroke fill markers" />
+       style="opacity:1;fill:none;fill-opacity:0.56470588;stroke:#ffffff;stroke-width:0.69999999;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.25098039;paint-order:stroke fill markers"
+       inkscape:export-filename="C:\Users\chase\Downloads\ethereal-celestial.png"
+       inkscape:export-xdpi="25.397648"
+       inkscape:export-ydpi="25.397648" />
     <circle
        transform="matrix(2.0536432,3.9458233e-8,-3.9458233e-8,2.0536432,1321.7469,-402.7)"
        r="24.091921"
        cy="445.28134"
        cx="967.54645"
        id="circle971-5"
-       style="opacity:0.49000005;fill:#ffffe0;fill-opacity:1;stroke:none;stroke-width:0.64197814;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.25098039;paint-order:stroke fill markers;filter:url(#filter1463-6)" />
+       style="opacity:0.49000005;fill:#ffffe0;fill-opacity:1;stroke:none;stroke-width:0.64197814;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.25098039;paint-order:stroke fill markers;filter:url(#filter1463-6)"
+       inkscape:export-filename="C:\Users\chase\Downloads\ethereal-celestial.png"
+       inkscape:export-xdpi="25.397648"
+       inkscape:export-ydpi="25.397648" />
     <circle
        style="opacity:1;fill:#ffffe0;fill-opacity:1;stroke:none;stroke-width:0.84243876;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.25098039;paint-order:stroke fill markers"
        id="path963-3"
        cx="3320.7234"
        cy="510.71786"
-       r="31.614735" />
+       r="31.614735"
+       inkscape:export-filename="C:\Users\chase\Downloads\ethereal-celestial.png"
+       inkscape:export-xdpi="25.397648"
+       inkscape:export-ydpi="25.397648" />
     <g
        id="g929-2"
        transform="matrix(0.7948134,0,0,0.7948134,2490.2935,117.30938)"
-       style="fill:#ffffff;fill-opacity:1;filter:url(#filter1216-2)">
+       style="fill:#ffffff;fill-opacity:1;filter:url(#filter1216-2)"
+       inkscape:export-filename="C:\Users\chase\Downloads\ethereal-celestial.png"
+       inkscape:export-xdpi="25.397648"
+       inkscape:export-ydpi="25.397648">
       <path
          inkscape:connector-curvature="0"
          id="path923-3"
@@ -800,7 +827,10 @@
     <g
        id="g935-0"
        transform="matrix(0.85167213,0,0,0.85167213,2429.7519,68.622542)"
-       style="fill:#ffffff;fill-opacity:1;filter:url(#filter1216-2)">
+       style="fill:#ffffff;fill-opacity:1;filter:url(#filter1216-2)"
+       inkscape:export-filename="C:\Users\chase\Downloads\ethereal-celestial.png"
+       inkscape:export-xdpi="25.397648"
+       inkscape:export-ydpi="25.397648">
       <path
          sodipodi:nodetypes="cc"
          inkscape:connector-curvature="0"
@@ -816,7 +846,10 @@
     </g>
     <g
        transform="matrix(0.7948134,0,0,0.7948134,2490.2935,113.91051)"
-       id="g945-6">
+       id="g945-6"
+       inkscape:export-filename="C:\Users\chase\Downloads\ethereal-celestial.png"
+       inkscape:export-xdpi="25.397648"
+       inkscape:export-ydpi="25.397648">
       <path
          style="opacity:1;fill:#fbffff;fill-opacity:1;stroke:none;stroke-width:0.64918512;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
          d="m 966.31458,746.71498 a 26.991415,26.991415 0 0 0 -26.99163,26.99163 26.991415,26.991415 0 0 0 26.99163,26.99165 26.991415,26.991415 0 0 0 26.99112,-26.99165 26.991415,26.991415 0 0 0 -26.99112,-26.99163 z m -3.90983,18.60301 11.78843,8.38862 -11.78843,8.38864 z"
@@ -837,7 +870,10 @@
     </g>
     <g
        transform="matrix(0.85167213,0,0,0.85167213,2429.7519,59.700507)"
-       id="g951-7">
+       id="g951-7"
+       inkscape:export-filename="C:\Users\chase\Downloads\ethereal-celestial.png"
+       inkscape:export-xdpi="25.397648"
+       inkscape:export-ydpi="25.397648">
       <path
          style="fill:none;fill-opacity:1;stroke:#ffffff;stroke-width:0.82191253;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          d="m 844.9855,840.52975 h 255.8041"
@@ -856,10 +892,16 @@
        cy="506.61758"
        cx="3263.8733"
        id="circle957-8"
-       style="opacity:1;fill:none;fill-opacity:0.56470588;stroke:#ffffff;stroke-width:0.69999999;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers" />
+       style="opacity:1;fill:none;fill-opacity:0.56470588;stroke:#ffffff;stroke-width:0.69999999;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:stroke fill markers"
+       inkscape:export-filename="C:\Users\chase\Downloads\ethereal-celestial.png"
+       inkscape:export-xdpi="25.397648"
+       inkscape:export-ydpi="25.397648" />
     <g
        transform="translate(3477.2757,-1515.8824)"
-       id="g1976-2">
+       id="g1976-2"
+       inkscape:export-filename="C:\Users\chase\Downloads\ethereal-celestial.png"
+       inkscape:export-xdpi="25.397648"
+       inkscape:export-ydpi="25.397648">
       <path
          inkscape:connector-curvature="0"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:84.03343964px;line-height:1.25;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:7.9401679"
@@ -878,7 +920,10 @@
        y="1016.1749"
        x="3823.1873"
        style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:32.77825546px;line-height:1.25;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:0.56470588;stroke:none;stroke-width:0.81945646"
-       xml:space="preserve"><tspan
+       xml:space="preserve"
+       inkscape:export-filename="C:\Users\chase\Downloads\ethereal-celestial.png"
+       inkscape:export-xdpi="25.397648"
+       inkscape:export-ydpi="25.397648"><tspan
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Avenir Next LT Pro';-inkscape-font-specification:'Avenir Next LT Pro Bold';fill:#ffffff;fill-opacity:0.56470588;stroke-width:0.81945646"
          y="1016.1749"
          x="3823.1873"

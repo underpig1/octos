@@ -638,7 +638,7 @@ function toggleBoot() {
     setOpenAtBoot(cmenu.getMenuItemById("toggleboot").checked);
 }
 
-function addToPath() {
+function handleFileExt() {
     const { execSync } = require("child_process");
     // const vers = require(path.join(__dirname, "../package.json")).version;
     // const execPath = path.join(process.env.LOCALAPPDATA, "octos", "app-" + vers, "octos.exe");
@@ -656,6 +656,13 @@ function setDesktopIcons(state = true) {
     execSync(`start explorer.exe`);
 }
 
+function addToPath() {
+    const { execSync } = require("child_process");
+    const currentPath = process.env.PATH;
+    const newPath = `${currentPath};${process.execPath}`;
+    if (newPath.length <= 1024) execSync(`SETX PATH "%PATH%;${process.execPath}"`);
+}
+
 function handleDotInit() {
     const dotinit = path.resolve(app.getPath("userData"), ".init");
     var firstrun = false;
@@ -670,10 +677,40 @@ function handleDotInit() {
     if (firstrun || process.argv[1] == "--squirrel-firstrun") {
         showGUI();
         setOpenAtBoot(true);
+        handleFileExt();
         addToPath();
         loadDefaultMods();
     }
 }
+
+if (handleSquirrelEvent()) return;
+function handleSquirrelEvent() {
+    if (process.argv.length == 1) return false;
+    const child_process = require("child_process");
+    const updateExe = path.resolve(path.join(process.execPath, "../../"), "Update.exe");
+    const exeName = path.basename(process.execPath);
+    const spawn = (cmd, args) => {
+        try {
+            child_process.spawn(cmd, args, { detached: true });
+        } catch (err) {}
+    }
+    const flag = process.argv[1];
+    if (flag == "--squirrel-install" || flag == "--squirrel-updated") {
+        spawn(updateExe, ["--createShortcut", exeName]);
+        setTimeout(app.quit, 1000);
+        return true;
+    }
+    else if (flag == "--squirrel-uninstall") {
+        spawn(updateExe, ["--removeShortcut", exeName]);
+        setTimeout(app.quit, 1000);
+        return true;
+    }
+    else if (flag == "--squirrel-obsolete") {
+        app.quit();
+        return true;
+    }
+};
+
 
 parseArgs();
 const instLock = app.requestSingleInstanceLock();
