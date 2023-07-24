@@ -3,10 +3,6 @@
 # Octos - HTML Live Wallpaper Engine
 Create, distribute, and explore live, interactive wallpapers on Windows made with HTML, CSS, and JS.
 
-[![CI](https://github.com/underpig1/octos/actions/workflows/ci.yml/badge.svg)](https://github.com/underpig1/octos/actions/workflows/ci.yml)
-[![Publish](https://github.com/underpig1/octos/actions/workflows/publish.yml/badge.svg)](https://github.com/underpig1/octos/actions/workflows/publish.yml)
-[![NPM Package](https://badge.fury.io/js/octos.svg)](https://www.npmjs.com/package/octos)
-
 [Download](https://github.com/underpig1/octos/releases) | [Documentation](https://underpig1.github.io/octos/docs) | [Quickstart](https://underpig1.github.io/octos/docs/?t=installation) | [API Docs](https://underpig1.github.io/octos/docs/?t=using-the-api)
 
 ![Octos GUI](./img/gallery/main.png)
