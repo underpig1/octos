@@ -18,7 +18,7 @@ Emitted when the playback track changes.
 
 ### `playbackstatus`
 
-Returns: `event` containing `status` as a string (can be one of `'playing'`, `'paused'`, `'stoppe'"`, `'opened'`)
+Returns: `event` containing `status` as a string (can be one of `'playing'`, `'paused'`, `'stopped'`, `'opened'`)
 
 Emitted when the playback status changes.
 
