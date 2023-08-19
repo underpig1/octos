@@ -744,7 +744,7 @@
             <i class="ri-arrow-right-line"></i>
         </div>
     </template>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@7.0.0/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script>
         var activeTab;
@@ -757,7 +757,7 @@
                 var id = tab.id.replace("tab-", "");
                 var response = await fetch(`./${id}.md`);
                 var content = await response.text();
-                if (response.ok) pages[id] = marked.parse(content);
+                if (response.ok) pages[id] = marked.parse(content, { headerIds: true });
                 else pages[id] = "<h1>Error 404</h1><p>Could not find resource.</p>";
             }
 
@@ -919,9 +919,10 @@
                 "&#39;": "'",
                 "&#x2F;": "/",
                 "&#x60;": "`",
-                "&#x3D;": "="
+                "&#x3D;": "=",
+                "&#x1F6A7;": "🚧"
             };
-            return content.replace(/&(lt|gt|amp|quot|#39|#x2F|#x60|#x3D);/g, (match, placeholder) => entityMap[match]);
+            return content.replace(/&(lt|gt|amp|quot|#39|#x2F|#x60|#x3D|#x1F6A7);/g, (match, placeholder) => entityMap[match]);
         }
 
         function search(value) {
