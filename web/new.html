@@ -220,12 +220,13 @@
         }
 
         .preview {
-            position: absolute;
             background-color: #1a1a1aff;
             border-radius: 10px;
             border: 1px solid #323232ff;
             box-shadow: 0 5px 15px #00000044;
             filter: brightness(0.8);
+            image-rendering: optimizeQuality;
+            image-resolution: 1920;
         }
 
         .centered {
@@ -246,24 +247,21 @@
             z-index: 1;
         }
 
-        .section > h1 {
-            position: absolute;
+        .explore h1 {
             -webkit-text-stroke: 2px white;
             color: transparent;
             font-size: 180pt;
             width: fit-content;
             height: fit-content;
             margin: 0;
-            margin-top: 225px;
+            margin-top: 185px;
             font-family: 'Roboto', sans-serif;
             transform: translate(-50%, calc(-50% + var(--scroll)*-0.2px + 100vh*0.2));
         }
 
-        .section > p {
-            position: absolute;
+        .explore p {
             opacity: 1;
             width: max-content;
-            margin-top: 350px;
         }
 
         li {
@@ -276,20 +274,6 @@
             transform: none;
         }
 
-        iframe {
-            position: absolute;
-            width: 75%;
-            height: 75%;
-            top: 50%;
-            left: 50%;
-            right: 50%;
-            bottom: 50%;
-            transform: translate(-50%, -50%);
-            border-radius: 10px;
-            border: 1px solid #323232ff;
-            box-shadow: 0 5px 15px #00000044;
-        }
-
         .button-secondary {
             background-color: dimgrey;
             box-shadow: 0 2px 0 #373737;
@@ -299,49 +283,24 @@
             background-color: #525252;
         }
 
-        #previews {
-            height: calc(var(--previews-scroll-end) - var(--previews-scroll-start) - 400px);
+        .explore > div {
+            display: flex;
+            width: 100%;
+            height: 90vh;
+            gap: 125px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
-        .frame {
-            --pos: 0;
-            background-color: #202020ff;
-            width: 100vw;
-            height: 100vh;
-            top: 0;
-            left: 0;
-            transform: translateX(calc(var(--pos)*(100vw + var(--buffer))));
-        }
-
-        #previews.alive .frame {
-            --x: calc(calc(calc((var(--scroll)*-1px + var(--previews-scroll-start))*var(--speed) + var(--pos)*(100vw + var(--buffer)))));
-            --y: calc((var(--scroll)*1px - var(--previews-scroll-start)));
-            --clampx: max(var(--x), 0px);
-            transform: translateX(var(--clampx));
-            position: fixed;
-        }
-
-        #previews.dead .frame {
-            transform: translate(max(calc((var(--scroll)*-1px + var(--previews-scroll-start) + var(--pos)*(100vw + var(--buffer)))), 0px), calc(var(--previews-scroll-end) - var(--previews-scroll-start) - 400px - 100vh));
-        }
-
-        .frame h1 {
+        .scroll {
             position: absolute;
-            font-size: 64pt;
-            color: #ffffff33;
-            top: calc(100vh - 280px);
-            left: 100px;
-        }
-
-        .frame p {
-            position: absolute;
-            top: calc(100vh - 110px);
-            color: #ffffff33;
-            left: 100px;
-        }
-
-        .fake {
-            width: var(--x);
+            top: 50%;
+            bottom: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background-color: #ffffffaa;
         }
     </style>
 </head>
@@ -384,50 +343,18 @@
             <feDisplacementMap id="displacement-map" in2="offset" in="SourceGraphic" scale="8" result="displacement" />
         </filter>
     </svg>
-    <div class="section" style="--margin: -50px;">
-        <img src="main.png" class="preview centered">
-        <h1 class="centered">EXPLORE</h1>
-        <p class="centered">Find free awesome live wallpapers with the Octos desktop app.</p>
-    </div>
-    <div class="section" id="previews" style="display: none">
-        <div class="frame" style="--pos: 0;">
-            <iframe src="file:///C:/Users/chase/Desktop/Projects/octos/octos-community/src/ethereal/index.html" style="display: none;"></iframe>
-            <div class="fake"></div>
-            <h1>Ethereal</h1>
-            <p>A night-themed media player that ripples as your cursor passes over it.</p>
-        </div>
-        <div class="frame" style="--pos: 1;">
-            <iframe src="file:///C:/Users/chase/Desktop/Projects/octos/default-mod/gradient/index.html" style="display: none;"></iframe>
-            <div class="fake"></div>
-            <h1>Ethereal</h1>
-            <p>A night-themed media player that ripples as your cursor passes over it.</p>
-        </div>
-        <div class="frame" style="--pos: 2;">
-            <iframe src="file:///C:/Users/chase/Desktop/Projects/octos/default-mod/gradient/index.html" style="display: none;"></iframe>
-            <div class="fake"></div>
-            <h1>Ethereal</h1>
-            <p>A night-themed media player that ripples as your cursor passes over it.</p>
-        </div>
-        <div class="frame" style="--pos: 3;">
-            <iframe src="file:///C:/Users/chase/Desktop/Projects/octos/default-mod/gradient/index.html" style="display: none;"></iframe>
-            <div class="fake"></div>
-            <h1>Ethereal</h1>
-            <p>A night-themed media player that ripples as your cursor passes over it.</p>
+    <div class="section explore">
+        <div class="scroll"><i class="ri-arrow-left-line"></i></div>
+        <div class="scroll"><i class="ri-arrow-right-line"></i></div>
+        <div class="centered">
+            <img src="main.png" class="preview">
+            <h1 class="centered">EXPLORE</h1>
+            <p>Find free awesome live wallpapers with the Octos desktop app.</p>
         </div>
     </div>
-    <div class="section" style="background-color: #ff4040ff;">
-        <div class="centered" style="width: 800px">
-            <h1 style="opacity: 1; transform: none;">Features</h1>
-            <ul>
-                <li><p>&#11088; Community-made wallpaper library available for download</p></li>
-                <li><p>&#128191; Full mouse and keyboard support for interactive wallpapers</p></li>
-                <li><p>&#128190; Native API for interacting with media, files, system, etc.</p></li>
-                <li><p>&#128187; Developer menu to get you started with making your own mods fast</p></li>
-                <li><p>&#127801; Wallpaper library for managing installed wallpapers</p></li>
-            </ul>
-            <div class="buttons">
-                <button style="opacity: 1; transform: none; background-color: #006cff; box-shadow: 0 2px 0 #0052c1;" onclick="window.location.href='https://underpig1.github.io/octos/docs'">Get started</button>
-            </div>
+    <div class="section">
+        <div>
+            
         </div>
     </div>
     <script>
@@ -438,11 +365,6 @@
         const offset = document.getElementById("offset");
         const offset2 = document.getElementById("offset2");
         const previews = document.getElementById("previews");
-        const previewCount = 4;
-        const speed = 1;
-        const buffer = 500*speed;
-        const scrollStart = previews.offsetTop;
-        const scrollEnd = (previewCount - 1)*(window.innerWidth + buffer)/speed + scrollStart;
 
 
         var i = 0;
@@ -450,27 +372,9 @@
             offset.setAttribute("dx", (i += 0.5)/2);
             offset2.setAttribute("dx", i);
             offset2.setAttribute("dy", i);
-
-            for (const frame of document.getElementsByTagName("iframe")) {
-                const style = window.getComputedStyle(frame);
-                const pos = parseInt(style.getPropertyValue("--pos"));
-                const x = (previews.offsetTop - window.scrollY)*speed + pos*(window.innerWidth + buffer);
-                if (x - buffer - window.innerWidth < window.innerWidth && x + buffer + 100 > -window.innerWidth) frame.style.display = "block";
-                else frame.style.display = "none";
-            }
         }, 10);
 
-        document.body.onscroll = (e) => {
-            document.documentElement.style.setProperty("--scroll", window.scrollY);
-            if (window.scrollY > previews.offsetTop) previews.classList.add("alive");
-            else previews.classList.remove("alive");
-        }
-        document.addEventListener("DOMContentLoaded", () => {
-            document.documentElement.style.setProperty("--previews-scroll-start", scrollStart + "px");
-            document.documentElement.style.setProperty("--previews-scroll-end", scrollEnd + "px");
-            document.documentElement.style.setProperty("--buffer", buffer + "px");
-            document.documentElement.style.setProperty("--speed", speed);
-        });
+        document.body.onscroll = (e) => document.documentElement.style.setProperty("--scroll", window.scrollY);
 
         // document.onmousemove = (e) => {
         //     var x = (e.clientX - window.innerWidth/2)/50;
