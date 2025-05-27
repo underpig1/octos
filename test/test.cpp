@@ -20,20 +20,37 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
+BOOL CALLBACK WorkerWProc(HWND hwnd, LPARAM lParam)
+{
+    HWND shellView = FindWindowEx(hwnd, NULL, L"SHELLDLL_DefView", NULL);
+    if (shellView)
+    {
+        *(HWND*)lParam = FindWindowEx(NULL, hwnd, L"WorkerW", NULL);
+        return FALSE;
+    }
+    return TRUE;
+}
+
 void AttachWindow(HWND hwnd)
 {
     HWND progman = FindWindow(L"Progman", NULL);
+    HWND workerw = NULL;
+    SendMessageTimeout(progman, 0x052C, NULL, NULL, SMTO_NORMAL, 1000, NULL);
+    EnumWindows(&WorkerWProc, reinterpret_cast<LPARAM>(&workerw));
     RECT rc;
     GetWindowRect(progman, &rc);
-    SetParent(hwnd, progman);
-    HWND workerw = FindWindowEx(progman, NULL, L"WorkerW", NULL);
-    if (!workerw)
+    if (workerw) // windows 10 method
     {
-        SendMessageTimeout(progman, 0x052C, 0, 0, SMTO_NORMAL, 1000, nullptr);
-        // workerw = FindWindowEx(progman, NULL, L"WorkerW", NULL);
+        SetWindowLong(hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+        SetParent(hwnd, workerw);
+        SetWindowPos(hwnd, nullptr, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOACTIVATE | SWP_SHOWWINDOW);
     }
-    HWND shellView = FindWindowEx(progman, NULL, L"SHELLDLL_DefView", NULL);
-    SetWindowPos(hwnd, shellView, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOACTIVATE | SWP_SHOWWINDOW);
+    else // windows 11 method
+    {
+        SetParent(hwnd, progman);
+        HWND shellView = FindWindowEx(progman, NULL, L"SHELLDLL_DefView", NULL);
+        SetWindowPos(hwnd, shellView, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOACTIVATE | SWP_SHOWWINDOW);
+    }
 }
 
 const wchar_t CLASS_NAME[] = L"WallpaperWindow";
