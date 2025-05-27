@@ -1,3 +1,4 @@
 packages/
 build/
 *.obj
+*.pdb
