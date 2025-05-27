@@ -41,7 +41,6 @@ void AttachWindow(HWND hwnd)
     GetWindowRect(progman, &rc);
     if (workerw) // windows 10 method
     {
-        SetWindowLong(hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
         SetParent(hwnd, workerw);
         SetWindowPos(hwnd, nullptr, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOACTIVATE | SWP_SHOWWINDOW);
     }
