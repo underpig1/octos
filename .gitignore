@@ -2,3 +2,4 @@ packages/
 build/
 *.obj
 *.pdb
+make.bat
