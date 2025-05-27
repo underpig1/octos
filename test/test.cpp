@@ -78,20 +78,23 @@ void CALLBACK DestroyMonitorProc(HWINEVENTHOOK hWinEventHook, DWORD event, HWND 
         if (GetClassName(hwnd, className, sizeof(className) / sizeof(wchar_t)) &&
             wcscmp(className, L"WorkerW") == 0)
         {
-            // Instead of checking GetParent(hwnd), just attempt reattach if no existing one
-            HWND progman = FindWindow(L"Progman", NULL);
-            HWND custom_hwnd = FindWindowEx(progman, NULL, L"WallpaperWindow", NULL);
+            HWND custom_hwnd = FindWindow(L"WallpaperWindow", NULL);
+            if (!custom_hwnd)
+            {
+                HWND progman = FindWindow(L"Progman", NULL);
+                custom_hwnd = FindWindowEx(progman, NULL, L"WallpaperWindow", NULL);
+            }
             if (!custom_hwnd)
             {
                 custom_hwnd = CreateTestWindow();
-                AttachWindow(custom_hwnd);
             }
+            AttachWindow(custom_hwnd);
         }
     }
 }
 
 void CALLBACK ZOrderMonitorProc(HWINEVENTHOOK hWinEventHook, DWORD event, HWND hwnd,
-                                LONG idObject, LONG idChild, DWORD dwEventThread, DWORD dwmsEventTime)
+                                LONG idObject, LONG idChild, DWORD dwEventThread, DWORD dwmsEventTime) // windows 11 only
 {
     HWND progman = FindWindow(L"Progman", NULL);
     HWND shellView = FindWindowEx(progman, NULL, L"SHELLDLL_DefView", NULL);
