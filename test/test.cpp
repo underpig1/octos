@@ -1,4 +1,12 @@
 #include <windows.h>
+#include <vector>
+#include <chrono>
+
+const wchar_t CLASS_NAME[] = L"WallpaperWindow";
+HINSTANCE g_hInstance = NULL;
+std::vector<HWND> g_customWindows;
+
+// ========================== Window Setup ==========================
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -25,35 +33,11 @@ BOOL CALLBACK WorkerWProc(HWND hwnd, LPARAM lParam)
     HWND shellView = FindWindowEx(hwnd, NULL, L"SHELLDLL_DefView", NULL);
     if (shellView)
     {
-        *(HWND*)lParam = FindWindowEx(NULL, hwnd, L"WorkerW", NULL);
+        *(HWND *)lParam = FindWindowEx(NULL, hwnd, L"WorkerW", NULL);
         return FALSE;
     }
     return TRUE;
 }
-
-void AttachWindow(HWND hwnd)
-{
-    HWND progman = FindWindow(L"Progman", NULL);
-    HWND workerw = NULL;
-    SendMessageTimeout(progman, 0x052C, NULL, NULL, SMTO_NORMAL, 1000, NULL);
-    EnumWindows(&WorkerWProc, reinterpret_cast<LPARAM>(&workerw));
-    RECT rc;
-    GetWindowRect(progman, &rc);
-    if (workerw) // windows 10 method
-    {
-        SetParent(hwnd, workerw);
-        SetWindowPos(hwnd, nullptr, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOACTIVATE | SWP_SHOWWINDOW);
-    }
-    else // windows 11 method
-    {
-        SetParent(hwnd, progman);
-        HWND shellView = FindWindowEx(progman, NULL, L"SHELLDLL_DefView", NULL);
-        SetWindowPos(hwnd, shellView, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOACTIVATE | SWP_SHOWWINDOW);
-    }
-}
-
-const wchar_t CLASS_NAME[] = L"WallpaperWindow";
-HINSTANCE g_hInstance = NULL;
 
 HWND CreateTestWindow()
 {
@@ -69,39 +53,75 @@ HWND CreateTestWindow()
     return hwnd;
 }
 
-void CALLBACK DestroyMonitorProc(HWINEVENTHOOK hWinEventHook, DWORD event, HWND hwnd,
-                                LONG idObject, LONG idChild, DWORD dwEventThread, DWORD dwmsEventTime)
+void AttachWindow(HWND hwnd, const RECT &rc)
 {
-    if (event == EVENT_OBJECT_DESTROY)
+    HWND progman = FindWindow(L"Progman", NULL);
+    HWND workerw = NULL;
+    SendMessageTimeout(progman, 0x052C, NULL, NULL, SMTO_NORMAL, 1000, NULL);
+    Sleep(500);
+    EnumWindows(&WorkerWProc, reinterpret_cast<LPARAM>(&workerw));
+
+    if (workerw)
     {
-        wchar_t className[256];
-        if (GetClassName(hwnd, className, sizeof(className) / sizeof(wchar_t)) &&
-            wcscmp(className, L"WorkerW") == 0)
-        {
-            HWND custom_hwnd = FindWindow(CLASS_NAME, NULL);
-            if (!custom_hwnd)
-            {
-                HWND progman = FindWindow(L"Progman", NULL);
-                custom_hwnd = FindWindowEx(progman, NULL, CLASS_NAME, NULL);
-            }
-            if (!custom_hwnd)
-            {
-                custom_hwnd = CreateTestWindow();
-            }
-            AttachWindow(custom_hwnd);
-        }
+        // Windows 10: attach to WorkerW
+        SetParent(hwnd, workerw);
+        SetWindowPos(hwnd, nullptr, rc.left, rc.top,
+                     rc.right - rc.left, rc.bottom - rc.top,
+                     SWP_NOACTIVATE | SWP_SHOWWINDOW);
+    }
+    else
+    {
+        // Windows 11: attach directly to Progman
+        HWND shellView = FindWindowEx(progman, NULL, L"SHELLDLL_DefView", NULL);
+        SetParent(hwnd, progman);
+        SetWindowPos(hwnd, shellView, rc.left, rc.top,
+                     rc.right - rc.left, rc.bottom - rc.top,
+                     SWP_NOACTIVATE | SWP_SHOWWINDOW);
     }
 }
 
-void CALLBACK ZOrderMonitorProc(HWINEVENTHOOK hWinEventHook, DWORD event, HWND hwnd,
-                                LONG idObject, LONG idChild, DWORD dwEventThread, DWORD dwmsEventTime) // windows 11 only
+// ========================== Monitor Enum ==========================
+
+BOOL CALLBACK MonitorEnumProc(HMONITOR, HDC, LPRECT lprcMonitor, LPARAM)
+{
+    HWND hwnd = CreateTestWindow();
+    AttachWindow(hwnd, *lprcMonitor);
+    g_customWindows.push_back(hwnd);
+    return TRUE;
+}
+
+// ========================== Hook Listeners ==========================
+
+void CALLBACK DestroyListenerProc(HWINEVENTHOOK, DWORD event, HWND hwnd,
+                                  LONG, LONG, DWORD, DWORD)
+{
+    if (event != EVENT_OBJECT_DESTROY)
+        return;
+
+    wchar_t className[256];
+    if (!GetClassName(hwnd, className, 256) || wcscmp(className, L"WorkerW") != 0)
+        return;
+
+    for (HWND w : g_customWindows)
+    {
+        if (IsWindow(w))
+            DestroyWindow(w);
+    }
+    g_customWindows.clear();
+    EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, 0);
+}
+
+void CALLBACK ZOrderListenerProc(HWINEVENTHOOK, DWORD event, HWND hwnd,
+                                 LONG, LONG, DWORD, DWORD)
 {
     HWND progman = FindWindow(L"Progman", NULL);
     HWND shellView = FindWindowEx(progman, NULL, L"SHELLDLL_DefView", NULL);
-    HWND custom = FindWindowEx(progman, NULL, CLASS_NAME, NULL);
 
-    if (custom && shellView)
+    for (HWND custom : g_customWindows)
     {
+        if (!IsWindow(custom))
+            continue;
+
         HWND z = GetNextWindow(custom, GW_HWNDPREV);
         if (z && z != shellView)
         {
@@ -112,6 +132,8 @@ void CALLBACK ZOrderMonitorProc(HWINEVENTHOOK hWinEventHook, DWORD event, HWND h
         }
     }
 }
+
+// ========================== Entry Point ==========================
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 {
@@ -124,22 +146,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
     RegisterClass(&wc);
     g_hInstance = hInstance;
 
-    HWND hwnd = CreateTestWindow();
-    AttachWindow(hwnd);
+    EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, 0);
 
-    SetWinEventHook(
-        EVENT_OBJECT_DESTROY, EVENT_OBJECT_DESTROY,
-        NULL,
-        DestroyMonitorProc,
-        0, 0,
-        WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS);
+    SetWinEventHook(EVENT_OBJECT_DESTROY, EVENT_OBJECT_DESTROY, NULL,
+                    DestroyListenerProc, 0, 0,
+                    WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS);
 
-    SetWinEventHook(
-        EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND,
-        NULL,
-        ZOrderMonitorProc,
-        0, 0,
-        WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS);
+    SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, NULL,
+                    ZOrderListenerProc, 0, 0,
+                    WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS);
 
     MSG msg;
     while (GetMessage(&msg, NULL, 0, 0))
