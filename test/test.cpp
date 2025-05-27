@@ -78,11 +78,11 @@ void CALLBACK DestroyMonitorProc(HWINEVENTHOOK hWinEventHook, DWORD event, HWND 
         if (GetClassName(hwnd, className, sizeof(className) / sizeof(wchar_t)) &&
             wcscmp(className, L"WorkerW") == 0)
         {
-            HWND custom_hwnd = FindWindow(L"WallpaperWindow", NULL);
+            HWND custom_hwnd = FindWindow(CLASS_NAME, NULL);
             if (!custom_hwnd)
             {
                 HWND progman = FindWindow(L"Progman", NULL);
-                custom_hwnd = FindWindowEx(progman, NULL, L"WallpaperWindow", NULL);
+                custom_hwnd = FindWindowEx(progman, NULL, CLASS_NAME, NULL);
             }
             if (!custom_hwnd)
             {
@@ -98,7 +98,7 @@ void CALLBACK ZOrderMonitorProc(HWINEVENTHOOK hWinEventHook, DWORD event, HWND h
 {
     HWND progman = FindWindow(L"Progman", NULL);
     HWND shellView = FindWindowEx(progman, NULL, L"SHELLDLL_DefView", NULL);
-    HWND custom = FindWindowEx(progman, NULL, L"WallpaperWindow", NULL);
+    HWND custom = FindWindowEx(progman, NULL, CLASS_NAME, NULL);
 
     if (custom && shellView)
     {
