@@ -1,0 +1,26 @@
+{
+    "configurations": [
+        {
+            "name": "Win32 MSVC",
+            "includePath": [
+                "${workspaceFolder}/packages/Microsoft.Web.WebView2.1.0.3240.44/build/native/include",
+                "${workspaceFolder}/packages/Microsoft.Windows.ImplementationLibrary.1.0.250325.1/include",
+                "${workspaceFolder}/src",
+                "${env:VCToolsInstallDir}/include",
+                "${env:WindowsSdkDir}/Include/${env:WindowsSDKVersion}/um",
+                "${env:WindowsSdkDir}/Include/${env:WindowsSDKVersion}/shared",
+                "${env:WindowsSdkDir}/Include/${env:WindowsSDKVersion}/ucrt"
+            ],
+            "defines": [
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "windowsSdkVersion": "${env:WindowsSDKVersion}",
+            "compilerPath": "${env:VCToolsInstallDir}/bin/Hostx64/x64/cl.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-msvc-x64"
+        }
+    ],
+    "version": 4
+}
