@@ -3,3 +3,4 @@ build/
 *.obj
 *.pdb
 make.bat
+*.exe
