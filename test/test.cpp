@@ -310,6 +310,8 @@ void WatchdogProc()
                     rc.bottom != mrc.bottom)
                 {
                     wprintf(L"[Watchdog] Window rect differs from monitor rect, expanding window\n");
+                    wprintf(L"Monitor l%d r%d t%d b%d\n", (int)mrc.left, (int)mrc.right, (int)mrc.top, (int)mrc.bottom);
+                    wprintf(L"Client l%d r%d t%d b%d\n", (int)rc.left, (int)rc.right, (int)rc.top, (int)rc.bottom);
                     mw.ExpandToMonitor();
                 }
             }
