@@ -291,30 +291,40 @@ void WatchdogProc()
             continue;
         }
         // check if change in monitor
-        if (mw.monitor != g_monitors[i])
+        bool found = false;
+        for (auto& moniter : g_monitors)
         {
-            wprintf(L"[Watchdog] Change in monitor\n");
-            mw.monitor = g_monitors[i];
-            mw.ExpandToMonitor();
-        }
-        else // check change in monitor size
-        {
-            RECT rc;
-            if (GetWindowRect(mw.hwnd, &rc))
+            if (mw.monitor == moniter)
             {
-                RECT mrc = GetMonitorRect(g_monitors[i]);
-
-                if (rc.left != mrc.left ||
-                    rc.top != mrc.top ||
-                    rc.right != mrc.right ||
-                    rc.bottom != mrc.bottom)
+                // If monitor handle matches, ensure window size matches
+                RECT rc;
+                if (GetWindowRect(mw.hwnd, &rc))
                 {
-                    wprintf(L"[Watchdog] Window rect differs from monitor rect, expanding window\n");
-                    wprintf(L"Monitor l%d r%d t%d b%d\n", (int)mrc.left, (int)mrc.right, (int)mrc.top, (int)mrc.bottom);
-                    wprintf(L"Client l%d r%d t%d b%d\n", (int)rc.left, (int)rc.right, (int)rc.top, (int)rc.bottom);
-                    mw.ExpandToMonitor();
+                    RECT mrc = GetMonitorRect(moniter);
+                    if (rc.left != mrc.left ||
+                        rc.top != mrc.top ||
+                        rc.right != mrc.right ||
+                        rc.bottom != mrc.bottom)
+                    {
+                        wprintf(L"[Watchdog] Rect mismatch; expanding to monitor\n");
+                        mw.ExpandToMonitor();
+                    }
                 }
+                found = true;
+                break;
             }
+        }
+        if (!found)
+        {
+            // Monitor is no longer available
+            wprintf(L"[Watchdog] Window no longer has matching monitor, destroying\n");
+            if (IsWindow(mw.hwnd))
+            {
+                PostMessage(g_main, WM_USER + 2, 0, reinterpret_cast<LPARAM>(mw.hwnd));
+            }
+            ms.erase(ms.begin() + i);
+            --i;
+            continue;
         }
     }
 }
