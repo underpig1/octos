@@ -24,8 +24,18 @@ struct MonitorWindow
     {
         if (IsWindow(hwnd))
         {
-            RECT rc = GetMonitorRect(monitor);
-            SetWindowPos(hwnd, nullptr, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SWP_NOACTIVATE | SWP_NOZORDER);
+            RECT monitorRect = GetMonitorRect(monitor);
+            HWND parent = GetAncestor(hwnd, GA_PARENT);
+            if (parent)
+            {
+                RECT parentRect;
+                GetWindowRect(parent, &parentRect);
+                int x = monitorRect.left - parentRect.left;
+                int y = monitorRect.top - parentRect.top;
+                int w = monitorRect.right - monitorRect.left;
+                int h = monitorRect.bottom - monitorRect.top;
+                SetWindowPos(hwnd, nullptr, x, y, w, h, SWP_NOACTIVATE | SWP_NOZORDER);
+            }
         }
     }
     bool fixing = false;
@@ -291,40 +301,30 @@ void WatchdogProc()
             continue;
         }
         // check if change in monitor
-        bool found = false;
-        for (auto& moniter : g_monitors)
+        if (mw.monitor != g_monitors[i])
         {
-            if (mw.monitor == moniter)
-            {
-                // If monitor handle matches, ensure window size matches
-                RECT rc;
-                if (GetWindowRect(mw.hwnd, &rc))
-                {
-                    RECT mrc = GetMonitorRect(moniter);
-                    if (rc.left != mrc.left ||
-                        rc.top != mrc.top ||
-                        rc.right != mrc.right ||
-                        rc.bottom != mrc.bottom)
-                    {
-                        wprintf(L"[Watchdog] Rect mismatch; expanding to monitor\n");
-                        mw.ExpandToMonitor();
-                    }
-                }
-                found = true;
-                break;
-            }
+            wprintf(L"[Watchdog] Change in monitor\n");
+            mw.monitor = g_monitors[i];
+            mw.ExpandToMonitor();
         }
-        if (!found)
+        else // check change in monitor size
         {
-            // Monitor is no longer available
-            wprintf(L"[Watchdog] Window no longer has matching monitor, destroying\n");
-            if (IsWindow(mw.hwnd))
+            RECT rc;
+            if (GetWindowRect(mw.hwnd, &rc))
             {
-                PostMessage(g_main, WM_USER + 2, 0, reinterpret_cast<LPARAM>(mw.hwnd));
+                RECT mrc = GetMonitorRect(g_monitors[i]);
+
+                if (rc.left != mrc.left ||
+                    rc.top != mrc.top ||
+                    rc.right != mrc.right ||
+                    rc.bottom != mrc.bottom)
+                {
+                    wprintf(L"[Watchdog] Window rect differs from monitor rect, expanding window\n");
+                    wprintf(L"Monitor l%d r%d t%d b%d\n", (int)mrc.left, (int)mrc.right, (int)mrc.top, (int)mrc.bottom);
+                    wprintf(L"Client l%d r%d t%d b%d\n", (int)rc.left, (int)rc.right, (int)rc.top, (int)rc.bottom);
+                    mw.ExpandToMonitor();
+                }
             }
-            ms.erase(ms.begin() + i);
-            --i;
-            continue;
         }
     }
 }
