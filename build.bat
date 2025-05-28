@@ -1,5 +1,5 @@
 @echo off
-taskkill /im app.exe
+taskkill /f /im app.exe
 
 if "%WindowsSdkDir%"=="" (
     echo ERROR: Windows SDK environment not set. Please run this script from a "Developer Command Prompt for Visual Studio".
@@ -36,11 +36,10 @@ cl /EHsc /std:c++17 /DWEBVIEW2_NO_IDL /DUNICODE /D_UNICODE ^
    /I"%WEBVIEW2_PATH%\include" ^
    /I"%WIL_PATH%" ^
    src\main.cpp ^
-   src\wm.cpp ^
    /link ^
    /LIBPATH:"%WEBVIEW2_PATH%\x64" ^
    WebView2LoaderStatic.lib ^
-   ole32.lib uuid.lib user32.lib shell32.lib comctl32.lib shlwapi.lib advapi32.lib Shcore.lib ^
+   ole32.lib uuid.lib user32.lib shell32.lib comctl32.lib shlwapi.lib advapi32.lib Shcore.lib dwmapi.lib ^
    /SUBSYSTEM:WINDOWS /OUT:build/%APP_EXE%
 
 REM Copy assets folder to build directory
