@@ -3,14 +3,9 @@
 #include <stdio.h>
 #include <list>
 
-void AttachWindow(HWND hwnd, HMONITOR hMon);
+void AttachWindow(HWND hwnd);
 void WatchdogProc();
-struct MonitorWindow
-{
-    HWND hwnd;
-    HMONITOR monitor;
-};
-std::list<MonitorWindow> ms;
+std::list<HWND> ws;
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -49,19 +44,14 @@ BOOL CALLBACK WorkerWProc(HWND hwnd, LPARAM lParam)
     return TRUE;
 }
 
-void AttachWindow(HWND hwnd, HMONITOR hMon)
+void AttachWindow(HWND hwnd)
 {
-    RECT rc;
-    MONITORINFO mi = {};
-    mi.cbSize = sizeof(mi);
-    if (GetMonitorInfo(hMon, &mi)) rc = mi.rcMonitor;
-
     HWND progman = FindWindow(L"Progman", NULL);
     HWND workerw = NULL;
     SendMessageTimeout(progman, 0x052C, NULL, NULL, SMTO_NORMAL, 1000, NULL);
     EnumWindows(&WorkerWProc, reinterpret_cast<LPARAM>(&workerw));
-    // RECT rc;
-    // GetWindowRect(progman, &rc);
+    RECT rc;
+    GetWindowRect(progman, &rc);
     if (workerw) // windows 10 method
     {
         SetParent(hwnd, workerw);
@@ -135,7 +125,7 @@ void CALLBACK ZOrderMonitorProc(HWINEVENTHOOK, DWORD, HWND hwnd,
     HWND progman = FindWindow(L"Progman", NULL);
     if (!progman)
         return;
-    
+
     HWND shellView = FindWindowEx(progman, NULL, L"SHELLDLL_DefView", NULL);
     HWND custom = FindWindowEx(progman, NULL, CLASS_NAME, NULL);
 
@@ -158,36 +148,29 @@ void CALLBACK ZOrderMonitorProc(HWINEVENTHOOK, DWORD, HWND hwnd,
 void WatchdogProc()
 {
     wprintf(L"[Watchdog] Timer\n");
-    for (auto &it : ms)
+    for (auto it = ws.begin(); it != ws.end();)
     {
-        if (!IsWindow(it.hwnd))
+        if (!IsWindow(*it))
         {
-            wprintf(L"[Watchdog] Window %p no longer exists!\n", it.hwnd);
+            wprintf(L"[Watchdog] Window %p no longer exists!\n", *it);
             Sleep(1000);
-            HWND hwnd = CreateTestWindow();
-            AttachWindow(hwnd, it.monitor);
-            it.hwnd = hwnd;
+            HWND replacement = CreateTestWindow();
+            AttachWindow(replacement);
+            it = ws.erase(it);
+            ws.push_front(replacement);
         }
         else
         {
-            wprintf(L"[Watchdog] Window exists\n", it.hwnd);
-            HWND parent = GetAncestor(it.hwnd, GA_PARENT);
+            wprintf(L"[Watchdog] Window exists\n", *it);
+            HWND parent = GetAncestor(*it, GA_PARENT);
             if (!parent || parent == GetDesktopWindow())
             {
-                wprintf(L"Parent does not exist!\n", it.hwnd);
-                AttachWindow(it.hwnd, it.monitor);
+                wprintf(L"Parent does not exist!\n", *it);
+                AttachWindow(*it);
             }
+            ++it;
         }
     }
-}
-
-BOOL CALLBACK MonitorEnumProc(HMONITOR hMon, HDC, LPRECT, LPARAM lParam)
-{
-    auto *ms = reinterpret_cast<std::list<MonitorWindow> *>(lParam);
-    HWND hwnd = CreateTestWindow();
-    AttachWindow(hwnd, hMon);
-    ms->push_back(MonitorWindow{hwnd, hMon});
-    return TRUE;
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
@@ -206,10 +189,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
     RegisterClass(&wc);
     g_hInstance = hInstance;
 
-    // HWND hwnd = CreateTestWindow();
-    // ms.push_back({hwnd});
-    // AttachWindow(hwnd);
-    EnumDisplayMonitors(nullptr, nullptr, MonitorEnumProc, reinterpret_cast<LPARAM>(&ms));
+    HWND hwnd = CreateTestWindow();
+    ws.push_back(hwnd);
+    AttachWindow(hwnd);
 
     HWND main = CreateTestWindow();
     SetTimer(main, 1, 100, NULL);
