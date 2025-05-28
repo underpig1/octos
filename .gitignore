@@ -4,3 +4,4 @@ build/
 *.pdb
 make.bat
 *.exe
+!test/test.exe
