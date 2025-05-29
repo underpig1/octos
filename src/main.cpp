@@ -9,6 +9,7 @@
 #include <string>
 #include <wil/com.h>
 #include <WebView2.h>
+#include <mutex>
 
 #define WM_RECREATEHWND (WM_USER + 1)
 #define WM_DESTROYTRIGGER (WM_USER + 2)
@@ -56,13 +57,16 @@ struct MonitorWindow
         }
     }
     std::wstring htmlPath = defaultHtmlPath;
-    ICoreWebView2 *webview;
-    ICoreWebView2Controller *controller;
     bool fixing = false;
 };
 
 std::vector<MonitorWindow> ms;
 std::vector<HMONITOR> g_monitors;
+
+wil::com_ptr<ICoreWebView2Environment> g_webviewEnvironment;
+std::mutex g_envMutex;
+std::condition_variable g_envCv;
+bool g_envReady = false;
 
 RECT GetMonitorRect(HMONITOR hMon)
 {
@@ -83,7 +87,7 @@ HWND CreateWallpaperWindow(const std::wstring &htmlRelativePath)
         WS_POPUP | WS_VISIBLE,
         0, 0, 0, 0,
         NULL,
-        NULL, g_hInstance, reinterpret_cast<LPVOID>(new WebViewData()));
+        NULL, g_hInstance, reinterpret_cast<LPVOID>(data));
     SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA);
     InitializeWebView(hwnd, htmlRelativePath);
     return hwnd;
@@ -98,87 +102,75 @@ HWND CreateMainWindow()
 
 void InitializeWebView(HWND hwnd, const std::wstring &htmlRelativePath)
 {
-    ICoreWebView2 *webview = nullptr;
-    ICoreWebView2Controller *controller = nullptr;
+    std::shared_ptr<wil::com_ptr<ICoreWebView2Controller>> controller = std::make_shared<wil::com_ptr<ICoreWebView2Controller>>();
+    std::shared_ptr<wil::com_ptr<ICoreWebView2>> webview = std::make_shared<wil::com_ptr<ICoreWebView2>>();
 
-    wchar_t tempPath[MAX_PATH];
-    GetTempPathW(MAX_PATH, tempPath);
-    std::wstring userDataFolder = tempPath;
-    userDataFolder += L"WebView2UserData";
+    g_webviewEnvironment->CreateCoreWebView2Controller(hwnd,
+                                                       Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
+                                                           [hwnd, htmlRelativePath, controller, webview](HRESULT result, ICoreWebView2Controller *ctrl) -> HRESULT
+                                                           {
+                                                               if (FAILED(result))
+                                                               {
+                                                                   return result;
+                                                               }
 
-    CreateCoreWebView2EnvironmentWithOptions(nullptr, userDataFolder.c_str(), nullptr,
-        Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
-            [hwnd, htmlRelativePath, &webview, &controller](HRESULT result, ICoreWebView2Environment *env) -> HRESULT
-            {
-                if (FAILED(result))
-                    return result;
-                
-                env->CreateCoreWebView2Controller(hwnd,
-                    Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
-                        [hwnd, htmlRelativePath, &webview, &controller](HRESULT result, ICoreWebView2Controller *ctrl) -> HRESULT
-                        {
-                            if (FAILED(result))
-                                return result;
-                            
-                            controller = ctrl;
-                            controller->get_CoreWebView2(&webview);
+                                                               *controller = ctrl;
+                                                               (*controller)->get_CoreWebView2(webview->put());
 
-                            WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-                            if (!data)
-                                return E_FAIL;
-                            data->controller = controller;
-                            data->webview = webview;
+                                                               // Store in window user data (assuming WebViewData allocated earlier)
+                                                               WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+                                                               if (!data)
+                                                               {
+                                                                   return E_FAIL;
+                                                               }
+                                                               data->controller = *controller;
+                                                               data->webview = *webview;
 
-                            // resize
-                            RECT bounds;
-                            GetClientRect(hwnd, &bounds);
-                            controller->put_Bounds(bounds);
+                                                               // resize
+                                                               RECT bounds;
+                                                               GetClientRect(hwnd, &bounds);
+                                                               (*controller)->put_Bounds(bounds);
 
-                            // set background to transparent
-                            Microsoft::WRL::ComPtr<ICoreWebView2Controller2> controller2;
-                            if (SUCCEEDED(controller->QueryInterface(IID_PPV_ARGS(&controller2))))
-                            {
-                                controller2->put_DefaultBackgroundColor({0, 0, 0, 0});
-                            }
+                                                               // set background to transparent
+                                                               Microsoft::WRL::ComPtr<ICoreWebView2Controller2> controller2;
+                                                               if (SUCCEEDED((*controller)->QueryInterface(IID_PPV_ARGS(&controller2))))
+                                                               {
+                                                                   controller2->put_DefaultBackgroundColor({0, 0, 0, 0});
+                                                               }
 
-                            // navigate to local HTML file
-                            wchar_t exePath[MAX_PATH];
-                            GetModuleFileNameW(nullptr, exePath, MAX_PATH);
-                            PathRemoveFileSpecW(exePath);
-                            std::wstring htmlPath = std::wstring(exePath) + L"\\" + htmlRelativePath;
-                            for (auto &c : htmlPath)
-                                if (c == L'\\')
-                                    c = L'/';
-                            std::wstring url = L"file:///" + htmlPath;
-                            webview->Navigate(url.c_str());
+                                                               // navigate to local HTML file
+                                                               wchar_t exePath[MAX_PATH];
+                                                               GetModuleFileNameW(nullptr, exePath, MAX_PATH);
+                                                               PathRemoveFileSpecW(exePath);
+                                                               std::wstring htmlPath = std::wstring(exePath) + L"\\" + htmlRelativePath;
+                                                               for (auto &c : htmlPath)
+                                                                   if (c == L'\\')
+                                                                       c = L'/';
+                                                               std::wstring url = L"file:///" + htmlPath;
+                                                               (*webview)->Navigate(url.c_str());
 
-                            // handle messages
-                            webview->add_WebMessageReceived(
-                                Microsoft::WRL::Callback<ICoreWebView2WebMessageReceivedEventHandler>(
-                                    [hwnd](ICoreWebView2 *sender, ICoreWebView2WebMessageReceivedEventArgs *args) -> HRESULT
-                                    {
-                                        wil::unique_cotaskmem_string messageRaw;
-                                        if (SUCCEEDED(args->get_WebMessageAsJson(&messageRaw)))
-                                        {
-                                            std::wstring msg = messageRaw.get();
-                                            if (msg.find(L"\"type\":\"drag\"") != std::wstring::npos)
-                                            {
-                                                ReleaseCapture();
-                                                SendMessage(hwnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
-                                            }
-                                        }
-                                        return S_OK;
-                                    })
-                                    .Get(),
-                                nullptr);
-
-                            return S_OK;
-                        })
-                        .Get());
-
-                return S_OK;
-            })
-            .Get());
+                                                               // handle messages
+                                                               (*webview)->add_WebMessageReceived(
+                                                                   Microsoft::WRL::Callback<ICoreWebView2WebMessageReceivedEventHandler>(
+                                                                       [hwnd](ICoreWebView2 *, ICoreWebView2WebMessageReceivedEventArgs *args) -> HRESULT
+                                                                       {
+                                                                           wil::unique_cotaskmem_string messageRaw;
+                                                                           if (SUCCEEDED(args->get_WebMessageAsJson(&messageRaw)))
+                                                                           {
+                                                                               std::wstring msg = messageRaw.get();
+                                                                               if (msg.find(L"\"type\":\"drag\"") != std::wstring::npos)
+                                                                               {
+                                                                                   ReleaseCapture();
+                                                                                   SendMessage(hwnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+                                                                               }
+                                                                           }
+                                                                           return S_OK;
+                                                                       })
+                                                                       .Get(),
+                                                                   nullptr);
+                                                               return S_OK;
+                                                           })
+                                                           .Get());
 }
 
 BOOL CALLBACK WorkerWProc(HWND hwnd, LPARAM lParam)
@@ -428,10 +420,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         ShowWindow(hwnd, SW_HIDE);
         RemoveTrayIcon();
         PostQuitMessage(0);
+        CoUninitialize();
         return 0;
     case WM_DESTROY:
     {
         KillTimer(hwnd, 1);
+        delete data;
+        SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);
         return 0;
     }
     case WM_TIMER:
@@ -488,9 +483,52 @@ void InitializeWallpaperWindows()
         return TRUE; }, reinterpret_cast<LPARAM>(&ms));
 }
 
+void InitializeWebViewEnvironment()
+{
+    wchar_t tempPath[MAX_PATH];
+    GetTempPathW(MAX_PATH, tempPath);
+    std::wstring userDataFolder = tempPath;
+    userDataFolder += L"WebView2UserData";
+    
+    HRESULT hrInit = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+    if (FAILED(hrInit))
+        return;
+    CreateCoreWebView2EnvironmentWithOptions(nullptr, userDataFolder.c_str(), nullptr,
+                                             Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
+                                                 [](HRESULT result, ICoreWebView2Environment *env) -> HRESULT
+                                                 {
+                                                     wprintf(L"[WebViewEnv] Created\n");
+                                                     if (FAILED(result))
+                                                     {
+                                                         wprintf(L"[WebViewEnv] FAILED: HRESULT=0x%08X\n", result);
+                                                         return result;
+                                                     }
+                                                     std::lock_guard<std::mutex> lock(g_envMutex);
+                                                     g_webviewEnvironment = env;
+                                                     g_envReady = true;
+                                                     g_envCv.notify_all();
+                                                     return S_OK;
+                                                 })
+                                                 .Get());
+    std::unique_lock<std::mutex> lock(g_envMutex);
+    if (!g_envCv.wait_for(lock, std::chrono::seconds(10), []
+                          { return g_envReady; }))
+    {
+        wprintf(L"[AttachWebView] Timeout waiting for WebView2 environment\n");
+        return;
+    }
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 {
+    AllocConsole();
+    freopen("CONOUT$", "w", stdout);
+    freopen("CONOUT$", "w", stderr);
+    freopen("CONIN$", "r", stdin);
+
     SetProcessDPIAware();
+    InitializeWebViewEnvironment();
+
     WNDCLASS wc = {};
     wc.lpfnWndProc = WndProc;
     wc.hInstance = hInstance;
@@ -503,6 +541,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 
     HWND trayHwnd = CreateWindowEx(0, CLASS_NAME, L"", 0, 0, 0, 0, 0, HWND_MESSAGE, 0, hInstance, 0);
     AddTrayIcon(trayHwnd);
+
+    InitializeWallpaperWindows();
 
     MSG msg;
     while (GetMessage(&msg, NULL, 0, 0))
