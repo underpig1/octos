@@ -2,6 +2,8 @@
 #include "TrayIcon/TrayIcon.h"
 #include "Watchdog/Watchdog.h"
 #include "WebView/WebView.h"
+#include "Dispatch/Dispatch.h"
+#include "Event/Event.h"
 #include "main.h"
 
 const std::wstring defaultHtmlPath = L"assets/index.html";
@@ -11,6 +13,16 @@ HWND app_hwnd;
 
 std::vector<MonitorWindow> ms;
 std::vector<HMONITOR> g_monitors;
+
+void OnClose()
+{
+    KillTimer(app_hwnd, 1);
+    KillTimer(app_hwnd, 2);
+    RemoveTrayIcon();
+    CoUninitialize();
+    UninstallEventHooks();
+    PostQuitMessage(0);
+}
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -35,22 +47,28 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         return 0;
     case WM_CLOSE:
-        ShowWindow(hwnd, SW_HIDE);
-        RemoveTrayIcon();
-        PostQuitMessage(0);
-        CoUninitialize();
+    {
+        OnClose();
         return 0;
+    }
     case WM_DESTROY:
     {
-        KillTimer(hwnd, 1);
+        data->controller->Close();
+        data->controller.reset();
+        data->webview.reset();
         delete data;
         SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);
         return 0;
     }
     case WM_TIMER:
     {
-        WatchdogProc();
-        wprintf(L"[WndProc] Timer\n");
+        switch (wParam)
+        {
+        case 1:
+            WatchdogProc();
+            wprintf(L"[WndProc] Timer\n");
+            break;
+        }
         return 0;
     }
     case WM_RECREATEHWND:
@@ -82,7 +100,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         {
             ShowTrayMenu(hwnd);
         }
-        break;
+        return 0;
     default:
         return DefWindowProc(hwnd, msg, wParam, lParam);
     }
@@ -90,10 +108,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 {
-    AllocConsole();
-    freopen("CONOUT$", "w", stdout);
-    freopen("CONOUT$", "w", stderr);
-    freopen("CONIN$", "r", stdin);
+    // AllocConsole();
+    // freopen("CONOUT$", "w", stdout);
+    // freopen("CONOUT$", "w", stderr);
+    // freopen("CONIN$", "r", stdin);
 
     SetProcessDPIAware();
     InitializeWebViewEnvironment();
@@ -107,11 +125,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 
     app_hwnd = CreateMainWindow();
     SetTimer(app_hwnd, 1, 100, NULL);
+    // SetTimer(app_hwnd, 2, 10, NULL);
+
+    // InstallEventHooks();
 
     HWND trayHwnd = CreateWindowEx(0, CLASS_NAME, L"", 0, 0, 0, 0, 0, HWND_MESSAGE, 0, hInstance, 0);
     AddTrayIcon(trayHwnd);
 
     InitializeWallpaperWindows();
+
+    std::atexit(OnClose);
 
     MSG msg;
     while (GetMessage(&msg, NULL, 0, 0))

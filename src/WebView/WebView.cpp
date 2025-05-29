@@ -1,4 +1,5 @@
 #include <Shlwapi.h>
+#include <WebView2EnvironmentOptions.h>
 
 #include "WebView.h"
 
@@ -17,7 +18,47 @@ void InitializeWebViewEnvironment()
     HRESULT hrInit = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
     if (FAILED(hrInit))
         return;
-    CreateCoreWebView2EnvironmentWithOptions(nullptr, userDataFolder.c_str(), nullptr,
+
+    auto options = Microsoft::WRL::Make<CoreWebView2EnvironmentOptions>();
+    options->put_AdditionalBrowserArguments(L"--disable-gpu "
+                                            L"--disable-software-rasterizer "
+                                            L"--disable-gpu-compositing "
+                                            L"--disable-gpu-vsync "
+                                            L"--disable-accelerated-video-decode "
+                                            L"--disable-accelerated-video-encode "
+                                            L"--disable-background-networking "
+                                            L"--disable-background-timer-throttling "
+                                            L"--disable-breakpad "
+                                            L"--disable-client-side-phishing-detection "
+                                            L"--disable-default-apps "
+                                            L"--disable-device-discovery-notifications "
+                                            L"--disable-domain-reliability "
+                                            L"--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process,TranslateUI "
+                                            L"--disable-hang-monitor "
+                                            L"--disable-ipc-flooding-protection "
+                                            L"--disable-popup-blocking "
+                                            L"--disable-prompt-on-repost "
+                                            L"--disable-renderer-backgrounding "
+                                            L"--disable-sync "
+                                            L"--disable-translate "
+                                            L"--disable-web-resources "
+                                            L"--disable-webrtc-hw-decoding "
+                                            L"--disable-webrtc-hw-encoding "
+                                            L"--disable-webrtc-multiple-routes "
+                                            L"--disable-webrtc-stun-origin "
+                                            L"--enable-low-end-device-mode "
+                                            L"--enable-low-res-tiling "
+                                            L"--enable-zero-copy "
+                                            L"--metrics-recording-only "
+                                            L"--no-first-run "
+                                            L"--no-default-browser-check "
+                                            L"--no-sandbox "
+                                            L"--password-store=basic "
+                                            L"--use-mock-keychain "
+                                            L"--single-process "
+                                            L"--no-zygote ");
+
+    CreateCoreWebView2EnvironmentWithOptions(nullptr, userDataFolder.c_str(), options.Get(),
                                              Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
                                                  [](HRESULT result, ICoreWebView2Environment *env) -> HRESULT
                                                  {
@@ -60,7 +101,6 @@ void InitializeWebView(HWND hwnd, const std::wstring &htmlRelativePath)
                                                                *controller = ctrl;
                                                                (*controller)->get_CoreWebView2(webview->put());
 
-                                                               // Store in window user data (assuming WebViewData allocated earlier)
                                                                WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
                                                                if (!data)
                                                                {
@@ -73,6 +113,18 @@ void InitializeWebView(HWND hwnd, const std::wstring &htmlRelativePath)
                                                                RECT bounds;
                                                                GetClientRect(hwnd, &bounds);
                                                                (*controller)->put_Bounds(bounds);
+
+                                                               // disable unnecessary settings
+                                                               wil::com_ptr<ICoreWebView2Settings> settings;
+                                                               HRESULT hr = (*webview)->get_Settings(&settings);
+                                                               if (SUCCEEDED(hr) && settings)
+                                                               {
+                                                                   settings->put_IsStatusBarEnabled(FALSE);
+                                                                   settings->put_AreDevToolsEnabled(FALSE);
+                                                                   settings->put_IsZoomControlEnabled(FALSE);
+                                                                   settings->put_AreDefaultContextMenusEnabled(FALSE);
+                                                                   settings->put_AreHostObjectsAllowed(FALSE);
+                                                               }
 
                                                                // set background to transparent
                                                                Microsoft::WRL::ComPtr<ICoreWebView2Controller2> controller2;

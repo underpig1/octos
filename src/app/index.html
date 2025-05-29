@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>My App</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        html,
+        body {
+            background-color: transparent;
+        }
+
+        #dragbar {
+            background-color: white;
+            width: 200px;
+            height: 200px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="dragbar"></div>
+    <h1>Hello from bundled HTML!</h1>
+    <p>This is <code>app/index.html</code> loaded from the EXE.</p>
+    <button onclick="showMessage()">Click me</button>
+    <script src="script.js"></script>
+    <script>
+        document.getElementById('dragbar').addEventListener('mousedown', function (e) {
+            window.chrome.webview.postMessage({ type: 'drag' });
+        });
+    </script>
+</body>
+
+</html>

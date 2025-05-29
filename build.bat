@@ -44,9 +44,8 @@ cl /EHsc /std:c++17 /DWEBVIEW2_NO_IDL /DUNICODE /D_UNICODE ^
    ole32.lib uuid.lib user32.lib shell32.lib comctl32.lib shlwapi.lib advapi32.lib Shcore.lib dwmapi.lib ^
    /SUBSYSTEM:WINDOWS /OUT:build/%APP_EXE%
 
-REM Copy assets folder to build directory
 if exist build\assets rmdir /s /q build\assets
-xcopy /e /i /y assets build\assets
+xcopy /e /i /y src\app build\assets
 
 if exist %APP_EXE_PATH% (
     echo Running %APP_EXE_PATH% ...

@@ -10,6 +10,12 @@ RECT GetMonitorRect(HMONITOR hMon)
     return RECT{0, 0, 0, 0};
 }
 
+WebViewData *GetWebViewData(HWND hwnd)
+{
+    return reinterpret_cast<WebViewData *>(
+        GetWindowLongPtr(hwnd, GWLP_USERDATA));
+}
+
 void MonitorWindow::ExpandToMonitor()
 {
     if (IsWindow(hwnd) && monitor)
