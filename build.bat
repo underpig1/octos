@@ -35,7 +35,7 @@ if exist %APP_EXE_PATH% del /f /q %APP_EXE_PATH%
 cl /EHsc /std:c++17 /DWEBVIEW2_NO_IDL /DUNICODE /D_UNICODE ^
    /I"%WEBVIEW2_PATH%\include" ^
    /I"%WIL_PATH%" ^
-   src\main.cpp ^
+   src\main.cpp src\Core\Core.cpp src\Watchdog\Watchdog.cpp src\WebView\WebView.cpp src\TrayIcon\TrayIcon.cpp ^
    /link ^
    /LIBPATH:"%WEBVIEW2_PATH%\x64" ^
    WebView2LoaderStatic.lib ^
