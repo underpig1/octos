@@ -1,5 +1,9 @@
 #include "Core.h"
+#include "../main.h"
 #include "../WebView/WebView.h"
+
+std::vector<MonitorWindow> ms;
+std::vector<HMONITOR> g_monitors;
 
 RECT GetMonitorRect(HMONITOR hMon)
 {
@@ -8,12 +12,6 @@ RECT GetMonitorRect(HMONITOR hMon)
     if (GetMonitorInfo(hMon, &mi))
         return mi.rcMonitor;
     return RECT{0, 0, 0, 0};
-}
-
-WebViewData *GetWebViewData(HWND hwnd)
-{
-    return reinterpret_cast<WebViewData *>(
-        GetWindowLongPtr(hwnd, GWLP_USERDATA));
 }
 
 void MonitorWindow::ExpandToMonitor()
@@ -77,7 +75,7 @@ HWND CreateWallpaperWindow(const std::wstring &htmlRelativePath)
         NULL,
         NULL, g_hInstance, reinterpret_cast<LPVOID>(data));
     SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA);
-    InitializeWebView(hwnd, htmlRelativePath);
+    AttachWebView(hwnd, htmlRelativePath);
     return hwnd;
 }
 
@@ -96,7 +94,22 @@ void InitializeWallpaperWindows()
 
 HWND CreateMainWindow()
 {
-    HWND hwnd = CreateWindowExW(WS_EX_APPWINDOW, CLASS_NAME, L"Octos", WS_POPUP | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 800, 600, nullptr, nullptr, g_hInstance, reinterpret_cast<LPVOID>(new WebViewData()));
-    InitializeWebView(hwnd, L"assets/index.html");
+    WebViewData *data = new WebViewData();
+    HWND hwnd = CreateWindowExW(WS_EX_APPWINDOW, CLASS_NAME, L"Octos", WS_POPUP | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 800, 600, nullptr, nullptr, g_hInstance, reinterpret_cast<LPVOID>(data));
+    AttachWebView(hwnd, L"assets/index.html");
     return hwnd;
+}
+
+void RecreateWindow(LPARAM lParam)
+{
+    MonitorWindow *pmw = reinterpret_cast<MonitorWindow *>(lParam);
+    if (pmw)
+    {
+        HWND hwnd = CreateWallpaperWindow(pmw->htmlPath);
+        AttachWindow(hwnd);
+        pmw->hwnd = hwnd;
+        pmw->ExpandToMonitor();
+        pmw->fixing = false;
+        wprintf(L"[Watchdog] Recreated %p\n", IsWindow(pmw->hwnd) ? "true" : "false");
+    }
 }

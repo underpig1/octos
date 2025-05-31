@@ -41,7 +41,7 @@ cl /EHsc /std:c++17 /DWEBVIEW2_NO_IDL /DUNICODE /D_UNICODE ^
    /link ^
    /LIBPATH:"%WEBVIEW2_PATH%\x64" ^
    WebView2LoaderStatic.lib ^
-   ole32.lib uuid.lib user32.lib shell32.lib comctl32.lib shlwapi.lib advapi32.lib Shcore.lib dwmapi.lib ^
+   ole32.lib uuid.lib user32.lib shell32.lib comctl32.lib shlwapi.lib advapi32.lib Shcore.lib dwmapi.lib dcomp.lib d3d11.lib ^
    /SUBSYSTEM:WINDOWS /OUT:build/%APP_EXE%
 
 if exist build\assets rmdir /s /q build\assets

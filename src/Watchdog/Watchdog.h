@@ -1,5 +1,5 @@
 #pragma once
 
-#include "../main.h"
+#include "../Core/Core.h"
 
 void WatchdogProc();

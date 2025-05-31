@@ -1,3 +1,6 @@
+#include <cstdio>
+
+#include "../main.h"
 #include "TrayIcon.h"
 
 #define TRAY_ICON_UID 1001

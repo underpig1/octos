@@ -1,4 +1,7 @@
+#include <thread>
+
 #include "Watchdog.h"
+#include "../main.h"
 #include "../Core/Core.h"
 
 void WatchdogProc()

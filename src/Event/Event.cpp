@@ -1,162 +1,103 @@
 #include "Event.h"
 #include "../Core/Core.h"
-#include "../Dispatch/Dispatch.h"
 
 static HHOOK g_mouseHook = nullptr;
 HHOOK g_keyboardHook = nullptr;
 
 LRESULT CALLBACK MouseEventProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
-    auto *mouse = reinterpret_cast<MSLLHOOKSTRUCT *>(lParam);
-    if (wParam == WM_MOUSEMOVE)
-    {
-        for (auto &mw : ms)
-        {
-            if (IsWindow(mw.hwnd))
-            {
-                RECT rc;
-                if (GetWindowRect(mw.hwnd, &rc) && PtInRect(&rc, mouse->pt))
-                {
-                    HWND targetHwnd = mw.hwnd;
-                    POINT screenPos = mouse->pt;
-                    RECT rc;
-                    if (!GetWindowRect(targetHwnd, &rc))
-                        return;
-                    int relX = screenPos.x - rc.left;
-                    int relY = screenPos.y - rc.top;
-                    static POINT lastRel = {-1, -1};
-                    if (lastRel.x != -1 && lastRel.y != -1)
-                    {
-                        int dx = relX - lastRel.x;
-                        int dy = relY - lastRel.y;
-
-                        if (dx != 0 || dy != 0)
-                        {
-                            INPUT input = {};
-                            input.type = INPUT_MOUSE;
-                            input.mi.dwFlags = MOUSEEVENTF_MOVE;
-                            input.mi.dx = dx;
-                            input.mi.dy = dy;
-
-                            SendInput(1, &input, sizeof(INPUT));
-                        }
-                    }
-
-                    lastRel = {relX, relY};
-                    SetFocus(targetHwnd);
-                    break;
-                }
-            }
-        }
-    }
-
-    // if (nCode == HC_ACTION)
-    // {
-    //     auto *mouse = reinterpret_cast<MSLLHOOKSTRUCT *>(lParam);
-    //     POINT screenMouse = mouse->pt;
-    //     HWND hwnd;
-    //     for (auto &mw : ms)
+    //     if (m_dcompDevice || m_wincompCompositor)
     //     {
-    //         RECT rc;
-    //         if (IsWindow(mw.hwnd))
+    //         POINT point;
+    //         POINTSTOPOINT(point, lParam);
+    //         if (message == WM_MOUSEWHEEL ||
+    //             message == WM_MOUSEHWHEEL || message == WM_NCRBUTTONDOWN || message == WM_NCRBUTTONUP)
     //         {
-    //             if (GetWindowRect(mw.hwnd, &rc))
+    //             // Mouse wheel messages are delivered in screen coordinates.
+    //             // SendMouseInput expects client coordinates for the WebView, so convert
+    //             // the point from screen to client.
+    //             ::ScreenToClient(m_appWindow->GetMainWindow(), &point);
+    //         }
+    //         // Send the message to the WebView if the mouse location is inside the
+    //         // bounds of the WebView, if the message is telling the WebView the
+    //         // mouse has left the client area, or if we are currently capturing
+    //         // mouse events.
+    //         bool isMouseInWebView = PtInRect(&m_webViewBounds, point);
+    //         if (isMouseInWebView || message == WM_MOUSELEAVE || m_isCapturingMouse)
+    //         {
+    //             DWORD mouseData = 0;
+
+    //             switch (message)
     //             {
-    //                 if (PtInRect(&rc, screenMouse))
+    //             case WM_MOUSEWHEEL:
+    //             case WM_MOUSEHWHEEL:
+    //                 mouseData = GET_WHEEL_DELTA_WPARAM(wParam);
+    //                 break;
+    //             case WM_XBUTTONDBLCLK:
+    //             case WM_XBUTTONDOWN:
+    //             case WM_XBUTTONUP:
+    //                 mouseData = GET_XBUTTON_WPARAM(wParam);
+    //                 break;
+    //             case WM_MOUSEMOVE:
+    //                 if (!m_isTrackingMouse)
     //                 {
-    //                     hwnd = mw.hwnd;
+    //                     // WebView needs to know when the mouse leaves the client area
+    //                     // so that it can dismiss hover popups. TrackMouseEvent will
+    //                     // provide a notification when the mouse leaves the client area.
+    //                     TrackMouseEvents(TME_LEAVE);
+    //                     m_isTrackingMouse = true;
+    //                 }
+    //                 break;
+    //             case WM_MOUSELEAVE:
+    //                 m_isTrackingMouse = false;
+    //                 break;
+    //             }
+    //             if (message == WM_LBUTTONDOWN || message == WM_MBUTTONDOWN ||
+    //                 message == WM_RBUTTONDOWN || message == WM_XBUTTONDOWN)
+    //             {
+    //                 if (isMouseInWebView && ::GetCapture() != hwnd->GetMainWindow())
+    //                 {
+    //                     m_isCapturingMouse = true;
+    //                     ::SetCapture(hwnd->GetMainWindow());
     //                 }
     //             }
+    //             else if (message == WM_LBUTTONUP || message == WM_MBUTTONUP ||
+    //                      message == WM_RBUTTONUP || message == WM_XBUTTONUP)
+    //             {
+    //                 if (::GetCapture() == hwnd->GetMainWindow())
+    //                 {
+    //                     m_isCapturingMouse = false;
+    //                     ::ReleaseCapture();
+    //                 }
+    //             }
+    //             if (message != WM_MOUSELEAVE)
+    //             {
+    //                 point.x -= m_webViewBounds.left;
+    //                 point.y -= m_webViewBounds.top;
+    //             }
+
+    //             CHECK_FAILURE(m_compositionController->SendMouseInput(
+    //                 static_cast<COREWEBVIEW2_MOUSE_EVENT_KIND>(message),
+    //                 static_cast<COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS>(GET_KEYSTATE_WPARAM(wParam)),
+    //                 mouseData, point));
+    //             return true;
+    //         }
+    //         else if (message == WM_MOUSEMOVE && m_isTrackingMouse)
+    //         {
+    //             // When the mouse moves outside of the WebView, but still inside the app
+    //             // turn off mouse tracking and send the WebView a leave event.
+    //             m_isTrackingMouse = false;
+    //             TrackMouseEvents(TME_LEAVE | TME_CANCEL);
+    //             OnMouseMessage(WM_MOUSELEAVE, 0, 0);
     //         }
     //     }
-    //     if (!hwnd)
-    //         return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
-    //     POINT clientMouse = screenMouse;
-    //     ::ScreenToClient(hwnd, &clientMouse);
-    //     WPARAM wmMessage = 0;
-    //     WPARAM wmFlags = 0;
-    //     LPARAM wmLParam = MAKELPARAM(clientMouse.x, clientMouse.y);
-    //     switch (wParam)
-    //     {
-    //     case WM_MOUSEMOVE:
-    //         wmMessage = WM_MOUSEMOVE;
-    //         break;
-
-    //     case WM_LBUTTONDOWN:
-    //     case WM_LBUTTONUP:
-    //         wmMessage = wParam;
-    //         wmFlags = (wParam == WM_LBUTTONDOWN) ? MK_LBUTTON : 0;
-    //         break;
-
-    //     case WM_RBUTTONDOWN:
-    //     case WM_RBUTTONUP:
-    //         wmMessage = wParam;
-    //         wmFlags = (wParam == WM_RBUTTONDOWN) ? MK_RBUTTON : 0;
-    //         break;
-
-    //     case WM_MBUTTONDOWN:
-    //     case WM_MBUTTONUP:
-    //         wmMessage = wParam;
-    //         wmFlags = (wParam == WM_MBUTTONDOWN) ? MK_MBUTTON : 0;
-    //         break;
-
-    //     case WM_XBUTTONDOWN:
-    //     case WM_XBUTTONUP:
-    //     {
-    //         wmMessage = wParam;
-    //         WORD xbutton = HIWORD(mouse->mouseData);
-    //         wmFlags = (xbutton == XBUTTON1) ? MK_XBUTTON1 : MK_XBUTTON2;
-    //         break;
-    //     }
-
-    //     case WM_MOUSEWHEEL:
-    //         wmMessage = WM_MOUSEWHEEL;
-    //         wmFlags = mouse->mouseData;
-    //         break;
-
-    //     case WM_MOUSEHWHEEL:
-    //         wmMessage = WM_MOUSEHWHEEL;
-    //         wmFlags = mouse->mouseData;
-    //         break;
-    //     }
-    //     if (wmMessage)
-    //     {
-    //         PostMessage(hwnd, wmMessage, wmFlags, wmLParam);
-    //     }
+    //     return false;
     // }
     return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
 }
 
 LRESULT CALLBACK KeyboardEventProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
-    // if (nCode == HC_ACTION)
-    // {
-    //     auto *kbd = reinterpret_cast<KBDLLHOOKSTRUCT *>(lParam);
-
-    //     UINT msg = 0;
-    //     switch (wParam)
-    //     {
-    //     case WM_KEYDOWN:
-    //     case WM_SYSKEYDOWN:
-    //         msg = WM_KEYDOWN;
-    //         break;
-    //     case WM_KEYUP:
-    //     case WM_SYSKEYUP:
-    //         msg = WM_KEYUP;
-    //         break;
-    //     }
-
-    //     if (msg != 0)
-    //     {
-    //         for (auto &mw : ms)
-    //         {
-    //             if (IsWindow(mw.hwnd))
-    //             {
-    //                 PostMessage(mw.hwnd, msg, kbd->vkCode, kbd->scanCode << 16);
-    //             }
-    //         }
-    //     }
-    // }
     return CallNextHookEx(g_keyboardHook, nCode, wParam, lParam);
 }
 

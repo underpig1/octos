@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../main.h"
+#include <windows.h>
 
 void AddTrayIcon(HWND hwnd);
 void RemoveTrayIcon();
