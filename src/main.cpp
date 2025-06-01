@@ -54,17 +54,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_TIMER:
     {
         wprintf(L"[WinMain] Timer\n");
-        HWND a = ms[0].hwnd;
-        WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(a, GWLP_USERDATA));
-        if (data && data->compController)
-        {
-            POINT pt = {100, 100};
-            data->compController->SendMouseInput(
-                COREWEBVIEW2_MOUSE_EVENT_KIND_MOVE,
-                COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_NONE,
-                0, // flags
-                pt);
-        }
         WatchdogProc();
         return 0;
     }
@@ -98,10 +87,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
 {
-    AllocConsole();
-    freopen("CONOUT$", "w", stdout);
-    freopen("CONOUT$", "w", stderr);
-    freopen("CONIN$", "r", stdin);
+    // AllocConsole();
+    // freopen("CONOUT$", "w", stdout);
+    // freopen("CONOUT$", "w", stderr);
+    // freopen("CONIN$", "r", stdin);
 
     SetProcessDPIAware();
 

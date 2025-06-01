@@ -16,6 +16,7 @@ RECT GetMonitorRect(HMONITOR hMon)
 
 void MonitorWindow::ExpandToMonitor()
 {
+    wprintf(L"[Watchdog] RESIZING ADJASOIDHJASOIDHASODHASOIDHASDOIH");
     if (IsWindow(hwnd) && monitor)
     {
         RECT monitorRect = GetMonitorRect(monitor);
@@ -75,7 +76,7 @@ HWND CreateWallpaperWindow(const std::wstring &htmlRelativePath)
         NULL,
         NULL, g_hInstance, reinterpret_cast<LPVOID>(data));
     SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA);
-    AttachWebView(hwnd, htmlRelativePath);
+    AttachWebViewCompositionController(hwnd, htmlRelativePath);
     return hwnd;
 }
 
@@ -95,8 +96,8 @@ void InitializeWallpaperWindows()
 HWND CreateMainWindow()
 {
     WebViewData *data = new WebViewData();
-    HWND hwnd = CreateWindowExW(WS_EX_APPWINDOW, CLASS_NAME, L"Octos", WS_POPUP | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 800, 600, nullptr, nullptr, g_hInstance, reinterpret_cast<LPVOID>(data));
-    AttachWebView(hwnd, L"assets/index.html");
+    HWND hwnd = CreateWindowExW(WS_EX_APPWINDOW, CLASS_NAME, L"Octos", WS_POPUP | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 0, 0, nullptr, nullptr, g_hInstance, reinterpret_cast<LPVOID>(data));
+    // AttachWebViewController(hwnd, L"assets/index.html");
     return hwnd;
 }
 

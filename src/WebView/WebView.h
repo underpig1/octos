@@ -15,7 +15,8 @@ struct WebViewData
 };
 
 void InitializeWebViewEnvironment();
-void AttachWebView(HWND hwnd, const std::wstring &htmlRelativePath);
+void AttachWebViewController(HWND hwnd, const std::wstring &htmlRelativePath);
+void AttachWebViewCompositionController(HWND hwnd, const std::wstring &htmlRelativePath);
 void ResizeWebView(HWND hwnd);
 void HandleOnCreate(HWND hwnd, LPARAM lParam);
 void HandleResize(HWND hwnd, LPARAM lParam);
