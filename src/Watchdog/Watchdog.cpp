@@ -4,10 +4,55 @@
 #include "../main.h"
 #include "../Core/Core.h"
 
+void FindRenderingTarget(HWND targetHwnd)
+{
+    RECT targetRect;
+    GetWindowRect(targetHwnd, &targetRect);
+    EnumWindows(
+        [](HWND hwnd, LPARAM lParam) -> BOOL
+        {
+            wchar_t className[256];
+            GetClassName(hwnd, className, _countof(className));
+            const wchar_t prefix[] = L"Chrome_WidgetWin_";
+            size_t prefixLen = wcslen(prefix);
+            if (wcsncmp(className, prefix, prefixLen) == 0)
+            {
+                RECT windowRect;
+                if (GetWindowRect(hwnd, &windowRect))
+                {
+                    RECT *pTargetRect = reinterpret_cast<RECT *>(lParam);
+                    if (windowRect.left == pTargetRect->left &&
+                        windowRect.top == pTargetRect->top &&
+                        windowRect.right == pTargetRect->right &&
+                        windowRect.bottom == pTargetRect->bottom)
+                    {
+
+                        LONG exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+                        SetWindowLong(hwnd, GWL_EXSTYLE, exStyle | WS_EX_LAYERED | WS_EX_TRANSPARENT);
+                        SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE);
+                        // EnumChildWindows(hwnd, [](HWND c, LPARAM) -> BOOL
+                        //                  {
+                        //     wchar_t cls[256]; GetClassNameW(c, cls, 256);
+                        //     if (TRUE)
+                        //     {
+                        //         // found intermediate d3d window
+                        //         wprintf(L"[Watchdog] FOUND INTERMEDIATE WINDOW %s\n", cls);
+                        //         LONG exStyle = GetWindowLong(c, GWL_EXSTYLE);
+                        //         SetWindowLong(c, GWL_EXSTYLE, exStyle | WS_EX_LAYERED | WS_EX_TRANSPARENT);
+                        //         SetWindowPos(c, nullptr, 100000, 0, 0, 0, SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE);
+                        //     }
+                        //     return TRUE; }, 0);
+                        // return FALSE;
+                    }
+                }
+            }
+            return TRUE; // continue enumeration
+        },
+    reinterpret_cast<LPARAM>(&targetRect));
+}
+
 void WatchdogProc()
 {
-    wprintf(L"[Watchdog] Timer\n");
-
     HWND progman = FindWindow(L"Progman", NULL);
 
     g_monitors.clear();
@@ -16,7 +61,7 @@ void WatchdogProc()
             auto& mos = *reinterpret_cast<std::vector<HMONITOR>*>(lParam);
             mos.push_back(hMon);
             return TRUE; }, reinterpret_cast<LPARAM>(&g_monitors));
-    wprintf(L"[Watchdog] Monitor size %d, window size %d\n", g_monitors.size(), ms.size());
+    // wprintf(L"[Watchdog] Monitor size %d, window size %d\n", g_monitors.size(), ms.size());
 
     // check if a new monitor was added
     if (g_monitors.size() > ms.size())
@@ -52,6 +97,8 @@ void WatchdogProc()
                 .detach();
             continue;
         }
+        // fix rendering target
+        FindRenderingTarget(mw.hwnd);
         // check if not parented
         HWND parent = GetAncestor(mw.hwnd, GA_PARENT);
         if (!parent || parent == GetDesktopWindow())

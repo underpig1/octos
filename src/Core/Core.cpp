@@ -16,7 +16,6 @@ RECT GetMonitorRect(HMONITOR hMon)
 
 void MonitorWindow::ExpandToMonitor()
 {
-    wprintf(L"[Watchdog] RESIZING ADJASOIDHJASOIDHASODHASOIDHASDOIH");
     if (IsWindow(hwnd) && monitor)
     {
         RECT monitorRect = GetMonitorRect(monitor);

@@ -240,7 +240,7 @@ void AttachWebViewCompositionController(HWND hwnd, const std::wstring &htmlRelat
                                                                                        // attach DC pipeline
                                                                                        Microsoft::WRL::ComPtr<IDCompositionTarget> dcompTarget;
                                                                                        Microsoft::WRL::ComPtr<IDCompositionVisual> dcompVisual;
-                                                                                       g_dcompDevice->CreateTargetForHwnd(hwnd, TRUE, &dcompTarget);
+                                                                                       g_dcompDevice->CreateTargetForHwnd(hwnd, FALSE, &dcompTarget);
                                                                                        g_dcompDevice->CreateVisual(&dcompVisual);
                                                                                        dcompTarget->SetRoot(dcompVisual.Get());
                                                                                        ctrl->put_RootVisualTarget(dcompVisual.Get());

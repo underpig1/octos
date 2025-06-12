@@ -4,15 +4,24 @@
 
 static HHOOK g_mouseHook = nullptr;
 HHOOK g_keyboardHook = nullptr;
+bool just_released = false;
 
 LRESULT CALLBACK MouseEventProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
     if (nCode == HC_ACTION)
     {
-        auto *mouse = reinterpret_cast<MSLLHOOKSTRUCT *>(lParam);
+        const auto *mouse = reinterpret_cast<MSLLHOOKSTRUCT *>(lParam);
         POINT screenMouse = mouse->pt;
 
-        // find window under mouse
+        HWND hoverHwnd = WindowFromPoint(screenMouse);
+        wchar_t className[256] = {};
+        GetClassNameW(hoverHwnd, className, 256);
+        bool not_over_wallpaper = wcscmp(className, L"SysListView32") != 0;
+        if (not_over_wallpaper && just_released)
+            return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
+        else if (just_released)
+            just_released = false;
+
         HWND hwnd = nullptr;
         for (auto &mw : ms)
         {
@@ -26,18 +35,44 @@ LRESULT CALLBACK MouseEventProc(int nCode, WPARAM wParam, LPARAM lParam)
         if (!hwnd)
             return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
 
-        // extract data
         WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
         if (!data || !data->compController)
             return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
 
-        // Convert screen to client coordinates
+        // Convert screen to client
         POINT clientMouse = screenMouse;
         ScreenToClient(hwnd, &clientMouse);
+        
+        if (not_over_wallpaper)
+        {
+            data->compController->SendMouseInput(
+                COREWEBVIEW2_MOUSE_EVENT_KIND_LEFT_BUTTON_UP,
+                COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_LEFT_BUTTON,
+                0,
+                clientMouse);
+            data->compController->SendMouseInput(
+                COREWEBVIEW2_MOUSE_EVENT_KIND_RIGHT_BUTTON_UP,
+                COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_RIGHT_BUTTON,
+                0,
+                clientMouse);
+            data->compController->SendMouseInput(
+                COREWEBVIEW2_MOUSE_EVENT_KIND_MIDDLE_BUTTON_UP,
+                COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_MIDDLE_BUTTON,
+                0,
+                clientMouse);
+            data->compController->SendMouseInput(
+                COREWEBVIEW2_MOUSE_EVENT_KIND_MOVE,
+                COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_NONE,
+                0,
+                POINT{10000, 10000});
+            wprintf(L"[Watchdog] RELEASING %s\n", className);
+            just_released = true;
+            return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
+        }
 
-        // determine type of input
         COREWEBVIEW2_MOUSE_EVENT_KIND kind;
         bool valid = true;
+
         switch (wParam)
         {
         case WM_MOUSEMOVE:
@@ -71,54 +106,52 @@ LRESULT CALLBACK MouseEventProc(int nCode, WPARAM wParam, LPARAM lParam)
             valid = false;
             break;
         }
+
         if (!valid)
             return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
 
-        // build virtual keys
-        COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS vkFlags = COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_NONE;
+        COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS vk = COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_NONE;
         if (GetAsyncKeyState(VK_LBUTTON) & 0x8000)
-            vkFlags |= COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_LEFT_BUTTON;
+            vk |= COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_LEFT_BUTTON;
         if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
-            vkFlags |= COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_RIGHT_BUTTON;
+            vk |= COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_RIGHT_BUTTON;
         if (GetAsyncKeyState(VK_MBUTTON) & 0x8000)
-            vkFlags |= COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_MIDDLE_BUTTON;
+            vk |= COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_MIDDLE_BUTTON;
         if (GetAsyncKeyState(VK_CONTROL) & 0x8000)
-            vkFlags |= COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_CONTROL;
+            vk |= COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_CONTROL;
         if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
-            vkFlags |= COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_SHIFT;
-        if ((wParam == WM_XBUTTONDOWN || wParam == WM_XBUTTONUP))
+            vk |= COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_SHIFT;
+
+        if (wParam == WM_XBUTTONDOWN || wParam == WM_XBUTTONUP)
         {
-            WORD xbutton = HIWORD(mouse->mouseData);
-            if (xbutton == XBUTTON1)
-                vkFlags |= COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_X_BUTTON1;
-            else if (xbutton == XBUTTON2)
-                vkFlags |= COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_X_BUTTON2;
+            WORD xbtn = HIWORD(mouse->mouseData);
+            if (xbtn == XBUTTON1)
+                vk |= COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_X_BUTTON1;
+            else if (xbtn == XBUTTON2)
+                vk |= COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_X_BUTTON2;
         }
 
-        // handle wheel or xbutton
         UINT32 mouseData = 0;
         if (wParam == WM_MOUSEWHEEL || wParam == WM_MOUSEHWHEEL)
             mouseData = GET_WHEEL_DELTA_WPARAM(mouse->mouseData);
         else if (wParam == WM_XBUTTONDOWN || wParam == WM_XBUTTONUP)
             mouseData = GET_XBUTTON_WPARAM(mouse->mouseData);
 
-        // throttle move events
         static DWORD lastMoveTime = 0;
-        static POINT lastMovePoint = {-1, -1};
+        static POINT lastMovePt = {-1, -1};
         if (kind == COREWEBVIEW2_MOUSE_EVENT_KIND_MOVE)
         {
             DWORD now = GetTickCount();
-            if ((now - lastMoveTime < 8) && clientMouse.x == lastMovePoint.x && clientMouse.y == lastMovePoint.y)
-            {
+            if ((now - lastMoveTime < 8) && clientMouse.x == lastMovePt.x && clientMouse.y == lastMovePt.y)
                 return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
-            }
             lastMoveTime = now;
-            lastMovePoint = clientMouse;
+            lastMovePt = clientMouse;
         }
 
-        // send mouse data
-        data->compController->SendMouseInput(kind, vkFlags, mouseData, clientMouse);
+        // Send input
+        data->compController->SendMouseInput(kind, vk, mouseData, clientMouse);
     }
+
     return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
 }
 
