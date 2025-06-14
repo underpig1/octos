@@ -1,3 +1,5 @@
+### June 2025 update: Octos is being completely renovated for Windows 11! 🚧
+
 ![Octos icon](./img/tray.png)
 
 # Octos - HTML Live Wallpaper Engine
