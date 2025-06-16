@@ -1,6 +1,7 @@
 #include "Event.h"
 #include "../Core/Core.h"
 #include "../WebView/WebView.h"
+#include "../Watchdog/Watchdog.h"
 
 static HHOOK g_mouseHook = nullptr;
 HHOOK g_keyboardHook = nullptr;
@@ -65,7 +66,6 @@ LRESULT CALLBACK MouseEventProc(int nCode, WPARAM wParam, LPARAM lParam)
                 COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_NONE,
                 0,
                 POINT{10000, 10000});
-            wprintf(L"[Watchdog] RELEASING %s\n", className);
             just_released = true;
             return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
         }
@@ -148,8 +148,11 @@ LRESULT CALLBACK MouseEventProc(int nCode, WPARAM wParam, LPARAM lParam)
             lastMovePt = clientMouse;
         }
 
-        // Send input
+        // send input
+        // FixWallpaperOrder(hwnd);
         data->compController->SendMouseInput(kind, vk, mouseData, clientMouse);
+        if (kind != COREWEBVIEW2_MOUSE_EVENT_KIND_MOVE)
+            FixWallpaperOrder(hwnd);
     }
 
     return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);

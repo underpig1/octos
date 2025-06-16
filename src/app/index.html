@@ -1,35 +1,248 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <title>My App</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        html,
-        body {
-            background-color: transparent;
-        }
-
-        #dragbar {
-            background-color: white;
-            width: 200px;
-            height: 200px;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Octos</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-    <div id="dragbar"></div>
-    <h1>Hello from bundled HTML!</h1>
-    <p>This is <code>app/index.html</code> loaded from the EXE.</p>
-    <button id='button' onclick="showMessage()">Click me</button>
-    <script src="script.js"></script>
-    <script>
-        document.getElementById('dragbar').addEventListener('mousedown', function (e) {
-            window.chrome.webview.postMessage({ type: 'drag' });
-        });
-    </script>
+    <div class="templates" style="display: none">
+        <template id="card-template">
+            <div class="card" onclick="focusCard(this)">
+                <img class="checkmark" src="img/checkmark.png">
+                <img class="downloaded" src="img/downloaded.png">
+                <div class="card-info">
+                    <span class="card-title"></span>
+                    <span class="card-author"></span>
+                </div>
+            </div>
+        </template>
+        <template id="card-upload-template">
+            <div class="card upload-card" onclick="uploadMod()">
+                <p>+ Add module from file</p>
+            </div>
+        </template>
+        <template id="checkbox-input">
+            <label class="checkbox-input">
+                <input type="checkbox" onchange="updateCardOptions()">
+                <p>Input</p>
+                <span class="checkmark"></span>
+            </label>
+        </template>
+        <template id="range-input">
+            <label class="range-input">
+                <p>Input</p>
+                <p class="range-value">5</p>
+                <input type="range" onchange="updateRange(this); updateCardOptions();" oninput="updateRange(this)">
+            </label>
+        </template>
+        <template id="file-input">
+            <label class="file-input">
+                <p>Input</p>
+                <input type="file" onchange="updateCardOptions()">
+                <span class="file-upload"></span>
+            </label>
+        </template>
+        <template id="color-input">
+            <label class="color-input">
+                <p>Input</p>
+                <input type="color" onchange="updateCardOptions()">
+            </label>
+        </template>
+        <template id="number-input">
+            <label class="number-input">
+                <p>Input</p>
+                <input type="number" onchange="updateCardOptions()">
+            </label>
+        </template>
+        <template id="text-input">
+            <label class="text-input">
+                <p>Input</p>
+                <input type="text" onchange="updateCardOptions()">
+            </label>
+        </template>
+        <template id="description-input">
+            <label class="description-input">
+                <p>Description</p>
+            </label>
+        </template>
+        <template id="select-input">
+            <label class="select-input">
+                <p>Input</p>
+                <input style="display: none" onchange="updateCardOptions()">
+                <select></select>
+            </label>
+        </template>
+    </div>
+    <div class="main">
+        <div class="topbar" id="topbar">
+            <h3 class="subheader" id="title">Explore</h3>
+            <div class="win-contain">
+                <div class="win" onclick="minimize()"><img src="img/minimize.png"></div>
+                <div class="win" onclick="fullscreen()"><img src="img/fullscreen.png"></div>
+                <div class="win" onclick="exit()"><img src="img/exit.png"></div>
+            </div>
+        </div>
+        <div class="nav">
+            <div class="nav-highlight"><span class="nav-accent"></span></div>
+            <div class="nav-item" id="explore" onclick="setContent(this)"><img src="img/explore.png" title="Explore mods"></div>
+            <div class="nav-item" id="modules" onclick="setContent(this)"><img src="img/modules.png" title="Installed mods"></div>
+            <div class="nav-item" id="develop" onclick="setContent(this)"><img src="img/develop.png" title="Developer menu"></div>
+            <div class="nav-item" id="settings" onclick="setContent(this)"><img src="img/settings.png" title="Preferences"></div>
+        </div>
+        <div class="content">
+            <div class="tab-content" id="explore-tab">
+                <a id="explore-empty" style="cursor: default !important;">Error loading explore page</a>
+                <div class="scrollbox" id="explore-scrollbox"></div>
+                <div class="sidebar">
+                    <div id="explore-card-description" class="card-description">
+                        <h1 class="title"><span class="title-content">Ethereal</span></h1>
+                        <h2 class="author">By <a class="author-content">Octos</a></h2>
+                        <p class="description">Created in the depths of hell, this wallpaper was designed with designs that show multiple entities.</p>
+                        <button onclick="downloadFocusedCard()">Download</button>
+                        <button class="secondary-button" onclick="goToSource()">Go to source</button>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-content active" id="modules-tab">
+                <a id="modules-empty" onclick="uploadMod()">Looks like you don't have any mods installed. Click to install a module from file.</a>
+                <div class="scrollbox" id="modules-scrollbox"></div>
+                <div class="sidebar">
+                    <div id="modules-card-description" class="card-description">
+                        <h1 class="title"><span class="title-content">Ethereal</span><img class="card-remove" src="img/remove.png" onclick="removeFocusedCard()"></h1>
+                        <h2 class="author">By <a class="author-content">Octos</a></h2>
+                        <p class="description">Created in the depths of hell, this wallpaper was designed with designs that show multiple entities.</p>
+                        <div class="card-options" id="card-options"></div>
+                        <a id="restore-preferences" style="position: absolute; bottom: 47px;" onclick="restorePreferences()">Restore default preferences</a>
+                        <button id="set-wallpaper" onclick="selectFocusedCard()" style="position: absolute; bottom: 5px; width: auto; left: 15px; right: 15px;">Set as Wallpaper</button>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-content" id="develop-tab">
+                <div id="develop-intro">
+                    <h1>Mod creator</h1>
+                    <p style="margin-top: 2px;">Welcome to the developer menu! Here you can find tools and information in order to create your own awesome mods.</p>
+                    <button class="outline-button" onclick="developNew()" style="margin-top: 12px; margin-bottom: 10px;">Create new mod</button>
+                    <a onclick="developFile()">Edit from mod existing folder</a>
+                </div>
+                <div class="develop-main">
+                    <div class="layout">
+                        <img src="img/back.png" class="develop-back" onclick="disableDeveloping()">
+                        <div id="layout-console"></div>
+                        <div class="develop-buttons">
+                            <img class="develop-button" src="img/play.png" title="Run" onclick="playMod()">
+                            <img class="develop-button" src="img/stop.png" title="Pause" onclick="stopMod()">
+                            <img class="develop-button" src="img/debug.png" title="Debug" onclick="debugMod()">
+                        </div>
+                    </div>
+                    <div class="sidebar" style="padding: 0 10px; margin-right: 10px;">
+                        <div class="develop-metadata">
+                            <h3 class="subheader" style="margin-top: 0;">Metadata</h3>
+                            <h1 class="title" style="margin-bottom: -4px;"><span id="develop-name">Ethereal</span><img class="card-remove" src="img/edit.png" onclick="renameMod()"></h1>
+                            <p id="develop-description">Created in the depths of hell, this wallpaper was designed with designs that show multiple entities.</p>
+                            <button onclick="editModDescription()">Edit Description</button>
+                            <h3 class="subheader" style="margin-top: 12px;">Event access</h3>
+                            <div class="inputs">
+                                <label for="mouse-checkbox" class="checkbox-input metadata-checkbox">
+                                    <input id="mouse-checkbox" type="checkbox" onchange="updateDevelopModInfo()" checked><p>Mouse</p>
+                                    <span class="checkmark"></span>
+                                </label>
+                                <label for="keyboard-checkbox" class="checkbox-input metadata-checkbox">
+                                    <input id="keyboard-checkbox" type="checkbox" onchange="updateDevelopModInfo()" checked><p>Keyboard</p>
+                                    <span class="checkmark"></span>
+                                </label>
+                                <label for="media-checkbox" class="checkbox-input metadata-checkbox">
+                                    <input id="media-checkbox" type="checkbox" onchange="updateDevelopModInfo()" checked><p>Media</p>
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                            <button onclick="openModFolder()">Open mod folder</button>
+                            <button class="secondary-button" onclick="buildMod()">Build and share</button>
+                            <button class="secondary-button" onclick="openDocumentation()">Documentation</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-content" id="settings-tab">
+                <div class="settings-main scrollbox">
+                    <p class="subheader">System</p>
+                    <div class="settings-section">
+                        <h1>Permissions</h1>
+                        <p>Disable any of the following to prevent modules from accessing system information. Note that this may prevent some modules from working as expected.</p>
+                        <div class="card-options">
+                            <label class="checkbox-input">
+                                <input class="settings-input" id="perm-mouse" type="checkbox" onchange="updateUserPrefs(this)" checked>
+                                <p>Mouse events</p>
+                                <span class="checkmark"></span>
+                            </label>
+                            <label class="checkbox-input">
+                                <input class="settings-input" id="perm-keyboard" type="checkbox" onchange="updateUserPrefs(this)" checked>
+                                <p>Keyboard events</p>
+                                <span class="checkmark"></span>
+                            </label>
+                            <label class="checkbox-input">
+                                <input class="settings-input" id="perm-media" type="checkbox" onchange="updateUserPrefs(this)" checked>
+                                <p>Media events</p>
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h1>Startup</h1>
+                        <p>Change whether or not Octos should run on system startup/boot.</p>
+                        <div class="card-options">
+                            <label class="checkbox-input">
+                                <input class="settings-input" id="boot" type="checkbox" onchange="updateUserPrefs(this)" checked>
+                                <p>Run on boot</p>
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <p class="subheader">Configuration</p>
+                    <div class="settings-section">
+                        <h1>Mods</h1>
+                        <p>Review your installed mods.</p>
+                        <div style="width: 170px">
+                            <button onclick="openModsFolder()">Open mods folder</button>
+                            <button onclick="findMoreMods()">Find more mods</button>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h1>Developer</h1>
+                        <p>Check out some resources to help you make and share your own awesome mods.</p>
+                        <div style="width: 170px">
+                            <button onclick="openDocumentation()">Documentation</button>
+                            <button onclick="shareMod()">Publish your mod</button>
+                        </div>
+                    </div>
+                    <p>Revert back to default settings.</p>
+                    <button class="secondary-button" onclick="restoreUserPrefs()">Revert changes</button>
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            <img src="img/icon.png" class="footer-icon">
+            <div class="action-icons">
+                <img title="Refresh" src="img/refresh.png" class="action-icon" onclick="refresh()">
+                <img title="Documentation" src="img/documentation.png" class="action-icon" onclick="openDocumentation()">
+                <img title="Toggle visibility" src="img/visibility.png" id="visible-icon" class="action-icon" style="width: 20px; margin-left: -2px;" onclick="toggleVisibility()">
+            </div>
+        </div>
+        <div class="scroll-shadow" id="scroll-shadow-top" style="grid-row: 1 / 2; top: 5px;"></div>
+        <div class="scroll-shadow" id="scroll-shadow-bottom" style="grid-row: 3 / 4; bottom: 5px;"></div>
+    </div>
+    <div id="modal-container">
+        <div class="modal">
+            <h1 class="modal-title">Remove mod</h1>
+            <p class="modal-description">Cannot undo</p>
+            <input class="modal-textbox" type="text" placeholder="Type here...">
+            <div class="modal-buttons">
+                <button class="cancel" onclick="modalResponse(false)">Cancel</button>
+                <button onclick="modalResponse(true)">OK</button>
+            </div>
+        </div>
+    </div>
+    <script src="index.js"></script>
 </body>
-
 </html>

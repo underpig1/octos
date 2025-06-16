@@ -7,6 +7,7 @@
 #include <d3d11.h>
 
 #include "WebView.h"
+#include "../Bridge/Bridge.h"
 
 wil::com_ptr<ICoreWebView2Environment3> g_webviewEnvironment;
 std::mutex g_envMutex;
@@ -171,11 +172,7 @@ void OnWebViewControllerCreated(
                 if (SUCCEEDED(args->get_WebMessageAsJson(&messageRaw)))
                 {
                     std::wstring msg = messageRaw.get();
-                    if (msg.find(L"\"type\":\"drag\"") != std::wstring::npos)
-                    {
-                        ReleaseCapture();
-                        SendMessage(hwnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
-                    }
+                    HandleWebMessage(msg, hwnd);
                 }
                 return S_OK;
             })
@@ -200,6 +197,7 @@ void AttachWebViewController(HWND hwnd, const std::wstring &htmlRelativePath)
 
                                                                *controller = ctrl;
                                                                (*controller)->get_CoreWebView2(webview->put());
+                                                               (*controller)->put_IsVisible(TRUE);
 
                                                                // initialize WebViewData
                                                                WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
@@ -274,7 +272,6 @@ void HandleOnCreate(HWND hwnd, LPARAM lParam)
 
 void HandleResize(HWND hwnd, LPARAM lParam)
 {
-    wprintf(L"[WebView] RESIZING ADJASOIDHJASOIDHASODHASOIDHASDOIH");
     WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
     if (data && data->controller)
     {

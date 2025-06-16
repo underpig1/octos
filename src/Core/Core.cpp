@@ -1,6 +1,7 @@
 #include "Core.h"
 #include "../main.h"
 #include "../WebView/WebView.h"
+#include <dwmapi.h>
 
 std::vector<MonitorWindow> ms;
 std::vector<HMONITOR> g_monitors;
@@ -67,7 +68,7 @@ HWND CreateWallpaperWindow(const std::wstring &htmlRelativePath)
 {
     WebViewData *data = new WebViewData();
     HWND hwnd = CreateWindowEx(
-        WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW,
+        WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
         CLASS_NAME,
         NULL,
         WS_POPUP | WS_VISIBLE,
@@ -75,7 +76,7 @@ HWND CreateWallpaperWindow(const std::wstring &htmlRelativePath)
         NULL,
         NULL, g_hInstance, reinterpret_cast<LPVOID>(data));
     SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA);
-    AttachWebViewCompositionController(hwnd, htmlRelativePath);
+    AttachWebViewCompositionController(hwnd, L"assets/Octos/index.html");
     return hwnd;
 }
 
@@ -84,7 +85,7 @@ void InitializeWallpaperWindows()
     EnumDisplayMonitors(nullptr, nullptr, [](HMONITOR hMon, HDC, LPRECT, LPARAM lParam) -> BOOL
                         {
         std::vector<MonitorWindow> *ms = reinterpret_cast<std::vector<MonitorWindow> *>(lParam);
-        HWND hwnd = CreateWallpaperWindow(L"assets/index.html");
+        HWND hwnd = CreateWallpaperWindow(L"assets/Octos/index.html");
         AttachWindow(hwnd);
         MonitorWindow mw = MonitorWindow{hwnd, hMon};
         mw.ExpandToMonitor();
@@ -95,8 +96,11 @@ void InitializeWallpaperWindows()
 HWND CreateMainWindow()
 {
     WebViewData *data = new WebViewData();
-    HWND hwnd = CreateWindowExW(WS_EX_APPWINDOW, CLASS_NAME, L"Octos", WS_POPUP | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 0, 0, nullptr, nullptr, g_hInstance, reinterpret_cast<LPVOID>(data));
-    // AttachWebViewController(hwnd, L"assets/index.html");
+    HWND hwnd = CreateWindowExW(0, CLASS_NAME, L"Octos", WS_THICKFRAME | WS_BORDER, CW_USEDEFAULT, CW_USEDEFAULT, 900, 600, nullptr, nullptr, g_hInstance, reinterpret_cast<LPVOID>(data));
+    ShowWindow(hwnd, SW_SHOW);
+    UpdateWindow(hwnd);
+    AttachWebViewController(hwnd, L"app/index.html");
+    SetTimer(hwnd, 1, 100, NULL);
     return hwnd;
 }
 

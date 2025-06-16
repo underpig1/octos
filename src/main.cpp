@@ -5,8 +5,8 @@
 // #include "Dispatch/Dispatch.h"
 #include "Event/Event.h"
 #include "main.h"
+#include <windowsx.h>
 
-const std::wstring defaultHtmlPath = L"assets/index.html";
 const wchar_t CLASS_NAME[] = L"OctosWorker";
 HINSTANCE g_hInstance;
 HWND app_hwnd;
@@ -15,7 +15,7 @@ void OnClose()
 {
     KillTimer(app_hwnd, 1);
     KillTimer(app_hwnd, 2);
-    RemoveTrayIcon();
+    DestroyTrayIcon();
     CoUninitialize();
     UninstallEventHooks();
     PostQuitMessage(0);
@@ -25,6 +25,63 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
     {
+    case WM_NCCALCSIZE:
+    {
+        if (app_hwnd != hwnd)
+            break;
+        if (wParam)
+        {
+            NCCALCSIZE_PARAMS *pParams = (NCCALCSIZE_PARAMS *)lParam;
+            const int border = 8;
+            pParams->rgrc[0].left += border;
+            pParams->rgrc[0].right -= border;
+            pParams->rgrc[0].bottom -= border;
+            return 0;
+        }
+        break;
+    }
+    case WM_GETMINMAXINFO:
+    {
+        if (hwnd == app_hwnd)
+        {
+            auto mmi = reinterpret_cast<MINMAXINFO *>(lParam);
+            mmi->ptMinTrackSize.x = 800;
+            mmi->ptMinTrackSize.y = 500;
+            return 0;
+        }
+    }
+    // case WM_NCHITTEST:
+    // {
+    //     POINT pt = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+    //     ScreenToClient(hwnd, &pt);
+    //     RECT rc;
+    //     GetClientRect(hwnd, &rc);
+    //     const int BORDER_WIDTH = 8;
+
+    //     if (pt.x < BORDER_WIDTH)
+    //     {
+    //         if (pt.y < BORDER_WIDTH)
+    //             return HTTOPLEFT;
+    //         else if (pt.y > rc.bottom - BORDER_WIDTH)
+    //             return HTBOTTOMLEFT;
+    //         else
+    //             return HTLEFT;
+    //     }
+    //     else if (pt.x > rc.right - BORDER_WIDTH)
+    //     {
+    //         if (pt.y < BORDER_WIDTH)
+    //             return HTTOPRIGHT;
+    //         else if (pt.y > rc.bottom - BORDER_WIDTH)
+    //             return HTBOTTOMRIGHT;
+    //         else
+    //             return HTRIGHT;
+    //     }
+    //     else if (pt.y < BORDER_WIDTH)
+    //         return HTTOP;
+    //     else if (pt.y > rc.bottom - BORDER_WIDTH)
+    //         return HTBOTTOM;
+    //     return HTCLIENT;
+    // }
     case WM_NCCREATE:
         wprintf(L"[WinMain] Created\n");
         HandleOnCreate(hwnd, lParam);
@@ -33,16 +90,25 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         wprintf(L"[WinMain] Resized\n");
         HandleResize(hwnd, lParam);
         return 0;
+    case WM_ACTIVATE:
+        for (auto &mw : ms)
+            FixWallpaperOrder(mw.hwnd);
+    case WM_SETFOCUS:
+        for (auto &mw : ms)
+            FixWallpaperOrder(mw.hwnd);
+    case WM_KILLFOCUS:
+        for (auto &mw : ms)
+            FixWallpaperOrder(mw.hwnd);
     case WM_SHOWWINDOW:
     {
         wprintf(L"[WinMain] Shown\n");
-        InstallEventHooks();
         return 0;
     }
     case WM_CLOSE:
     {
         wprintf(L"[WinMain] Closed\n");
-        OnClose();
+        if (app_hwnd == hwnd)
+            ShowWindow(hwnd, SW_HIDE);
         return 0;
     }
     case WM_DESTROY:
@@ -75,16 +141,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_TRAYICON:
         wprintf(L"[WinMain] Tray created\n");
         if (lParam == WM_LBUTTONUP || lParam == WM_RBUTTONUP)
-        {
-            ShowTrayMenu(hwnd);
-        }
+            ShowTrayMenu();
         return 0;
     default:
         return DefWindowProc(hwnd, msg, wParam, lParam);
     }
 }
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     AllocConsole();
     freopen("CONOUT$", "w", stdout);
@@ -99,20 +163,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
     wc.lpfnWndProc = WndProc;
     wc.hInstance = hInstance;
     wc.lpszClassName = CLASS_NAME;
+    wc.hbrBackground = nullptr;
     RegisterClass(&wc);
     g_hInstance = hInstance;
 
-    HWND trayHwnd = CreateWindowEx(0, CLASS_NAME, L"", 0, 0, 0, 0, 0, HWND_MESSAGE, 0, hInstance, 0);
-    AddTrayIcon(trayHwnd);
+    InitializeTrayIcon();
 
     app_hwnd = CreateMainWindow();
-    SetTimer(app_hwnd, 1, 100, NULL);
     // SetTimer(app_hwnd, 2, 10, NULL);
 
     InitializeWallpaperWindows();
-
-    // InstallEventHooks();
-
+    InstallEventHooks();
     // std::atexit(OnClose);
     wprintf(L"[WinMain] Initialized");
 
@@ -123,5 +184,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int)
         DispatchMessage(&msg);
     }
 
+    OnClose();
     return 0;
 }

@@ -51,6 +51,28 @@ void FindRenderingTarget(HWND targetHwnd)
     reinterpret_cast<LPARAM>(&targetRect));
 }
 
+void FixWallpaperOrder(HWND hwnd)
+{
+    HWND progman = FindWindow(L"Progman", NULL);
+    HWND shellView = FindWindowEx(progman, NULL, L"SHELLDLL_DefView", NULL);
+    HWND curr = GetNextWindow(shellView, GW_HWNDNEXT);
+    bool needs_fixing = true;
+    while (curr != nullptr)
+    {
+        if (curr == hwnd)
+        {
+            needs_fixing = false;
+            break;
+        }
+        curr = GetNextWindow(curr, GW_HWNDNEXT);
+    }
+    if (needs_fixing)
+    {
+        wprintf(L"[Watchdog] Fixing order\n");
+        SetWindowPos(hwnd, shellView, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE);
+    }
+}
+
 void WatchdogProc()
 {
     HWND progman = FindWindow(L"Progman", NULL);
@@ -69,7 +91,7 @@ void WatchdogProc()
         for (size_t i = ms.size(); i < g_monitors.size(); ++i)
         {
             HMONITOR hMon = g_monitors[i];
-            HWND hwnd = CreateWallpaperWindow(defaultHtmlPath);
+            HWND hwnd = CreateWallpaperWindow(L"assets/Octos/index.html");
             AttachWindow(hwnd);
             MonitorWindow mw = {hwnd, hMon};
             mw.ExpandToMonitor();
@@ -110,23 +132,7 @@ void WatchdogProc()
         // check if zorder needs fixing (win11)
         if (parent == progman)
         {
-            HWND shellView = FindWindowEx(progman, NULL, L"SHELLDLL_DefView", NULL);
-            HWND curr = GetNextWindow(shellView, GW_HWNDNEXT);
-            bool needs_fixing = true;
-            while (curr != nullptr)
-            {
-                if (curr == mw.hwnd)
-                {
-                    needs_fixing = false;
-                    break;
-                }
-                curr = GetNextWindow(curr, GW_HWNDNEXT);
-            }
-            if (needs_fixing)
-            {
-                wprintf(L"[Watchdog] Fixing order\n");
-                SetWindowPos(mw.hwnd, shellView, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOMOVE);
-            }
+            FixWallpaperOrder(mw.hwnd);
         }
         // check if window isnt assinged to a monitor
         RECT a = GetMonitorRect(mw.monitor);
