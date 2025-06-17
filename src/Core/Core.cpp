@@ -1,7 +1,6 @@
 #include "Core.h"
 #include "../main.h"
 #include "../WebView/WebView.h"
-#include <dwmapi.h>
 
 std::vector<MonitorWindow> ms;
 std::vector<HMONITOR> g_monitors;
@@ -76,8 +75,19 @@ HWND CreateWallpaperWindow(const std::wstring &htmlRelativePath)
         NULL,
         NULL, g_hInstance, reinterpret_cast<LPVOID>(data));
     SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA);
-    AttachWebViewCompositionController(hwnd, L"assets/Octos/index.html");
+    AttachWebViewCompositionController(hwnd, htmlRelativePath);
     return hwnd;
+}
+
+void RecreateWallpapers()
+{
+    for (auto &mw : ms)
+    {
+        if (IsWindow(mw.hwnd))
+            PostMessage(app_hwnd, WM_USER + 2, 0, reinterpret_cast<LPARAM>(mw.hwnd));
+    }
+    ms.clear();
+    InitializeWallpaperWindows();
 }
 
 void InitializeWallpaperWindows()
@@ -85,7 +95,7 @@ void InitializeWallpaperWindows()
     EnumDisplayMonitors(nullptr, nullptr, [](HMONITOR hMon, HDC, LPRECT, LPARAM lParam) -> BOOL
                         {
         std::vector<MonitorWindow> *ms = reinterpret_cast<std::vector<MonitorWindow> *>(lParam);
-        HWND hwnd = CreateWallpaperWindow(L"assets/Octos/index.html");
+        HWND hwnd = CreateWallpaperWindow(L"wallpapers/Octos/index.html");
         AttachWindow(hwnd);
         MonitorWindow mw = MonitorWindow{hwnd, hMon};
         mw.ExpandToMonitor();
@@ -99,7 +109,7 @@ HWND CreateMainWindow()
     HWND hwnd = CreateWindowExW(0, CLASS_NAME, L"Octos", WS_THICKFRAME | WS_BORDER, CW_USEDEFAULT, CW_USEDEFAULT, 900, 600, nullptr, nullptr, g_hInstance, reinterpret_cast<LPVOID>(data));
     ShowWindow(hwnd, SW_SHOW);
     UpdateWindow(hwnd);
-    AttachWebViewController(hwnd, L"app/index.html");
+    // AttachWebViewController(hwnd, L"app/index.html");
     SetTimer(hwnd, 1, 100, NULL);
     return hwnd;
 }

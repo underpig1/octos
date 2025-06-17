@@ -5,7 +5,6 @@
 // #include "Dispatch/Dispatch.h"
 #include "Event/Event.h"
 #include "main.h"
-#include <windowsx.h>
 
 const wchar_t CLASS_NAME[] = L"OctosWorker";
 HINSTANCE g_hInstance;
@@ -102,6 +101,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_SHOWWINDOW:
     {
         wprintf(L"[WinMain] Shown\n");
+        if (wParam && app_hwnd == hwnd)
+        {
+            static bool webviewCreated = false;
+            if (!webviewCreated)
+            {
+                AttachWebViewController(hwnd, L"app/index.html");
+                webviewCreated = true;
+            }
+        }
         return 0;
     }
     case WM_CLOSE:

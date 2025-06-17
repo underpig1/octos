@@ -18,7 +18,8 @@ extern std::vector<HMONITOR> g_monitors;
 
 RECT GetMonitorRect(HMONITOR hMon);
 void AttachWindow(HWND hwnd);
-HWND CreateWallpaperWindow();
+HWND CreateWallpaperWindow(const std::wstring &htmlRelativePath);
 void InitializeWallpaperWindows();
 HWND CreateMainWindow();
 void RecreateWindow(LPARAM lParam);
+void RecreateWallpapers();

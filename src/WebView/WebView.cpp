@@ -8,6 +8,7 @@
 
 #include "WebView.h"
 #include "../Bridge/Bridge.h"
+#include "../Storage/Storage.h"
 
 wil::com_ptr<ICoreWebView2Environment3> g_webviewEnvironment;
 std::mutex g_envMutex;
@@ -153,14 +154,7 @@ void OnWebViewControllerCreated(
     }
 
     // navigate to local HTML file
-    wchar_t exePath[MAX_PATH];
-    GetModuleFileNameW(nullptr, exePath, MAX_PATH);
-    PathRemoveFileSpecW(exePath);
-    std::wstring htmlPath = std::wstring(exePath) + L"\\" + htmlRelativePath;
-    for (auto &c : htmlPath)
-        if (c == L'\\')
-            c = L'/';
-    std::wstring url = L"file:///" + htmlPath;
+    std::wstring url = ResolvePath(htmlRelativePath, true);
     webview->Navigate(url.c_str());
 
     // handle messages
@@ -191,9 +185,7 @@ void AttachWebViewController(HWND hwnd, const std::wstring &htmlRelativePath)
                                                            [hwnd, htmlRelativePath, controller, webview](HRESULT result, ICoreWebView2Controller *ctrl) -> HRESULT
                                                            {
                                                                if (FAILED(result))
-                                                               {
                                                                    return result;
-                                                               }
 
                                                                *controller = ctrl;
                                                                (*controller)->get_CoreWebView2(webview->put());

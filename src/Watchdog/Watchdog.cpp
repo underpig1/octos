@@ -91,7 +91,7 @@ void WatchdogProc()
         for (size_t i = ms.size(); i < g_monitors.size(); ++i)
         {
             HMONITOR hMon = g_monitors[i];
-            HWND hwnd = CreateWallpaperWindow(L"assets/Octos/index.html");
+            HWND hwnd = CreateWallpaperWindow(L"wallpapers/Octos/index.html");
             AttachWindow(hwnd);
             MonitorWindow mw = {hwnd, hMon};
             mw.ExpandToMonitor();

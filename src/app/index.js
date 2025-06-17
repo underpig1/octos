@@ -1,126 +1,18 @@
 document.getElementById('topbar').addEventListener('mousedown', (e) => {
-    window.chrome.webview.postMessage({ type: "drag" });
+    if (e.target === e.currentTarget)
+        window.chrome.webview.postMessage({ type: "drag" });
 });
 
-var focusedIDs = { explore: null, modules: null };
-var selectedID;
-var isVisible = true;
-var inputGetters = {};
-var installedMods = {};
-var exploreMods = {};
-var activeTab = "modules";
-var modalListener = () => null;
-var downloadingCards = [];
-var develop = {}
-
-window.link.getVisibility().then((state) => {
-    isVisible = state;
-    updateVisibilityIcon();
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-    for (var range of document.getElementsByClassName("range-input")) updateRange(range);
-    for (var img of document.getElementsByTagName("img")) img.draggable = false;
-});
-
-function writeToDevelopConsole(content, end = "\n") {
-    const layoutConsole = document.getElementById("layout-console");
-    layoutConsole.innerText += content + end;
-    layoutConsole.scrollTo({ top: layoutConsole.scrollHeight });
+function exit() {
+    window.chrome.webview.postMessage({ type: "close" })
 }
 
-function clearDevelopConsole() {
-    document.getElementById("layout-console").innerText = "";
+function minimize() {
+    window.chrome.webview.postMessage({ type: 'minimize' })
 }
 
-function developNew() {
-    window.link.newMod().then((dir) => {
-        develop.dir = dir;
-        develop.name = dir.split(/\\|\//g).pop();
-        develop.description = "This is a very cool mod you made."
-        enableDeveloping();
-        updateDevelopModInfo();
-        clearDevelopConsole();
-        writeToDevelopConsole("Loaded mod at..." + develop.dir);
-        writeToDevelopConsole("Mod name: " + develop.name);
-    }).catch(() => {});
-}
-
-function developFile() {
-    window.link.openMod().then((dir) => {
-        develop.dir = dir;
-        window.link.developConfig.get(dir).then((config) => {
-            if (config) {
-                develop.name = config.name;
-                develop.description = config.description;
-                develop.events = config.options ? config.options.events : {};
-            }
-            enableDeveloping();
-            updateDevelopModInfo();
-            clearDevelopConsole();
-            writeToDevelopConsole("Loaded mod at..." + develop.dir);
-            writeToDevelopConsole("Mod name: " + develop.name);
-        });
-    }).catch(() => {});
-}
-
-function renameMod(name) {
-    modalDialog("Rename mod", "", develop.name ? develop.name : "Mod name");
-    modalListener = (state, text) => {
-        if (state) {
-            if (develop.dir) {
-                develop.name = text;
-                window.link.renameMod(develop.dir, text).then((dir) => develop.dir = dir);
-                updateDevelopModInfo();
-            }
-        }
-    }
-}
-
-function editConfig(listener) {
-    window.link.developConfig.get(develop.dir).then((config) => window.link.developConfig.set(develop.dir, listener(config)));
-}
-
-function editModDescription(name) {
-    modalDialog("Edit description", "", develop.description ? develop.description : "Mod description");
-    modalListener = (state, text) => {
-        if (state) {
-            develop.description = text;
-            updateDevelopModInfo();
-        }
-    }
-}
-
-function openModFolder() {
-    writeToDevelopConsole("Opening mod folder at " + develop.dir);
-    window.link.openModFolder(develop.dir);
-}
-
-function buildMod() {
-    writeToDevelopConsole("Building mod at " + develop.dir);
-    window.link.buildMod(develop.dir);
-}
-
-function updateDevelopModInfo() {
-    if (develop) {
-        document.getElementById("develop-name").innerText = develop.name ? develop.name : "Mod name";
-        document.getElementById("develop-description").innerText = develop.description ? develop.description : "";
-    }
-    develop.events = {
-        mouse: document.getElementById("mouse-checkbox").checked,
-        keyboard: document.getElementById("keyboard-checkbox").checked,
-        media: document.getElementById("media-checkbox").checked,
-    }
-    editConfig((config) => {
-        config.name = develop.name;
-        config.description = develop.description;
-        if (!config.options) config.options = {};
-        config.options.events = develop.events;
-        writeToDevelopConsole("Updated mod config:");
-        writeToDevelopConsole(JSON.stringify(config, null, 4));
-        return config;
-    });
-    updateWorking();
+function maximize() {
+    window.chrome.webview.postMessage({ type: 'maximize' })
 }
 
 function openModsFolder() {
@@ -128,47 +20,160 @@ function openModsFolder() {
 }
 
 function findMoreMods() {
-    window.link.openExternalLink("https://github.com/underpig1/octos-community");
+    chrome.webview.postMessage({ type: "open-external-link", url: "https://github.com/underpig1/octos-community" });
 }
 
 function openGitHub() {
-    window.link.openExternalLink("https://github.com/underpig1/octos");
+    chrome.webview.postMessage({ type: "open-external-link", url: "https://github.com/underpig1/octos" });
 }
 
 function openDocumentation() {
-    window.link.openExternalLink("https://underpig1.github.io/octos/docs/");
+    chrome.webview.postMessage({ type: "open-external-link", url: "https://underpig1.github.io/octos/docs/" });
 }
 
-function shareMod() {
-    window.link.openExternalLink("https://underpig1.github.io/octos/docs/?t=publishing");
+function refresh() {
+    chrome.webview.postMessage({ type: "refresh" });
 }
 
-function playMod() {
-    writeToDevelopConsole("Running mod at " + develop.dir);
-    if (develop) window.link.runMod(develop.dir);
-}
+// function shareMod() {
+//     window.link.openExternalLink("https://underpig1.github.io/octos/docs/?t=publishing");
+// }
 
-function stopMod() {
-    writeToDevelopConsole("Stopping mod");
-    window.link.stopMod();
-}
+// var focusedIDs = { explore: null, modules: null };
+// var selectedID;
+// var isVisible = true;
+// var inputGetters = {};
+// var installedMods = {};
+// var exploreMods = {};
+// var activeTab = "modules";
+// var modalListener = () => null;
+// var downloadingCards = [];
+// var develop = {}
 
-function debugMod() {
-    writeToDevelopConsole("Toggling debug menu");
-    window.link.toggleDebug();
-}
+// // window.link.getVisibility().then((state) => {
+// //     isVisible = state;
+// //     updateVisibilityIcon();
+// // });
 
-function exit() {
-    window.link.close();
-}
+// document.addEventListener("DOMContentLoaded", () => {
+//     for (var range of document.getElementsByClassName("range-input")) updateRange(range);
+//     for (var img of document.getElementsByTagName("img")) img.draggable = false;
+// });
 
-function minimize() {
-    window.link.minimize();
-}
+// function writeToDevelopConsole(content, end = "\n") {
+//     const layoutConsole = document.getElementById("layout-console");
+//     layoutConsole.innerText += content + end;
+//     layoutConsole.scrollTo({ top: layoutConsole.scrollHeight });
+// }
 
-function fullscreen() {
-    window.link.fullscreen();
-}
+// function clearDevelopConsole() {
+//     document.getElementById("layout-console").innerText = "";
+// }
+
+// function developNew() {
+//     window.link.newMod().then((dir) => {
+//         develop.dir = dir;
+//         develop.name = dir.split(/\\|\//g).pop();
+//         develop.description = "This is a very cool mod you made."
+//         enableDeveloping();
+//         updateDevelopModInfo();
+//         clearDevelopConsole();
+//         writeToDevelopConsole("Loaded mod at..." + develop.dir);
+//         writeToDevelopConsole("Mod name: " + develop.name);
+//     }).catch(() => {});
+// }
+
+// function developFile() {
+//     window.link.openMod().then((dir) => {
+//         develop.dir = dir;
+//         window.link.developConfig.get(dir).then((config) => {
+//             if (config) {
+//                 develop.name = config.name;
+//                 develop.description = config.description;
+//                 develop.events = config.options ? config.options.events : {};
+//             }
+//             enableDeveloping();
+//             updateDevelopModInfo();
+//             clearDevelopConsole();
+//             writeToDevelopConsole("Loaded mod at..." + develop.dir);
+//             writeToDevelopConsole("Mod name: " + develop.name);
+//         });
+//     }).catch(() => {});
+// }
+
+// function renameMod(name) {
+//     modalDialog("Rename mod", "", develop.name ? develop.name : "Mod name");
+//     modalListener = (state, text) => {
+//         if (state) {
+//             if (develop.dir) {
+//                 develop.name = text;
+//                 window.link.renameMod(develop.dir, text).then((dir) => develop.dir = dir);
+//                 updateDevelopModInfo();
+//             }
+//         }
+//     }
+// }
+
+// function editConfig(listener) {
+//     window.link.developConfig.get(develop.dir).then((config) => window.link.developConfig.set(develop.dir, listener(config)));
+// }
+
+// function editModDescription(name) {
+//     modalDialog("Edit description", "", develop.description ? develop.description : "Mod description");
+//     modalListener = (state, text) => {
+//         if (state) {
+//             develop.description = text;
+//             updateDevelopModInfo();
+//         }
+//     }
+// }
+
+// function openModFolder() {
+//     writeToDevelopConsole("Opening mod folder at " + develop.dir);
+//     window.link.openModFolder(develop.dir);
+// }
+
+// function buildMod() {
+//     writeToDevelopConsole("Building mod at " + develop.dir);
+//     window.link.buildMod(develop.dir);
+// }
+
+// function updateDevelopModInfo() {
+//     if (develop) {
+//         document.getElementById("develop-name").innerText = develop.name ? develop.name : "Mod name";
+//         document.getElementById("develop-description").innerText = develop.description ? develop.description : "";
+//     }
+//     develop.events = {
+//         mouse: document.getElementById("mouse-checkbox").checked,
+//         keyboard: document.getElementById("keyboard-checkbox").checked,
+//         media: document.getElementById("media-checkbox").checked,
+//     }
+//     editConfig((config) => {
+//         config.name = develop.name;
+//         config.description = develop.description;
+//         if (!config.options) config.options = {};
+//         config.options.events = develop.events;
+//         writeToDevelopConsole("Updated mod config:");
+//         writeToDevelopConsole(JSON.stringify(config, null, 4));
+//         return config;
+//     });
+//     updateWorking();
+// }
+
+// function playMod() {
+//     writeToDevelopConsole("Running mod at " + develop.dir);
+//     if (develop) window.link.runMod(develop.dir);
+// }
+
+// function stopMod() {
+//     writeToDevelopConsole("Stopping mod");
+//     window.link.stopMod();
+// }
+
+// function debugMod() {
+//     writeToDevelopConsole("Toggling debug menu");
+//     window.link.toggleDebug();
+// }
 
 function update() {
     handleScrollShadows();
@@ -250,10 +255,6 @@ function setContent(el) {
     updateCardDescription();
 }
 
-function refresh() {
-    window.link.refresh();
-}
-
 function focusCard(el) {
     for (var card of el.parentNode.getElementsByClassName("card")) card.classList.remove("focused");
     el.classList.add("focused");
@@ -329,27 +330,27 @@ function setCardDescription(prefix = "explore", title = "", author = "", descrip
     setButtonDisabled(buttonDisabled);
 }
 
-function updateVisibilityIcon() {
-    var visibleIcon = document.getElementById("visible-icon");
-    if (isVisible) visibleIcon.src = "img/visibility.png";
-    else visibleIcon.src = "img/invisible.png";
-}
+// function updateVisibilityIcon() {
+//     var visibleIcon = document.getElementById("visible-icon");
+//     if (isVisible) visibleIcon.src = "img/visibility.png";
+//     else visibleIcon.src = "img/invisible.png";
+// }
 
-function toggleVisibility() {
-    isVisible = !isVisible;
-    updateVisibilityIcon();
-    window.link.setVisibility(isVisible);
-}
+// function toggleVisibility() {
+//     isVisible = !isVisible;
+//     updateVisibilityIcon();
+//     window.link.setVisibility(isVisible);
+// }
 
-function enableDeveloping() {
-    var tab = document.getElementById("develop-tab");
-    tab.classList.add("developing");
-}
+// function enableDeveloping() {
+//     var tab = document.getElementById("develop-tab");
+//     tab.classList.add("developing");
+// }
 
-function disableDeveloping() {
-    var tab = document.getElementById("develop-tab");
-    tab.classList.remove("developing");
-}
+// function disableDeveloping() {
+//     var tab = document.getElementById("develop-tab");
+//     tab.classList.remove("developing");
+// }
 
 function createInput(options, id) {
     const cardOptions = document.getElementById("card-options");
@@ -461,56 +462,56 @@ function updateCardOptions() {
     }
 }
 
-function updateMods() {
-    window.link.getPrefs().then((prefs) => {
-        const modScrollbox = document.getElementById("modules-scrollbox");
-        var tempFocus = Object.keys(installedMods).length > 0 ? focusedIDs.modules ? installedMods[focusedIDs.modules].name : null : null;
-        installedMods = {};
-        modScrollbox.innerHTML = "";
-        var modNames = prefs.mods.map((x) => x.name);
-        for (var id in modNames) {
-            var name = modNames[id];
-            var img = prefs.images ? prefs.images[name] : null;
-            var config = prefs.configs[name];
-            var author = config ? config.author : null;
-            var modPrefs = prefs.prefs ? prefs.prefs[name] ? prefs.prefs[name].local : null : null;
-            var card = createCard(id, name, author, img);
-            if ((!tempFocus && id == 0) || tempFocus == name) {
-                for (var child of modScrollbox.children) child.classList.remove("focused");
-                card.classList.add("focused");
-                focusedIDs.modules = id;
-            }
-            if (prefs.selected == name) {
-                for (var child of modScrollbox.children) child.classList.remove("selected");
-                card.classList.add("selected");
-                selectedID = id;
-            }
-            modScrollbox.appendChild(card);
-            installedMods[id] = { name, img, author, el: card, config, options: modPrefs, description: config.description };
-        }
-        var focusCheck = false;
-        for (var mod of modScrollbox.childNodes) focusCheck = focusCheck || mod.classList.contains("focused");
-        if (!focusCheck) {
-            var firstCard = modScrollbox.querySelector(".card");
-            firstCard.classList.add("focused");
-            focusedIDs.modules = firstCard.id;
-        }
-        var uploadCard = document.getElementById("card-upload-template").content.cloneNode(true).firstElementChild;
-        modScrollbox.appendChild(uploadCard);
-        updateCardDescription();
-        updateDownloadedMods();
-    });
-}
+// function updateMods() {
+//     window.link.getPrefs().then((prefs) => {
+//         const modScrollbox = document.getElementById("modules-scrollbox");
+//         var tempFocus = Object.keys(installedMods).length > 0 ? focusedIDs.modules ? installedMods[focusedIDs.modules].name : null : null;
+//         installedMods = {};
+//         modScrollbox.innerHTML = "";
+//         var modNames = prefs.mods.map((x) => x.name);
+//         for (var id in modNames) {
+//             var name = modNames[id];
+//             var img = prefs.images ? prefs.images[name] : null;
+//             var config = prefs.configs[name];
+//             var author = config ? config.author : null;
+//             var modPrefs = prefs.prefs ? prefs.prefs[name] ? prefs.prefs[name].local : null : null;
+//             var card = createCard(id, name, author, img);
+//             if ((!tempFocus && id == 0) || tempFocus == name) {
+//                 for (var child of modScrollbox.children) child.classList.remove("focused");
+//                 card.classList.add("focused");
+//                 focusedIDs.modules = id;
+//             }
+//             if (prefs.selected == name) {
+//                 for (var child of modScrollbox.children) child.classList.remove("selected");
+//                 card.classList.add("selected");
+//                 selectedID = id;
+//             }
+//             modScrollbox.appendChild(card);
+//             installedMods[id] = { name, img, author, el: card, config, options: modPrefs, description: config.description };
+//         }
+//         var focusCheck = false;
+//         for (var mod of modScrollbox.childNodes) focusCheck = focusCheck || mod.classList.contains("focused");
+//         if (!focusCheck) {
+//             var firstCard = modScrollbox.querySelector(".card");
+//             firstCard.classList.add("focused");
+//             focusedIDs.modules = firstCard.id;
+//         }
+//         var uploadCard = document.getElementById("card-upload-template").content.cloneNode(true).firstElementChild;
+//         modScrollbox.appendChild(uploadCard);
+//         updateCardDescription();
+//         updateDownloadedMods();
+//     });
+// }
 
-function selectFocusedCard() {
-    const modScrollbox = document.getElementById("modules-scrollbox");
-    var focusedCard = document.getElementById(focusedIDs.modules);
-    for (var child of modScrollbox.children) child.classList.remove("selected");
-    focusedCard.classList.add("selected");
-    selectedID = focusedCard.id;
-    var name = installedMods[selectedID].name;
-    window.link.selectMod(name);
-}
+// function selectFocusedCard() {
+//     const modScrollbox = document.getElementById("modules-scrollbox");
+//     var focusedCard = document.getElementById(focusedIDs.modules);
+//     for (var child of modScrollbox.children) child.classList.remove("selected");
+//     focusedCard.classList.add("selected");
+//     selectedID = focusedCard.id;
+//     var name = installedMods[selectedID].name;
+//     window.link.selectMod(name);
+// }
 
 function removeFocusedCard() {
     modalListener = (state) => {
@@ -549,129 +550,129 @@ function modalDialog(title = "Modal title", description = "Modal description", t
     else modal.classList.remove("textbox");
 }
 
-function modalResponse(state) {
-    const modal = document.getElementById("modal-container");
-    modal.classList.remove("active");
-    modalListener(state, modal.querySelector(".modal-textbox").value);
-}
+// function modalResponse(state) {
+//     const modal = document.getElementById("modal-container");
+//     modal.classList.remove("active");
+//     modalListener(state, modal.querySelector(".modal-textbox").value);
+// }
 
-function uploadMod() {
-    window.link.upload();
-}
+// function uploadMod() {
+//     window.link.upload();
+// }
 
-function downloadFocusedCard() {
-    var id = focusedIDs.explore;
-    var name = exploreMods[id].name;
-    downloadingCards.push(id);
-    updateCardDescription();
-    window.link.downloadMod(name).then(() => {
-        downloadingCards.splice(downloadingCards.indexOf(id), 1);
-        exploreMods[id].installed = true;
-        document.getElementById(id).classList.add("installed");
-        updateCardDescription();
-        updateMods();
-    }).catch((err) => {
-        downloadingCards.splice(downloadingCards.indexOf(id), 1);
-        exploreMods[id].installed = true;
-        document.getElementById(id).classList.add("installed");
-        updateCardDescription();
-        updateMods();
-        modalListener = (state) => {
-            if (state) downloadFocusedCard();
-        }
-        modalDialog("Download failed", "There may be something wrong with your Internet. Try again?");
-    });
-}
+// function downloadFocusedCard() {
+//     var id = focusedIDs.explore;
+//     var name = exploreMods[id].name;
+//     downloadingCards.push(id);
+//     updateCardDescription();
+//     window.link.downloadMod(name).then(() => {
+//         downloadingCards.splice(downloadingCards.indexOf(id), 1);
+//         exploreMods[id].installed = true;
+//         document.getElementById(id).classList.add("installed");
+//         updateCardDescription();
+//         updateMods();
+//     }).catch((err) => {
+//         downloadingCards.splice(downloadingCards.indexOf(id), 1);
+//         exploreMods[id].installed = true;
+//         document.getElementById(id).classList.add("installed");
+//         updateCardDescription();
+//         updateMods();
+//         modalListener = (state) => {
+//             if (state) downloadFocusedCard();
+//         }
+//         modalDialog("Download failed", "There may be something wrong with your Internet. Try again?");
+//     });
+// }
 
-function goToSource() {
-    var id = focusedIDs.explore;
-    var name = exploreMods[id].name;
-    window.link.goToSource(name);
-}
+// function goToSource() {
+//     var id = focusedIDs.explore;
+//     var name = exploreMods[id].name;
+//     window.link.goToSource(name);
+// }
 
-function restoreUserPrefs() {
-    modalDialog("Restore settings", "Are you sure you want to restore default settings?");
-    modalListener = (state) => {
-        if (state) {
-            window.link.userPrefs.restore();
-            retrieveUserPrefs();
-        }
-    }
-}
+// function restoreUserPrefs() {
+//     modalDialog("Restore settings", "Are you sure you want to restore default settings?");
+//     modalListener = (state) => {
+//         if (state) {
+//             window.link.userPrefs.restore();
+//             retrieveUserPrefs();
+//         }
+//     }
+// }
 
-function updateUserPrefs(el) {
-    var field = el.id;
-    if (el.type == "checkbox") var value = el.checked;
-    else var value = el.value;
-    window.link.userPrefs.set(field, value);
-}
+// function updateUserPrefs(el) {
+//     var field = el.id;
+//     if (el.type == "checkbox") var value = el.checked;
+//     else var value = el.value;
+//     window.link.userPrefs.set(field, value);
+// }
 
-function retrieveUserPrefs() {
-    var inputs = document.getElementsByClassName("settings-input");
-    const pass = (el) => window.link.userPrefs.get(el.id).then((value) => {
-        if (value != null) {
-            if (el.type == "checkbox") el.checked = value;
-            else el.value = value;
-        }
-    });
-    for (var el of inputs) pass(el);
-}
+// function retrieveUserPrefs() {
+//     var inputs = document.getElementsByClassName("settings-input");
+//     const pass = (el) => window.link.userPrefs.get(el.id).then((value) => {
+//         if (value != null) {
+//             if (el.type == "checkbox") el.checked = value;
+//             else el.value = value;
+//         }
+//     });
+//     for (var el of inputs) pass(el);
+// }
 
-function updateWorking() {
-    window.link.userPrefs.set("working", develop);
-}
+// function updateWorking() {
+//     window.link.userPrefs.set("working", develop);
+// }
 
-function retrieveWorking() {
-    window.link.userPrefs.get("working").then((content) => {
-        if (content) {
-            develop = content;
-            enableDeveloping();
-            updateDevelopModInfo();
-        }
-    });
-}
+// function retrieveWorking() {
+//     window.link.userPrefs.get("working").then((content) => {
+//         if (content) {
+//             develop = content;
+//             enableDeveloping();
+//             updateDevelopModInfo();
+//         }
+//     });
+// }
 
-function updateDownloadedMods() {
-    for (var id of Object.keys(exploreMods)) {
-        var modData = exploreMods[id];
-        var installed = false;
-        for (var card of Object.values(installedMods)) {
-            if (card.name == modData.name && card.description == modData.description && card.author == modData.author) {
-                installed = true;
-                break;
-            }
-        }
-        modData.installed = installed;
-        var card = document.getElementById(id);
-        if (installed) card.classList.add("installed");
-        else card.classList.remove("installed");
-    }
-}
+// function updateDownloadedMods() {
+//     for (var id of Object.keys(exploreMods)) {
+//         var modData = exploreMods[id];
+//         var installed = false;
+//         for (var card of Object.values(installedMods)) {
+//             if (card.name == modData.name && card.description == modData.description && card.author == modData.author) {
+//                 installed = true;
+//                 break;
+//             }
+//         }
+//         modData.installed = installed;
+//         var card = document.getElementById(id);
+//         if (installed) card.classList.add("installed");
+//         else card.classList.remove("installed");
+//     }
+// }
 
-document.addEventListener("DOMContentLoaded", () => {
-    retrieveUserPrefs();
-    populateExplore();
-    retrieveWorking();
-});
+// document.addEventListener("DOMContentLoaded", () => {
+//     retrieveUserPrefs();
+//     populateExplore();
+//     retrieveWorking();
+// });
 
-function populateExplore() {
-    window.link.request.modData().then((data) => {
-        const exploreScrollbox = document.getElementById("explore-scrollbox");
-        exploreScrollbox.innerHTML = "";
-        exploreMods = {};
-        (async () => {
-            for (var id = 0, p = Promise.resolve(); id < Object.keys(data).length; id++) {
-                var name = Object.keys(data)[id];
-                var modData = data[name];
-                await window.link.request.modImage(name).then((data) => {
-                    var card = createCard("explore-" + id, name, modData.author, data);
-                    exploreScrollbox.appendChild(card);
-                    exploreMods["explore-" + id] = { name, author: modData.author, description: modData.description }
-                });
-            }
-            updateDownloadedMods();
-            cleanFocus();
-            updateCardDescription();
-        })();
-    });
-}
+// function populateExplore() {
+//     window.link.request.modData().then((data) => {
+//         const exploreScrollbox = document.getElementById("explore-scrollbox");
+//         exploreScrollbox.innerHTML = "";
+//         exploreMods = {};
+//         (async () => {
+//             for (var id = 0, p = Promise.resolve(); id < Object.keys(data).length; id++) {
+//                 var name = Object.keys(data)[id];
+//                 var modData = data[name];
+//                 await window.link.request.modImage(name).then((data) => {
+//                     var card = createCard("explore-" + id, name, modData.author, data);
+//                     exploreScrollbox.appendChild(card);
+//                     exploreMods["explore-" + id] = { name, author: modData.author, description: modData.description }
+//                 });
+//             }
+//             updateDownloadedMods();
+//             cleanFocus();
+//             updateCardDescription();
+//         })();
+//     });
+// }

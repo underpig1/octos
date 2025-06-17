@@ -79,15 +79,15 @@ link /nologo ^
     /SUBSYSTEM:WINDOWS ^
     /LIBPATH:"%WEBVIEW2_PATH%\x64" ^
     WebView2LoaderStatic.lib ^
-    ole32.lib uuid.lib user32.lib shell32.lib comctl32.lib shlwapi.lib advapi32.lib ^
-    Shcore.lib dwmapi.lib dcomp.lib d3d11.lib windowsapp.lib
+    ole32.lib uuid.lib user32.lib shlwapi.lib dcomp.lib d3d11.lib ^
+    shell32.lib comctl32.lib windowsapp.lib advapi32.lib
 
 rem Copy web files
 if exist build\app rmdir /s /q build\app
 xcopy /e /i /y src\app build\app
 
-if exist build\assets rmdir /s /q build\assets
-xcopy /e /i /y assets build\assets
+if exist build\wallpapers rmdir /s /q build\wallpapers
+xcopy /e /i /y wallpapers build\wallpapers
 
 rem Run the app if build succeeded
 if exist %APP_EXE_PATH% (

@@ -2,6 +2,7 @@
 
 #include "../main.h"
 #include "TrayIcon.h"
+#include "../Storage/Storage.h"
 
 #define TRAY_ICON_UID 1001
 
@@ -11,21 +12,8 @@ HWND trayHwnd;
 
 void InitializeTrayIcon()
 {
-    wchar_t exePath[MAX_PATH];
-    GetModuleFileNameW(nullptr, exePath, MAX_PATH);
-    wchar_t exeDir[MAX_PATH];
-    wcscpy_s(exeDir, exePath);
-    for (int i = wcslen(exeDir) - 1; i >= 0; --i)
-    {
-        if (exeDir[i] == L'\\' || exeDir[i] == L'/')
-        {
-            exeDir[i] = 0;
-            break;
-        }
-    }
-    wchar_t iconPath[MAX_PATH];
-    swprintf_s(iconPath, L"%s\\assets\\img\\icon.ico", exeDir);
-    HICON loadedIcon = (HICON)LoadImageW(nullptr, iconPath, IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+    std::wstring iconPath = ResolvePath(L"assets\\img\\icon.ico");
+    HICON loadedIcon = (HICON)LoadImageW(nullptr, iconPath.c_str(), IMAGE_ICON, 0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
     if (loadedIcon)
         hIcon = loadedIcon;
     else

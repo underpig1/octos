@@ -7,3 +7,4 @@ window.chrome.webview.addEventListener('message', event => {
             break;
     }
 });
+

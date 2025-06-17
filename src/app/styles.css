@@ -20,6 +20,7 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     -webkit-font-smoothing: antialiased;
     user-select: none;
+    overflow: hidden;
 }
 
 .main {
@@ -412,10 +413,12 @@ button:hover {
     padding: 0 20px;
     width: 98%;
     padding-right: calc(98% - 500px);
+    overflow-x: hidden;
 }
 
 .settings-section {
     margin-bottom: 20px;
+    overflow-x: hidden;
 }
 
 .subheader {
