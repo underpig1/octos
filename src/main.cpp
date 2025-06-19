@@ -5,6 +5,7 @@
 // #include "Dispatch/Dispatch.h"
 #include "Event/Event.h"
 #include "main.h"
+#include "Storage/Storage.h"
 
 const wchar_t CLASS_NAME[] = L"OctosWorker";
 HINSTANCE g_hInstance;
@@ -183,7 +184,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     InitializeWallpaperWindows();
     InstallEventHooks();
     // std::atexit(OnClose);
-    wprintf(L"[WinMain] Initialized");
+    wprintf(L"[WinMain] Initialized\n");
+
+    InstallWallpaper(ResolvePath(L"wallpapers/dummy.zip"));
 
     MSG msg;
     while (GetMessage(&msg, NULL, 0, 0))

@@ -3,6 +3,7 @@
 #include "Bridge.h"
 #include "../main.h"
 #include "../Core/Core.h"
+#include "../WebView/Webview.h"
 
 using namespace winrt::Windows::Data::Json;
 
@@ -49,4 +50,20 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
     {
         wprintf(L"UNKNOWN EXCEPTION\n");
     }
+}
+
+void DispatchJSON(std::wstring message)
+{
+    WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(app_hwnd, GWLP_USERDATA));
+    if (data && data->webview)
+        data->webview->PostWebMessageAsJson(message.c_str());
+}
+
+void RaiseErrorBox(std::wstring title, std::wstring caption)
+{
+    std::wstring message =
+        L"{\"type\":\"error-box\",\"title\":\"" + title +
+        L"\",\"caption\":\"" + caption +
+        L"\"}";
+    DispatchJSON(message);
 }
