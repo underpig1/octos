@@ -9,7 +9,8 @@
                 "${env:VCToolsInstallDir}/include",
                 "${env:WindowsSdkDir}/Include/${env:WindowsSDKVersion}/um",
                 "${env:WindowsSdkDir}/Include/${env:WindowsSDKVersion}/shared",
-                "${env:WindowsSdkDir}/Include/${env:WindowsSDKVersion}/ucrt"
+                "${env:WindowsSdkDir}/Include/${env:WindowsSDKVersion}/ucrt",
+                "${workspaceFolder}/build/vcpkg_installed/x64-windows/include"
             ],
             "defines": [
                 "UNICODE",
@@ -19,7 +20,8 @@
             "compilerPath": "${env:VCToolsInstallDir}/bin/Hostx64/x64/cl.exe",
             "cStandard": "c11",
             "cppStandard": "c++17",
-            "intelliSenseMode": "windows-msvc-x64"
+            "intelliSenseMode": "windows-msvc-x64",
+            "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],
     "version": 4

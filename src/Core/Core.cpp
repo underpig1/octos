@@ -127,3 +127,9 @@ void RecreateWindow(LPARAM lParam)
         wprintf(L"[Watchdog] Recreated %p\n", IsWindow(pmw->hwnd) ? "true" : "false");
     }
 }
+
+void SetWallpaperVisibility(bool visible)
+{
+    for (auto &mw : ms)
+        ShowWindow(mw.hwnd, true ? SW_SHOW : SW_HIDE);
+}

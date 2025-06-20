@@ -7,9 +7,10 @@
 #include <iostream>
 #include <fstream>
 #include <codecvt>
+#include <nlohmann/json.hpp>
 
 #include "Storage.h"
-#include "json.hpp"
+#include "../Bridge/Bridge.h"
 
 namespace fs = std::filesystem;
 using json = nlohmann::json;
@@ -48,7 +49,8 @@ std::wstring CombinePaths(std::wstring firstPath, std::wstring secondPath)
     return NormalizePath(firstPath + L"\\" + secondPath);
 }
 
-std::wstring AddFileScheme(std::wstring path){
+std::wstring AddFileScheme(std::wstring path)
+{
     return L"file:///" + path;
 }
 
@@ -230,34 +232,80 @@ std::vector<ConfigParams> IterateWallpapersDir()
                 allParams.push_back(params);
             }
         }
-        return allParams;
-    }
+    return allParams;
+}
 
-    std::wstring ParamsAsJsonString(ConfigParams p)
-    {
-        json j = {
-            {"author", to_string(p.author)},
-            {"name", to_string(p.name)},
-            {"description", to_string(p.description)},
-            {"folderPath", to_string(p.folderPath)},
-            {"imagePath", to_string(p.imagePath)},
-            {"entryPath", to_string(p.entryPath)},
-            {"options", to_string(p.options)}};
-        std::string dump = j.dump();
-        return to_wstring(dump);
-    }
+std::wstring ParamsAsJsonString(ConfigParams p)
+{
+    json j = {
+        {"author", to_string(p.author)},
+        {"name", to_string(p.name)},
+        {"description", to_string(p.description)},
+        {"folderPath", to_string(p.folderPath)},
+        {"imagePath", to_string(p.imagePath)},
+        {"entryPath", to_string(p.entryPath)},
+        {"options", to_string(p.options)}};
+    std::string dump = j.dump();
+    return to_wstring(dump);
+}
 
-    std::wstring IterateWallpapersAsJsonString()
+std::wstring IterateWallpapersAsJsonString()
+{
+    std::wstring jsonString = L"{\"type\":\"wallpaper-data\",\"data\":[";
+    std::vector<ConfigParams> allParams = IterateWallpapersDir();
+    for (auto &p : allParams)
     {
-        std::wstring jsonString = L"{\"type\":\"wallpaper-data\",\"data\":[";
-        std::vector<ConfigParams> allParams = IterateWallpapersDir();
-        for (auto &p : allParams)
+        std::wstring pString = ParamsAsJsonString(p) + L",";
+        jsonString.append(pString);
+    }
+    jsonString.pop_back();
+    jsonString.append(L"]}");
+    wprintf(L"%s", jsonString.c_str());
+    return jsonString;
+}
+
+void SelectAndInstallWallpaper()
+{
+    HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+    std::wstring result;
+    if (SUCCEEDED(hr))
+    {
+        IFileOpenDialog *pFileOpen = nullptr;
+        hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL,
+                              IID_IFileOpenDialog, reinterpret_cast<void **>(&pFileOpen));
+        if (SUCCEEDED(hr))
         {
-            std::wstring pString = ParamsAsJsonString(p) + L",";
-            jsonString.append(pString);
+            COMDLG_FILTERSPEC zipFilter[] = {
+                {L"ZIP Archives", L"*.zip"},
+                {L"All Files", L"*.*"}};
+            pFileOpen->SetFileTypes(ARRAYSIZE(zipFilter), zipFilter);
+            pFileOpen->SetOptions(FOS_FORCEFILESYSTEM | FOS_PICKFOLDERS | FOS_FILEMUSTEXIST);
+
+            if (SUCCEEDED(pFileOpen->Show(NULL)))
+            {
+                IShellItem *pItem;
+                if (SUCCEEDED(pFileOpen->GetResult(&pItem)))
+                {
+                    PWSTR pszFilePath = nullptr;
+                    if (SUCCEEDED(pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath)))
+                    {
+                        result = pszFilePath;
+                        CoTaskMemFree(pszFilePath);
+                    }
+                    pItem->Release();
+                }
+            }
+            pFileOpen->Release();
         }
-        jsonString.pop_back();
-        jsonString.append(L"]}");
-        wprintf(L"%s", jsonString.c_str());
-        return jsonString;
+        CoUninitialize();
     }
+    bool succeeded = false;
+    if (result.c_str())
+    {
+        fs::path filePath = result;
+        if (fs::is_directory(filePath) || filePath.extension() == L".zip")
+            succeeded = InstallWallpaper(filePath);
+    }
+    if (!succeeded)
+        RaiseErrorBox(L"Wallpaper failed to add", L"Please try again.");
+}

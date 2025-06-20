@@ -1,7 +1,7 @@
 packages/
 build/
+out/
 *.obj
-*.pdb
-make.bat
 *.exe
-!test/test.exe
+CMakeUserPresets.json
+.vscode/

@@ -186,8 +186,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     // std::atexit(OnClose);
     wprintf(L"[WinMain] Initialized\n");
 
-    InstallWallpaper(ResolvePath(L"wallpapers/dummy.zip"));
-
     MSG msg;
     while (GetMessage(&msg, NULL, 0, 0))
     {

@@ -5,6 +5,9 @@
 std::wstring ResolvePath(std::wstring relativePath, bool includeFileScheme = false);
 bool InstallWallpaper(const std::wstring &zipPath);
 std::wstring IterateWallpapersAsJsonString();
+void SelectAndInstallWallpaper();
+std::wstring to_wstring(const std::string &utf8str);
+std::string to_string(const std::wstring &utf16str);
 
 struct ConfigParams
 {

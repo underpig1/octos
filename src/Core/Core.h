@@ -23,3 +23,4 @@ void InitializeWallpaperWindows();
 HWND CreateMainWindow();
 void RecreateWindow(LPARAM lParam);
 void RecreateWallpapers();
+void SetWallpaperVisibility(bool visible = true);

@@ -33,7 +33,7 @@ function openDocumentation() {
 
 function refresh() {
     chrome.webview.postMessage({ type: "refresh" });
-    chrome.webview.postMessage({ type: "request-wallpaper-data" });
+    // chrome.webview.postMessage({ type: "request-wallpaper-data" });
 }
 
 window.chrome.webview.addEventListener('message', (e) => {
@@ -41,6 +41,8 @@ window.chrome.webview.addEventListener('message', (e) => {
     if (msg.type == 'wallpaper-data') {
         modalDialog("Wallpaper data recieved", JSON.stringify(msg.data));
     }
+    else if (msg.type == 'error-box')
+        modalDialog(msg.title, msg.caption);
 })
 
 // function shareMod() {
