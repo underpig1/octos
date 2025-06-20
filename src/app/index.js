@@ -33,7 +33,15 @@ function openDocumentation() {
 
 function refresh() {
     chrome.webview.postMessage({ type: "refresh" });
+    chrome.webview.postMessage({ type: "request-wallpaper-data" });
 }
+
+window.chrome.webview.addEventListener('message', (e) => {
+    const msg = e.data;
+    if (msg.type == 'wallpaper-data') {
+        modalDialog("Wallpaper data recieved", JSON.stringify(msg.data));
+    }
+})
 
 // function shareMod() {
 //     window.link.openExternalLink("https://underpig1.github.io/octos/docs/?t=publishing");

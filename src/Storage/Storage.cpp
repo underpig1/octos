@@ -6,6 +6,7 @@
 #include <comdef.h>
 #include <iostream>
 #include <fstream>
+#include <codecvt>
 
 #include "Storage.h"
 #include "json.hpp"
@@ -13,6 +14,18 @@
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 std::vector<ConfigParams> allParams;
+
+std::wstring to_wstring(const std::string &utf8str)
+{
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    return converter.from_bytes(utf8str);
+}
+
+std::string to_string(const std::wstring &utf16str)
+{
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    return converter.to_bytes(utf16str);
+}
 
 std::wstring GetAppPath()
 {
@@ -35,13 +48,17 @@ std::wstring CombinePaths(std::wstring firstPath, std::wstring secondPath)
     return NormalizePath(firstPath + L"\\" + secondPath);
 }
 
+std::wstring AddFileScheme(std::wstring path){
+    return L"file:///" + path;
+}
+
 std::wstring ResolvePath(std::wstring relativePath, bool includeFileScheme)
 {
     std::wstring exePath = GetAppPath();
     std::wstring fullPath = CombinePaths(exePath, relativePath);
     std::wstring url = fullPath;
     if (includeFileScheme)
-        url = L"file:///" + fullPath;
+        url = AddFileScheme(fullPath);
     return url;
 }
 
@@ -142,15 +159,26 @@ ConfigParams ReadConfig(fs::path path)
         std::string author = j.value("name", "");
         std::string name = j.value("name", "");
         std::string description = j.value("description", "");
-        std::string imagePath = j.value("imagePath", "");
-        params.author = std::wstring(author.begin(), author.end());
-        params.name = std::wstring(name.begin(), name.end());
-        params.description = std::wstring(description.begin(), description.end());
-        params.imagePath = ResolvePath(CombinePaths(path.parent_path(), std::wstring(imagePath.begin(), imagePath.end())), true);
+        params.author = to_wstring(author);
+        params.name = to_wstring(name);
+        params.description = to_wstring(description);
+        if (j.contains("image"))
+        {
+            std::string imagePath = j.value("image", "");
+            params.imagePath = AddFileScheme(path.parent_path() / NormalizePath(to_wstring(imagePath)));
+        }
+        if (j.contains("entry"))
+        {
+            std::string entryPath = j.value("entry", "");
+            if (entryPath.rfind("http://", 0) == 0 || entryPath.rfind("https://", 0) == 0)
+                params.entryPath = to_wstring(entryPath);
+            else
+                params.entryPath = AddFileScheme(path.parent_path() / NormalizePath(to_wstring(entryPath)));
+        }
         if (j.contains("options") && j["options"].is_object())
         {
             std::string options = j["options"].dump();
-            params.options = std::wstring(options.begin(), options.end());
+            params.options = to_wstring(options);
         }
         return params;
     }
@@ -168,39 +196,68 @@ std::vector<ConfigParams> IterateWallpapersDir()
             {
                 std::wstring name = entry.path().filename().wstring();
                 fs::path configPath = entry.path() / L"octos.json";
+                fs::path configPathOld = entry.path() / L"config.json";
                 ConfigParams params;
-                if (fs::exists(configPath))
+                if (fs::exists(configPath) || fs::exists(configPathOld))
                 {
+                    if (!fs::exists(configPath))
+                        configPath = configPathOld;
                     params = ReadConfig(configPath);
                     params.configPath = configPath.wstring();
                     if (params.name == L"")
                         params.name = name;
                     else
                         name = params.name;
+                    if (params.entryPath == L"")
+                    {
+                        std::wstring entryCandidate = L"";
+                        for (const auto &file : fs::directory_iterator(entry))
+                        {
+                            if (file.is_regular_file())
+                            {
+                                if (file.path().extension() == L".html")
+                                {
+                                    entryCandidate = file.path().filename().wstring();
+                                    if (file.path().filename() == L"index.html")
+                                        break;
+                                }
+                            }
+                        }
+                        params.entryPath = AddFileScheme(entry / NormalizePath(entryCandidate));
+                    }
+                    params.folderPath = entry.path().wstring();
                 }
-                else
-                    params.name = name;
-                params.folderPath = entry.path().wstring();
-
                 allParams.push_back(params);
             }
         }
-    return allParams;
-}
+        return allParams;
+    }
 
-std::wstring ParamsAsJsonString(ConfigParams p)
-{
-    std::string jsonString = "{"
-                             "\"author\":" +
-                             json(p.author).dump() + ","
-                                                     "\"name\":" +
-                             json(p.name).dump() + ","
-                                                   "\"description\":" +
-                             json(p.description).dump() + ","
-                                                          "\"imagePath\":" +
-                             json(p.imagePath).dump() + ","
-                                                      "\"options\":" +
-                             json(p.options).dump() +
-                             "}";
-    return std::wstring(jsonString.begin(), jsonString.end());
-}
+    std::wstring ParamsAsJsonString(ConfigParams p)
+    {
+        json j = {
+            {"author", to_string(p.author)},
+            {"name", to_string(p.name)},
+            {"description", to_string(p.description)},
+            {"folderPath", to_string(p.folderPath)},
+            {"imagePath", to_string(p.imagePath)},
+            {"entryPath", to_string(p.entryPath)},
+            {"options", to_string(p.options)}};
+        std::string dump = j.dump();
+        return to_wstring(dump);
+    }
+
+    std::wstring IterateWallpapersAsJsonString()
+    {
+        std::wstring jsonString = L"{\"type\":\"wallpaper-data\",\"data\":[";
+        std::vector<ConfigParams> allParams = IterateWallpapersDir();
+        for (auto &p : allParams)
+        {
+            std::wstring pString = ParamsAsJsonString(p) + L",";
+            jsonString.append(pString);
+        }
+        jsonString.pop_back();
+        jsonString.append(L"]}");
+        wprintf(L"%s", jsonString.c_str());
+        return jsonString;
+    }

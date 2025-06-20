@@ -40,6 +40,13 @@ rem Ensure output directories exist
 if not exist build mkdir build
 if not exist %OBJ_DIR% mkdir %OBJ_DIR%
 
+rem Copy web files
+if exist build\app rmdir /s /q build\app
+xcopy /e /i /y src\app build\app
+
+if exist build\wallpapers rmdir /s /q build\wallpapers
+xcopy /e /i /y wallpapers build\wallpapers
+
 rem Compile all changed .cpp files to .obj
 echo Compiling source files...
 
@@ -81,13 +88,6 @@ link /nologo ^
     WebView2LoaderStatic.lib ^
     ole32.lib uuid.lib user32.lib shlwapi.lib dcomp.lib d3d11.lib ^
     shell32.lib comctl32.lib windowsapp.lib advapi32.lib
-
-rem Copy web files
-if exist build\app rmdir /s /q build\app
-xcopy /e /i /y src\app build\app
-
-if exist build\wallpapers rmdir /s /q build\wallpapers
-xcopy /e /i /y wallpapers build\wallpapers
 
 rem Run the app if build succeeded
 if exist %APP_EXE_PATH% (

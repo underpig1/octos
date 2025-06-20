@@ -4,6 +4,7 @@
 
 std::wstring ResolvePath(std::wstring relativePath, bool includeFileScheme = false);
 bool InstallWallpaper(const std::wstring &zipPath);
+std::wstring IterateWallpapersAsJsonString();
 
 struct ConfigParams
 {
@@ -13,5 +14,6 @@ struct ConfigParams
     std::wstring folderPath;
     std::wstring configPath;
     std::wstring imagePath;
+    std::wstring entryPath;
     std::wstring options;
 };
