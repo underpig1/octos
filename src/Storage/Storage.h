@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <nlohmann/json.hpp>
 
 std::wstring ResolvePath(std::wstring relativePath, bool includeFileScheme = false);
 bool InstallWallpaper(const std::wstring &zipPath);
@@ -8,6 +9,9 @@ std::wstring IterateWallpapersAsJsonString();
 void SelectAndInstallWallpaper();
 std::wstring to_wstring(const std::string &utf8str);
 std::string to_string(const std::wstring &utf16str);
+std::wstring LoadPrefsAsJsonString();
+void DumpPrefs(const nlohmann::json prefs);
+void RemoveWallpaper(std::wstring folderPath);
 
 struct ConfigParams
 {

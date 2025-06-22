@@ -8,7 +8,7 @@
 
 using json = nlohmann::json;
 
-void DispatchJSON(std::wstring message)
+void DispatchJson(std::wstring message)
 {
     WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(app_hwnd, GWLP_USERDATA));
     if (data && data->webview)
@@ -21,7 +21,7 @@ void RaiseErrorBox(std::wstring title, std::wstring caption)
         L"{\"type\":\"error-box\",\"title\":\"" + title +
         L"\",\"caption\":\"" + caption +
         L"\"}";
-    DispatchJSON(message);
+    DispatchJson(message);
 }
 
 void HandleWebMessage(std::wstring msg, HWND hwnd)
@@ -30,6 +30,7 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
     {
         json j = json::parse(to_string(msg));
         std::string type = j.value("type", "");
+        printf("RECIEVED MESSAGE: %s\n", j.dump().c_str());
 
         if (type == "drag")
         {
@@ -49,17 +50,14 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
         {
             std::string url = j.value("url", "");
             if (!url.empty())
-            {
-                if (url.c_str())
-                    ShellExecute(NULL, L"open", to_wstring(url).c_str(), NULL, NULL, SW_SHOWNORMAL);
-            }
+                ShellExecute(NULL, L"open", to_wstring(url).c_str(), NULL, NULL, SW_SHOWNORMAL);
         }
         else if (type == "refresh")
             RecreateWallpapers();
         else if (type == "request-wallpaper-data")
         {
             std::wstring message = IterateWallpapersAsJsonString();
-            DispatchJSON(message);
+            DispatchJson(message);
         }
         else if (type == "wallpaper-file-picker")
             SelectAndInstallWallpaper();
@@ -67,7 +65,7 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
         {
             std::wstring visibility = IsWindowVisible(ms[0].hwnd) ? L"true" : L"false";
             std::wstring message = L"{\"type\":\"visibility\",\"value\":" + visibility + L"}";
-            DispatchJSON(message);
+            DispatchJson(message);
         }
         else if (type == "set-visibility")
         {
@@ -77,9 +75,45 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
                 SetWallpaperVisibility(visibility);
             }
         }
-        else
+        else if (type == "open-folder")
         {
-            wprintf(L"UNKNOWN TYPE\n");
+            std::string path = j.value("path", "");
+            if (!path.empty())
+            {
+                std::wstring p;
+                if (j.value("relative", false))
+                    p = ResolvePath(to_wstring(path));
+                else
+                    p = to_wstring(path);
+                ShellExecuteW(NULL, L"open", p.c_str(), NULL, NULL, SW_SHOWDEFAULT);
+            }
+        }
+        else if (type == "request-prefs")
+            DispatchJson(LoadPrefsAsJsonString());
+        else if (type == "dump-prefs")
+        {
+            if (j.contains("value") && j["value"].is_object())
+                DumpPrefs(j["value"]);
+        }
+        else if (type == "remove-wallpaper")
+        {
+            if (j.contains("folderPath") && j["folderPath"].is_string())
+            {
+                std::string folderPath = j["folderPath"];
+                RemoveWallpaper(to_wstring(folderPath));
+            }
+        }
+        else if (type == "request-monitor-ids")
+            DispatchJson(GetMonitorIdsAsJsonString());
+        else if (type == "set-wallpaper")
+        {
+            if (j.contains("monitor-id") && j.contains("url") &&
+                j["monitor-id"].is_string() && j["url"].is_string())
+            {
+                std::string monitorId = j["monitor-id"];
+                std::string url = j["url"];
+                NavigateWallpaperByMonitorId(to_wstring(monitorId), to_wstring(url));
+            }
         }
     }
     catch (const std::exception &e)

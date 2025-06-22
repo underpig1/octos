@@ -40,7 +40,3 @@ add_custom_command(TARGET main POST_BUILD
         "$<TARGET_FILE_DIR:main>/"
     COMMENT "Copying asset files to output directory"
 )
-
-add_custom_command(TARGET main POST_BUILD
-    COMMAND main
-)

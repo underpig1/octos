@@ -133,6 +133,7 @@ void OnWebViewControllerCreated(
     RECT bounds;
     GetClientRect(hwnd, &bounds);
     controller->put_Bounds(bounds);
+    controller->put_IsVisible(TRUE);
 
     // disable unnecessary settings
     wil::com_ptr<ICoreWebView2Settings> settings;
@@ -189,7 +190,8 @@ void AttachWebViewController(HWND hwnd, const std::wstring &htmlRelativePath)
 
                                                                *controller = ctrl;
                                                                (*controller)->get_CoreWebView2(webview->put());
-                                                               (*controller)->put_IsVisible(TRUE);
+
+                                                               (*webview)->OpenDevToolsWindow();
 
                                                                // initialize WebViewData
                                                                WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
@@ -272,6 +274,15 @@ void HandleResize(HWND hwnd, LPARAM lParam)
         RECT bounds = {0, 0, width, height};
         data->controller->put_Bounds(bounds);
         g_dcompDevice->Commit();
+    }
+}
+
+void NavigateWindow(HWND hwnd, std::wstring url)
+{
+    WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+    if (data && data->webview)
+    {
+        data->webview->Navigate(url.c_str());
     }
 }
 

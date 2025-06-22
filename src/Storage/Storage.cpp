@@ -7,7 +7,6 @@
 #include <iostream>
 #include <fstream>
 #include <codecvt>
-#include <nlohmann/json.hpp>
 
 #include "Storage.h"
 #include "../Bridge/Bridge.h"
@@ -167,7 +166,8 @@ ConfigParams ReadConfig(fs::path path)
         if (j.contains("image"))
         {
             std::string imagePath = j.value("image", "");
-            params.imagePath = AddFileScheme(path.parent_path() / NormalizePath(to_wstring(imagePath)));
+            if (fs::exists(imagePath))
+                params.imagePath = AddFileScheme(path.parent_path() / NormalizePath(to_wstring(imagePath)));
         }
         if (j.contains("entry"))
         {
@@ -191,26 +191,25 @@ std::vector<ConfigParams> IterateWallpapersDir()
 {
     std::vector<ConfigParams> allParams;
     std::wstring path = GetWallpapersDir();
-    if (path.c_str())
+    if (!path.empty())
         for (const auto &entry : fs::directory_iterator(path))
         {
             if (entry.is_directory())
             {
                 std::wstring name = entry.path().filename().wstring();
                 fs::path configPath = entry.path() / L"octos.json";
-                fs::path configPathOld = entry.path() / L"config.json";
                 ConfigParams params;
-                if (fs::exists(configPath) || fs::exists(configPathOld))
+                if (!fs::exists(configPath))
+                    configPath = entry.path() / L"config.json";
+                if (fs::exists(configPath))
                 {
-                    if (!fs::exists(configPath))
-                        configPath = configPathOld;
                     params = ReadConfig(configPath);
                     params.configPath = configPath.wstring();
-                    if (params.name == L"")
+                    if (params.name.empty())
                         params.name = name;
                     else
                         name = params.name;
-                    if (params.entryPath == L"")
+                    if (params.entryPath.empty())
                     {
                         std::wstring entryCandidate = L"";
                         for (const auto &file : fs::directory_iterator(entry))
@@ -219,17 +218,22 @@ std::vector<ConfigParams> IterateWallpapersDir()
                             {
                                 if (file.path().extension() == L".html")
                                 {
-                                    entryCandidate = file.path().filename().wstring();
+                                    if (!entryCandidate.empty())
+                                        entryCandidate = file.path().filename().wstring();
                                     if (file.path().filename() == L"index.html")
                                         break;
                                 }
                             }
                         }
-                        params.entryPath = AddFileScheme(entry / NormalizePath(entryCandidate));
+                        if (entryCandidate.empty())
+                            params.entryPath = L"";
+                        else
+                            params.entryPath = AddFileScheme(entry / NormalizePath(entryCandidate));
                     }
                     params.folderPath = entry.path().wstring();
                 }
-                allParams.push_back(params);
+                if (!params.entryPath.empty())
+                    allParams.push_back(params);
             }
         }
     return allParams;
@@ -244,7 +248,7 @@ std::wstring ParamsAsJsonString(ConfigParams p)
         {"folderPath", to_string(p.folderPath)},
         {"imagePath", to_string(p.imagePath)},
         {"entryPath", to_string(p.entryPath)},
-        {"options", to_string(p.options)}};
+        {"options", json::parse(to_string(p.options))}};
     std::string dump = j.dump();
     return to_wstring(dump);
 }
@@ -300,7 +304,7 @@ void SelectAndInstallWallpaper()
         CoUninitialize();
     }
     bool succeeded = false;
-    if (result.c_str())
+    if (!result.empty())
     {
         fs::path filePath = result;
         if (fs::is_directory(filePath) || filePath.extension() == L".zip")
@@ -308,4 +312,54 @@ void SelectAndInstallWallpaper()
     }
     if (!succeeded)
         RaiseErrorBox(L"Wallpaper failed to add", L"Please try again.");
+}
+
+void RemoveWallpaper(std::wstring folderPath)
+{
+    std::error_code ec;
+    fs::remove_all(folderPath, ec);
+    if (ec)
+        RaiseErrorBox(L"Failed to uninstall", L"Please try again.");
+}
+
+std::wstring GetPrefsPath()
+{
+    return ResolvePath(L"preferences.json");
+}
+
+json LoadPrefs()
+{
+    const fs::path prefsPath = GetPrefsPath();
+    if (fs::exists(prefsPath))
+    {
+        std::ifstream in(prefsPath);
+        if (!in)
+            return json{};
+        try
+        {
+            json prefs;
+            in >> prefs;
+            return prefs;
+        }
+        catch (const json::parse_error &)
+        {
+            return json{};
+        }
+    }
+    return json{};
+}
+
+std::wstring LoadPrefsAsJsonString()
+{
+    json prefs = LoadPrefs();
+    return L"{\"type\":\"prefs\",\"data\":" + to_wstring(prefs.dump()) + L"}";
+}
+
+void DumpPrefs(const json prefs)
+{
+    const fs::path prefsPath = GetPrefsPath();
+    std::ofstream out(prefsPath);
+    if (!out)
+        return;
+    out << prefs.dump();
 }

@@ -4,51 +4,61 @@
 #include "../main.h"
 #include "../Core/Core.h"
 
+bool IsFullscreenAppOnMonitor(HMONITOR monitor)
+{
+    HWND fg = GetForegroundWindow();
+    if (!fg)
+        return false;
+    if (!IsWindowVisible(fg) || IsIconic(fg))
+        return false;
+    HMONITOR fgMon = MonitorFromWindow(fg, MONITOR_DEFAULTTONEAREST);
+    if (fgMon != monitor)
+        return false;
+    MONITORINFO mi = {sizeof(mi)};
+    if (!GetMonitorInfo(fgMon, &mi))
+        return false;
+    RECT rc;
+    if (!GetWindowRect(fg, &rc))
+        return false;
+    return rc.left <= mi.rcMonitor.left &&
+           rc.top <= mi.rcMonitor.top &&
+           rc.right >= mi.rcMonitor.right &&
+           rc.bottom >= mi.rcMonitor.bottom;
+}
+
 void FindRenderingTarget(HWND targetHwnd)
 {
-    RECT targetRect;
-    GetWindowRect(targetHwnd, &targetRect);
     EnumWindows(
         [](HWND hwnd, LPARAM lParam) -> BOOL
         {
+            HWND targetHwnd = reinterpret_cast<HWND>(lParam);
             wchar_t className[256];
             GetClassName(hwnd, className, _countof(className));
             const wchar_t prefix[] = L"Chrome_WidgetWin_";
             size_t prefixLen = wcslen(prefix);
             if (wcsncmp(className, prefix, prefixLen) == 0)
             {
-                RECT windowRect;
-                if (GetWindowRect(hwnd, &windowRect))
+                RECT windowRect, targetRect;
+                if (GetWindowRect(hwnd, &windowRect) && GetWindowRect(targetHwnd, &targetRect))
                 {
-                    RECT *pTargetRect = reinterpret_cast<RECT *>(lParam);
-                    if (windowRect.left == pTargetRect->left &&
-                        windowRect.top == pTargetRect->top &&
-                        windowRect.right == pTargetRect->right &&
-                        windowRect.bottom == pTargetRect->bottom)
+                    bool rectMatch = windowRect.left == targetRect.left &&
+                                     windowRect.top == targetRect.top &&
+                                     windowRect.right == targetRect.right &&
+                                     windowRect.bottom == targetRect.bottom;
+                    HWND zAbove = GetNextWindow(targetHwnd, GW_HWNDPREV);
+                    bool zOrderMatch = (zAbove == hwnd);
+                    if (rectMatch && zOrderMatch)
                     {
-
                         LONG exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
-                        SetWindowLong(hwnd, GWL_EXSTYLE, exStyle | WS_EX_LAYERED | WS_EX_TRANSPARENT);
-                        SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE);
-                        // EnumChildWindows(hwnd, [](HWND c, LPARAM) -> BOOL
-                        //                  {
-                        //     wchar_t cls[256]; GetClassNameW(c, cls, 256);
-                        //     if (TRUE)
-                        //     {
-                        //         // found intermediate d3d window
-                        //         wprintf(L"[Watchdog] FOUND INTERMEDIATE WINDOW %s\n", cls);
-                        //         LONG exStyle = GetWindowLong(c, GWL_EXSTYLE);
-                        //         SetWindowLong(c, GWL_EXSTYLE, exStyle | WS_EX_LAYERED | WS_EX_TRANSPARENT);
-                        //         SetWindowPos(c, nullptr, 100000, 0, 0, 0, SWP_NOZORDER | SWP_NOSIZE | SWP_NOACTIVATE);
-                        //     }
-                        //     return TRUE; }, 0);
-                        // return FALSE;
+                        if ((exStyle & WS_EX_LAYERED) == 0 || (exStyle & WS_EX_TRANSPARENT) == 0) {
+                            SetWindowLong(hwnd, GWL_EXSTYLE, exStyle | WS_EX_LAYERED | WS_EX_TRANSPARENT);
+                        }
                     }
                 }
             }
             return TRUE; // continue enumeration
         },
-    reinterpret_cast<LPARAM>(&targetRect));
+        reinterpret_cast<LPARAM>(targetHwnd));
 }
 
 void FixWallpaperOrder(HWND hwnd)
@@ -91,12 +101,7 @@ void WatchdogProc()
         for (size_t i = ms.size(); i < g_monitors.size(); ++i)
         {
             HMONITOR hMon = g_monitors[i];
-            HWND hwnd = CreateWallpaperWindow(L"wallpapers/Octos/index.html");
-            AttachWindow(hwnd);
-            MonitorWindow mw = {hwnd, hMon};
-            mw.ExpandToMonitor();
-            ms.push_back(mw);
-            wprintf(L"[Watchdog] Added new monitor window %p for monitor %zu\n", hwnd, i);
+            CreateMonitorWindow(hMon);
         }
     }
 

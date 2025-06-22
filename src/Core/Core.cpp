@@ -90,17 +90,21 @@ void RecreateWallpapers()
     InitializeWallpaperWindows();
 }
 
+void CreateMonitorWindow(HMONITOR hMon)
+{
+    HWND hwnd = CreateWallpaperWindow(L"wallpapers/Octos/index.html");
+    AttachWindow(hwnd);
+    MonitorWindow mw = {hwnd, hMon};
+    mw.ExpandToMonitor();
+    ms.push_back(mw);
+}
+
 void InitializeWallpaperWindows()
 {
     EnumDisplayMonitors(nullptr, nullptr, [](HMONITOR hMon, HDC, LPRECT, LPARAM lParam) -> BOOL
                         {
-        std::vector<MonitorWindow> *ms = reinterpret_cast<std::vector<MonitorWindow> *>(lParam);
-        HWND hwnd = CreateWallpaperWindow(L"wallpapers/Octos/index.html");
-        AttachWindow(hwnd);
-        MonitorWindow mw = MonitorWindow{hwnd, hMon};
-        mw.ExpandToMonitor();
-        ms->push_back(mw);
-        return TRUE; }, reinterpret_cast<LPARAM>(&ms));
+        CreateMonitorWindow(hMon);
+        return TRUE; }, NULL);
 }
 
 HWND CreateMainWindow()
@@ -131,5 +135,50 @@ void RecreateWindow(LPARAM lParam)
 void SetWallpaperVisibility(bool visible)
 {
     for (auto &mw : ms)
-        ShowWindow(mw.hwnd, true ? SW_SHOW : SW_HIDE);
+        ShowWindow(mw.hwnd, visible ? SW_SHOW : SW_HIDE);
+}
+
+std::vector<std::wstring> GetMonitorIds()
+{
+    std::vector<std::wstring> monitorIds;
+    EnumDisplayMonitors(nullptr, nullptr, [](HMONITOR hMon, HDC, LPRECT, LPARAM data) -> BOOL
+                        {
+        auto* ids = reinterpret_cast<std::vector<std::wstring>*>(data);
+        MONITORINFOEXW infoEx = {};
+        infoEx.cbSize = sizeof(infoEx);
+        if (GetMonitorInfoW(hMon, &infoEx))
+            ids->push_back(infoEx.szDevice);
+        return TRUE; }, reinterpret_cast<LPARAM>(&monitorIds));
+    return monitorIds;
+}
+
+std::wstring GetMonitorIdsAsJsonString()
+{
+    std::wstring jsonString = L"{\"type\":\"monitor-ids\",\"data\":[";
+    std::vector<std::wstring> monitorIds = GetMonitorIds();
+    for (std::wstring monitorId : monitorIds)
+        jsonString.append(L"\"" + monitorId + L"\",");
+    jsonString.pop_back();
+    return jsonString + L"]}";
+}
+
+MonitorWindow *FindMonitorWindowById(const std::wstring monitorId)
+{
+    for (auto &mw : ms)
+    {
+        MONITORINFOEXW mi = {};
+        mi.cbSize = sizeof(mi);
+        if (GetMonitorInfoW(mw.monitor, &mi))
+        {
+            if (monitorId == mi.szDevice)
+                return &mw;
+        }
+    }
+    return nullptr;
+}
+
+void NavigateWallpaperByMonitorId(std::wstring monitorId, std::wstring url)
+{
+    MonitorWindow *mw = FindMonitorWindowById(monitorId);
+    NavigateWindow(mw->hwnd, url);
 }

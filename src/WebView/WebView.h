@@ -21,3 +21,4 @@ void ResizeWebView(HWND hwnd);
 void HandleOnCreate(HWND hwnd, LPARAM lParam);
 void HandleResize(HWND hwnd, LPARAM lParam);
 void HandleOnDestroy(HWND hwnd);
+void NavigateWindow(HWND hwnd, std::wstring url);

@@ -23,4 +23,7 @@ void InitializeWallpaperWindows();
 HWND CreateMainWindow();
 void RecreateWindow(LPARAM lParam);
 void RecreateWallpapers();
+void CreateMonitorWindow(HMONITOR hMon);
 void SetWallpaperVisibility(bool visible = true);
+std::wstring GetMonitorIdsAsJsonString();
+void NavigateWallpaperByMonitorId(std::wstring monitorId, std::wstring url);

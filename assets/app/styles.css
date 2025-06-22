@@ -344,11 +344,16 @@ button {
     border: none;
     cursor: pointer;
     box-shadow: 0 1px 0 #b01010ff;
-    transition: background-color 0.1s;
+
+    box-shadow: 0 2px 2px #00000011;
+    border-radius: 4px;
+    border: 1px solid #5b5b5b;
+    background-color: #302929;
+
 }
 
 button:hover {
-    background-color: #e03030ff;
+    background-color: #0f0f12;
 }
 
 .card-options {
@@ -479,25 +484,27 @@ label>p {
     display: block;
     position: relative;
     content: "";
-    width: 15px;
-    height: 15px;
+    width: 16px;
+    height: 16px;
     top: -1px;
     left: -1px;
     border-radius: 2px;
-    background-color: #404040ff;
+    border: 1px solid #5b5b5b;
+    background-color: #212121;
+    box-shadow: 0 2px 2px #00000011;
+
 }
 
 .checkbox-input>.checkmark {
     position: relative;
     display: block;
-    top: 4px;
-    left: 5px;
+    top: 5px;
+    left: 6px;
     width: 11px;
     height: 11px;
-    border-radius: 2px;
-    background-color: var(--accent);
+    border-radius: 1px;
+    background-color: #d31c1c;
     opacity: 0;
-    transition: opacity 0.2s;
 }
 
 .checkbox-input:has(input[type="checkbox"]:checked)>.checkmark {
@@ -509,12 +516,11 @@ label>p {
 }
 
 .secondary-button {
-    background-color: #1f7de9ff;
-    box-shadow: 0 1px 0 #1d72d3ff;
+    background-color: #12294a;
 }
 
 .secondary-button:hover {
-    background-color: #1d72d3ff;
+    background-color: #0d1d31;
 }
 
 .develop-main {

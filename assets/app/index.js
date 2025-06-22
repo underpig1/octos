@@ -1,3 +1,4 @@
+// WINDOW ACTIONS
 document.getElementById('topbar').addEventListener('mousedown', (e) => {
     if (e.target === e.currentTarget)
         window.chrome.webview.postMessage({ type: "drag" });
@@ -16,7 +17,7 @@ function maximize() {
 }
 
 function openModsFolder() {
-    window.link.openModsFolder();
+    chrome.webview.postMessage({ type: "open-folder", path: "wallpapers/", relative: true });
 }
 
 function findMoreMods() {
@@ -36,159 +37,40 @@ function refresh() {
     // chrome.webview.postMessage({ type: "request-wallpaper-data" });
 }
 
+function toggleVisibility() {
+    isVisible = !isVisible;
+    updateVisibilityIcon();
+    window.chrome.webview.postMessage({ type: 'set-visibility', value: isVisible });
+}
+
+// MESSAGE LISTENER
 window.chrome.webview.addEventListener('message', (e) => {
     const msg = e.data;
+    console.log("recieved: ", msg)
     if (msg.type == 'wallpaper-data') {
-        modalDialog("Wallpaper data recieved", JSON.stringify(msg.data));
+        handleRecieveModData(msg);
     }
     else if (msg.type == 'error-box')
         modalDialog(msg.title, msg.caption);
-})
+    else if (msg.type == 'visibility') {
+        isVisible = msg.value;
+        updateVisibilityIcon();
+    }
+    else if (msg.type == 'prefs')
+        handleRecievePrefs(msg);
+});
 
-// function shareMod() {
-//     window.link.openExternalLink("https://underpig1.github.io/octos/docs/?t=publishing");
-// }
+// INITIALIZATION SCRIPT
+document.addEventListener("DOMContentLoaded", () => {
+    for (var range of document.getElementsByClassName("range-input")) updateRange(range);
+    for (var img of document.getElementsByTagName("img")) img.draggable = false;
 
-// var focusedIDs = { explore: null, modules: null };
-// var selectedID;
-// var isVisible = true;
-// var inputGetters = {};
-// var installedMods = {};
-// var exploreMods = {};
-// var activeTab = "modules";
-// var modalListener = () => null;
-// var downloadingCards = [];
-// var develop = {}
+    window.chrome.webview.postMessage({ type: 'request-prefs' });
+    window.chrome.webview.postMessage({ type: 'request-wallpaper-data' });
+    setInterval(handleScrollShadows, 100);
+});
 
-// // window.link.getVisibility().then((state) => {
-// //     isVisible = state;
-// //     updateVisibilityIcon();
-// // });
-
-// document.addEventListener("DOMContentLoaded", () => {
-//     for (var range of document.getElementsByClassName("range-input")) updateRange(range);
-//     for (var img of document.getElementsByTagName("img")) img.draggable = false;
-// });
-
-// function writeToDevelopConsole(content, end = "\n") {
-//     const layoutConsole = document.getElementById("layout-console");
-//     layoutConsole.innerText += content + end;
-//     layoutConsole.scrollTo({ top: layoutConsole.scrollHeight });
-// }
-
-// function clearDevelopConsole() {
-//     document.getElementById("layout-console").innerText = "";
-// }
-
-// function developNew() {
-//     window.link.newMod().then((dir) => {
-//         develop.dir = dir;
-//         develop.name = dir.split(/\\|\//g).pop();
-//         develop.description = "This is a very cool mod you made."
-//         enableDeveloping();
-//         updateDevelopModInfo();
-//         clearDevelopConsole();
-//         writeToDevelopConsole("Loaded mod at..." + develop.dir);
-//         writeToDevelopConsole("Mod name: " + develop.name);
-//     }).catch(() => {});
-// }
-
-// function developFile() {
-//     window.link.openMod().then((dir) => {
-//         develop.dir = dir;
-//         window.link.developConfig.get(dir).then((config) => {
-//             if (config) {
-//                 develop.name = config.name;
-//                 develop.description = config.description;
-//                 develop.events = config.options ? config.options.events : {};
-//             }
-//             enableDeveloping();
-//             updateDevelopModInfo();
-//             clearDevelopConsole();
-//             writeToDevelopConsole("Loaded mod at..." + develop.dir);
-//             writeToDevelopConsole("Mod name: " + develop.name);
-//         });
-//     }).catch(() => {});
-// }
-
-// function renameMod(name) {
-//     modalDialog("Rename mod", "", develop.name ? develop.name : "Mod name");
-//     modalListener = (state, text) => {
-//         if (state) {
-//             if (develop.dir) {
-//                 develop.name = text;
-//                 window.link.renameMod(develop.dir, text).then((dir) => develop.dir = dir);
-//                 updateDevelopModInfo();
-//             }
-//         }
-//     }
-// }
-
-// function editConfig(listener) {
-//     window.link.developConfig.get(develop.dir).then((config) => window.link.developConfig.set(develop.dir, listener(config)));
-// }
-
-// function editModDescription(name) {
-//     modalDialog("Edit description", "", develop.description ? develop.description : "Mod description");
-//     modalListener = (state, text) => {
-//         if (state) {
-//             develop.description = text;
-//             updateDevelopModInfo();
-//         }
-//     }
-// }
-
-// function openModFolder() {
-//     writeToDevelopConsole("Opening mod folder at " + develop.dir);
-//     window.link.openModFolder(develop.dir);
-// }
-
-// function buildMod() {
-//     writeToDevelopConsole("Building mod at " + develop.dir);
-//     window.link.buildMod(develop.dir);
-// }
-
-// function updateDevelopModInfo() {
-//     if (develop) {
-//         document.getElementById("develop-name").innerText = develop.name ? develop.name : "Mod name";
-//         document.getElementById("develop-description").innerText = develop.description ? develop.description : "";
-//     }
-//     develop.events = {
-//         mouse: document.getElementById("mouse-checkbox").checked,
-//         keyboard: document.getElementById("keyboard-checkbox").checked,
-//         media: document.getElementById("media-checkbox").checked,
-//     }
-//     editConfig((config) => {
-//         config.name = develop.name;
-//         config.description = develop.description;
-//         if (!config.options) config.options = {};
-//         config.options.events = develop.events;
-//         writeToDevelopConsole("Updated mod config:");
-//         writeToDevelopConsole(JSON.stringify(config, null, 4));
-//         return config;
-//     });
-//     updateWorking();
-// }
-
-// function playMod() {
-//     writeToDevelopConsole("Running mod at " + develop.dir);
-//     if (develop) window.link.runMod(develop.dir);
-// }
-
-// function stopMod() {
-//     writeToDevelopConsole("Stopping mod");
-//     window.link.stopMod();
-// }
-
-// function debugMod() {
-//     writeToDevelopConsole("Toggling debug menu");
-//     window.link.toggleDebug();
-// }
-
-function update() {
-    handleScrollShadows();
-}
-
+// STYLING
 window.onresize = () => {
     updateResponsiveElements();
 }
@@ -230,14 +112,6 @@ function handleScrollShadows() {
     }
 }
 
-setInterval(update, 100);
-
-function updateRange(el) {
-    var input = el;
-    var p = el.parentNode.querySelector(".range-value");
-    p.innerText = input.value;
-}
-
 function setContent(el) {
     var name = el.getAttribute("id");
     activeTab = name;
@@ -265,6 +139,13 @@ function setContent(el) {
     updateCardDescription();
 }
 
+function updateVisibilityIcon() {
+    var visibleIcon = document.getElementById("visible-icon");
+    if (isVisible) visibleIcon.src = "img/visibility.png";
+    else visibleIcon.src = "img/invisible.png";
+}
+
+// CARD ACTIONS
 function focusCard(el) {
     for (var card of el.parentNode.getElementsByClassName("card")) card.classList.remove("focused");
     el.classList.add("focused");
@@ -281,12 +162,6 @@ function getFocusedCardData() {
     return null;
 }
 
-function updateCardDescription() {
-    cleanFocus();
-    var cardData = getFocusedCardData();
-    if (cardData) setCardDescription(activeTab, cardData.name, cardData.author, cardData.description, cardData.options, cardData.installed);
-}
-
 function cleanFocus() {
     const cardDescription = document.getElementById(activeTab + "-card-description");
     if (cardDescription) {
@@ -299,6 +174,48 @@ function cleanFocus() {
             if (focusedIDs[activeTab] == null || !document.getElementById(focusedIDs[activeTab]).classList.contains("focused")) focusCard(document.getElementById(Object.keys(activeIndex)[0]));
         }
     }
+}
+
+function createCard(id = "", title = "Mod name", author = null, backgroundImage = "") {
+    var template = document.getElementById("card-template");
+    var div = template.content.cloneNode(true).firstElementChild;
+    div.querySelector(".card-title").innerText = title;
+    div.querySelector(".card-author").innerText = author ? "By " + author : "";
+    div.id = id;
+    if (backgroundImage) div.style.backgroundImage = `url('${backgroundImage.replace(/\\/g, "/")}')`;
+    return div;
+}
+
+function removeFocusedCard() {
+    modalListener = (state) => {
+        if (state) {
+            var folderPath = getFocusedCardData().folderPath;
+            if (focusedIDs.modules == selectedID) {
+                for (var id of Object.keys(installedMods)) {
+                    if (id != selectedID) {
+                        focusCard(document.getElementById(id));
+                        selectFocusedCard();
+                        break;
+                    }
+                }
+            }
+            window.chrome.webview.postMessage({type:"remove-wallpaper", folderPath});
+            for (var id of Object.keys(exploreMods)) {
+                if (exploreMods[id] == folderPath) {
+                    exploreMods[focusedIDs.explore].installed = false;
+                    document.getElementById(id).classList.remove("installed");
+                }
+            }
+        }
+    }
+    modalDialog("Remove mod", "Are you sure you want to remove this mod?");
+}
+
+// CARD DESCRIPTION
+function updateCardDescription() {
+    cleanFocus();
+    var cardData = getFocusedCardData();
+    if (cardData) setCardDescription(activeTab, cardData.name, cardData.author, cardData.description, cardData.options, cardData.installed);
 }
 
 function setCardDescription(prefix = "explore", title = "", author = "", description = "", options = null, installed = false) {
@@ -340,28 +257,7 @@ function setCardDescription(prefix = "explore", title = "", author = "", descrip
     setButtonDisabled(buttonDisabled);
 }
 
-// function updateVisibilityIcon() {
-//     var visibleIcon = document.getElementById("visible-icon");
-//     if (isVisible) visibleIcon.src = "img/visibility.png";
-//     else visibleIcon.src = "img/invisible.png";
-// }
-
-// function toggleVisibility() {
-//     isVisible = !isVisible;
-//     updateVisibilityIcon();
-//     window.link.setVisibility(isVisible);
-// }
-
-// function enableDeveloping() {
-//     var tab = document.getElementById("develop-tab");
-//     tab.classList.add("developing");
-// }
-
-// function disableDeveloping() {
-//     var tab = document.getElementById("develop-tab");
-//     tab.classList.remove("developing");
-// }
-
+// CARD OPTIONS
 function createInput(options, id) {
     const cardOptions = document.getElementById("card-options");
     var type = options.type;
@@ -417,6 +313,12 @@ function getInput(id) {
     return null;
 }
 
+function updateRange(el) {
+    var input = el;
+    var p = el.parentNode.querySelector(".range-value");
+    p.innerText = input.value;
+}
+
 function setCardOptions(json) {
     const cardOptions = document.getElementById("card-options");
     cardOptions.innerHTML = "";
@@ -426,34 +328,21 @@ function setCardOptions(json) {
     }
 }
 
-function restorePreferences() {
+function restorePreferences() { // TBI
     modalDialog("Restore preferences", "Are you sure you want to restore default mod preferences? This action is irreversible.");
     modalListener = (state) => {
-        if (focusedIDs.modules && state) {
-            var focusedCard = getFocusedCardData();
-            window.link.getPrefs().then((prefs) => {
-                if (prefs.prefs) {
-                    var options = prefs.prefs[focusedCard.name];
-                    if (options) {
-                        var defaults = options.defaults;
-                        focusedCard.options = defaults;
-                        window.link.restoreModPrefs(focusedCard.name);
-                        updateCardDescription();
-                    }
+        if (focusedIDs.modules && state)
+            if (prefs.value) {
+                var focusedCard = getFocusedCardData();
+                var options = prefs.value[focusedCard.name];
+                if (options) {
+                    var defaults = options.defaults;
+                    focusedCard.options = defaults;
+                    restoreModPrefs(focusedCard.name);
+                    updateCardDescription();
                 }
-            });
-        }
+            }
     }
-}
-
-function createCard(id = "", title = "Mod name", author = null, backgroundImage = "") {
-    var template = document.getElementById("card-template");
-    var div = template.content.cloneNode(true).firstElementChild;
-    div.querySelector(".card-title").innerText = title;
-    div.querySelector(".card-author").innerText = author ? "By " + author : "";
-    div.id = id;
-    if (backgroundImage) div.style.backgroundImage = `url('${backgroundImage.replace(/\\/g, "/")}')`;
-    return div;
 }
 
 function updateCardOptions() {
@@ -472,82 +361,7 @@ function updateCardOptions() {
     }
 }
 
-// function updateMods() {
-//     window.link.getPrefs().then((prefs) => {
-//         const modScrollbox = document.getElementById("modules-scrollbox");
-//         var tempFocus = Object.keys(installedMods).length > 0 ? focusedIDs.modules ? installedMods[focusedIDs.modules].name : null : null;
-//         installedMods = {};
-//         modScrollbox.innerHTML = "";
-//         var modNames = prefs.mods.map((x) => x.name);
-//         for (var id in modNames) {
-//             var name = modNames[id];
-//             var img = prefs.images ? prefs.images[name] : null;
-//             var config = prefs.configs[name];
-//             var author = config ? config.author : null;
-//             var modPrefs = prefs.prefs ? prefs.prefs[name] ? prefs.prefs[name].local : null : null;
-//             var card = createCard(id, name, author, img);
-//             if ((!tempFocus && id == 0) || tempFocus == name) {
-//                 for (var child of modScrollbox.children) child.classList.remove("focused");
-//                 card.classList.add("focused");
-//                 focusedIDs.modules = id;
-//             }
-//             if (prefs.selected == name) {
-//                 for (var child of modScrollbox.children) child.classList.remove("selected");
-//                 card.classList.add("selected");
-//                 selectedID = id;
-//             }
-//             modScrollbox.appendChild(card);
-//             installedMods[id] = { name, img, author, el: card, config, options: modPrefs, description: config.description };
-//         }
-//         var focusCheck = false;
-//         for (var mod of modScrollbox.childNodes) focusCheck = focusCheck || mod.classList.contains("focused");
-//         if (!focusCheck) {
-//             var firstCard = modScrollbox.querySelector(".card");
-//             firstCard.classList.add("focused");
-//             focusedIDs.modules = firstCard.id;
-//         }
-//         var uploadCard = document.getElementById("card-upload-template").content.cloneNode(true).firstElementChild;
-//         modScrollbox.appendChild(uploadCard);
-//         updateCardDescription();
-//         updateDownloadedMods();
-//     });
-// }
-
-// function selectFocusedCard() {
-//     const modScrollbox = document.getElementById("modules-scrollbox");
-//     var focusedCard = document.getElementById(focusedIDs.modules);
-//     for (var child of modScrollbox.children) child.classList.remove("selected");
-//     focusedCard.classList.add("selected");
-//     selectedID = focusedCard.id;
-//     var name = installedMods[selectedID].name;
-//     window.link.selectMod(name);
-// }
-
-function removeFocusedCard() {
-    modalListener = (state) => {
-        if (state) {
-            var name = getFocusedCardData().name;
-            if (focusedIDs.modules == selectedID) {
-                for (var id of Object.keys(installedMods)) {
-                    if (id != selectedID) {
-                        focusCard(document.getElementById(id));
-                        selectFocusedCard();
-                        break;
-                    }
-                }
-            }
-            window.link.removeMod(name);
-            for (var id of Object.keys(exploreMods)) {
-                if (exploreMods[id] == name) {
-                    exploreMods[focusedIDs.explore].installed = false;
-                    document.getElementById(id).classList.remove("installed");
-                }
-            }
-        }
-    }
-    modalDialog("Remove mod", "Are you sure you want to remove this mod?");
-}
-
+// MODAL
 function modalDialog(title = "Modal title", description = "Modal description", textbox = null) {
     const modal = document.getElementById("modal-container");
     modal.querySelector(".modal-title").innerText = title;
@@ -560,11 +374,106 @@ function modalDialog(title = "Modal title", description = "Modal description", t
     else modal.classList.remove("textbox");
 }
 
-// function modalResponse(state) {
-//     const modal = document.getElementById("modal-container");
-//     modal.classList.remove("active");
-//     modalListener(state, modal.querySelector(".modal-textbox").value);
-// }
+function modalResponse(state) {
+    const modal = document.getElementById("modal-container");
+    modal.classList.remove("active");
+    modalListener(state, modal.querySelector(".modal-textbox").value);
+}
+
+// USER PREFERENCES
+var userPrefs = {}
+var userPrefsDefaults = {
+    prefs: "default"
+}
+
+function restoreUserPrefs() {
+    modalDialog("Restore settings", "Are you sure you want to restore default settings?");
+    modalListener = (state) => {
+        if (state) {
+            userPrefs = JSON.parse(JSON.stringify(userPrefsDefaults))
+            window.chrome.webview.postMessage({ type: 'dump-prefs', value: userPrefs });
+            retrieveUserPrefs();
+        }
+    }
+}
+
+function updateUserPrefs(el) {
+    if (el.type == "checkbox") var value = el.checked;
+    else var value = el.value;
+    userPrefs[el.id] = value;
+    window.chrome.webview.postMessage({ type: 'dump-prefs', value: userPrefs });
+}
+
+function handleRecievePrefs(msg) {
+    userPrefs = msg.data
+    var inputs = document.getElementsByClassName("settings-input");
+    for (var el of inputs) {
+        if (userPrefs[el.id] != null) {
+            if (el.type == "checkbox") el.checked = userPrefs[el.id].value;
+            else el.value = userPrefs[el.id].value;
+        }
+    }
+}
+
+var focusedIDs = { explore: null, modules: null };
+var selectedID;
+var isVisible = true;
+var inputGetters = {};
+var installedMods = {};
+var exploreMods = {};
+var activeTab = "modules";
+var modalListener = () => null;
+var downloadingCards = [];
+
+// TO BE IMPLEMENTED
+function handleRecieveModData(msg) {
+    userPrefs.mods = msg.data;
+}
+
+function updateMods() {
+    const modScrollbox = document.getElementById("modules-scrollbox");
+    var tempFocus = Object.keys(installedMods).length > 0 ? focusedIDs.modules ? installedMods[focusedIDs.modules].name : null : null;
+    installedMods = {};
+    modScrollbox.innerHTML = "";
+    for (var modPrefs in userPrefs.mods) {
+        const id = modPrefs.folderPath
+        const name = modPrefs.name
+        var card = createCard(id, name, modPrefs.author, modPrefs.imagePath);
+        if ((!tempFocus && id == 0) || tempFocus == name) {
+            for (var child of modScrollbox.children) child.classList.remove("focused");
+            card.classList.add("focused");
+            focusedIDs.modules = id;
+        }
+        if (userPrefs.selected == name) {
+            for (var child of modScrollbox.children) child.classList.remove("selected");
+            card.classList.add("selected");
+            selectedID = id;
+        }
+        modScrollbox.appendChild(card);
+        installedMods[id] = {...modPrefs, el: card};
+    }
+    var focusCheck = false;
+    for (var mod of modScrollbox.childNodes) focusCheck = focusCheck || mod.classList.contains("focused");
+    if (!focusCheck) {
+        var firstCard = modScrollbox.querySelector(".card");
+        firstCard.classList.add("focused");
+        focusedIDs.modules = firstCard.id;
+    }
+    var uploadCard = document.getElementById("card-upload-template").content.cloneNode(true).firstElementChild;
+    modScrollbox.appendChild(uploadCard);
+    updateCardDescription();
+    updateDownloadedMods();
+}
+
+function selectFocusedCard() {
+    const modScrollbox = document.getElementById("modules-scrollbox");
+    var focusedCard = document.getElementById(focusedIDs.modules);
+    for (var child of modScrollbox.children) child.classList.remove("selected");
+    focusedCard.classList.add("selected");
+    selectedID = focusedCard.id;
+    var folderPath = installedMods[selectedID].folderPath;
+    window.chrome.webview.postMessage({ type: 'select-wallpaper', folderPath });
+}
 
 // function uploadMod() {
 //     window.link.upload();
@@ -598,34 +507,6 @@ function modalDialog(title = "Modal title", description = "Modal description", t
 //     var id = focusedIDs.explore;
 //     var name = exploreMods[id].name;
 //     window.link.goToSource(name);
-// }
-
-// function restoreUserPrefs() {
-//     modalDialog("Restore settings", "Are you sure you want to restore default settings?");
-//     modalListener = (state) => {
-//         if (state) {
-//             window.link.userPrefs.restore();
-//             retrieveUserPrefs();
-//         }
-//     }
-// }
-
-// function updateUserPrefs(el) {
-//     var field = el.id;
-//     if (el.type == "checkbox") var value = el.checked;
-//     else var value = el.value;
-//     window.link.userPrefs.set(field, value);
-// }
-
-// function retrieveUserPrefs() {
-//     var inputs = document.getElementsByClassName("settings-input");
-//     const pass = (el) => window.link.userPrefs.get(el.id).then((value) => {
-//         if (value != null) {
-//             if (el.type == "checkbox") el.checked = value;
-//             else el.value = value;
-//         }
-//     });
-//     for (var el of inputs) pass(el);
 // }
 
 // function updateWorking() {
