@@ -107,6 +107,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             static bool webviewCreated = false;
             if (!webviewCreated)
             {
+                wprintf(L"[WinMain] Attaching webview controller.... CHECK IF RUNS MULTIPLE TIMES\n");
                 AttachWebViewController(hwnd, L"app/index.html");
                 webviewCreated = true;
             }

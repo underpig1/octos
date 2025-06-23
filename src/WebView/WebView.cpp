@@ -9,6 +9,7 @@
 #include "WebView.h"
 #include "../Bridge/Bridge.h"
 #include "../Storage/Storage.h"
+#include "../main.h"
 
 wil::com_ptr<ICoreWebView2Environment3> g_webviewEnvironment;
 std::mutex g_envMutex;
@@ -57,42 +58,19 @@ void InitializeWebViewEnvironment()
 
     auto options = Microsoft::WRL::Make<CoreWebView2EnvironmentOptions>();
     options->put_AdditionalBrowserArguments(L"--disable-gpu "
-                                            L"--disable-software-rasterizer "
-                                            L"--disable-gpu-compositing "
-                                            L"--disable-gpu-vsync "
-                                            L"--disable-accelerated-video-decode "
-                                            L"--disable-accelerated-video-encode "
-                                            L"--disable-background-networking "
-                                            L"--disable-background-timer-throttling "
-                                            L"--disable-breakpad "
-                                            L"--disable-client-side-phishing-detection "
-                                            L"--disable-default-apps "
-                                            L"--disable-device-discovery-notifications "
-                                            L"--disable-domain-reliability "
-                                            L"--disable-features=AudioServiceOutOfProcess,IsolateOrigins,site-per-process,TranslateUI "
-                                            L"--disable-hang-monitor "
-                                            L"--disable-ipc-flooding-protection "
-                                            L"--disable-popup-blocking "
-                                            L"--disable-prompt-on-repost "
-                                            L"--disable-renderer-backgrounding "
+                                            L"--no-sandbox "
                                             L"--disable-sync "
+                                            L"--disable-background-networking "
+                                            L"--disable-default-apps "
                                             L"--disable-translate "
-                                            L"--disable-web-resources "
-                                            L"--disable-webrtc-hw-decoding "
-                                            L"--disable-webrtc-hw-encoding "
-                                            L"--disable-webrtc-multiple-routes "
-                                            L"--disable-webrtc-stun-origin "
-                                            L"--enable-low-end-device-mode "
-                                            L"--enable-low-res-tiling "
-                                            L"--enable-zero-copy "
-                                            L"--metrics-recording-only "
+                                            L"--disable-features=TranslateUI,AudioServiceOutOfProcess "
                                             L"--no-first-run "
                                             L"--no-default-browser-check "
-                                            L"--no-sandbox "
+                                            L"--disable-renderer-backgrounding "
+                                            L"--disable-web-resources "
+                                            L"--enable-low-end-device-mode "
                                             L"--password-store=basic "
-                                            L"--use-mock-keychain "
-                                            L"--single-process "
-                                            L"--no-zygote ");
+                                            L"--use-mock-keychain ");
 
     CreateCoreWebView2EnvironmentWithOptions(nullptr, userDataFolder.c_str(), options.Get(),
                                              Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
@@ -125,7 +103,7 @@ void InitializeWebViewEnvironment()
 
 void OnWebViewControllerCreated(
     HWND hwnd,
-    const std::wstring &htmlRelativePath,
+    const std::wstring &htmlPath,
     wil::com_ptr<ICoreWebView2> webview,
     wil::com_ptr<ICoreWebView2Controller> controller)
 {
@@ -155,8 +133,14 @@ void OnWebViewControllerCreated(
     }
 
     // navigate to local HTML file
-    std::wstring url = ResolvePath(htmlRelativePath, true);
+    std::wstring url = htmlPath;
+    if (hwnd == app_hwnd)
+        url = ResolvePath(L"app/index.html", true);
+    std::replace(url.begin(), url.end(), L'\\', L'/');
     webview->Navigate(url.c_str());
+    wprintf(L"ATTACHING CONTROLLER WITH PATH %ws\n", url.c_str());
+    // wprintf(L"EARLIER %ws\n", ResolvePath(L"app/index.html", true).c_str());
+    // wprintf(L"SAME??? %b\n", url.c_str() == ResolvePath(L"app/index.html", true).c_str());
 
     // handle messages
     webview->add_WebMessageReceived(
@@ -176,14 +160,15 @@ void OnWebViewControllerCreated(
     wprintf(L"[WebViewAttach] Fully attached\n");
 }
 
-void AttachWebViewController(HWND hwnd, const std::wstring &htmlRelativePath)
+void AttachWebViewController(HWND hwnd, const std::wstring &htmlPath)
 {
+    ShowWindow(hwnd, SW_SHOW);
     std::shared_ptr<wil::com_ptr<ICoreWebView2Controller>> controller = std::make_shared<wil::com_ptr<ICoreWebView2Controller>>();
     std::shared_ptr<wil::com_ptr<ICoreWebView2>> webview = std::make_shared<wil::com_ptr<ICoreWebView2>>();
 
     g_webviewEnvironment->CreateCoreWebView2Controller(hwnd,
                                                        Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
-                                                           [hwnd, htmlRelativePath, controller, webview](HRESULT result, ICoreWebView2Controller *ctrl) -> HRESULT
+                                                           [hwnd, htmlPath, controller, webview](HRESULT result, ICoreWebView2Controller *ctrl) -> HRESULT
                                                            {
                                                                if (FAILED(result))
                                                                    return result;
@@ -191,7 +176,7 @@ void AttachWebViewController(HWND hwnd, const std::wstring &htmlRelativePath)
                                                                *controller = ctrl;
                                                                (*controller)->get_CoreWebView2(webview->put());
 
-                                                               (*webview)->OpenDevToolsWindow();
+                                                                  (*webview)->OpenDevToolsWindow(); // CAUSES CRASH ON RESIZE - DELETE LATER
 
                                                                // initialize WebViewData
                                                                WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
@@ -200,14 +185,14 @@ void AttachWebViewController(HWND hwnd, const std::wstring &htmlRelativePath)
                                                                data->controller = *controller;
                                                                data->webview = *webview;
 
-                                                               OnWebViewControllerCreated(hwnd, htmlRelativePath, *webview, *controller);
+                                                               OnWebViewControllerCreated(hwnd, htmlPath, *webview, *controller);
 
                                                                return S_OK;
                                                            })
                                                            .Get());
 }
 
-void AttachWebViewCompositionController(HWND hwnd, const std::wstring &htmlRelativePath)
+void AttachWebViewCompositionController(HWND hwnd, const std::wstring &htmlPath)
 {
     wprintf(L"[WebViewAttach] Started attaching...\n");
     std::shared_ptr<wil::com_ptr<ICoreWebView2Controller>> controller = std::make_shared<wil::com_ptr<ICoreWebView2Controller>>();
@@ -216,7 +201,7 @@ void AttachWebViewCompositionController(HWND hwnd, const std::wstring &htmlRelat
 
     HRESULT hr = g_webviewEnvironment->CreateCoreWebView2CompositionController(hwnd,
                                                                                Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2CompositionControllerCompletedHandler>(
-                                                                                   [hwnd, htmlRelativePath, compController, controller, webview](HRESULT result, ICoreWebView2CompositionController *ctrl) -> HRESULT
+                                                                                   [hwnd, htmlPath, compController, controller, webview](HRESULT result, ICoreWebView2CompositionController *ctrl) -> HRESULT
                                                                                    {
                                                                                        if (FAILED(result))
                                                                                            return result;
@@ -227,7 +212,7 @@ void AttachWebViewCompositionController(HWND hwnd, const std::wstring &htmlRelat
 
                                                                                        // get webview
                                                                                        (*controller)->get_CoreWebView2(webview->put());
-                                                                                       (*controller)->put_IsVisible(TRUE);
+                                                                                    //    (*controller)->put_IsVisible(TRUE);
 
                                                                                        // attach DC pipeline
                                                                                        Microsoft::WRL::ComPtr<IDCompositionTarget> dcompTarget;
@@ -248,7 +233,7 @@ void AttachWebViewCompositionController(HWND hwnd, const std::wstring &htmlRelat
                                                                                        data->dcompVisual = dcompVisual;
                                                                                        g_dcompDevice->Commit();
 
-                                                                                       OnWebViewControllerCreated(hwnd, htmlRelativePath, *webview, *controller);
+                                                                                       OnWebViewControllerCreated(hwnd, htmlPath, *webview, *controller);
 
                                                                                        return S_OK;
                                                                                    })
@@ -273,7 +258,8 @@ void HandleResize(HWND hwnd, LPARAM lParam)
         int height = HIWORD(lParam);
         RECT bounds = {0, 0, width, height};
         data->controller->put_Bounds(bounds);
-        g_dcompDevice->Commit();
+        if (hwnd != app_hwnd)
+            g_dcompDevice->Commit();
     }
 }
 
@@ -282,7 +268,14 @@ void NavigateWindow(HWND hwnd, std::wstring url)
     WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
     if (data && data->webview)
     {
+        std::replace(url.begin(), url.end(), L'\\', L'/');
+        wprintf(L"TRYING TO NAVIGATE TO %ws", url.c_str());
+        // RECT bounds;
+        // GetWindowRect(hwnd, &bounds);
+        // data->controller->put_IsVisible(TRUE);
+        // data->controller->put_Bounds(bounds);
         data->webview->Navigate(url.c_str());
+        g_dcompDevice->Commit();
     }
 }
 

@@ -25,5 +25,5 @@ void RecreateWindow(LPARAM lParam);
 void RecreateWallpapers();
 void CreateMonitorWindow(HMONITOR hMon);
 void SetWallpaperVisibility(bool visible = true);
-std::wstring GetMonitorIdsAsJsonString();
+std::vector<std::wstring> GetMonitorIds();
 void NavigateWallpaperByMonitorId(std::wstring monitorId, std::wstring url);

@@ -4,7 +4,7 @@
 #include <nlohmann/json.hpp>
 
 std::wstring ResolvePath(std::wstring relativePath, bool includeFileScheme = false);
-bool InstallWallpaper(const std::wstring &zipPath);
+bool InstallWallpaper(const std::wstring &inputPath);
 std::wstring IterateWallpapersAsJsonString();
 void SelectAndInstallWallpaper();
 std::wstring to_wstring(const std::string &utf8str);

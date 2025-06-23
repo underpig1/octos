@@ -4,10 +4,12 @@ project(Octos LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+add_compile_options(/FS)
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.cpp")
 add_executable(main ${SOURCES})
 
 target_compile_definitions(main PRIVATE WEBVIEW2_NO_IDL UNICODE _UNICODE)
+target_compile_options(main PRIVATE /FS)
 
 target_link_libraries(main PRIVATE
     unofficial::webview2::webview2

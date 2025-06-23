@@ -1,6 +1,7 @@
 #include "Core.h"
 #include "../main.h"
 #include "../WebView/WebView.h"
+#include "../Storage/Storage.h"
 
 std::vector<MonitorWindow> ms;
 std::vector<HMONITOR> g_monitors;
@@ -26,7 +27,7 @@ void MonitorWindow::ExpandToMonitor()
             GetWindowRect(parent, &parentRect);
             int x = monitorRect.left - parentRect.left;
             int y = monitorRect.top - parentRect.top;
-            int w = monitorRect.right - monitorRect.left;
+            int w = monitorRect.right - monitorRect.left + 1; // unique vals
             int h = monitorRect.bottom - monitorRect.top;
             SetWindowPos(hwnd, nullptr, x, y, w, h, SWP_NOACTIVATE | SWP_NOZORDER);
         }
@@ -63,7 +64,7 @@ void AttachWindow(HWND hwnd)
     }
 }
 
-HWND CreateWallpaperWindow(const std::wstring &htmlRelativePath)
+HWND CreateWallpaperWindow(const std::wstring &htmlPath)
 {
     WebViewData *data = new WebViewData();
     HWND hwnd = CreateWindowEx(
@@ -75,7 +76,7 @@ HWND CreateWallpaperWindow(const std::wstring &htmlRelativePath)
         NULL,
         NULL, g_hInstance, reinterpret_cast<LPVOID>(data));
     SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA);
-    AttachWebViewCompositionController(hwnd, htmlRelativePath);
+    AttachWebViewCompositionController(hwnd, htmlPath);
     return hwnd;
 }
 
@@ -113,7 +114,7 @@ HWND CreateMainWindow()
     HWND hwnd = CreateWindowExW(0, CLASS_NAME, L"Octos", WS_THICKFRAME | WS_BORDER, CW_USEDEFAULT, CW_USEDEFAULT, 900, 600, nullptr, nullptr, g_hInstance, reinterpret_cast<LPVOID>(data));
     ShowWindow(hwnd, SW_SHOW);
     UpdateWindow(hwnd);
-    // AttachWebViewController(hwnd, L"app/index.html");
+    AttachWebViewController(hwnd, L"app/index.html");
     SetTimer(hwnd, 1, 100, NULL);
     return hwnd;
 }
@@ -123,6 +124,12 @@ void RecreateWindow(LPARAM lParam)
     MonitorWindow *pmw = reinterpret_cast<MonitorWindow *>(lParam);
     if (pmw)
     {
+        if (pmw->hwnd && IsWindow(pmw->hwnd))
+        {
+            DestroyWindow(pmw->hwnd);
+            pmw->hwnd = nullptr;
+        }
+        wprintf(L"IM GETTING RECREATED WITH NEW URL %ws", pmw->htmlPath.c_str());
         HWND hwnd = CreateWallpaperWindow(pmw->htmlPath);
         AttachWindow(hwnd);
         pmw->hwnd = hwnd;
@@ -152,16 +159,6 @@ std::vector<std::wstring> GetMonitorIds()
     return monitorIds;
 }
 
-std::wstring GetMonitorIdsAsJsonString()
-{
-    std::wstring jsonString = L"{\"type\":\"monitor-ids\",\"data\":[";
-    std::vector<std::wstring> monitorIds = GetMonitorIds();
-    for (std::wstring monitorId : monitorIds)
-        jsonString.append(L"\"" + monitorId + L"\",");
-    jsonString.pop_back();
-    return jsonString + L"]}";
-}
-
 MonitorWindow *FindMonitorWindowById(const std::wstring monitorId)
 {
     for (auto &mw : ms)
@@ -170,6 +167,7 @@ MonitorWindow *FindMonitorWindowById(const std::wstring monitorId)
         mi.cbSize = sizeof(mi);
         if (GetMonitorInfoW(mw.monitor, &mi))
         {
+            wprintf(L"ITERATING MONITORS %ws\n", mi.szDevice);
             if (monitorId == mi.szDevice)
                 return &mw;
         }
@@ -180,5 +178,10 @@ MonitorWindow *FindMonitorWindowById(const std::wstring monitorId)
 void NavigateWallpaperByMonitorId(std::wstring monitorId, std::wstring url)
 {
     MonitorWindow *mw = FindMonitorWindowById(monitorId);
-    NavigateWindow(mw->hwnd, url);
+    if (mw->hwnd)
+    {
+        mw->htmlPath = url;
+        PostMessage(app_hwnd, WM_USER + 1, 0, reinterpret_cast<LPARAM>(mw));
+        // NavigateWindow(mw->hwnd, url);
+    }
 }

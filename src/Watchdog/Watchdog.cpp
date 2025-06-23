@@ -45,9 +45,9 @@ void FindRenderingTarget(HWND targetHwnd)
                                      windowRect.top == targetRect.top &&
                                      windowRect.right == targetRect.right &&
                                      windowRect.bottom == targetRect.bottom;
-                    HWND zAbove = GetNextWindow(targetHwnd, GW_HWNDPREV);
-                    bool zOrderMatch = (zAbove == hwnd);
-                    if (rectMatch && zOrderMatch)
+                    // HWND zAbove = GetNextWindow(targetHwnd, GW_HWNDPREV);
+                    // bool zOrderMatch = (zAbove == hwnd);
+                    if (rectMatch)
                     {
                         LONG exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
                         if ((exStyle & WS_EX_LAYERED) == 0 || (exStyle & WS_EX_TRANSPARENT) == 0) {
@@ -168,7 +168,7 @@ void WatchdogProc()
 
                 if (rc.left != mrc.left ||
                     rc.top != mrc.top ||
-                    rc.right != mrc.right ||
+                    rc.right - 1 != mrc.right ||
                     rc.bottom != mrc.bottom)
                 {
                     wprintf(L"[Watchdog] Window rect differs from monitor rect, expanding window\n");

@@ -3,13 +3,23 @@
 }
 
 :root {
-    --accent: #c42e2efb;
-    --sidebar-width: 215px;
+    --accent: #de3f3ffb;
+    --sidebar-width: 250px;
     --default-sidebar-width: 215px;
     --card-width: 248px;
-    --default-card-width: 248px;
+    --default-card-width: 200px;
     --input-width: 100%;
     --transition-speed: 0.3s;
+
+    --body-color: #1a1a1a;
+    --light-body-color: #2d2d2d;
+    --checkmark-color: var(--accent);
+    --nav-accent-color: var(--accent);
+    --button-color: #212121;
+    --button-hover-color: #0f0f12;
+    --button-border-color: #5b5b5b;
+    --secondary-button-color: #212121;
+    --secondary-button-hover-color: #0f0f12;
 }
 
 html,
@@ -27,7 +37,7 @@ body {
     display: grid;
     width: 100%;
     height: 100%;
-    background-color: #1a1a1aff;
+    background-color: var(--body-color);
     /* border-radius: 10px;
     border: 2px solid #323232ff; */
     /* box-shadow: 0 5px 10px #0000005b; */
@@ -106,8 +116,8 @@ body {
     content: "";
     width: 45px;
     height: 42px;
-    background-color: #2d2d2dff;
-    border-radius: 5px;
+    background-color: var(--light-body-color);
+    border-radius: 2px;
 }
 
 .nav-highlight>.nav-accent {
@@ -123,13 +133,14 @@ body {
     height: 22px;
     width: 3px;
     border-radius: 9px;
-    background-color: var(--accent);
+    background-color: var(--nav-accent-color);
 }
 
 #title {
     margin-left: 75px;
     opacity: 1;
     transition: opacity 0.2s;
+    pointer-events: none;
 }
 
 .win-contain {
@@ -167,14 +178,21 @@ body {
     position: relative;
     width: var(--card-width);
     height: calc(var(--card-width)/248*150);
-    margin: 5px 7px;
-    border-radius: 5px;
-    background-color: #2d2d2dff;
+    margin: 5px 5px;
     float: left;
-    box-shadow: 0 5px 5px #00000025;
+}
+
+.card-content {
+    width: 100%;
+    height: 100%;
+    border-radius: 3px;
+    background-color: #2d2d2dff;
+    box-shadow: 0 2px 2px #00000011;
     cursor: pointer;
     background-size: cover;
     background-position: center center;
+    transition: transform 0.1s ease;
+    transform-style: preserve-3d;
 }
 
 .card-info {
@@ -223,7 +241,7 @@ body {
     margin-right: 25px;
 }
 
-.card>.checkmark, .card>.downloaded {
+.card .checkmark, .card .downloaded {
     position: absolute;
     width: 16px;
     right: 10px;
@@ -232,12 +250,12 @@ body {
     transition: opacity var(--transition-speed);
 }
 
-.card.selected>.checkmark, .card.installed>.downloaded {
+.card.selected .checkmark, .card.installed .downloaded {
     opacity: 1;
 }
 
-.card.focused {
-    outline: 2px solid var(--accent);
+.card.focused .card-content {
+    outline: 1.01px solid var(--accent);
 }
 
 .tab-content {
@@ -263,6 +281,7 @@ body {
     width: calc(100% - var(--sidebar-width));
     height: 100%;
     overflow-y: auto;
+    overflow-x: hidden;
     float: left;
 }
 
@@ -271,6 +290,7 @@ body {
     height: 100%;
     float: right;
     padding: 10px;
+    padding-bottom: 0;
 }
 
 .footer-icon {
@@ -292,18 +312,17 @@ body {
 }
 
 h1 {
-    font-size: 24px;
+    font-size: 20px;
     color: #f0f0f0ff;
     font-weight: 500;
     line-height: 10px;
 }
 
 .card-description {
-    position: relative;
     width: 100%;
     height: 100%;
     padding: 0 16px;
-    margin-top: -10px;
+    /* margin-top: -10px; */
 }
 
 .author {
@@ -311,6 +330,10 @@ h1 {
     font-size: 12px;
     color: #a0b0b0ff;
     font-weight: normal;
+}
+
+.description {
+    margin: 0;
 }
 
 a {
@@ -347,22 +370,25 @@ button {
 
     box-shadow: 0 2px 2px #00000011;
     border-radius: 4px;
-    border: 1px solid #5b5b5b;
-    background-color: #302929;
+    border: 1px solid var(--button-border-color);
+    background-color: var(--button-color);
 
 }
 
-button:hover {
-    background-color: #0f0f12;
+button:not(.inactive):hover {
+    background-color: var(--button-hover-color);
 }
 
 .card-options {
-    height: calc(100% - 120px);
+    /* height: calc(100% - 120px); */
+    position: relative;
+    flex-grow: 1;
     overflow-y: auto;
-    margin-top: 20px;
+    margin-top: 16px;
     margin-right: -10px;
     padding-right: 10px;
     padding-top: 1px;
+    overflow-x: hidden;
 }
 
 .card-remove {
@@ -372,15 +398,15 @@ button:hover {
     cursor: pointer;
 }
 
-.upload-card {
+.upload-card .card-content {
     background: transparent;
-    border: 2px solid #b0b0b0ff;
+    border: 1px solid #b0b0b0ff;
     box-shadow: none;
     text-align: center;
     line-height: calc(var(--card-width)/248*150);
 }
 
-.upload-card>p {
+.upload-card p {
     color: #b0b0b0ff;
     margin: 0;
 }
@@ -442,6 +468,16 @@ button:hover {
     box-shadow: 0 0 5px #000000aa;
 }
 
+.settings-main>.subheader {
+    line-height: 0;
+    margin-bottom: 20px;
+    margin-top: 25px;
+}
+
+hr {
+    border-color: #000000aa;
+}
+
 .develop-metadata>.subheader {
     font-size: 13px;
 }
@@ -486,29 +522,35 @@ label>p {
     content: "";
     width: 16px;
     height: 16px;
-    top: -1px;
-    left: -1px;
+    top: -2px;
+    left: -2px;
     border-radius: 2px;
-    border: 1px solid #5b5b5b;
-    background-color: #212121;
+    border: 1px solid var(--button-border-color);
+    background-color: var(--button-color);
     box-shadow: 0 2px 2px #00000011;
-
 }
 
 .checkbox-input>.checkmark {
     position: relative;
     display: block;
-    top: 5px;
-    left: 6px;
+    margin-left: 5.5px;
+    margin-top: 4px;
     width: 11px;
     height: 11px;
     border-radius: 1px;
-    background-color: #d31c1c;
+    background-image: url("img/white-checkmark.png");
+    background-position: center center;
+    background-size: contain;
+    background-repeat: no-repeat;
     opacity: 0;
 }
 
+.checkbox-input:hover>.checkmark {
+    opacity: 0.3;
+}
+
 .checkbox-input:has(input[type="checkbox"]:checked)>.checkmark {
-    opacity: 1;
+    opacity: 0.8;
 }
 
 .develop-metadata>button {
@@ -516,11 +558,11 @@ label>p {
 }
 
 .secondary-button {
-    background-color: #12294a;
+    background-color: var(--secondary-button-color);
 }
 
 .secondary-button:hover {
-    background-color: #0d1d31;
+    background-color: var(--secondary-button-hover-color);
 }
 
 .develop-main {
@@ -731,6 +773,11 @@ label>p {
     margin-top: -2px;
 }
 
+#modules-card-description {
+    display: flex;
+    flex-direction: column;
+}
+
 #modules-card-description.empty>.card-options {
     height: 0;
 }
@@ -750,6 +797,11 @@ label>p {
 
 .sidebar button {
     width: 100%;
+}
+
+.bottom-matter {
+    width: 100%;
+    height: auto;
 }
 
 #modal-container {
@@ -780,7 +832,7 @@ label>p {
     height: 170px;
     background-color: #1a1a1aff;
     border-radius: 10px;
-    border: 2px solid #323232ff;
+    border: 1px solid #323232ff;
     padding: 20px 30px;
     transform: translateY(25px);
     transition: transform var(--transition-speed);
@@ -814,10 +866,11 @@ label>p {
 
 button.inactive {
     transition: none;
-    background-color: #404040ff;
+    /* background-color: #404040ff; */
     box-shadow: 0 1px 0 #2c2c2cff;
     color: #979797ff;
-    cursor: no-drop;
+    cursor: default;
+    opacity: 0.5;
 }
 
 .card-description.inactive {

@@ -10,6 +10,7 @@ using json = nlohmann::json;
 
 void DispatchJson(std::wstring message)
 {
+    wprintf(L"DISPATCHING MESSAGE: %ws\n", message.c_str());
     WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(app_hwnd, GWLP_USERDATA));
     if (data && data->webview)
         data->webview->PostWebMessageAsJson(message.c_str());
@@ -26,11 +27,12 @@ void RaiseErrorBox(std::wstring title, std::wstring caption)
 
 void HandleWebMessage(std::wstring msg, HWND hwnd)
 {
+    printf("RECIEVED MESSAGE: %ws\n", msg.c_str());
     try
     {
         json j = json::parse(to_string(msg));
         std::string type = j.value("type", "");
-        printf("RECIEVED MESSAGE: %s\n", j.dump().c_str());
+        // printf("RECIEVED MESSAGE: %s\n", j.dump().c_str());
 
         if (type == "drag")
         {
@@ -59,8 +61,12 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
             std::wstring message = IterateWallpapersAsJsonString();
             DispatchJson(message);
         }
-        else if (type == "wallpaper-file-picker")
+        else if (type == "install-wallpaper")
+        {
             SelectAndInstallWallpaper();
+            std::wstring message = IterateWallpapersAsJsonString();
+            DispatchJson(message);
+        }
         else if (type == "request-visibility")
         {
             std::wstring visibility = IsWindowVisible(ms[0].hwnd) ? L"true" : L"false";
@@ -104,7 +110,16 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
             }
         }
         else if (type == "request-monitor-ids")
-            DispatchJson(GetMonitorIdsAsJsonString());
+        {
+            std::vector<std::wstring> monitorIds16 = GetMonitorIds();
+            std::vector<std::string> monitorIds8;
+            for (const auto &monitorId16 : monitorIds16)
+                monitorIds8.push_back(to_string(monitorId16));
+            json sendJson = {
+                {"type", "monitor-ids"},
+                {"data", monitorIds8}};
+            DispatchJson(to_wstring(sendJson.dump()));
+        }
         else if (type == "set-wallpaper")
         {
             if (j.contains("monitor-id") && j.contains("url") &&

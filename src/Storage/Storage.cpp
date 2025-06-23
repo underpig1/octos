@@ -68,69 +68,91 @@ std::wstring GetWallpapersDir()
     return ResolvePath(L"wallpapers");
 }
 
-bool InstallWallpaper(const std::wstring &zipPath)
+bool InstallWallpaper(const std::wstring &inputPath)
 {
-    wprintf(L"[Storage] Unzipping\n");
-    CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
-
-    IShellDispatch *shell = nullptr;
-    Folder *zipFolder = nullptr;
-    Folder *destFolderObj = nullptr;
-    bool success = false;
-    const std::wstring destFolder = GetWallpapersDir();
+    wprintf(L"[Storage] Installing from: %s\n", inputPath.c_str());
+    std::wstring destFolder = GetWallpapersDir();
     fs::create_directories(destFolder);
 
-    if (SUCCEEDED(CoCreateInstance(CLSID_Shell, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&shell))))
+    if (fs::is_directory(inputPath))
     {
-        VARIANT vZip, vDest;
-        VariantInit(&vZip);
-        VariantInit(&vDest);
-
-        vZip.vt = VT_BSTR;
-        vZip.bstrVal = SysAllocString(NormalizePath(zipPath).c_str());
-        vDest.vt = VT_BSTR;
-        vDest.bstrVal = SysAllocString(NormalizePath(destFolder).c_str());
-
-        shell->NameSpace(vZip, &zipFolder);
-        shell->NameSpace(vDest, &destFolderObj);
-
-        wprintf(L"[Storage] ZIP path in VARIANT : % s\n ", vZip.bstrVal);
-        wprintf(L"[Storage] zipFolder: %s\n", vDest.bstrVal);
-        if (zipFolder && destFolderObj)
+        try
         {
-            FolderItems *items = nullptr;
-            if (SUCCEEDED(zipFolder->Items(&items)))
+            fs::copy(inputPath, (fs::path)destFolder / ((fs::path)inputPath).filename(), fs::copy_options::recursive | fs::copy_options::overwrite_existing);
+            wprintf(L"[Storage] Directory copied successfully\n");
+            return true;
+        }
+        catch (...)
+        {
+            return false;
+        }
+    }
+    else if (fs::path(inputPath).extension() == L".zip")
+    {
+        wprintf(L"[Storage] Unzipping\n");
+        CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+
+        IShellDispatch *shell = nullptr;
+        Folder *zipFolder = nullptr;
+        Folder *destFolderObj = nullptr;
+        bool success = false;
+
+        if (SUCCEEDED(CoCreateInstance(CLSID_Shell, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&shell))))
+        {
+            VARIANT vZip, vDest;
+            VariantInit(&vZip);
+            VariantInit(&vDest);
+
+            vZip.vt = VT_BSTR;
+            vZip.bstrVal = SysAllocString(NormalizePath(inputPath).c_str());
+            vDest.vt = VT_BSTR;
+            vDest.bstrVal = SysAllocString(NormalizePath(destFolder).c_str());
+
+            shell->NameSpace(vZip, &zipFolder);
+            shell->NameSpace(vDest, &destFolderObj);
+
+            if (zipFolder && destFolderObj)
             {
-                VARIANT vItems;
-                VariantInit(&vItems);
-                vItems.vt = VT_DISPATCH;
-                vItems.pdispVal = items;
-                VARIANT vOpt;
-                VariantInit(&vOpt);
-                vOpt.vt = VT_I4;
-                vOpt.lVal = FOF_NOCONFIRMATION | FOF_SILENT | FOF_NOERRORUI;
-                HRESULT hr = destFolderObj->CopyHere(vItems, vOpt);
-                if (SUCCEEDED(hr))
+                FolderItems *items = nullptr;
+                if (SUCCEEDED(zipFolder->Items(&items)))
                 {
-                    wprintf(L"[Storage] UNZIPPED SUCCESSFULLY\n");
-                    success = true;
+                    VARIANT vItems;
+                    VariantInit(&vItems);
+                    vItems.vt = VT_DISPATCH;
+                    vItems.pdispVal = items;
+
+                    VARIANT vOpt;
+                    VariantInit(&vOpt);
+                    vOpt.vt = VT_I4;
+                    vOpt.lVal = FOF_NOCONFIRMATION | FOF_SILENT | FOF_NOERRORUI;
+
+                    HRESULT hr = destFolderObj->CopyHere(vItems, vOpt);
+                    if (SUCCEEDED(hr))
+                    {
+                        wprintf(L"[Storage] Unzipped successfully\n");
+                        success = true;
+                    }
+
+                    VariantClear(&vItems);
+                    items->Release();
                 }
-                VariantClear(&vItems);
-                items->Release();
             }
+
+            if (zipFolder)
+                zipFolder->Release();
+            if (destFolderObj)
+                destFolderObj->Release();
+            SysFreeString(vZip.bstrVal);
+            SysFreeString(vDest.bstrVal);
+            shell->Release();
         }
 
-        if (zipFolder)
-            zipFolder->Release();
-        if (destFolderObj)
-            destFolderObj->Release();
-        SysFreeString(vZip.bstrVal);
-        SysFreeString(vDest.bstrVal);
-        shell->Release();
+        CoUninitialize();
+        return success;
     }
 
-    CoUninitialize();
-    return success;
+    wprintf(L"[Storage] Unsupported input path: not a .zip or directory\n");
+    return false;
 }
 
 bool ReadJsonFile(const fs::path &filePath, json &out)
@@ -157,7 +179,7 @@ ConfigParams ReadConfig(fs::path path)
     ConfigParams params;
     if (ReadJsonFile(path, j))
     {
-        std::string author = j.value("name", "");
+        std::string author = j.value("author", "");
         std::string name = j.value("name", "");
         std::string description = j.value("description", "");
         params.author = to_wstring(author);
@@ -165,9 +187,10 @@ ConfigParams ReadConfig(fs::path path)
         params.description = to_wstring(description);
         if (j.contains("image"))
         {
-            std::string imagePath = j.value("image", "");
+            std::string image = j.value("image", "");
+            std::wstring imagePath = path.parent_path() / NormalizePath(to_wstring(image));
             if (fs::exists(imagePath))
-                params.imagePath = AddFileScheme(path.parent_path() / NormalizePath(to_wstring(imagePath)));
+                params.imagePath = AddFileScheme(imagePath);
         }
         if (j.contains("entry"))
         {
@@ -175,11 +198,19 @@ ConfigParams ReadConfig(fs::path path)
             if (entryPath.rfind("http://", 0) == 0 || entryPath.rfind("https://", 0) == 0)
                 params.entryPath = to_wstring(entryPath);
             else
-                params.entryPath = AddFileScheme(path.parent_path() / NormalizePath(to_wstring(entryPath)));
+            {
+                std::wstring normalEntryPath = path.parent_path() / NormalizePath(to_wstring(entryPath));
+                if (fs::exists(normalEntryPath)) params.entryPath = AddFileScheme(normalEntryPath);
+            }
         }
         if (j.contains("options") && j["options"].is_object())
         {
             std::string options = j["options"].dump();
+            params.options = to_wstring(options);
+        }
+        else if (j.contains("prefs") && j["prefs"].is_object())
+        {
+            std::string options = j["prefs"].dump();
             params.options = to_wstring(options);
         }
         return params;
@@ -200,7 +231,7 @@ std::vector<ConfigParams> IterateWallpapersDir()
                 fs::path configPath = entry.path() / L"octos.json";
                 ConfigParams params;
                 if (!fs::exists(configPath))
-                    configPath = entry.path() / L"config.json";
+                    configPath = entry.path() / L"mod.json";
                 if (fs::exists(configPath))
                 {
                     params = ReadConfig(configPath);
@@ -255,7 +286,7 @@ std::wstring ParamsAsJsonString(ConfigParams p)
 
 std::wstring IterateWallpapersAsJsonString()
 {
-    std::wstring jsonString = L"{\"type\":\"wallpaper-data\",\"data\":[";
+    std::wstring jsonString = L"{\"type\":\"wallpaper-data\",\"data\":[ ";
     std::vector<ConfigParams> allParams = IterateWallpapersDir();
     for (auto &p : allParams)
     {
@@ -283,7 +314,7 @@ void SelectAndInstallWallpaper()
                 {L"ZIP Archives", L"*.zip"},
                 {L"All Files", L"*.*"}};
             pFileOpen->SetFileTypes(ARRAYSIZE(zipFilter), zipFilter);
-            pFileOpen->SetOptions(FOS_FORCEFILESYSTEM | FOS_PICKFOLDERS | FOS_FILEMUSTEXIST);
+            pFileOpen->SetOptions(FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_FILEMUSTEXIST);
 
             if (SUCCEEDED(pFileOpen->Show(NULL)))
             {
