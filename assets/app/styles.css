@@ -309,6 +309,13 @@ body {
     width: 16px;
     height: 16px;
     object-fit: contain;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+.action-icon:active {
+    opacity: 0.5;
+    transform: scale(0.9);
 }
 
 h1 {
@@ -334,6 +341,7 @@ h1 {
 
 .description {
     margin: 0;
+    margin-bottom: 15px;
 }
 
 a {
@@ -381,10 +389,12 @@ button:not(.inactive):hover {
 
 .card-options {
     /* height: calc(100% - 120px); */
+    display: flex;
+    flex-direction: column;
     position: relative;
     flex-grow: 1;
     overflow-y: auto;
-    margin-top: 16px;
+    margin-top: 0;
     margin-right: -10px;
     padding-right: 10px;
     padding-top: 1px;
@@ -546,7 +556,7 @@ label>p {
 }
 
 .checkbox-input:hover>.checkmark {
-    opacity: 0.3;
+    opacity: 0.2;
 }
 
 .checkbox-input:has(input[type="checkbox"]:checked)>.checkmark {
@@ -596,9 +606,11 @@ label>p {
     appearance: none;
     height: 15px;
     width: 15px;
-    border-radius: 7.5px;
-    background-color: var(--accent);
     cursor: pointer;
+    border-radius: 7.5px;
+    border: 1px solid var(--button-border-color);
+    background-color: var(--button-color);
+    box-shadow: 0 2px 2px #00000011;
 }
 
 .range-input>p {
@@ -791,6 +803,11 @@ label>p {
     width: 100% !important;
 }
 
+#restore-preferences {
+    margin-top: auto;
+    margin-bottom: 5px;
+}
+
 .sidebar:has(.develop-metadata) {
     width: 230px;
 }
@@ -829,11 +846,11 @@ label>p {
 .modal {
     position: relative;
     width: 350px;
-    height: 170px;
+    height: auto;
     background-color: #1a1a1aff;
-    border-radius: 10px;
-    border: 1px solid #323232ff;
-    padding: 20px 30px;
+    border-radius: 4px;
+    border: 1px solid var(--button-border-color);
+    padding: 15px 20px;
     transform: translateY(25px);
     transition: transform var(--transition-speed);
 }
@@ -843,25 +860,22 @@ label>p {
 }
 
 .modal-buttons {
-    position: absolute;
     display: flex;
-    left: 30px;
-    right: 30px;
-    bottom: 20px;
-    justify-content: space-between;
+    gap: 10px;
 }
 
 .modal-buttons > button {
-    width: 140px;
+    width: auto;
+    flex: 1;
 }
 
-.modal-buttons > button.cancel {
+.modal-buttons > button.ok {
     background-color: #404040ff;
     box-shadow: 0 1px 0 #2c2c2cff;
 }
 
-.modal-buttons > button.cancel:hover {
-    background-color: #383838ff;
+.modal-buttons > button.ok:hover {
+    background-color: #303030;
 }
 
 button.inactive {
@@ -900,11 +914,15 @@ button.inactive {
 }
 
 input:focus {
-    outline: 1px solid var(--accent);
+    outline: 1px solid var(--button-border-color);
 }
 
 input[type="checkbox"]:focus {
     outline: none;
+}
+
+input[type="range"]:focus {
+    outline:none;
 }
 
 #modules-empty, #explore-empty {

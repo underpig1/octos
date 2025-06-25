@@ -173,6 +173,94 @@ LRESULT CALLBACK MouseEventProc(int nCode, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK KeyboardEventProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
+    static auto lastEventTime = std::chrono::steady_clock::now();
+    constexpr auto debounceInterval = std::chrono::milliseconds(10);
+    if (nCode != HC_ACTION)
+        return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
+    wprintf(L"EVENT INIT\n");
+
+    auto now = std::chrono::steady_clock::now();
+    if (now - lastEventTime < debounceInterval)
+    {
+        return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
+    }
+    lastEventTime = now;
+
+    const auto *mouse = reinterpret_cast<MSLLHOOKSTRUCT *>(lParam);
+    POINT screenMouse = mouse->pt;
+
+    HWND focusHwnd = GetForegroundWindow();
+    wchar_t className[256] = {};
+    GetClassNameW(focusHwnd, className, 256);
+    if (wcscmp(className, L"Progman") != 0)
+        return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
+    // if (not_over_wallpaper && just_released)
+    //     return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
+    // else if (just_released)
+    //     just_released = false;
+
+    HWND hwnd = nullptr;
+    for (auto &mw : ms)
+    {
+        RECT rc;
+        if (IsWindow(mw.hwnd) && GetWindowRect(mw.hwnd, &rc) && PtInRect(&rc, screenMouse))
+        {
+            hwnd = mw.hwnd;
+            break;
+        }
+    }
+    if (!hwnd)
+        return CallNextHookEx(g_keyboardHook, nCode, wParam, lParam);
+
+    WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+    if (!data || !data->webview)
+        return CallNextHookEx(g_keyboardHook, nCode, wParam, lParam);
+
+    KBDLLHOOKSTRUCT *kb = reinterpret_cast<KBDLLHOOKSTRUCT *>(lParam);
+    const char *eventType = nullptr;
+    switch (wParam)
+    {
+    case WM_KEYDOWN:
+        eventType = "keydown";
+        break;
+    case WM_KEYUP:
+        eventType = "keyup";
+        break;
+    case WM_SYSKEYDOWN:
+        eventType = "keydown";
+        break;
+    case WM_SYSKEYUP:
+        eventType = "keyup";
+        break;
+    default:
+        eventType = nullptr;
+        break;
+    }
+    if (eventType)
+    {
+        wprintf(L"SENDING EVENT\n");
+        INPUT inputs[2] = {};
+        SetFocus(hwnd);
+        data->controller->MoveFocus(COREWEBVIEW2_MOVE_FOCUS_REASON_PROGRAMMATIC);
+
+        // Key down
+        inputs[0].type = INPUT_KEYBOARD;
+        inputs[0].ki.wVk = 'A';
+
+        // Key up
+        inputs[1].type = INPUT_KEYBOARD;
+        inputs[1].ki.wVk = 'A';
+        inputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
+
+        SendInput(2, inputs, sizeof(INPUT));
+
+        UINT key = 'A';
+        LPARAM lparam = 1 | (MapVirtualKey(key, MAPVK_VK_TO_VSC) << 16);
+
+        PostMessage(hwnd, WM_KEYDOWN, key, lparam);
+        PostMessage(hwnd, WM_KEYUP, key, lparam | (1 << 31) | (1 << 30)); // transition & previous
+    }
+
     return CallNextHookEx(g_keyboardHook, nCode, wParam, lParam);
 }
 

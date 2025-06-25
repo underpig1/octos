@@ -118,8 +118,9 @@
                         <h2 class="author">By <a class="author-content">Octos</a></h2>
                         <p class="description">Created in the depths of hell, this wallpaper was designed with designs that show multiple entities.</p>
                         <div class="card-options" id="card-options"></div>
-                        <div class="bottom-matter"><a id="restore-preferences" onclick="restorePreferences()">Restore default
-                            preferences</a>
+                        <div class="bottom-matter">
+                            <!-- <a id="restore-preferences" onclick="restorePreferences()">Restore default
+                            mod options</a> -->
                         <button id="set-wallpaper" onclick="selectFocusedCard()">Set as Wallpaper</button>
                         </div>
                     </div>
@@ -183,17 +184,17 @@
                         <p>Disable any of the following to prevent modules from accessing system information. Note that this may prevent some modules from working as expected.</p>
                         <div class="card-options">
                             <label class="checkbox-input">
-                                <input class="settings-input" id="perm-mouse" type="checkbox" onchange="updateUserPrefs(this)" checked>
+                                <input class="settings-input" id="perm-mouse" type="checkbox" onchange="updateAppOptions(this)" checked>
                                 <p>Mouse events</p>
                                 <span class="checkmark"></span>
                             </label>
                             <label class="checkbox-input">
-                                <input class="settings-input" id="perm-keyboard" type="checkbox" onchange="updateUserPrefs(this)" checked>
+                                <input class="settings-input" id="perm-keyboard" type="checkbox" onchange="updateAppOptions(this)" checked>
                                 <p>Keyboard events</p>
                                 <span class="checkmark"></span>
                             </label>
                             <label class="checkbox-input">
-                                <input class="settings-input" id="perm-media" type="checkbox" onchange="updateUserPrefs(this)" checked>
+                                <input class="settings-input" id="perm-media" type="checkbox" onchange="updateAppOptions(this)" checked>
                                 <p>Media events</p>
                                 <span class="checkmark"></span>
                             </label>
@@ -204,7 +205,7 @@
                         <p>Change whether or not Octos should run on system startup/boot.</p>
                         <div class="card-options">
                             <label class="checkbox-input">
-                                <input class="settings-input" id="boot" type="checkbox" onchange="updateUserPrefs(this)" checked>
+                                <input class="settings-input" id="boot" type="checkbox" onchange="updateAppOptions(this)" checked>
                                 <p>Run on boot</p>
                                 <span class="checkmark"></span>
                             </label>
@@ -229,7 +230,7 @@
                         </div>
                     </div>
                     <p>Revert back to default settings.</p>
-                    <button class="secondary-button" onclick="restoreUserPrefs()">Revert changes</button>
+                    <button class="secondary-button" onclick="restoreAppOptions()">Restore settings</button>
                 </div>
             </div>
         </div>
@@ -251,7 +252,7 @@
             <input class="modal-textbox" type="text" placeholder="Type here...">
             <div class="modal-buttons">
                 <button class="cancel" onclick="modalResponse(false)">Cancel</button>
-                <button onclick="modalResponse(true)">OK</button>
+                <button class="ok" onclick="modalResponse(true)">OK</button>
             </div>
         </div>
     </div>

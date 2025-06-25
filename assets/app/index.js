@@ -44,6 +44,10 @@ function toggleVisibility() {
     window.chrome.webview.postMessage({ type: 'set-visibility', value: isVisible });
 }
 
+function uploadMod() {
+    window.chrome.webview.postMessage({ type: 'install-wallpaper' });
+}
+
 // MESSAGE LISTENER
 window.chrome.webview.addEventListener('message', (e) => {
     const msg = e.data;
@@ -58,13 +62,32 @@ window.chrome.webview.addEventListener('message', (e) => {
         updateVisibilityIcon();
     }
     else if (msg.type == 'prefs')
-        handleRecievePrefs(msg);
-    else if (msg.type == 'monitor-ids')
-    {
+        handleRecieveUserPrefs(msg);
+    else if (msg.type == 'monitor-ids') {
         monitorIds = msg.data
-        console.log(msg.data);
     }
 });
+
+// MOD DATA
+function handleRecieveModData(msg) {
+    if (!msg.data) return;
+    const modData = msg.data
+        .filter(x => x.hasOwnProperty('folderPath'))
+        .reduce((acc, curr) => {
+            acc[curr.folderPath] = curr;
+            return acc;
+        }, {});
+    userPrefs.modData = modData;
+    if (!userPrefs.hasOwnProperty('modOptions')) userPrefs.modOptions = {}
+    for (const id of Object.keys(modData))
+        if (!userPrefs.modOptions.hasOwnProperty(id)) userPrefs.modOptions[id] = modData[id].options
+        else {
+            const existingOptions = userPrefs.modOptions[id]
+            const newOptions = modData[id].options
+            Object.keys(newOptions).forEach(k => { if (!existingOptions.hasOwnProperty(k)) userPrefs.modOptions[id][k] = newOptions[k] });
+        }
+    updateMods();
+}
 
 // INITIALIZATION SCRIPT
 document.addEventListener("DOMContentLoaded", () => {
@@ -73,7 +96,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.chrome.webview.postMessage({ type: 'request-prefs' });
     window.chrome.webview.postMessage({ type: 'request-wallpaper-data' });
-    window.chrome.webview.postMessage({type: 'request-monitor-ids'});
+    window.chrome.webview.postMessage({ type: 'request-monitor-ids' });
+
+    populateExplore();
+    retrieveWorking();
     setInterval(handleScrollShadows, 100);
     window.onresize();
 });
@@ -159,29 +185,31 @@ function focusCard(el) {
     updateCardDescription();
 }
 
-function getFocusedCardData() {
-    if (focusedIDs[activeTab]) {
-        var id = focusedIDs[activeTab];
-        if (activeTab == "modules") return installedMods[id];
-        else if (activeTab == "explore") return exploreMods[id];
-    }
-    return null;
-}
-
 function cleanFocus() {
     const cardDescription = document.getElementById(activeTab + "-card-description");
     if (cardDescription) {
-        var activeIndex = activeTab == "modules" ? installedMods : exploreMods;
-        if (Object.keys(activeIndex).length == 0) {
-            cardDescription.classList.add("inactive");
+        if (activeTab == 'modules') {
+            if (installedModCards.length == 0)
+                cardDescription.classList.add("inactive");
+            else {
+                cardDescription.classList.remove("inactive");
+                const id = focusedIDs['modules']
+                if (!id || !document.getElementById(id))
+                    focusCard(document.getElementById(id))
+            }
         }
-        else {
-            cardDescription.classList.remove("inactive");
-            if (focusedIDs[activeTab] == null || !document.getElementById(focusedIDs[activeTab]).classList.contains("focused")) focusCard(document.getElementById(Object.keys(activeIndex)[0]));
+        else if (activeTab == 'explore') { // TBI
+            if (Object.keys(exploreMods).length == 0)
+                cardDescription.classList.add("inactive");
+            else {
+                cardDescription.classList.remove("inactive");
+                const id = focusedIDs['explore']
+                if (!id || !document.getElementById(id))
+                    focusCard(document.getElementById(id))
+            }
         }
     }
 }
-
 
 function calc3dEffect(e) {
     const clamp = (x, t) => Math.min(Math.max(x, -t), t)
@@ -229,9 +257,9 @@ function createCard(id = "", title = "Mod name", author = null, backgroundImage 
 function removeFocusedCard() {
     modalListener = (state) => {
         if (state) {
-            var folderPath = getFocusedCardData().folderPath;
-            if (focusedIDs.modules == selectedID) {
-                for (var id of Object.keys(installedMods)) {
+            const focusedId = focusedIDs.modules
+            if (focusedId && focusedId == selectedID) {
+                for (const id of Object.keys(userPrefs.modData)) {
                     if (id != selectedID) {
                         focusCard(document.getElementById(id));
                         selectFocusedCard();
@@ -239,23 +267,88 @@ function removeFocusedCard() {
                     }
                 }
             }
-            window.chrome.webview.postMessage({type:"remove-wallpaper", folderPath});
+            const modData = userPrefs.modData[focusedId];
+            window.chrome.webview.postMessage({ type: "remove-wallpaper", folderPath: modData.folderPath });
             for (var id of Object.keys(exploreMods)) {
-                if (exploreMods[id] == folderPath) {
+                if (exploreMods[id] == focusedId) {
                     exploreMods[focusedIDs.explore].installed = false;
                     document.getElementById(id).classList.remove("installed");
                 }
             }
         }
     }
-    modalDialog("Remove mod", "Are you sure you want to remove this mod?");
+    modalDialog("Uninstall mod", "Are you sure you want to uninstall this mod?");
+}
+
+function updateMods() {
+    const modScrollbox = document.getElementById("modules-scrollbox");
+    const focusedId = focusedIDs.modules;
+    installedModCards = {};
+    modScrollbox.innerHTML = "";
+    for (const id of Object.keys(userPrefs.modData)) {
+        const data = userPrefs.modData[id]
+        var card = createCard(id, data.name, data.author, data.imagePath);
+        if (focusedId == id || userPrefs.selected == id) {
+            for (var child of modScrollbox.children) child.classList.remove("focused");
+            card.classList.add("focused");
+            focusedIDs.modules = id;
+            if (userPrefs.selected == id) {
+                for (var child of modScrollbox.children) child.classList.remove("selected");
+                card.classList.add("selected");
+                selectedID = id;
+                selectFocusedCard();
+            }
+        }
+        modScrollbox.appendChild(card);
+        installedModCards[id] = card;
+    }
+    var focusCheck = false;
+    for (var mod of modScrollbox.childNodes) focusCheck = focusCheck || mod.classList.contains("focused");
+    if (!focusCheck) {
+        var firstCard = modScrollbox.querySelector(".card");
+        firstCard.classList.add("focused");
+        focusedIDs.modules = firstCard.id;
+    }
+    var uploadCard = document.getElementById("card-upload-template").content.cloneNode(true).firstElementChild;
+    add3dEffect(uploadCard);
+    modScrollbox.appendChild(uploadCard);
+    updateCardDescription();
+    updateDownloadedMods();
+}
+
+function selectFocusedCard() {
+    const modScrollbox = document.getElementById("modules-scrollbox");
+    const focusedId = focusedIDs.modules
+    if (focusedId) {
+        const focusedCard = document.getElementById(focusedId);
+        if (focusedCard) {
+            for (var child of modScrollbox.children) child.classList.remove("selected");
+            focusedCard.classList.add("selected");
+
+            selectedID = focusedCard.id;
+            const entryPath = userPrefs.modData[focusedId].entryPath;
+            window.chrome.webview.postMessage({ type: 'set-wallpaper', url: entryPath, "monitor-id": monitorIds[0] });
+            userPrefs.selected = selectedID;
+            dumpUserPrefs();
+
+            const button = document.getElementById('modules-card-description').querySelector("button");
+            button.disabled = true;
+            button.classList.add("inactive");
+        }
+    }
 }
 
 // CARD DESCRIPTION
 function updateCardDescription() {
     cleanFocus();
-    var cardData = getFocusedCardData();
-    if (cardData) setCardDescription(activeTab, cardData.name, cardData.author, cardData.description, cardData.options, cardData.installed);
+    if (activeTab == 'modules') {
+        const id = focusedIDs.modules
+        if (id) {
+            var cardData = userPrefs.modData[id]
+            if (cardData)
+                setCardDescription(activeTab, cardData.name, cardData.author, cardData.description, userPrefs.modOptions[id], true);
+        }
+    }
 }
 
 function setCardDescription(prefix = "explore", title = "", author = "", description = "", options = null, installed = false) {
@@ -366,76 +459,82 @@ function setCardOptions(json) {
     for (var id of Object.keys(json)) {
         createInput(json[id], id);
     }
-
-    function createScrollShadow(bottom = false)
-    {
-        let scrollShadow = document.createElement("div");
-        scrollShadow.classList.add('scroll-shadow');
-        cardOptions.appendChild(scrollShadow);
-        scrollShadow.style.zIndex = '5';
-        scrollShadow.style.height = '15px';
-        scrollShadow.style.left = '-5px';
-        scrollShadow.style.width = 'calc(100% + 10px)';
-        scrollShadow.style.position = 'absolute';
-        scrollShadow.style.top = '0';
-        scrollShadow.style.pointerEvents = 'none';
-        // scrollShadow.style.backgroundColor = 'red'
-        return scrollShadow;
-    }
-
-    const top = createScrollShadow(false);
-    const bottom = createScrollShadow(true);
-    const handleCardOptionScrollShadows = () => {
-        top.style.opacity = 0;
-        bottom.style.opacity = 0;
-        top.style.top = cardOptions.scrollTop + 'px';
-        bottom.style.top = cardOptions.scrollTop + cardOptions.clientHeight - bottom.clientHeight + 'px';
-        if (cardOptions.clientHeight < cardOptions.scrollHeight) {
-            var minScrollPos = cardOptions.scrollTop < 1;
-            var maxScrollPos = Math.abs(cardOptions.scrollHeight - cardOptions.clientHeight - cardOptions.scrollTop) < 1;
-            if (!minScrollPos) top.style.opacity = 1;
-            if (!maxScrollPos) bottom.style.opacity = 1;
+    if (Object.keys(json).length > 0) {
+        function createScrollShadow(bottom = false) {
+            let scrollShadow = document.createElement("div");
+            scrollShadow.classList.add('scroll-shadow');
+            cardOptions.appendChild(scrollShadow);
+            scrollShadow.style.zIndex = '5';
+            scrollShadow.style.height = '15px';
+            scrollShadow.style.left = '-5px';
+            scrollShadow.style.width = 'calc(100% + 10px)';
+            scrollShadow.style.position = 'absolute';
+            scrollShadow.style.top = '0';
+            scrollShadow.style.pointerEvents = 'none';
+            // scrollShadow.style.backgroundColor = 'red'
+            return scrollShadow;
         }
-        else {
+
+        const top = createScrollShadow(false);
+        const bottom = createScrollShadow(true);
+        const handleCardOptionScrollShadows = () => {
             top.style.opacity = 0;
             bottom.style.opacity = 0;
+            top.style.top = cardOptions.scrollTop + 'px';
+            bottom.style.top = cardOptions.scrollTop + cardOptions.clientHeight - bottom.clientHeight - 1 + 'px';
+            if (cardOptions.clientHeight < cardOptions.scrollHeight) {
+                var minScrollPos = cardOptions.scrollTop < 1;
+                var maxScrollPos = Math.abs(cardOptions.scrollHeight - cardOptions.clientHeight - cardOptions.scrollTop) < 1;
+                if (!minScrollPos) top.style.opacity = 1;
+                if (!maxScrollPos) bottom.style.opacity = 1;
+            }
+            else {
+                top.style.opacity = 0;
+                bottom.style.opacity = 0;
+            }
         }
+        cardOptions.addEventListener('scroll', handleCardOptionScrollShadows);
+        window.addEventListener('resize', handleCardOptionScrollShadows);
+        handleCardOptionScrollShadows();
+
+        const restorePrefs = document.createElement('a')
+        restorePrefs.setAttribute('id', 'restore-preferences')
+        restorePrefs.onclick = restoreModOptions
+        restorePrefs.innerText = 'Restore default mod options'
+        cardOptions.appendChild(restorePrefs);
     }
-    cardOptions.addEventListener('scroll', handleCardOptionScrollShadows);
-    window.addEventListener('resize', handleCardOptionScrollShadows);
-    handleCardOptionScrollShadows();
 }
 
-function restorePreferences() { // TBI
-    modalDialog("Restore preferences", "Are you sure you want to restore default mod preferences? This action is irreversible.");
+function restoreModOptions() {
+    modalDialog("Restore mod options", "Are you sure you want to restore default mod options? This action is irreversible.");
     modalListener = (state) => {
-        if (focusedIDs.modules && state)
-            if (prefs.value) {
-                var focusedCard = getFocusedCardData();
-                var options = prefs.value[focusedCard.name];
-                if (options) {
-                    var defaults = options.defaults;
-                    focusedCard.options = defaults;
-                    restoreModPrefs(focusedCard.name);
+        const id = focusedIDs.modules
+        if (id && state) {
+            const modData = userPrefs.modData[id]
+            if (modData) {
+                const defaultOptions = modData.options;
+                if (defaultOptions) {
+                    userPrefs.modOptions[id] = defaultOptions;
                     updateCardDescription();
+                    dumpUserPrefs();
                 }
             }
+        }
     }
 }
 
 function updateCardOptions() {
-    if (focusedIDs.modules) {
-        var focusedCard = getFocusedCardData();
-        var name = focusedCard.name;
-        var modData = focusedCard.options;
-        getInput();
-        var options = {};
-        for (var id of Object.keys(inputGetters)) {
-            var value = getInput(id);
-            modData[id].value = value;
-            options[id] = getInput(id);
+    const id = focusedIDs.modules
+    if (id) {
+        const modData = userPrefs.modData[id];
+        if (modData) {
+            for (const inputId of Object.keys(inputGetters)) {
+                const value = getInput(inputId);
+                if (userPrefs.modOptions[id].hasOwnProperty(inputId))
+                    userPrefs.modOptions[id][inputId].value = value;
+            }
+            dumpUserPrefs()
         }
-        if (Object.keys(options).length > 0) window.link.setModPrefs(name, options);
     }
 }
 
@@ -460,35 +559,50 @@ function modalResponse(state) {
 
 // USER PREFERENCES
 var userPrefs = {}
-var userPrefsDefaults = {
-    prefs: "default"
+const appOptionsDefaults = {
+    "perm-mouse": true, "perm-keyboard": true, "perm-media": true, "boot": true
 }
 
-function restoreUserPrefs() {
-    modalDialog("Restore settings", "Are you sure you want to restore default settings?");
+function dumpUserPrefs() {
+    window.chrome.webview.postMessage({ type: 'dump-prefs', value: userPrefs });
+}
+
+function restoreAppOptions() {
+    modalDialog("Restore app settings", "Are you sure you want to restore default app settings?");
     modalListener = (state) => {
         if (state) {
-            userPrefs = JSON.parse(JSON.stringify(userPrefsDefaults))
-            window.chrome.webview.postMessage({ type: 'dump-prefs', value: userPrefs });
-            retrieveUserPrefs();
+            userPrefs.appOptions = JSON.parse(JSON.stringify(appOptionsDefaults))
+            for (const id of Object.keys(userPrefs.appOptions)) {
+                const el = document.getElementById(id)
+                if (el)
+                    if (el.type == "checkbox") el.checked = userPrefs.appOptions[id];
+                    else el.value = userPrefs.appOptions[id]
+            }
+            dumpUserPrefs();
         }
     }
 }
 
-function updateUserPrefs(el) {
+function updateAppOptions(el) {
     if (el.type == "checkbox") var value = el.checked;
     else var value = el.value;
-    userPrefs[el.id] = value;
-    window.chrome.webview.postMessage({ type: 'dump-prefs', value: userPrefs });
+    if (!userPrefs.hasOwnProperty('appOptions'))
+        userPrefs.appOptions = {}
+    userPrefs.appOptions[el.id] = value;
+    dumpUserPrefs();
 }
 
-function handleRecievePrefs(msg) {
+function handleRecieveUserPrefs(msg) {
     userPrefs = msg.data
+    console.log('recieved prefs', userPrefs);
+
     var inputs = document.getElementsByClassName("settings-input");
+    if (!userPrefs.hasOwnProperty('appOptions'))
+        return;
     for (var el of inputs) {
-        if (userPrefs[el.id] != null) {
-            if (el.type == "checkbox") el.checked = userPrefs[el.id].value;
-            else el.value = userPrefs[el.id].value;
+        if (userPrefs.appOptions[el.id] != null) {
+            if (el.type == "checkbox") el.checked = userPrefs.appOptions[el.id].value;
+            else el.value = userPrefs.appOptions[el.id].value;
         }
     }
 }
@@ -497,7 +611,7 @@ var focusedIDs = { explore: null, modules: null };
 var selectedID;
 var isVisible = true;
 var inputGetters = {};
-var installedMods = {};
+var installedModCards = {};
 var exploreMods = {};
 var activeTab = "modules";
 var modalListener = () => null;
@@ -505,62 +619,6 @@ var downloadingCards = [];
 var monitorIds;
 
 // TO BE IMPLEMENTED
-function handleRecieveModData(msg) {
-    userPrefs.mods = msg.data;
-    updateMods();
-}
-
-function updateMods() {
-    const modScrollbox = document.getElementById("modules-scrollbox");
-    var tempFocus = Object.keys(installedMods).length > 0 ? focusedIDs.modules ? installedMods[focusedIDs.modules].name : null : null;
-    installedMods = {};
-    modScrollbox.innerHTML = "";
-    for (var modPrefs of userPrefs.mods) {
-        console.log(modPrefs)
-        const id = modPrefs.folderPath
-        const name = modPrefs.name
-        var card = createCard(id, name, modPrefs.author, modPrefs.imagePath);
-        if ((!tempFocus && id == 0) || tempFocus == name) {
-            for (var child of modScrollbox.children) child.classList.remove("focused");
-            card.classList.add("focused");
-            focusedIDs.modules = id;
-        }
-        if (userPrefs.selected == name) {
-            for (var child of modScrollbox.children) child.classList.remove("selected");
-            card.classList.add("selected");
-            selectedID = id;
-        }
-        modScrollbox.appendChild(card);
-        installedMods[id] = {...modPrefs, el: card};
-    }
-    var focusCheck = false;
-    for (var mod of modScrollbox.childNodes) focusCheck = focusCheck || mod.classList.contains("focused");
-    if (!focusCheck) {
-        var firstCard = modScrollbox.querySelector(".card");
-        firstCard.classList.add("focused");
-        focusedIDs.modules = firstCard.id;
-    }
-    var uploadCard = document.getElementById("card-upload-template").content.cloneNode(true).firstElementChild;
-    add3dEffect(uploadCard);
-    modScrollbox.appendChild(uploadCard);
-    updateCardDescription();
-    updateDownloadedMods();
-}
-
-function selectFocusedCard() {
-    const modScrollbox = document.getElementById("modules-scrollbox");
-    var focusedCard = document.getElementById(focusedIDs.modules);
-    for (var child of modScrollbox.children) child.classList.remove("selected");
-    focusedCard.classList.add("selected");
-    selectedID = focusedCard.id;
-    var entryPath = installedMods[selectedID].entryPath;
-    window.chrome.webview.postMessage({ type: 'set-wallpaper', url: entryPath, "monitor-id": monitorIds[0] });
-}
-
-function uploadMod() {
-    window.chrome.webview.postMessage({type: 'install-wallpaper'});
-}
-
 function downloadFocusedCard() {
     var id = focusedIDs.explore;
     var name = exploreMods[id].name;
@@ -591,25 +649,11 @@ function goToSource() {
     window.link.goToSource(name);
 }
 
-function updateWorking() {
-    window.link.userPrefs.set("working", develop);
-}
-
-function retrieveWorking() {
-    window.link.userPrefs.get("working").then((content) => {
-        if (content) {
-            develop = content;
-            enableDeveloping();
-            updateDevelopModInfo();
-        }
-    });
-}
-
 function updateDownloadedMods() {
     for (var id of Object.keys(exploreMods)) {
         var modData = exploreMods[id];
         var installed = false;
-        for (var card of Object.values(installedMods)) {
+        for (var card of Object.values(installedModCards)) {
             if (card.name == modData.name && card.description == modData.description && card.author == modData.author) {
                 installed = true;
                 break;
@@ -621,12 +665,6 @@ function updateDownloadedMods() {
         else card.classList.remove("installed");
     }
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-    retrieveUserPrefs();
-    populateExplore();
-    retrieveWorking();
-});
 
 function populateExplore() {
     window.link.request.modData().then((data) => {

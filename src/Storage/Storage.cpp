@@ -74,20 +74,7 @@ bool InstallWallpaper(const std::wstring &inputPath)
     std::wstring destFolder = GetWallpapersDir();
     fs::create_directories(destFolder);
 
-    if (fs::is_directory(inputPath))
-    {
-        try
-        {
-            fs::copy(inputPath, (fs::path)destFolder / ((fs::path)inputPath).filename(), fs::copy_options::recursive | fs::copy_options::overwrite_existing);
-            wprintf(L"[Storage] Directory copied successfully\n");
-            return true;
-        }
-        catch (...)
-        {
-            return false;
-        }
-    }
-    else if (fs::path(inputPath).extension() == L".zip")
+    if (fs::exists(inputPath) && fs::path(inputPath).extension() == L".zip")
     {
         wprintf(L"[Storage] Unzipping\n");
         CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
@@ -200,7 +187,8 @@ ConfigParams ReadConfig(fs::path path)
             else
             {
                 std::wstring normalEntryPath = path.parent_path() / NormalizePath(to_wstring(entryPath));
-                if (fs::exists(normalEntryPath)) params.entryPath = AddFileScheme(normalEntryPath);
+                if (fs::exists(normalEntryPath))
+                    params.entryPath = AddFileScheme(normalEntryPath);
             }
         }
         if (j.contains("options") && j["options"].is_object())
@@ -316,7 +304,8 @@ void SelectAndInstallWallpaper()
             pFileOpen->SetFileTypes(ARRAYSIZE(zipFilter), zipFilter);
             pFileOpen->SetOptions(FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_FILEMUSTEXIST);
 
-            if (SUCCEEDED(pFileOpen->Show(NULL)))
+            HRESULT hr = pFileOpen->Show(NULL);
+            if (SUCCEEDED(hr))
             {
                 IShellItem *pItem;
                 if (SUCCEEDED(pFileOpen->GetResult(&pItem)))
@@ -330,6 +319,8 @@ void SelectAndInstallWallpaper()
                     pItem->Release();
                 }
             }
+            else if (hr == HRESULT_FROM_WIN32(ERROR_CANCELLED))
+                return;
             pFileOpen->Release();
         }
         CoUninitialize();
@@ -338,7 +329,7 @@ void SelectAndInstallWallpaper()
     if (!result.empty())
     {
         fs::path filePath = result;
-        if (fs::is_directory(filePath) || filePath.extension() == L".zip")
+        if (fs::exists(filePath) && filePath.extension() == L".zip")
             succeeded = InstallWallpaper(filePath);
     }
     if (!succeeded)

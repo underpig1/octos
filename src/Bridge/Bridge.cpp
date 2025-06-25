@@ -54,8 +54,11 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
             if (!url.empty())
                 ShellExecute(NULL, L"open", to_wstring(url).c_str(), NULL, NULL, SW_SHOWNORMAL);
         }
-        else if (type == "refresh")
+        else if (type == "refresh") {
             RecreateWallpapers();
+            std::wstring message = IterateWallpapersAsJsonString();
+            DispatchJson(message);
+        }
         else if (type == "request-wallpaper-data")
         {
             std::wstring message = IterateWallpapersAsJsonString();
@@ -107,6 +110,8 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
             {
                 std::string folderPath = j["folderPath"];
                 RemoveWallpaper(to_wstring(folderPath));
+                std::wstring message = IterateWallpapersAsJsonString();
+                DispatchJson(message);
             }
         }
         else if (type == "request-monitor-ids")
