@@ -102,6 +102,7 @@ void InitializeWebViewEnvironment()
 }
 
 void OnWebViewControllerCreated(
+    
     HWND hwnd,
     const std::wstring &htmlPath,
     wil::com_ptr<ICoreWebView2> webview,
@@ -132,6 +133,13 @@ void OnWebViewControllerCreated(
         controller2->put_DefaultBackgroundColor({0, 0, 0, 0});
     }
 
+    // Microsoft::WRL::ComPtr<ICoreWebView2Controller3> controller3;
+    // if (SUCCEEDED(controller->QueryInterface(IID_PPV_ARGS(&controller3))))
+    // {
+    //     controller3->put_ShouldDetectMonitorScaleChanges(TRUE);
+    //     controller3->put_RasterizationScale(10005);
+    // }
+
     // navigate to local HTML file
     std::wstring url = htmlPath;
     if (hwnd == app_hwnd)
@@ -151,7 +159,8 @@ void OnWebViewControllerCreated(
                 if (SUCCEEDED(args->get_WebMessageAsJson(&messageRaw)))
                 {
                     std::wstring msg = messageRaw.get();
-                    HandleWebMessage(msg, hwnd);
+                    if (hwnd == app_hwnd)
+                        HandleWebMessage(msg, hwnd);
                 }
                 return S_OK;
             })
@@ -282,11 +291,37 @@ void NavigateWindow(HWND hwnd, std::wstring url)
 void HandleOnDestroy(HWND hwnd)
 {
     WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-    data->controller->Close();
-    data->controller.reset();
-    data->webview.reset();
-    delete data;
+    if (data && data->controller)
+    {
+        data->controller->Close();
+        data->controller.reset();
+        data->webview.reset();
+        delete data;
+    }
     SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);
+}
+
+void HandleDPIChange(HWND hwnd, LPARAM lParam)
+{
+    if (!IsWindow(hwnd) || !IsWindowVisible(hwnd))
+        return;
+    RECT *const prcNewWindow = (RECT *)lParam;
+    SetWindowPos(hwnd, NULL,
+                 prcNewWindow->left,
+                 prcNewWindow->top,
+                 prcNewWindow->right - prcNewWindow->left,
+                 prcNewWindow->bottom - prcNewWindow->top,
+                 SWP_NOZORDER | SWP_NOACTIVATE);
+    WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+    if (data && data->controller)
+    {
+        int width = prcNewWindow->right - prcNewWindow->left;
+        int height = prcNewWindow->bottom - prcNewWindow->top;
+        RECT bounds = {0, 0, width, height};
+        data->controller->put_Bounds(bounds);
+        if (hwnd != app_hwnd)
+            g_dcompDevice->Commit();
+    }
 }
 
 void SetWebViewVisibility(HWND hwnd, bool visible)
@@ -307,7 +342,7 @@ void SetWebViewVisibility(HWND hwnd, bool visible)
         else if (data->hidden)
         {
             data->controller->put_IsVisible(true);
-            data->hidden = true;
+            data->hidden = false;
         }
     }
 }

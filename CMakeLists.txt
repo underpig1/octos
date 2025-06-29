@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_compile_options(/FS)
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.cpp")
-add_executable(main ${SOURCES})
+add_executable(main WIN32 ${SOURCES})
 
 target_compile_definitions(main PRIVATE WEBVIEW2_NO_IDL UNICODE _UNICODE)
 target_compile_options(main PRIVATE /FS)
@@ -32,7 +32,6 @@ find_package(wil CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(unofficial-webview2 CONFIG REQUIRED)
 
-set_target_properties(main PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS")
 set_target_properties(main PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/out"
 )

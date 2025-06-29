@@ -187,7 +187,7 @@ body {
     height: 100%;
     border-radius: 3px;
     background-color: #2d2d2dff;
-    box-shadow: 0 2px 2px #00000011;
+    box-shadow: 0 1px 10px #00000055;
     cursor: pointer;
     background-size: cover;
     background-position: center center;

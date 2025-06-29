@@ -9,6 +9,7 @@
 #define WM_DESTROYTRIGGER (WM_USER + 2)
 #define WM_TRAYICON (WM_USER + 3)
 #define WM_CLOSEAPP (WM_USER + 4)
+#define WM_DISPATCHJSON (WM_USER + 5)
 
 extern const wchar_t CLASS_NAME[];
 extern HINSTANCE g_hInstance;

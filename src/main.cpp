@@ -6,12 +6,14 @@
 #include "Event/Event.h"
 #include "main.h"
 #include "Storage/Storage.h"
+#include "Bridge/Bridge.h"
 
 const wchar_t CLASS_NAME[] = L"OctosWorker";
 HINSTANCE g_hInstance;
 HWND app_hwnd;
 
-std::bitset<static_cast<size_t>(Pref::Count)> g_prefs = [] {
+std::bitset<static_cast<size_t>(Pref::Count)> g_prefs = []
+{
     std::bitset<static_cast<size_t>(Pref::Count)> defaults;
     defaults.set(static_cast<size_t>(Pref::MemorySaver), true);
     defaults.set(static_cast<size_t>(Pref::DisableMouseInput), false);
@@ -35,10 +37,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
     case WM_NCCALCSIZE:
     {
-        if (app_hwnd != hwnd)
-            break;
-        if (wParam)
+        if (hwnd == app_hwnd && wParam == TRUE)
         {
+            wprintf(L"WE ARE RUNNING\n");
             NCCALCSIZE_PARAMS *pParams = (NCCALCSIZE_PARAMS *)lParam;
             const int border = 8;
             pParams->rgrc[0].left += border;
@@ -53,11 +54,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         if (hwnd == app_hwnd)
         {
             auto mmi = reinterpret_cast<MINMAXINFO *>(lParam);
-            mmi->ptMinTrackSize.x = 800;
+            mmi->ptMinTrackSize.x = 850;
             mmi->ptMinTrackSize.y = 500;
             return 0;
         }
+        break;
     }
+    case WM_DPICHANGED:
+        HandleDPIChange(hwnd, lParam);
+        return 0;
     // case WM_NCHITTEST:
     // {
     //     POINT pt = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
@@ -101,12 +106,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_ACTIVATE:
         for (auto &mw : ms)
             FixWallpaperOrder(mw.hwnd);
+        break;
     case WM_SETFOCUS:
         for (auto &mw : ms)
             FixWallpaperOrder(mw.hwnd);
+        break;
     case WM_KILLFOCUS:
         for (auto &mw : ms)
             FixWallpaperOrder(mw.hwnd);
+        break;
     case WM_SHOWWINDOW:
     {
         wprintf(L"[WinMain] Shown\n");
@@ -136,10 +144,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         return 0;
     }
     case WM_TIMER:
-    {
         WatchdogProc();
         return 0;
-    }
     case WM_RECREATEHWND:
     {
         wprintf(L"[WinMain] Recreated\n");
@@ -161,19 +167,28 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         return 0;
     case WM_CLOSEAPP:
         OnClose();
-    default:
-        return DefWindowProc(hwnd, msg, wParam, lParam);
+        return 0;
+    case WM_DISPATCHJSON:
+    {
+        std::wstring *message = reinterpret_cast<std::wstring *>(lParam);
+        DispatchJson(*message);
+        delete message;
+        return 0;
     }
+    default:
+        break;
+    }
+    return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
+    SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+
     AllocConsole();
     freopen("CONOUT$", "w", stdout);
     freopen("CONOUT$", "w", stderr);
     freopen("CONIN$", "r", stdin);
-
-    SetProcessDPIAware();
 
     InitializeWebViewEnvironment();
 
@@ -182,6 +197,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     wc.hInstance = hInstance;
     wc.lpszClassName = CLASS_NAME;
     wc.hbrBackground = nullptr;
+    HBRUSH bgBrush = CreateSolidBrush(RGB(26, 26, 26));
+    wc.hbrBackground = bgBrush;
     RegisterClass(&wc);
     g_hInstance = hInstance;
 

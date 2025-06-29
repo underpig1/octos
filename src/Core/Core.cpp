@@ -111,11 +111,14 @@ void InitializeWallpaperWindows()
 HWND CreateMainWindow()
 {
     WebViewData *data = new WebViewData();
-    HWND hwnd = CreateWindowExW(0, CLASS_NAME, L"Octos", WS_THICKFRAME | WS_BORDER, CW_USEDEFAULT, CW_USEDEFAULT, 900, 600, nullptr, nullptr, g_hInstance, reinterpret_cast<LPVOID>(data));
+    HWND hwnd = CreateWindowExW(0, CLASS_NAME, L"Octos", WS_THICKFRAME | WS_BORDER, CW_USEDEFAULT, CW_USEDEFAULT, 1350, 800, nullptr, nullptr, g_hInstance, reinterpret_cast<LPVOID>(data));
     ShowWindow(hwnd, SW_SHOW);
     UpdateWindow(hwnd);
     AttachWebViewController(hwnd, L"app/index.html");
     SetTimer(hwnd, 1, 100, NULL);
+    app_hwnd = hwnd;
+    SetWindowPos(hwnd, nullptr, 0, 0, 0, 0,
+                 SWP_NOZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
     return hwnd;
 }
 

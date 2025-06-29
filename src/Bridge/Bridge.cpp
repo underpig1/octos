@@ -1,4 +1,5 @@
 #include <nlohmann/json.hpp>
+#include <thread>
 
 #include "Bridge.h"
 #include "../main.h"
@@ -69,9 +70,22 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
         }
         else if (type == "install-wallpaper")
         {
-            SelectAndInstallWallpaper();
-            std::wstring message = IterateWallpapersAsJsonString();
-            DispatchJson(message);
+            std::thread([]()
+                        {
+                            bool result = SelectAndInstallWallpaper();
+                            if (result)
+                            {
+                                std::wstring message = IterateWallpapersAsJsonString();
+                                PostMessage(app_hwnd, WM_USER + 5, 0, (LPARAM) new std::wstring(message));
+                                message = L"{\"type\":\"error-box\",\"title\":\"Successfully installed\",\"caption\":\"Your new wallpaper is ready.\"}";
+                                PostMessage(app_hwnd, WM_USER + 5, 0, (LPARAM) new std::wstring(message));
+                            }
+                            else if (result != NULL)
+            {
+                std::wstring message = L"{\"type\":\"error-box\",\"title\":\"Installation failed\",\"caption\":\"Please try again.\"}";
+                PostMessage(app_hwnd, WM_USER + 5, 0, (LPARAM) new std::wstring(message));
+            } })
+                .detach();
         }
         else if (type == "request-visibility")
         {
@@ -140,10 +154,28 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
         }
         else if (type == "download-wallpaper")
         {
-            if (j.contains("url") && j["url"].is_string())
+            if (j.contains("id") && j.contains("url") &&
+                j["id"].is_string() && j["url"].is_string())
             {
                 const std::string url = j["url"];
-                DownloadWallpaper(to_wstring(url));
+                const std::string id = j["id"];
+                std::thread([url, id]()
+                            {
+                    if (DownloadWallpaper(to_wstring(url)))
+                    {
+                        wprintf(L"SUCCESS????\n");
+                        json sendJson = {
+                            {"type", "downloaded-wallpaper"},
+                            {"url", url},
+                            {"id", id}};
+                        std::wstring message = to_wstring(sendJson.dump());
+                        PostMessage(app_hwnd, WM_USER + 5, 0, (LPARAM) new std::wstring(message));
+                        message = IterateWallpapersAsJsonString();
+                        PostMessage(app_hwnd, WM_USER + 5, 0, (LPARAM) new std::wstring(message));
+                    }
+                    else
+                        RaiseErrorBox(L"Download failed", L"Please try again."); })
+                    .detach();
             }
         }
     }

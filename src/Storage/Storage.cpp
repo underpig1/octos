@@ -73,11 +73,12 @@ std::wstring GetWallpapersDir()
 bool InstallWallpaper(const std::wstring &zipPath)
 {
     wprintf(L"[Storage] Installing from: %s\n", zipPath.c_str());
-    std::wstring destFolder = GetWallpapersDir();
-    fs::create_directories(destFolder);
 
     if (fs::exists(zipPath) && fs::path(zipPath).extension() == L".zip")
     {
+        std::wstring destFolder = GetWallpapersDir() / fs::path(zipPath).stem();
+        fs::create_directories(destFolder);
+        
         wprintf(L"[Storage] Unzipping\n");
         CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 
@@ -119,6 +120,25 @@ bool InstallWallpaper(const std::wstring &zipPath)
                     if (SUCCEEDED(hr))
                     {
                         wprintf(L"[Storage] Unzipped successfully\n");
+                        // handle main folder not in root folder
+                        size_t count = 0;
+                        fs::directory_entry sourceFolder;
+                        for (const auto &entry : fs::directory_iterator(destFolder))
+                        {
+                            ++count;
+                            if (count > 1)
+                                break;
+                            sourceFolder = entry;
+                        }
+                        if (count == 1 && sourceFolder.is_directory())
+                        {
+                            for (const auto &entry : fs::directory_iterator(sourceFolder))
+                            {
+                                fs::path newPath = destFolder / entry.path().filename();
+                                fs::rename(entry.path(), newPath);
+                            }
+                            fs::remove(sourceFolder);
+                        }
                         success = true;
                     }
 
@@ -144,22 +164,26 @@ bool InstallWallpaper(const std::wstring &zipPath)
     return false;
 }
 
-void DownloadWallpaper(const std::wstring url)
+bool DownloadWallpaper(const std::wstring url)
 {
+    bool result = false;
     wchar_t tempPath[MAX_PATH];
     DWORD pathLen = GetTempPathW(MAX_PATH, tempPath);
     fs::path zipPath = fs::path(tempPath) / fs::path(url).filename();
+    wprintf(L"DOWNLOADING WALLPAPER %ws %ws\n", zipPath.c_str(), url.c_str());
     HRESULT hr = URLDownloadToFileW(nullptr, url.c_str(), zipPath.c_str(), 0, nullptr);
     if (SUCCEEDED(hr))
     {
-        if (!InstallWallpaper(zipPath))
-            RaiseErrorBox(L"Download failed", L"Please try again.");
-        fs::remove(zipPath);
+        wprintf(L"DOWNLOADED WALLPAPER %ws\n", zipPath.c_str());
+        if (fs::exists(zipPath))
+        {
+            result = InstallWallpaper(zipPath);
+            fs::remove(zipPath);
+        }
     }
     else
-    {
-        RaiseErrorBox(L"Download failed", L"Please try again.");
-    }
+        result = false;
+    return result;
 }
 
 bool ReadJsonFile(const fs::path &filePath, json &out)
@@ -257,9 +281,10 @@ std::vector<ConfigParams> IterateWallpapersDir()
                             {
                                 if (file.path().extension() == L".html")
                                 {
-                                    if (!entryCandidate.empty())
+                                    bool isIndex = file.path().filename() == L"index.html";
+                                    if (entryCandidate.empty() || isIndex)
                                         entryCandidate = file.path().filename().wstring();
-                                    if (file.path().filename() == L"index.html")
+                                    if (isIndex)
                                         break;
                                 }
                             }
@@ -287,8 +312,9 @@ std::wstring ParamsAsJsonString(ConfigParams p)
         {"folderPath", to_string(p.folderPath)},
         {"imagePath", to_string(p.imagePath)},
         {"entryPath", to_string(p.entryPath)},
-        {"options", json::parse(to_string(p.options))}};
+        {"options", p.options.empty() ? "" : json::parse(to_string(p.options))}};
     std::string dump = j.dump();
+    // wprintf(L"DUMP %hs\n", dump.c_str());
     return to_wstring(dump);
 }
 
@@ -298,6 +324,16 @@ std::wstring IterateWallpapersAsJsonString()
     std::vector<ConfigParams> allParams = IterateWallpapersDir();
     for (auto &p : allParams)
     {
+        // wprintf(L"--- ConfigParams ---\n");
+        // wprintf(L"Author      : %s\n", p.author.c_str());
+        // wprintf(L"Name        : %s\n", p.name.c_str());
+        // wprintf(L"Description : %s\n", p.description.c_str());
+        // wprintf(L"Folder Path : %s\n", p.folderPath.c_str());
+        // wprintf(L"Config Path : %s\n", p.configPath.c_str());
+        // wprintf(L"Image Path  : %s\n", p.imagePath.c_str());
+        // wprintf(L"Entry Path  : %s\n", p.entryPath.c_str());
+        // wprintf(L"Options     : %s\n", p.options.c_str());
+        // wprintf(L"---------------------\n");
         std::wstring pString = ParamsAsJsonString(p) + L",";
         jsonString.append(pString);
     }
@@ -307,7 +343,7 @@ std::wstring IterateWallpapersAsJsonString()
     return jsonString;
 }
 
-void SelectAndInstallWallpaper()
+bool SelectAndInstallWallpaper()
 {
     HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
     std::wstring result;
@@ -340,7 +376,7 @@ void SelectAndInstallWallpaper()
                 }
             }
             else if (hr == HRESULT_FROM_WIN32(ERROR_CANCELLED))
-                return;
+                return NULL;
             pFileOpen->Release();
         }
         CoUninitialize();
@@ -352,8 +388,7 @@ void SelectAndInstallWallpaper()
         if (fs::exists(filePath) && filePath.extension() == L".zip")
             succeeded = InstallWallpaper(filePath);
     }
-    if (!succeeded)
-        RaiseErrorBox(L"Wallpaper failed to add", L"Please try again.");
+    return succeeded;
 }
 
 void RemoveWallpaper(std::wstring folderPath)
@@ -446,10 +481,10 @@ void HandlePrefsChange(const json prefs)
         };
         setPrefOnChange("disableMouseInput", Pref::DisableMouseInput);
         setPrefOnChange("memorySaver", Pref::MemorySaver);
-        setPrefOnChange("runOnStartup", Pref::RunOnStartup, [](bool result) {
+        setPrefOnChange("runOnStartup", Pref::RunOnStartup, [](bool result)
+                        {
             if (result) AddToStartup();
-            else RemoveFromStartup();
-        });
+            else RemoveFromStartup(); });
     }
 }
 
