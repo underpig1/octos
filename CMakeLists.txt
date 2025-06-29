@@ -24,6 +24,7 @@ target_link_libraries(main PRIVATE
     shell32
     comctl32
     advapi32
+    urlmon
 )
 
 # Find vcpkg packages

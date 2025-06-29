@@ -3,62 +3,89 @@
 #include "Watchdog.h"
 #include "../main.h"
 #include "../Core/Core.h"
+#include "../WebView/WebView.h"
 
-bool IsFullscreenAppOnMonitor(HMONITOR monitor)
+void FixRenderingTarget(MonitorWindow &mw)
 {
-    HWND fg = GetForegroundWindow();
-    if (!fg)
-        return false;
-    if (!IsWindowVisible(fg) || IsIconic(fg))
-        return false;
-    HMONITOR fgMon = MonitorFromWindow(fg, MONITOR_DEFAULTTONEAREST);
-    if (fgMon != monitor)
-        return false;
     MONITORINFO mi = {sizeof(mi)};
-    if (!GetMonitorInfo(fgMon, &mi))
-        return false;
-    RECT rc;
-    if (!GetWindowRect(fg, &rc))
-        return false;
-    return rc.left <= mi.rcMonitor.left &&
-           rc.top <= mi.rcMonitor.top &&
-           rc.right >= mi.rcMonitor.right &&
-           rc.bottom >= mi.rcMonitor.bottom;
-}
+    if (!GetMonitorInfo(mw.monitor, &mi))
+        return;
+    RECT fullMonitorRect = mi.rcMonitor;
+    RECT workMonitorRect = mi.rcWork;
 
-void FindRenderingTarget(HWND targetHwnd)
-{
+    RECT targetRect;
+    if (!GetWindowRect(mw.hwnd, &targetRect))
+        return;
+
+    struct EnumContext
+    {
+        RECT fullMonitorRect;
+        RECT workMonitorRect;
+        RECT targetRect;
+        bool fullscreen;
+    } ctx{fullMonitorRect, workMonitorRect, targetRect, false};
+
     EnumWindows(
         [](HWND hwnd, LPARAM lParam) -> BOOL
         {
-            HWND targetHwnd = reinterpret_cast<HWND>(lParam);
-            wchar_t className[256];
-            GetClassName(hwnd, className, _countof(className));
-            const wchar_t prefix[] = L"Chrome_WidgetWin_";
-            size_t prefixLen = wcslen(prefix);
-            if (wcsncmp(className, prefix, prefixLen) == 0)
+            if (!IsWindowVisible(hwnd))
+                return TRUE;
+            EnumContext *ctx = reinterpret_cast<EnumContext *>(lParam);
+            RECT fullMonitorRect = ctx->fullMonitorRect;
+            RECT workMonitorRect = ctx->workMonitorRect;
+            RECT targetRect = ctx->targetRect;
+            RECT windowRect;
+            if (GetWindowRect(hwnd, &windowRect))
             {
-                RECT windowRect, targetRect;
-                if (GetWindowRect(hwnd, &windowRect) && GetWindowRect(targetHwnd, &targetRect))
+                bool rectMatch = windowRect.left == targetRect.left &&
+                                 windowRect.top == targetRect.top &&
+                                 windowRect.right == targetRect.right &&
+                                 windowRect.bottom == targetRect.bottom;
+                if (rectMatch)
                 {
-                    bool rectMatch = windowRect.left == targetRect.left &&
-                                     windowRect.top == targetRect.top &&
-                                     windowRect.right == targetRect.right &&
-                                     windowRect.bottom == targetRect.bottom;
-                    // HWND zAbove = GetNextWindow(targetHwnd, GW_HWNDPREV);
-                    // bool zOrderMatch = (zAbove == hwnd);
-                    if (rectMatch)
+                    wchar_t className[256];
+                    GetClassName(hwnd, className, _countof(className));
+                    const wchar_t prefix[] = L"Chrome_WidgetWin_";
+                    size_t prefixLen = wcslen(prefix);
+                    if (wcsncmp(className, prefix, prefixLen) == 0)
                     {
                         LONG exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
-                        if ((exStyle & WS_EX_LAYERED) == 0 || (exStyle & WS_EX_TRANSPARENT) == 0) {
+                        if ((exStyle & WS_EX_LAYERED) == 0 || (exStyle & WS_EX_TRANSPARENT) == 0)
                             SetWindowLong(hwnd, GWL_EXSTYLE, exStyle | WS_EX_LAYERED | WS_EX_TRANSPARENT);
-                        }
+                        return TRUE;
                     }
                 }
+
+                const int tolerance = 2;
+                if (windowRect.left <= workMonitorRect.left + tolerance &&
+                    windowRect.top <= workMonitorRect.top + tolerance &&
+                    windowRect.right >= workMonitorRect.right - tolerance &&
+                    windowRect.bottom >= workMonitorRect.bottom - tolerance)
+                {
+                    if (IsIconic(hwnd))
+                        return TRUE;
+                    if (GetAncestor(hwnd, GA_ROOT) != hwnd)
+                        return TRUE;
+                    LONG style = GetWindowLong(hwnd, GWL_STYLE);
+                    if (!(style & WS_OVERLAPPEDWINDOW))
+                        return TRUE;
+                    if (GetWindow(hwnd, GW_OWNER) != NULL || !(style & WS_VISIBLE))
+                        return TRUE;
+                    // wchar_t className[256];
+                    // GetClassName(hwnd, className, _countof(className));
+                    // wprintf(L"[WATCHDOG NEW FEATURE] FOUND WINDOW WITH CLASS NAME %s\n", className);
+                    // if (wcsncmp(className, L"Shell_TrayWnd", 13) == 0 ||
+                    //     wcsncmp(className, L"Progman", 7) == 0 ||
+                    //     wcsncmp(className, L"Windows.UI.Core.CoreWindow", 26) == 0)
+                    //     return TRUE;
+                    ctx->fullscreen = true;
+                }
             }
-            return TRUE; // continue enumeration
+            return TRUE;
         },
-        reinterpret_cast<LPARAM>(targetHwnd));
+        reinterpret_cast<LPARAM>(&ctx));
+    wprintf(L"[WATCHDOG NEW FEATURE] FOUND FULLSCREEN? %d\n", ctx.fullscreen);
+    SetWebViewVisibility(mw.hwnd, !ctx.fullscreen);
 }
 
 void FixWallpaperOrder(HWND hwnd)
@@ -125,7 +152,7 @@ void WatchdogProc()
             continue;
         }
         // fix rendering target
-        FindRenderingTarget(mw.hwnd);
+        FixRenderingTarget(mw);
         // check if not parented
         HWND parent = GetAncestor(mw.hwnd, GA_PARENT);
         if (!parent || parent == GetDesktopWindow())

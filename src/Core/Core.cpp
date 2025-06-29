@@ -185,3 +185,17 @@ void NavigateWallpaperByMonitorId(std::wstring monitorId, std::wstring url)
         // NavigateWindow(mw->hwnd, url);
     }
 }
+
+void ReleaseMainWindow()
+{
+    HandleOnDestroy(app_hwnd);
+    ShowWindow(app_hwnd, SW_HIDE);
+}
+
+void ReattachMainWindow()
+{
+    WebViewData *data = new WebViewData();
+    SetWindowLongPtr(app_hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(data));
+    AttachWebViewController(app_hwnd, L"app/index.html");
+    ShowWindow(app_hwnd, SW_SHOW);
+}

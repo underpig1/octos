@@ -7,9 +7,11 @@
 #include <iostream>
 #include <fstream>
 #include <codecvt>
+#include <urlmon.h>
 
 #include "Storage.h"
 #include "../Bridge/Bridge.h"
+#include "../main.h"
 
 namespace fs = std::filesystem;
 using json = nlohmann::json;
@@ -68,13 +70,13 @@ std::wstring GetWallpapersDir()
     return ResolvePath(L"wallpapers");
 }
 
-bool InstallWallpaper(const std::wstring &inputPath)
+bool InstallWallpaper(const std::wstring &zipPath)
 {
-    wprintf(L"[Storage] Installing from: %s\n", inputPath.c_str());
+    wprintf(L"[Storage] Installing from: %s\n", zipPath.c_str());
     std::wstring destFolder = GetWallpapersDir();
     fs::create_directories(destFolder);
 
-    if (fs::exists(inputPath) && fs::path(inputPath).extension() == L".zip")
+    if (fs::exists(zipPath) && fs::path(zipPath).extension() == L".zip")
     {
         wprintf(L"[Storage] Unzipping\n");
         CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
@@ -91,7 +93,7 @@ bool InstallWallpaper(const std::wstring &inputPath)
             VariantInit(&vDest);
 
             vZip.vt = VT_BSTR;
-            vZip.bstrVal = SysAllocString(NormalizePath(inputPath).c_str());
+            vZip.bstrVal = SysAllocString(NormalizePath(zipPath).c_str());
             vDest.vt = VT_BSTR;
             vDest.bstrVal = SysAllocString(NormalizePath(destFolder).c_str());
 
@@ -140,6 +142,24 @@ bool InstallWallpaper(const std::wstring &inputPath)
 
     wprintf(L"[Storage] Unsupported input path: not a .zip or directory\n");
     return false;
+}
+
+void DownloadWallpaper(const std::wstring url)
+{
+    wchar_t tempPath[MAX_PATH];
+    DWORD pathLen = GetTempPathW(MAX_PATH, tempPath);
+    fs::path zipPath = fs::path(tempPath) / fs::path(url).filename();
+    HRESULT hr = URLDownloadToFileW(nullptr, url.c_str(), zipPath.c_str(), 0, nullptr);
+    if (SUCCEEDED(hr))
+    {
+        if (!InstallWallpaper(zipPath))
+            RaiseErrorBox(L"Download failed", L"Please try again.");
+        fs::remove(zipPath);
+    }
+    else
+    {
+        RaiseErrorBox(L"Download failed", L"Please try again.");
+    }
 }
 
 bool ReadJsonFile(const fs::path &filePath, json &out)
@@ -377,6 +397,62 @@ std::wstring LoadPrefsAsJsonString()
     return L"{\"type\":\"prefs\",\"data\":" + to_wstring(prefs.dump()) + L"}";
 }
 
+bool AddToStartup()
+{
+    const std::wstring &exePath = GetAppPath();
+    HKEY hKey;
+    const wchar_t *runKeyPath = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
+    if (RegOpenKeyExW(HKEY_CURRENT_USER, runKeyPath, 0, KEY_WRITE, &hKey) != ERROR_SUCCESS)
+        return false;
+    LONG result = RegSetValueExW(
+        hKey,
+        CLASS_NAME,
+        0,
+        REG_SZ,
+        reinterpret_cast<const BYTE *>(exePath.c_str()),
+        static_cast<DWORD>((exePath.size() + 1) * sizeof(wchar_t)));
+    RegCloseKey(hKey);
+    return result == ERROR_SUCCESS;
+}
+
+bool RemoveFromStartup()
+{
+    HKEY hKey;
+    const wchar_t *runKeyPath = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
+    if (RegOpenKeyExW(HKEY_CURRENT_USER, runKeyPath, 0, KEY_WRITE, &hKey) != ERROR_SUCCESS)
+        return false;
+    LONG result = RegDeleteValueW(hKey, CLASS_NAME);
+    RegCloseKey(hKey);
+    return result == ERROR_SUCCESS || result == ERROR_FILE_NOT_FOUND;
+}
+
+void HandlePrefsChange(const json prefs)
+{
+    if (prefs.contains("appOptions") && prefs["appOptions"].is_object())
+    {
+        const auto &appOptions = prefs["appOptions"];
+        auto setPrefOnChange = [&](const char *key, Pref prefId, std::function<void(bool result)> onChanged = {})
+        {
+            if (appOptions.contains(key) && appOptions[key].is_boolean())
+            {
+                bool value = appOptions[key];
+                if (GetPref(prefId) != value)
+                {
+                    SetPref(prefId, value);
+                    if (onChanged)
+                        onChanged(value);
+                }
+            }
+        };
+        setPrefOnChange("disableMouseInput", Pref::DisableMouseInput);
+        setPrefOnChange("memorySaver", Pref::MemorySaver);
+        setPrefOnChange("runOnStartup", Pref::RunOnStartup, [](bool result) {
+            if (result) AddToStartup();
+            else RemoveFromStartup();
+        });
+    }
+}
+
 void DumpPrefs(const json prefs)
 {
     const fs::path prefsPath = GetPrefsPath();
@@ -384,4 +460,5 @@ void DumpPrefs(const json prefs)
     if (!out)
         return;
     out << prefs.dump();
+    HandlePrefsChange(prefs);
 }

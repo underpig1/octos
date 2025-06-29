@@ -176,7 +176,7 @@ void AttachWebViewController(HWND hwnd, const std::wstring &htmlPath)
                                                                *controller = ctrl;
                                                                (*controller)->get_CoreWebView2(webview->put());
 
-                                                                  (*webview)->OpenDevToolsWindow(); // CAUSES CRASH ON RESIZE - DELETE LATER
+                                                               (*webview)->OpenDevToolsWindow(); // CAUSES CRASH ON RESIZE - DELETE LATER
 
                                                                // initialize WebViewData
                                                                WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
@@ -212,7 +212,7 @@ void AttachWebViewCompositionController(HWND hwnd, const std::wstring &htmlPath)
 
                                                                                        // get webview
                                                                                        (*controller)->get_CoreWebView2(webview->put());
-                                                                                    //    (*controller)->put_IsVisible(TRUE);
+                                                                                       //    (*controller)->put_IsVisible(TRUE);
 
                                                                                        // attach DC pipeline
                                                                                        Microsoft::WRL::ComPtr<IDCompositionTarget> dcompTarget;
@@ -287,4 +287,27 @@ void HandleOnDestroy(HWND hwnd)
     data->webview.reset();
     delete data;
     SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);
+}
+
+void SetWebViewVisibility(HWND hwnd, bool visible)
+{
+    WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+    if (data && data->controller)
+    {
+        data->registerInput = visible;
+        bool memorySaver = GetPref(Pref::MemorySaver);
+        if (memorySaver)
+        {
+            if (data->hidden == visible)
+            {
+                data->controller->put_IsVisible(visible);
+                data->hidden = !visible;
+            }
+        }
+        else if (data->hidden)
+        {
+            data->controller->put_IsVisible(true);
+            data->hidden = true;
+        }
+    }
 }

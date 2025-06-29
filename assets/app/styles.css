@@ -563,6 +563,11 @@ label>p {
     opacity: 0.8;
 }
 
+.settings-description {
+    margin: 0;
+    color: gray;
+}
+
 .develop-metadata>button {
     width: 160px;
 }

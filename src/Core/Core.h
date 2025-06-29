@@ -27,3 +27,5 @@ void CreateMonitorWindow(HMONITOR hMon);
 void SetWallpaperVisibility(bool visible = true);
 std::vector<std::wstring> GetMonitorIds();
 void NavigateWallpaperByMonitorId(std::wstring monitorId, std::wstring url);
+void ReleaseMainWindow();
+void ReattachMainWindow();

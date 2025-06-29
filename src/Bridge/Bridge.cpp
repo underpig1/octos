@@ -27,6 +27,8 @@ void RaiseErrorBox(std::wstring title, std::wstring caption)
 
 void HandleWebMessage(std::wstring msg, HWND hwnd)
 {
+    if (hwnd != app_hwnd)
+        return;
     printf("RECIEVED MESSAGE: %ws\n", msg.c_str());
     try
     {
@@ -47,14 +49,15 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
             else
                 ShowWindow(hwnd, SW_MAXIMIZE);
         else if (type == "close")
-            ShowWindow(app_hwnd, SW_HIDE);
+            ReleaseMainWindow();
         else if (type == "open-external-link")
         {
             std::string url = j.value("url", "");
             if (!url.empty())
                 ShellExecute(NULL, L"open", to_wstring(url).c_str(), NULL, NULL, SW_SHOWNORMAL);
         }
-        else if (type == "refresh") {
+        else if (type == "refresh")
+        {
             RecreateWallpapers();
             std::wstring message = IterateWallpapersAsJsonString();
             DispatchJson(message);
@@ -133,6 +136,14 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
                 std::string monitorId = j["monitor-id"];
                 std::string url = j["url"];
                 NavigateWallpaperByMonitorId(to_wstring(monitorId), to_wstring(url));
+            }
+        }
+        else if (type == "download-wallpaper")
+        {
+            if (j.contains("url") && j["url"].is_string())
+            {
+                const std::string url = j["url"];
+                DownloadWallpaper(to_wstring(url));
             }
         }
     }

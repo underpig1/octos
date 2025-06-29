@@ -12,6 +12,8 @@ struct WebViewData
     wil::com_ptr<ICoreWebView2CompositionController> compController;
     Microsoft::WRL::ComPtr<IDCompositionTarget> dcompTarget;
     Microsoft::WRL::ComPtr<IDCompositionVisual> dcompVisual;
+    bool hidden = false;
+    bool registerInput = true;
 };
 
 void InitializeWebViewEnvironment();
@@ -22,3 +24,4 @@ void HandleOnCreate(HWND hwnd, LPARAM lParam);
 void HandleResize(HWND hwnd, LPARAM lParam);
 void HandleOnDestroy(HWND hwnd);
 void NavigateWindow(HWND hwnd, std::wstring url);
+void SetWebViewVisibility(HWND hwnd, bool visible);

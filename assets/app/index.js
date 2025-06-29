@@ -95,8 +95,8 @@ document.addEventListener("DOMContentLoaded", () => {
     for (var img of document.getElementsByTagName("img")) img.draggable = false;
 
     window.chrome.webview.postMessage({ type: 'request-prefs' });
-    window.chrome.webview.postMessage({ type: 'request-wallpaper-data' });
     window.chrome.webview.postMessage({ type: 'request-monitor-ids' });
+    window.chrome.webview.postMessage({ type: 'request-wallpaper-data' });
 
     populateExplore();
     retrieveWorking();
@@ -285,19 +285,20 @@ function updateMods() {
     const focusedId = focusedIDs.modules;
     installedModCards = {};
     modScrollbox.innerHTML = "";
+    var changeFocused = JSON.parse(JSON.stringify(!selectedID))
+    console.log('READY TO CHANGE FOCUS???', changeFocused)
     for (const id of Object.keys(userPrefs.modData)) {
         const data = userPrefs.modData[id]
         var card = createCard(id, data.name, data.author, data.imagePath);
-        if (focusedId == id || userPrefs.selected == id) {
+        if (focusedId == id) {
             for (var child of modScrollbox.children) child.classList.remove("focused");
             card.classList.add("focused");
             focusedIDs.modules = id;
-            if (userPrefs.selected == id) {
-                for (var child of modScrollbox.children) child.classList.remove("selected");
-                card.classList.add("selected");
-                selectedID = id;
-                selectFocusedCard();
-            }
+        }
+        if (userPrefs.selected == id) {
+            for (var child of modScrollbox.children) child.classList.remove("selected");
+            card.classList.add("selected");
+            selectedID = id;
         }
         modScrollbox.appendChild(card);
         installedModCards[id] = card;
@@ -314,12 +315,15 @@ function updateMods() {
     modScrollbox.appendChild(uploadCard);
     updateCardDescription();
     updateDownloadedMods();
+    if (changeFocused)
+        selectFocusedCard();
 }
 
 function selectFocusedCard() {
-    const modScrollbox = document.getElementById("modules-scrollbox");
+    console.log('SELECTING')
     const focusedId = focusedIDs.modules
     if (focusedId) {
+        const modScrollbox = document.getElementById("modules-scrollbox");
         const focusedCard = document.getElementById(focusedId);
         if (focusedCard) {
             for (var child of modScrollbox.children) child.classList.remove("selected");
@@ -560,7 +564,7 @@ function modalResponse(state) {
 // USER PREFERENCES
 var userPrefs = {}
 const appOptionsDefaults = {
-    "perm-mouse": true, "perm-keyboard": true, "perm-media": true, "boot": true
+    "disableMouseInput": false, "memorySaver": false, "runOnStartup": true
 }
 
 function dumpUserPrefs() {
@@ -611,7 +615,7 @@ var focusedIDs = { explore: null, modules: null };
 var selectedID;
 var isVisible = true;
 var inputGetters = {};
-var installedModCards = {};
+var installedModCards = [];
 var exploreMods = {};
 var activeTab = "modules";
 var modalListener = () => null;
@@ -667,23 +671,25 @@ function updateDownloadedMods() {
 }
 
 function populateExplore() {
-    window.link.request.modData().then((data) => {
-        const exploreScrollbox = document.getElementById("explore-scrollbox");
-        exploreScrollbox.innerHTML = "";
-        exploreMods = {};
-        (async () => {
-            for (var id = 0, p = Promise.resolve(); id < Object.keys(data).length; id++) {
-                var name = Object.keys(data)[id];
-                var modData = data[name];
-                await window.link.request.modImage(name).then((data) => {
-                    var card = createCard("explore-" + id, name, modData.author, data);
+    const resolvePath = (rel) => ('https://raw.githubusercontent.com/underpig1/octos-community/refs/heads/master/' + rel.replace('\\', '/')).replace('//', '/')
+    fetch(resolvePath('index.json'))
+        .then(res => res.json())
+        .then(data => {
+            const exploreScrollbox = document.getElementById("explore-scrollbox");
+            exploreScrollbox.innerHTML = "";
+            (async () => {
+                for (var i = 0, p = Promise.resolve(); i < data.length; i++) {
+                    const modData = data[i];
+                    const name = modData.name;
+                    const imagePath = resolvePath(modData.imagePath);
+                    var card = createCard("explore-" + name, modData.name, modData.author, imagePath);
                     exploreScrollbox.appendChild(card);
-                    exploreMods["explore-" + id] = { name, author: modData.author, description: modData.description }
-                });
-            }
-            updateDownloadedMods();
-            cleanFocus();
-            updateCardDescription();
-        })();
-    });
+                    exploreMods["explore-" + name] = { name, author: modData.author, description: modData.description }
+                }
+                updateDownloadedMods();
+                cleanFocus();
+                updateCardDescription();
+            })();
+        })
+        .catch(err => console.error('Failed to load index:', err));
 }

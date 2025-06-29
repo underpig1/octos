@@ -11,6 +11,14 @@ const wchar_t CLASS_NAME[] = L"OctosWorker";
 HINSTANCE g_hInstance;
 HWND app_hwnd;
 
+std::bitset<static_cast<size_t>(Pref::Count)> g_prefs = [] {
+    std::bitset<static_cast<size_t>(Pref::Count)> defaults;
+    defaults.set(static_cast<size_t>(Pref::MemorySaver), true);
+    defaults.set(static_cast<size_t>(Pref::DisableMouseInput), false);
+    defaults.set(static_cast<size_t>(Pref::RunOnStartup), true);
+    return defaults;
+}();
+
 void OnClose()
 {
     KillTimer(app_hwnd, 1);
@@ -118,7 +126,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
         wprintf(L"[WinMain] Closed\n");
         if (app_hwnd == hwnd)
-            ShowWindow(hwnd, SW_HIDE);
+            ReleaseMainWindow();
         return 0;
     }
     case WM_DESTROY:
@@ -143,9 +151,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         wprintf(L"[WinMain] Destroy triggered\n");
         HWND re_hwnd = reinterpret_cast<HWND>(lParam);
         if (IsWindow(re_hwnd))
-        {
             DestroyWindow(re_hwnd);
-        }
         return 0;
     }
     case WM_TRAYICON:
@@ -153,6 +159,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         if (lParam == WM_LBUTTONUP || lParam == WM_RBUTTONUP)
             ShowTrayMenu();
         return 0;
+    case WM_CLOSEAPP:
+        OnClose();
     default:
         return DefWindowProc(hwnd, msg, wParam, lParam);
     }

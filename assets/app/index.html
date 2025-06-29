@@ -22,7 +22,7 @@
         </template>
         <template id="card-upload-template">
             <div class="card upload-card" onclick="uploadMod()">
-                <div class="card-content"><p>+ Add module from file</p></div>
+                <div class="card-content"><p>+ Add mod from .zip file</p></div>
             </div>
         </template>
         <template id="checkbox-input">
@@ -110,7 +110,7 @@
                 </div>
             </div>
             <div class="tab-content active" id="modules-tab">
-                <a id="modules-empty" onclick="uploadMod()">Looks like you don't have any mods installed. Click to install a module from file.</a>
+                <a id="modules-empty" onclick="uploadMod()">Looks like you don't have any mods installed. Click here to install a mod from a .zip file.</a>
                 <div class="scrollbox" id="modules-scrollbox"></div>
                 <div class="sidebar">
                     <div id="modules-card-description" class="card-description">
@@ -178,17 +178,31 @@
                         <p>Edit mod settings and configuration here.</p>
                     </div>
                     <hr />
+                    <p class="subheader">App</p>
+                    <div class="settings-section">
+                        <h1>Performance</h1>
+                        <p>Change options that affect app performance.</p>
+                        <div class="card-options">
+                            <label class="checkbox-input">
+                                <input class="settings-input" id="memorySaver" type="checkbox" onchange="updateAppOptions(this)">
+                                <p>Memory saver</p>
+                                <span class="checkmark"></span>
+                            </label>
+                            <p class="settings-description">Save memory and boost performance by disabling wallpapers when another app is in full screen.</p>
+                        </div>
+                    </div>
+                    <hr />
                     <p class="subheader">System</p>
                     <div class="settings-section">
                         <h1>Permissions</h1>
-                        <p>Disable any of the following to prevent modules from accessing system information. Note that this may prevent some modules from working as expected.</p>
+                        <p>Disable any of the following to prevent mods from accessing system information or user input. Note that this may prevent some mods from working as expected.</p>
                         <div class="card-options">
                             <label class="checkbox-input">
-                                <input class="settings-input" id="perm-mouse" type="checkbox" onchange="updateAppOptions(this)" checked>
-                                <p>Mouse events</p>
+                                <input class="settings-input" id="disableMouseInput" type="checkbox" onchange="updateAppOptions(this)" checked>
+                                <p>Disable mouse input</p>
                                 <span class="checkmark"></span>
                             </label>
-                            <label class="checkbox-input">
+                            <!-- <label class="checkbox-input">
                                 <input class="settings-input" id="perm-keyboard" type="checkbox" onchange="updateAppOptions(this)" checked>
                                 <p>Keyboard events</p>
                                 <span class="checkmark"></span>
@@ -197,7 +211,7 @@
                                 <input class="settings-input" id="perm-media" type="checkbox" onchange="updateAppOptions(this)" checked>
                                 <p>Media events</p>
                                 <span class="checkmark"></span>
-                            </label>
+                            </label> -->
                         </div>
                     </div>
                     <div class="settings-section">
@@ -205,8 +219,8 @@
                         <p>Change whether or not Octos should run on system startup/boot.</p>
                         <div class="card-options">
                             <label class="checkbox-input">
-                                <input class="settings-input" id="boot" type="checkbox" onchange="updateAppOptions(this)" checked>
-                                <p>Run on boot</p>
+                                <input class="settings-input" id="runOnStartup" type="checkbox" onchange="updateAppOptions(this)">
+                                <p>Run on startup</p>
                                 <span class="checkmark"></span>
                             </label>
                         </div>

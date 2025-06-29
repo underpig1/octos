@@ -3,6 +3,7 @@
 #include "../main.h"
 #include "TrayIcon.h"
 #include "../Storage/Storage.h"
+#include "../Core/Core.h"
 
 #define TRAY_ICON_UID 1001
 
@@ -65,13 +66,13 @@ void ShowTrayMenu()
         if (IsIconic(app_hwnd))
             ShowWindow(app_hwnd, SW_RESTORE);
         else
-            ShowWindow(app_hwnd, SW_SHOW);
+            ReattachMainWindow();
         SetForegroundWindow(app_hwnd);
         SetWindowPos(app_hwnd, HWND_TOP, 0, 0, 0, 0,
                      SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
     }
     else if (cmd == 2)
-        ShowWindow(app_hwnd, SW_HIDE);
+        ReleaseMainWindow();
     else if (cmd == 3)
-        PostMessage(trayHwnd, WM_CLOSE, 0, 0);
+        PostMessage(trayHwnd, WM_USER + 4, 0, 0);
 }

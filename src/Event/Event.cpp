@@ -1,4 +1,5 @@
 #include "Event.h"
+#include "../main.h"
 #include "../Core/Core.h"
 #include "../WebView/WebView.h"
 #include "../Watchdog/Watchdog.h"
@@ -12,7 +13,7 @@ LRESULT CALLBACK MouseEventProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
     static auto lastEventTime = std::chrono::steady_clock::now();
     constexpr auto debounceInterval = std::chrono::milliseconds(10);
-    if (nCode != HC_ACTION)
+    if (nCode != HC_ACTION || GetPref(Pref::DisableMouseInput))
         return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
 
     auto now = std::chrono::steady_clock::now();
@@ -163,9 +164,10 @@ LRESULT CALLBACK MouseEventProc(int nCode, WPARAM wParam, LPARAM lParam)
     }
 
     // send input only to our own windows
-    data->compController->SendMouseInput(kind, vk, mouseData, clientMouse);
-    if (kind != COREWEBVIEW2_MOUSE_EVENT_KIND_MOVE)
-        FixWallpaperOrder(hwnd);
+    if (data->registerInput)
+        {data->compController->SendMouseInput(kind, vk, mouseData, clientMouse);
+        if (kind != COREWEBVIEW2_MOUSE_EVENT_KIND_MOVE)
+            FixWallpaperOrder(hwnd);}
 
     // Always pass the event along to avoid interfering with other apps
     return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);

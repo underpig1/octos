@@ -12,6 +12,7 @@ std::string to_string(const std::wstring &utf16str);
 std::wstring LoadPrefsAsJsonString();
 void DumpPrefs(const nlohmann::json prefs);
 void RemoveWallpaper(std::wstring folderPath);
+void DownloadWallpaper(const std::wstring url);
 
 struct ConfigParams
 {
