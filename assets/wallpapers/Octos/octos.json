@@ -1,9 +1,0 @@
-{
-    "name": "Different Name",
-    "author": "hello",
-    "options": {
-        "a": 1
-    },
-    "entry": "https://www.google.com",
-    "image": "hello.png"
-}

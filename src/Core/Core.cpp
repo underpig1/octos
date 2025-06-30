@@ -5,6 +5,7 @@
 
 std::vector<MonitorWindow> ms;
 std::vector<HMONITOR> g_monitors;
+const std::wstring defaultHtmlPath = ResolvePath(L"default/index.html");
 
 RECT GetMonitorRect(HMONITOR hMon)
 {
@@ -93,7 +94,7 @@ void RecreateWallpapers()
 
 void CreateMonitorWindow(HMONITOR hMon)
 {
-    HWND hwnd = CreateWallpaperWindow(L"wallpapers/Octos/index.html");
+    HWND hwnd = CreateWallpaperWindow(defaultHtmlPath);
     AttachWindow(hwnd);
     MonitorWindow mw = {hwnd, hMon};
     mw.ExpandToMonitor();
@@ -133,6 +134,8 @@ void RecreateWindow(LPARAM lParam)
             pmw->hwnd = nullptr;
         }
         wprintf(L"IM GETTING RECREATED WITH NEW URL %ws", pmw->htmlPath.c_str());
+        if (pmw->htmlPath.empty())
+            pmw->htmlPath = defaultHtmlPath;
         HWND hwnd = CreateWallpaperWindow(pmw->htmlPath);
         AttachWindow(hwnd);
         pmw->hwnd = hwnd;
@@ -181,7 +184,7 @@ MonitorWindow *FindMonitorWindowById(const std::wstring monitorId)
 void NavigateWallpaperByMonitorId(std::wstring monitorId, std::wstring url)
 {
     MonitorWindow *mw = FindMonitorWindowById(monitorId);
-    if (mw->hwnd)
+    if (mw && mw->hwnd && mw->htmlPath != url)
     {
         mw->htmlPath = url;
         PostMessage(app_hwnd, WM_USER + 1, 0, reinterpret_cast<LPARAM>(mw));

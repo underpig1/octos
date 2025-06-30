@@ -130,6 +130,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         return 0;
     }
+    case WM_DISPLAYCHANGE:
+        DispatchMonitorData();
+        break;
     case WM_CLOSE:
     {
         wprintf(L"[WinMain] Closed\n");

@@ -11,6 +11,8 @@
         <template id="card-template">
             <div class="card" onclick="focusCard(this)">
                 <div class="card-content">
+                    <div class="indicator-container">
+                    </div>
                     <img class="checkmark" src="img/checkmark.png">
                     <img class="downloaded" src="img/downloaded.png">
                     <div class="card-info">
@@ -103,6 +105,7 @@
                     <div id="explore-card-description" class="card-description">
                         <h1 class="title"><span class="title-content">Ethereal</span></h1>
                         <h2 class="author">By <a class="author-content">Octos</a></h2>
+                        <div class="preview"></div>
                         <p class="description">Created in the depths of hell, this wallpaper was designed with designs that show multiple entities.</p>
                         <button onclick="downloadFocusedCard()">Download</button>
                         <button class="secondary-button" onclick="goToSource()">Go to source</button>
@@ -121,7 +124,7 @@
                         <div class="bottom-matter">
                             <!-- <a id="restore-preferences" onclick="restorePreferences()">Restore default
                             mod options</a> -->
-                        <button id="set-wallpaper" onclick="selectFocusedCard()">Set as Wallpaper</button>
+                        <button id="set-wallpaper" onclick="selectFocusedCard()">Set as Wallpaper <span onclick="openMonitorSelector(event)" class="monitor-arrow"></span></button>
                         </div>
                     </div>
                 </div>
@@ -172,7 +175,7 @@
                 </div>
             </div>
             <div class="tab-content" id="settings-tab">
-                <div class="settings-main scrollbox">
+                <div class="settings-main scrollbox" id="settings-scrollbox">
                     <div class="settings-section" style="margin-bottom:10px">
                         <h1 style="font-size: 20pt;">Settings</h1>
                         <p>Edit mod settings and configuration here.</p>
@@ -230,7 +233,7 @@
                     <div class="settings-section">
                         <h1>Mods</h1>
                         <p>Review your installed mods.</p>
-                        <div style="width: 170px">
+                        <div class="side-by-side">
                             <button onclick="openModsFolder()">Open mods folder</button>
                             <button onclick="findMoreMods()">Find more mods</button>
                         </div>
@@ -238,7 +241,7 @@
                     <div class="settings-section">
                         <h1>Developer</h1>
                         <p>Check out some resources to help you make and share your own awesome mods.</p>
-                        <div style="width: 170px">
+                        <div class="side-by-side">
                             <button onclick="openDocumentation()">Documentation</button>
                             <button onclick="shareMod()">Publish your mod</button>
                         </div>
@@ -258,6 +261,10 @@
         </div>
         <div class="scroll-shadow" id="scroll-shadow-top" style="grid-row: 1 / 2; top: 5px;"></div>
         <div class="scroll-shadow" id="scroll-shadow-bottom" style="grid-row: 3 / 4; bottom: 5px;"></div>
+    </div>
+    <div id="monitor-selector">
+        <div class="monitor-item" onclick="selectMonitor(event, this)">Display 1</div>
+        <div class="monitor-item" onclick="selectMonitor(event, this)">Display 1</div>
     </div>
     <div id="modal-container">
         <div class="modal">

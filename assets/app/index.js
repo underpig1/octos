@@ -1,6 +1,5 @@
 // GLOBALS
-var focusedIDs = { explore: null, modules: null };
-var selectedID;
+var focusedIds = { explore: null, modules: null };
 var isVisible = true;
 var inputGetters = {};
 var installedModCards = [];
@@ -9,6 +8,8 @@ var activeTab = "modules";
 var modalListener = () => null;
 var downloadingCards = [];
 var monitorIds;
+var modDataBeforeInstalling;
+var onInstalled = {};
 
 // WINDOW ACTIONS
 function handleWindowDrag(e) {
@@ -57,8 +58,25 @@ function toggleVisibility() {
 }
 
 function uploadMod() {
+    modDataBeforeInstalling = JSON.parse(JSON.stringify(userPrefs.modData));
     window.chrome.webview.postMessage({ type: 'install-wallpaper' });
 }
+
+// function onWallpaperInstalled() {
+//     for (const id of Object.keys(userPrefs.modData)) {
+//         if (!modDataBeforeInstalling.hasOwnProperty(id))
+//         {
+//             const card = document.getElementById(id);
+//             if (!card)
+//                 return;
+//             card.classList.add('loading');
+//             setTimeout(() => {
+//                 card.classList.remove('loading');
+//             }, 2000);
+//         }
+//     }
+//     modDataBeforeInstalling = null;
+// }
 
 // MESSAGE LISTENER
 window.chrome.webview.addEventListener('message', (e) => {
@@ -67,8 +85,10 @@ window.chrome.webview.addEventListener('message', (e) => {
     if (msg.type == 'wallpaper-data') {
         handleRecieveModData(msg);
     }
-    else if (msg.type == 'error-box')
+    else if (msg.type == 'error-box') {
         modalDialog(msg.title, msg.caption);
+        modalListener = () => { }
+    }
     else if (msg.type == 'visibility') {
         isVisible = msg.value;
         updateVisibilityIcon();
@@ -76,10 +96,12 @@ window.chrome.webview.addEventListener('message', (e) => {
     else if (msg.type == 'prefs')
         handleRecieveUserPrefs(msg);
     else if (msg.type == 'monitor-ids') {
-        monitorIds = msg.data
+        handleRecieveMonitorIds(msg);
     }
     else if (msg.type == 'downloaded-wallpaper')
         onWallpaperDownloaded(msg.id);
+    else if (msg.type == 'installed-wallpaper')
+        onWallpaperInstalled();
 });
 
 // MOD DATA
@@ -101,6 +123,22 @@ function handleRecieveModData(msg) {
             Object.keys(newOptions).forEach(k => { if (!existingOptions.hasOwnProperty(k)) userPrefs.modOptions[id][k] = newOptions[k] });
         }
     updateMods();
+}
+
+function handleRecieveMonitorIds(msg) {
+    monitorIds = msg.data;
+    if (activeTab == "modules") {
+        const monitorArrow = document.querySelector(".monitor-arrow");
+        if (!monitorArrow)
+            return;
+        if (monitorIds.length > 1) {
+            monitorArrow.classList.add('active');
+        }
+        else {
+            monitorArrow.classList.remove('active');
+        }
+    }
+    updateMonitorIndicators();
 }
 
 // INITIALIZATION SCRIPT
@@ -160,7 +198,11 @@ function handleScrollShadows() {
 
 function setContent(el) {
     var name = el.getAttribute("id");
+    if (activeTab == name)
+        return;
     activeTab = name;
+    const scrollBox = document.getElementById(`${activeTab}-scrollbox`)
+    if (scrollBox) scrollBox.scrollTo(0, 0);
     var target = document.getElementById(name + "-tab");
     var tabs = document.getElementsByClassName("tab-content");
     if (target) {
@@ -195,7 +237,7 @@ function updateVisibilityIcon() {
 function focusCard(el) {
     for (var card of el.parentNode.getElementsByClassName("card")) card.classList.remove("focused");
     el.classList.add("focused");
-    focusedIDs[activeTab] = el.id;
+    focusedIds[activeTab] = el.id;
     updateCardDescription();
 }
 
@@ -207,7 +249,7 @@ function cleanFocus() {
                 cardDescription.classList.add("inactive");
             else {
                 cardDescription.classList.remove("inactive");
-                const id = focusedIDs.modules
+                const id = focusedIds.modules
                 if (!id || !document.getElementById(id)) {
                     const candidate = document.getElementById('mod-scrollbox').querySelector('.card');
                     if (candidate)
@@ -220,7 +262,7 @@ function cleanFocus() {
                 cardDescription.classList.add("inactive");
             else {
                 cardDescription.classList.remove("inactive");
-                const id = focusedIDs.explore
+                const id = focusedIds.explore
                 if (!id || !document.getElementById(id)) {
                     const candidate = document.getElementById('explore-scrollbox').querySelector('.card');
                     if (candidate)
@@ -277,24 +319,38 @@ function createCard(id = "", title = "Mod name", author = null, backgroundImage 
 function removeFocusedCard() {
     modalListener = (state) => {
         if (state) {
-            const focusedId = focusedIDs.modules
-            if (focusedId && focusedId == selectedID) {
-                for (const id of Object.keys(userPrefs.modData)) {
-                    if (id != selectedID) {
-                        focusCard(document.getElementById(id));
-                        selectFocusedCard();
-                        break;
+            const focusedId = focusedIds.modules
+            document.getElementById(focusedId).classList.add('loading');
+            // var focused = false;
+            // if (focusedId && userPrefs.selected.length == 1 && Object.keys(userPrefs.selected).includes()) {
+            //     for (const id of Object.keys(userPrefs.modData)) {
+            //         if (id !=selectedId selectedID) {
+            //             focusCard(document.getElementById(id));
+            //             selectFocusedCard();
+            //             focused = true;
+            //             break;
+            //         }
+            //     }
+            // }
+            if (Object.values(userPrefs.selected).includes(focusedId)) {
+                for (const monitorId of monitorIds) {
+                    if (userPrefs.selected[monitorId] == focusedId)
+                        {
+                            console.log('removing wallpaper associated with ', monitorId);
+                            window.chrome.webview.postMessage({ type: "set-wallpaper", url: "", "monitor-id": monitorId });
+                        }
+                }
+            }
+            setTimeout(() => {
+                const modData = userPrefs.modData[focusedId];
+                window.chrome.webview.postMessage({ type: "remove-wallpaper", folderPath: modData.folderPath });
+                for (var id of Object.keys(exploreMods)) {
+                    if (exploreMods[id] == focusedId) {
+                        exploreMods[focusedIds.explore].installed = false;
+                        document.getElementById(id).classList.remove("installed");
                     }
                 }
-            }
-            const modData = userPrefs.modData[focusedId];
-            window.chrome.webview.postMessage({ type: "remove-wallpaper", folderPath: modData.folderPath });
-            for (var id of Object.keys(exploreMods)) {
-                if (exploreMods[id] == focusedId) {
-                    exploreMods[focusedIDs.explore].installed = false;
-                    document.getElementById(id).classList.remove("installed");
-                }
-            }
+            }, 1000);
         }
     }
     modalDialog("Uninstall mod", "Are you sure you want to uninstall this mod?");
@@ -302,33 +358,35 @@ function removeFocusedCard() {
 
 function updateMods() {
     const modScrollbox = document.getElementById("modules-scrollbox");
-    const focusedId = focusedIDs.modules;
+    const focusedId = focusedIds.modules;
     installedModCards = {};
     modScrollbox.innerHTML = "";
-    var changeFocused = JSON.parse(JSON.stringify(!selectedID))
-    console.log('READY TO CHANGE FOCUS???', changeFocused)
+    for (var child of modScrollbox.children)
+        child.classList.remove("focused");
     for (const id of Object.keys(userPrefs.modData)) {
         const data = userPrefs.modData[id]
         var card = createCard(id, data.name, data.author, data.imagePath);
         if (focusedId == id) {
-            for (var child of modScrollbox.children) child.classList.remove("focused");
             card.classList.add("focused");
-            focusedIDs.modules = id;
-        }
-        if (userPrefs.selected == id) {
-            for (var child of modScrollbox.children) child.classList.remove("selected");
-            card.classList.add("selected");
-            selectedID = id;
+            focusedIds.modules = id;
         }
         modScrollbox.appendChild(card);
         installedModCards[id] = card;
+        for (const monitorId of monitorIds) {
+            if (userPrefs.selected[monitorId] == id) {
+                window.chrome.webview.postMessage({type: 'set-wallpaper', url: data.imagePath, 'monitor-id': monitorId});
+            }
+        }
     }
     var focusCheck = false;
     for (var mod of modScrollbox.childNodes) focusCheck = focusCheck || mod.classList.contains("focused");
     if (!focusCheck) {
         var firstCard = modScrollbox.querySelector(".card");
-        firstCard.classList.add("focused");
-        focusedIDs.modules = firstCard.id;
+        if (firstCard) {
+            firstCard.classList.add("focused");
+            focusedIds.modules = firstCard.id;
+        }
+        else return;
     }
     var uploadCard = document.getElementById("card-upload-template").content.cloneNode(true).firstElementChild;
     add3dEffect(uploadCard);
@@ -336,38 +394,125 @@ function updateMods() {
     updateCardDescription();
     updateDownloadedMods();
     updateResponsiveElements();
-    if (changeFocused)
-        selectFocusedCard();
+    updateMonitorIndicators();
 }
 
-function selectFocusedCard() {
+function updateMonitorIndicators() {
+    for (const id of Object.keys(userPrefs.modData)) {
+        const card = document.getElementById(id);
+        if (card) {
+            const indicators = card.querySelector('.indicator-container');
+            if (!indicators)
+                return;
+            indicators.innerHTML = "";
+            function addIndicator(monitorId) {
+                const div = document.createElement('div');
+                div.classList.add('monitor-indicator');
+                div.innerText = cleanMonitorId(monitorId);
+                indicators.appendChild(div);
+            }
+            var allMonitors = true;
+            for (const monitorId of monitorIds) {
+                if (userPrefs.selected[monitorId] != id)
+                    allMonitors = false;
+            }
+            if (allMonitors && monitorIds.length == 1) addIndicator(monitorIds[0]);
+            else {
+                for (const monitorId of monitorIds) {
+                    if (userPrefs.selected[monitorId] == id) addIndicator(monitorId);
+                }
+            }
+        }
+    }
+}
+
+function selectFocusedCard(monitorId = null) {
     console.log('SELECTING')
-    const focusedId = focusedIDs.modules
+    const focusedId = focusedIds.modules
     if (focusedId) {
         const modScrollbox = document.getElementById("modules-scrollbox");
         const focusedCard = document.getElementById(focusedId);
         if (focusedCard) {
-            for (var child of modScrollbox.children) child.classList.remove("selected");
-            focusedCard.classList.add("selected");
+            // for (var child of modScrollbox.children) child.classList.remove("selected");
+            // focusedCard.classList.add("selected");
 
-            selectedID = focusedCard.id;
             const entryPath = userPrefs.modData[focusedId].entryPath;
-            window.chrome.webview.postMessage({ type: 'set-wallpaper', url: entryPath, "monitor-id": monitorIds[0] });
-            userPrefs.selected = selectedID;
+            if (monitorId) {
+                userPrefs.selected[monitorId] = focusedCard.id;
+                window.chrome.webview.postMessage({ type: 'set-wallpaper', url: entryPath, "monitor-id": monitorId });
+            }
+            else {
+                for (const monitorId of monitorIds) {
+                    userPrefs.selected[monitorId] = focusedCard.id;
+                    window.chrome.webview.postMessage({ type: 'set-wallpaper', url: entryPath, "monitor-id": monitorId });
+                }
+            }
             dumpUserPrefs();
+            updateMonitorIndicators();
 
-            const button = document.getElementById('modules-card-description').querySelector("button");
-            button.disabled = true;
-            button.classList.add("inactive");
+            var buttonDisabled = true;
+            for (const monitorId of monitorIds) {
+                if (userPrefs.selected[monitorId] != focusedId) {
+                    buttonDisabled = false;
+                    break;
+                }
+            }
+            if (buttonDisabled) {
+                const button = document.getElementById('modules-card-description').querySelector("button");
+                button.classList.add("inactive");
+            }
         }
     }
+}
+
+function handleExitMonitorSelector(e) {
+    if (e.target.id != 'monitor-selector' && !e.target.classList.contains('monitor-item')) {
+        document.getElementById('monitor-selector').classList.remove('active');
+    }
+}
+function cleanMonitorId(monitorId) {
+    return monitorId
+        .replaceAll('\\', '').replaceAll('.', ' ').trim();
+}
+
+function openMonitorSelector(e) {
+    e.stopPropagation();
+    document.body.addEventListener('click', handleExitMonitorSelector);
+    const monitorSelector = document.getElementById('monitor-selector');
+    if (!monitorSelector)
+        return;
+    monitorSelector.innerHTML = "";
+    for (const monitorId of monitorIds) {
+        const div = document.createElement('div');
+        div.classList.add('monitor-item');
+        div.setAttribute("onclick", "selectMonitor(event, this)");
+        div.innerText = "Assign to " + cleanMonitorId(monitorId);
+        div.id = monitorId;
+        if (userPrefs.selected[monitorId] == focusedIds.modules)
+            div.classList.add('inactive');
+        monitorSelector.appendChild(div);
+    }
+    monitorSelector.classList.add('active');
+    const rect = monitorSelector.getBoundingClientRect();
+    const x = e.clientX - rect.width;
+    const y = e.clientY - rect.height - 5;
+    monitorSelector.style.transform = `translate(${x}px, ${y}px)`;
+}
+
+function selectMonitor(e, el) {
+    const monitorSelector = document.getElementById('monitor-selector');
+    monitorSelector.classList.remove('active');
+    document.body.removeEventListener('click', handleExitMonitorSelector);
+    const monitorId = el.id;
+    if (monitorId)
+        selectFocusedCard(monitorId);
 }
 
 // CARD DESCRIPTION
 function updateCardDescription() {
     cleanFocus();
     if (activeTab == 'modules') {
-        const id = focusedIDs.modules
+        const id = focusedIds.modules
         if (id) {
             const cardData = userPrefs.modData[id]
             if (cardData)
@@ -375,17 +520,16 @@ function updateCardDescription() {
         }
     }
     else if (activeTab == 'explore') {
-        const id = focusedIDs.explore
+        const id = focusedIds.explore
         if (id) {
             const cardData = exploreMods[id]
-            console.log(exploreMods[id].installed);
             if (cardData)
-                setCardDescription(activeTab, cardData.name, cardData.author, cardData.description, null, cardData.installed);
+                setCardDescription(activeTab, cardData.name, cardData.author, cardData.description, null, cardData.installed, cardData.previewPath);
         }
     }
 }
 
-function setCardDescription(prefix = "explore", title = "", author = "", description = "", options = null, installed = false, source = null) {
+function setCardDescription(prefix = "explore", title = "", author = "", description = "", options = null, installed = false, preview = null) {
     const cardDescription = document.getElementById(prefix + "-card-description");
     cardDescription.querySelector(".title-content").innerText = title;
     if (author) cardDescription.querySelector(".author").innerHTML = `By <a class="author-content">${author}</a>`;
@@ -408,23 +552,66 @@ function setCardDescription(prefix = "explore", title = "", author = "", descrip
     }
 
     var buttonDisabled = true;
-    if (selectedID == focusedIDs.modules && prefix == "modules") buttonDisabled = true;
-    else buttonDisabled = false;
-    if (prefix == "explore") {
-        if (downloadingCards.includes(focusedIDs[prefix])) {
+    if (prefix == "modules") {
+        for (const monitorId of monitorIds) {
+            if (userPrefs.selected[monitorId] != focusedIds.modules) {
+                buttonDisabled = false;
+                break;
+            }
+        }
+    }
+    else if (prefix == "explore") {
+        const previewImage = cardDescription.querySelector(".preview");
+        if (previewImage) {
+            if (preview) {
+                const bkImg = `url("${preview}")`;
+                previewImage.classList.add('active');
+                if (previewImage.style.backgroundImage != bkImg) {
+                    previewImage.classList.remove('loaded');
+                    previewImage.style.backgroundImage = "";
+                    const img = new Image();
+                    img.src = preview;
+                    img.onload = () => {
+                        previewImage.classList.add('loaded');
+                        previewImage.style.backgroundImage = bkImg;
+                    }
+                }
+            }
+            else {
+                previewImage.style.backgroundImage = `none`;
+                previewImage.classList.remove('active');
+            }
+        }
+        const card = document.getElementById(focusedIds[prefix]);
+        if (downloadingCards.includes(focusedIds[prefix])) {
             buttonDisabled = true;
             cardDescription.querySelector("button").innerText = "Downloading...";
+            card.classList.add('loading')
         }
         else if (installed === false) {
             buttonDisabled = false;
             cardDescription.querySelector("button").innerText = "Download";
+            card.classList.remove('loading')
         }
         else {
             buttonDisabled = true;
             cardDescription.querySelector("button").innerText = "Downloaded";
+            card.classList.remove('loading')
         }
     }
     setButtonDisabled(buttonDisabled);
+
+    if (prefix == "modules") {
+        const monitorArrow = cardDescription.querySelector(".monitor-arrow");
+        if (!monitorArrow)
+            return;
+        if (monitorIds.length > 1) {
+            monitorArrow.classList.add('active');
+        }
+        else {
+            monitorArrow.classList.remove('active');
+        }
+    }
 }
 
 // CARD OPTIONS
@@ -551,7 +738,7 @@ function setCardOptions(json) {
 function restoreModOptions() {
     modalDialog("Restore mod options", "Are you sure you want to restore default mod options? This action is irreversible.");
     modalListener = (state) => {
-        const id = focusedIDs.modules
+        const id = focusedIds.modules
         if (id && state) {
             const modData = userPrefs.modData[id]
             if (modData) {
@@ -567,7 +754,7 @@ function restoreModOptions() {
 }
 
 function updateCardOptions() {
-    const id = focusedIDs.modules
+    const id = focusedIds.modules
     if (id) {
         const modData = userPrefs.modData[id];
         if (modData) {
@@ -653,13 +840,13 @@ function handleRecieveUserPrefs(msg) {
 
 // EXPLORE
 function downloadFocusedCard() {
-    var id = focusedIDs.explore;
-    if (!focusedIDs.explore)
+    var id = focusedIds.explore;
+    if (!focusedIds.explore)
         return;
     const modData = exploreMods[id];
     downloadingCards.push(id);
     updateCardDescription();
-    window.chrome.webview.postMessage({ type: 'download-wallpaper', url: modData.zipPath, id });
+    setTimeout(() => window.chrome.webview.postMessage({ type: 'download-wallpaper', url: modData.zipPath, id }), 1000);
 }
 
 function onWallpaperDownloaded(id) {
@@ -672,7 +859,7 @@ function onWallpaperDownloaded(id) {
 }
 
 function goToSource() {
-    const id = focusedIDs.explore;
+    const id = focusedIds.explore;
     if (id) {
         const modData = exploreMods[id];
         var url = modData.folderPath
@@ -703,8 +890,8 @@ function updateDownloadedMods() {
 }
 
 function populateExplore() {
-    const resolvePath = (rel) => ('https://raw.githubusercontent.com/underpig1/octos-community/refs/heads/master/' + rel.replace('\\', '/'));
-    const resolveCookedPath = (rel) => ('https://github.com/underpig1/octos-community/tree/master/' + rel.replace('\\', '/'));
+    const resolvePath = (rel) => rel ? ('https://raw.githubusercontent.com/underpig1/octos-community/refs/heads/master/' + rel).replace('\\', '/') : null;
+    const resolveCookedPath = (rel) => rel ? ('https://github.com/underpig1/octos-community/tree/master/' + rel).replace('\\', '/') : null;
     fetch(resolvePath('index.json'))
         .then(res => res.json())
         .then(data => {
@@ -717,7 +904,7 @@ function populateExplore() {
                     const imagePath = resolvePath(modData.imagePath);
                     var card = createCard("explore-" + name, modData.name, modData.author, imagePath);
                     exploreScrollbox.appendChild(card);
-                    exploreMods["explore-" + name] = { name, author: modData.author, description: modData.description, folderPath: resolveCookedPath(modData.folderPath), zipPath: resolvePath(modData.zipPath) }
+                    exploreMods["explore-" + name] = { name, author: modData.author, description: modData.description, folderPath: resolveCookedPath(modData.folderPath), zipPath: resolvePath(modData.zipPath), previewPath: resolvePath(modData.previewPath) }
                 }
                 updateDownloadedMods();
                 cleanFocus();

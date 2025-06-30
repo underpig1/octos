@@ -26,6 +26,18 @@ void RaiseErrorBox(std::wstring title, std::wstring caption)
     DispatchJson(message);
 }
 
+void DispatchMonitorData()
+{
+    std::vector<std::wstring> monitorIds16 = GetMonitorIds();
+    std::vector<std::string> monitorIds8;
+    for (const auto &monitorId16 : monitorIds16)
+        monitorIds8.push_back(to_string(monitorId16));
+    json sendJson = {
+        {"type", "monitor-ids"},
+        {"data", monitorIds8}};
+    DispatchJson(to_wstring(sendJson.dump()));
+}
+
 void HandleWebMessage(std::wstring msg, HWND hwnd)
 {
     if (hwnd != app_hwnd)
@@ -45,10 +57,12 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
         else if (type == "minimize")
             ShowWindow(app_hwnd, SW_MINIMIZE);
         else if (type == "maximize")
+        {
             if (IsZoomed(hwnd))
                 ShowWindow(hwnd, SW_RESTORE);
             else
                 ShowWindow(hwnd, SW_MAXIMIZE);
+        }
         else if (type == "close")
             ReleaseMainWindow();
         else if (type == "open-external-link")
@@ -77,8 +91,10 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
                             {
                                 std::wstring message = IterateWallpapersAsJsonString();
                                 PostMessage(app_hwnd, WM_USER + 5, 0, (LPARAM) new std::wstring(message));
-                                message = L"{\"type\":\"error-box\",\"title\":\"Successfully installed\",\"caption\":\"Your new wallpaper is ready.\"}";
+                                message = L"{\"type\":\"installed-wallpaper\"}";
                                 PostMessage(app_hwnd, WM_USER + 5, 0, (LPARAM) new std::wstring(message));
+                                // message = L"{\"type\":\"error-box\",\"title\":\"Successfully installed\",\"caption\":\"Your new wallpaper is ready.\"}";
+                                // PostMessage(app_hwnd, WM_USER + 5, 0, (LPARAM) new std::wstring(message));
                             }
                             else if (result != NULL)
             {
@@ -132,16 +148,7 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
             }
         }
         else if (type == "request-monitor-ids")
-        {
-            std::vector<std::wstring> monitorIds16 = GetMonitorIds();
-            std::vector<std::string> monitorIds8;
-            for (const auto &monitorId16 : monitorIds16)
-                monitorIds8.push_back(to_string(monitorId16));
-            json sendJson = {
-                {"type", "monitor-ids"},
-                {"data", monitorIds8}};
-            DispatchJson(to_wstring(sendJson.dump()));
-        }
+            DispatchMonitorData();
         else if (type == "set-wallpaper")
         {
             if (j.contains("monitor-id") && j.contains("url") &&
