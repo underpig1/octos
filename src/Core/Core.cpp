@@ -113,11 +113,12 @@ HWND CreateMainWindow()
 {
     WebViewData *data = new WebViewData();
     HWND hwnd = CreateWindowExW(0, CLASS_NAME, L"Octos", WS_THICKFRAME | WS_BORDER, CW_USEDEFAULT, CW_USEDEFAULT, 1350, 800, nullptr, nullptr, g_hInstance, reinterpret_cast<LPVOID>(data));
-    ShowWindow(hwnd, SW_SHOW);
     UpdateWindow(hwnd);
-    AttachWebViewController(hwnd, L"app/index.html");
+    // AttachWebViewController(hwnd, L"app/index.html");
+    g_appHwndAttached = false;
     SetTimer(hwnd, 1, 100, NULL);
     app_hwnd = hwnd;
+    ShowWindow(hwnd, SW_SHOW);
     SetWindowPos(hwnd, nullptr, 0, 0, 0, 0,
                  SWP_NOZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
     return hwnd;
@@ -192,16 +193,32 @@ void NavigateWallpaperByMonitorId(std::wstring monitorId, std::wstring url)
     }
 }
 
+void NavigateAllWallpapers(std::wstring url)
+{
+    for (auto &mw : ms)
+    {
+        if (mw.hwnd && mw.htmlPath != url)
+        {
+            mw.htmlPath = url;
+            PostMessage(app_hwnd, WM_USER + 1, 0, reinterpret_cast<LPARAM>(&mw));
+        }
+    }
+}
+
 void ReleaseMainWindow()
 {
+    g_appHwndAttached = false;
     HandleOnDestroy(app_hwnd);
     ShowWindow(app_hwnd, SW_HIDE);
 }
 
 void ReattachMainWindow()
 {
-    WebViewData *data = new WebViewData();
-    SetWindowLongPtr(app_hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(data));
-    AttachWebViewController(app_hwnd, L"app/index.html");
-    ShowWindow(app_hwnd, SW_SHOW);
+    WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(app_hwnd, GWLP_USERDATA));
+    if (!data || !data->controller)
+    {
+        data = new WebViewData();
+        SetWindowLongPtr(app_hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(data));
+        ShowWindow(app_hwnd, SW_SHOW);
+    }
 }

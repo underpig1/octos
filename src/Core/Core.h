@@ -29,3 +29,4 @@ std::vector<std::wstring> GetMonitorIds();
 void NavigateWallpaperByMonitorId(std::wstring monitorId, std::wstring url);
 void ReleaseMainWindow();
 void ReattachMainWindow();
+void NavigateAllWallpapers(std::wstring url);

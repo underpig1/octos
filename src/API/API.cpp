@@ -5,7 +5,7 @@
 constexpr UINT ID_VIEW_SHOWDESKTOPICONS = 0x7402;
 bool show = true;
 
-void SetDesktopIconsVisible(BOOL show)
+void SetDesktopIconsVisibility(BOOL show)
 {
     SHELLSTATE shellState = {};
     SHGetSetSettings(&shellState, SSF_HIDEICONS, FALSE);

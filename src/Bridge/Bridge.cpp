@@ -26,6 +26,16 @@ void RaiseErrorBox(std::wstring title, std::wstring caption)
     DispatchJson(message);
 }
 
+void DispatchNavigateAllWallpapers(std::wstring id)
+{
+    json message =
+        {
+            {"type", "navigate-all"},
+            {"id", to_string(id)}
+        };
+    DispatchJson(to_wstring(message.dump()));
+}
+
 void DispatchMonitorData()
 {
     std::vector<std::wstring> monitorIds16 = GetMonitorIds();
@@ -36,6 +46,13 @@ void DispatchMonitorData()
         {"type", "monitor-ids"},
         {"data", monitorIds8}};
     DispatchJson(to_wstring(sendJson.dump()));
+}
+
+void DispatchVisibility()
+{
+    std::wstring visibility = IsWindowVisible(ms[0].hwnd) ? L"true" : L"false";
+    std::wstring message = L"{\"type\":\"visibility\",\"value\":" + visibility + L"}";
+    DispatchJson(message);
 }
 
 void HandleWebMessage(std::wstring msg, HWND hwnd)
@@ -105,9 +122,7 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
         }
         else if (type == "request-visibility")
         {
-            std::wstring visibility = IsWindowVisible(ms[0].hwnd) ? L"true" : L"false";
-            std::wstring message = L"{\"type\":\"visibility\",\"value\":" + visibility + L"}";
-            DispatchJson(message);
+            DispatchVisibility();
         }
         else if (type == "set-visibility")
         {

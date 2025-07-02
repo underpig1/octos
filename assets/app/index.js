@@ -102,6 +102,8 @@ window.chrome.webview.addEventListener('message', (e) => {
         onWallpaperDownloaded(msg.id);
     else if (msg.type == 'installed-wallpaper')
         onWallpaperInstalled();
+    else if (msg.type == 'navigate-all')
+        onNavigateAll(msg.id);
 });
 
 // MOD DATA
@@ -138,6 +140,15 @@ function handleRecieveMonitorIds(msg) {
             monitorArrow.classList.remove('active');
         }
     }
+    updateMonitorIndicators();
+}
+
+function onNavigateAll(id) {
+    for (const monitorId of monitorIds) {
+        userPrefs.selected[monitorId] = id;
+    }
+    updateCardDescription()
+    dumpUserPrefs();
     updateMonitorIndicators();
 }
 
@@ -374,7 +385,7 @@ function updateMods() {
         installedModCards[id] = card;
         for (const monitorId of monitorIds) {
             if (userPrefs.selected[monitorId] == id) {
-                window.chrome.webview.postMessage({type: 'set-wallpaper', url: data.imagePath, 'monitor-id': monitorId});
+                window.chrome.webview.postMessage({type: 'set-wallpaper', url: data.entryPath, 'monitor-id': monitorId});
             }
         }
     }

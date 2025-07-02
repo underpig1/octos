@@ -102,7 +102,7 @@ void InitializeWebViewEnvironment()
 }
 
 void OnWebViewControllerCreated(
-    
+
     HWND hwnd,
     const std::wstring &htmlPath,
     wil::com_ptr<ICoreWebView2> webview,
@@ -171,7 +171,7 @@ void OnWebViewControllerCreated(
 
 void AttachWebViewController(HWND hwnd, const std::wstring &htmlPath)
 {
-    ShowWindow(hwnd, SW_SHOW);
+    // ShowWindow(hwnd, SW_SHOW);
     std::shared_ptr<wil::com_ptr<ICoreWebView2Controller>> controller = std::make_shared<wil::com_ptr<ICoreWebView2Controller>>();
     std::shared_ptr<wil::com_ptr<ICoreWebView2>> webview = std::make_shared<wil::com_ptr<ICoreWebView2>>();
 
@@ -185,7 +185,7 @@ void AttachWebViewController(HWND hwnd, const std::wstring &htmlPath)
                                                                *controller = ctrl;
                                                                (*controller)->get_CoreWebView2(webview->put());
 
-                                                               (*webview)->OpenDevToolsWindow(); // CAUSES CRASH ON RESIZE - DELETE LATER
+                                                               (*webview)->OpenDevToolsWindow();
 
                                                                // initialize WebViewData
                                                                WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
@@ -291,11 +291,14 @@ void NavigateWindow(HWND hwnd, std::wstring url)
 void HandleOnDestroy(HWND hwnd)
 {
     WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-    if (data && data->controller)
+    if (data)
     {
-        data->controller->Close();
-        data->controller.reset();
-        data->webview.reset();
+        if (data->controller)
+        {
+            data->controller->Close();
+            data->controller.reset();
+            data->webview.reset();
+        }
         delete data;
     }
     SetWindowLongPtr(hwnd, GWLP_USERDATA, 0);

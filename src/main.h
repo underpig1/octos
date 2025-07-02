@@ -14,6 +14,7 @@
 extern const wchar_t CLASS_NAME[];
 extern HINSTANCE g_hInstance;
 extern HWND app_hwnd;
+extern bool g_appHwndAttached;
 
 enum Pref
 {

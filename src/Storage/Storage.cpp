@@ -12,10 +12,11 @@
 #include "Storage.h"
 #include "../Bridge/Bridge.h"
 #include "../main.h"
+#include "../TrayIcon/TrayIcon.h"
 
 namespace fs = std::filesystem;
 using json = nlohmann::json;
-std::vector<ConfigParams> allParams;
+std::vector<ConfigParams> g_allParams;
 
 std::wstring to_wstring(const std::string &utf8str)
 {
@@ -78,7 +79,7 @@ bool InstallWallpaper(const std::wstring &zipPath)
     {
         std::wstring destFolder = GetWallpapersDir() / fs::path(zipPath).stem();
         fs::create_directories(destFolder);
-        
+
         wprintf(L"[Storage] Unzipping\n");
         CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 
@@ -252,6 +253,7 @@ ConfigParams ReadConfig(fs::path path)
 
 std::vector<ConfigParams> IterateWallpapersDir()
 {
+    wprintf(L"\nTERATING WALLPAPERS\n\n");
     std::vector<ConfigParams> allParams;
     std::wstring path = GetWallpapersDir();
     if (!path.empty())
@@ -268,38 +270,50 @@ std::vector<ConfigParams> IterateWallpapersDir()
                 {
                     params = ReadConfig(configPath);
                     params.configPath = configPath.wstring();
-                    if (params.name.empty())
-                        params.name = name;
-                    else
-                        name = params.name;
-                    if (params.entryPath.empty())
+                }
+                if (params.name.empty())
+                    params.name = name;
+                else
+                    name = params.name;
+                if (params.entryPath.empty())
+                {
+                    std::wstring entryCandidate = L"";
+                    for (const auto &file : fs::directory_iterator(entry))
                     {
-                        std::wstring entryCandidate = L"";
-                        for (const auto &file : fs::directory_iterator(entry))
+                        if (file.is_regular_file())
                         {
-                            if (file.is_regular_file())
+                            if (file.path().extension() == L".html")
                             {
-                                if (file.path().extension() == L".html")
-                                {
-                                    bool isIndex = file.path().filename() == L"index.html";
-                                    if (entryCandidate.empty() || isIndex)
-                                        entryCandidate = file.path().filename().wstring();
-                                    if (isIndex)
-                                        break;
-                                }
+                                bool isIndex = file.path().filename() == L"index.html";
+                                if (entryCandidate.empty() || isIndex)
+                                    entryCandidate = file.path().filename().wstring();
+                                if (isIndex)
+                                    break;
                             }
                         }
-                        if (entryCandidate.empty())
-                            params.entryPath = L"";
-                        else
-                            params.entryPath = AddFileScheme(entry / NormalizePath(entryCandidate));
                     }
-                    params.folderPath = entry.path().wstring();
+                    if (entryCandidate.empty())
+                        params.entryPath = L"";
+                    else
+                        params.entryPath = AddFileScheme(entry / NormalizePath(entryCandidate));
+
+                    wprintf(L"\n--- ConfigParams ---\n");
+                    wprintf(L"Author      : %s\n", params.author.c_str());
+                    wprintf(L"Name        : %s\n", params.name.c_str());
+                    wprintf(L"Description : %s\n", params.description.c_str());
+                    wprintf(L"Folder Path : %s\n", params.folderPath.c_str());
+                    wprintf(L"Config Path : %s\n", params.configPath.c_str());
+                    wprintf(L"Image Path  : %s\n", params.imagePath.c_str());
+                    wprintf(L"Entry Path  : %s\n", params.entryPath.c_str());
+                    wprintf(L"Options     : %s\n", params.options.c_str());
+                    wprintf(L"---------------------\n");
                 }
+                params.folderPath = entry.path().wstring();
                 if (!params.entryPath.empty())
                     allParams.push_back(params);
             }
         }
+    g_allParams = allParams;
     return allParams;
 }
 
@@ -324,16 +338,6 @@ std::wstring IterateWallpapersAsJsonString()
     std::vector<ConfigParams> allParams = IterateWallpapersDir();
     for (auto &p : allParams)
     {
-        // wprintf(L"--- ConfigParams ---\n");
-        // wprintf(L"Author      : %s\n", p.author.c_str());
-        // wprintf(L"Name        : %s\n", p.name.c_str());
-        // wprintf(L"Description : %s\n", p.description.c_str());
-        // wprintf(L"Folder Path : %s\n", p.folderPath.c_str());
-        // wprintf(L"Config Path : %s\n", p.configPath.c_str());
-        // wprintf(L"Image Path  : %s\n", p.imagePath.c_str());
-        // wprintf(L"Entry Path  : %s\n", p.entryPath.c_str());
-        // wprintf(L"Options     : %s\n", p.options.c_str());
-        // wprintf(L"---------------------\n");
         std::wstring pString = ParamsAsJsonString(p) + L",";
         jsonString.append(pString);
     }

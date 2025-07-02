@@ -11,6 +11,7 @@
 const wchar_t CLASS_NAME[] = L"OctosWorker";
 HINSTANCE g_hInstance;
 HWND app_hwnd;
+bool g_appHwndAttached = false;
 
 std::bitset<static_cast<size_t>(Pref::Count)> g_prefs = []
 {
@@ -117,16 +118,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         break;
     case WM_SHOWWINDOW:
     {
-        wprintf(L"[WinMain] Shown\n");
-        if (wParam && app_hwnd == hwnd)
+        wprintf(L"[WinMain] Shown %d\n", g_appHwndAttached);
+        if (wParam && app_hwnd == hwnd && !g_appHwndAttached)
         {
-            static bool webviewCreated = false;
-            if (!webviewCreated)
-            {
-                wprintf(L"[WinMain] Attaching webview controller.... CHECK IF RUNS MULTIPLE TIMES\n");
-                AttachWebViewController(hwnd, L"app/index.html");
-                webviewCreated = true;
-            }
+            wprintf(L"[WinMain] Attaching webview controller.... CHECK IF RUNS MULTIPLE TIMES\n");
+            AttachWebViewController(hwnd, L"app/index.html");
+            g_appHwndAttached = true;
         }
         return 0;
     }

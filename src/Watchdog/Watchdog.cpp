@@ -84,7 +84,6 @@ void FixRenderingTarget(MonitorWindow &mw)
             return TRUE;
         },
         reinterpret_cast<LPARAM>(&ctx));
-    wprintf(L"[WATCHDOG NEW FEATURE] FOUND FULLSCREEN? %d\n", ctx.fullscreen);
     SetWebViewVisibility(mw.hwnd, !ctx.fullscreen);
 }
 
