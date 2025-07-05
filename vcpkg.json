@@ -1,7 +1,0 @@
-{
-    "dependencies": [
-        "webview2",
-        "wil",
-        "nlohmann-json"
-    ]
-}
