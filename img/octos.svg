@@ -9,6 +9,9 @@
    id="svg1"
    inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
    sodipodi:docname="octos.svg"
+   inkscape:export-filename="octos.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -24,9 +27,9 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      borderlayer="true"
-     inkscape:zoom="1.0532399"
-     inkscape:cx="1298.8493"
-     inkscape:cy="1844.7838"
+     inkscape:zoom="8.4259192"
+     inkscape:cx="167.6375"
+     inkscape:cy="2387.9887"
      inkscape:window-width="1920"
      inkscape:window-height="1094"
      inkscape:window-x="-11"
@@ -59,6 +62,14 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
+    <path
+       id="path2"
+       style="color:#000000;fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:1.46164;stroke-linecap:square;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       d="m 184.14351,1144.0072 v 11.5142 l 14.34311,8.2802 v -11.5132 z"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="..\assets\app\img\icon.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
     <rect
        style="opacity:1;fill:#cccccc;fill-opacity:1;stroke:none;stroke-width:9.52448;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
        id="rect154"
@@ -787,7 +798,7 @@
        xml:space="preserve"
        transform="scale(0.48340645)"
        id="text133"
-       style="fill:#000000;stroke-width:17.00787402;-inkscape-font-specification:'Monotype Corsiva';font-family:'Monotype Corsiva';font-weight:normal;stroke-linecap:square;stroke-linejoin:bevel;fill-opacity:1;stroke:none;stroke-opacity:1;stroke-dasharray:none;font-style:normal;font-stretch:normal;font-variant:normal;opacity:0.39317774;white-space:pre;shape-inside:url(#rect133)" />
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Monotype Corsiva';-inkscape-font-specification:'Monotype Corsiva';white-space:pre;shape-inside:url(#rect133);display:inline;opacity:0.393178;fill:#000000;fill-opacity:1;stroke:none;stroke-width:17.0079;stroke-linecap:square;stroke-linejoin:bevel;stroke-dasharray:none;stroke-opacity:1" />
     <path
        id="path141"
        style="opacity:1;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1.13094272;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1"
@@ -949,11 +960,14 @@
     </g>
     <g
        id="g157-4"
-       transform="translate(23.029569,150.94974)">
+       transform="translate(23.029569,150.94974)"
+       inkscape:export-filename="icon.png"
+       inkscape:export-xdpi="181.07547"
+       inkscape:export-ydpi="181.07547">
       <circle
-         style="opacity:1;fill:#e52e2e;fill-opacity:1;stroke:none;stroke-width:7.72534;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+         style="opacity:1;fill:#e52e2e;fill-opacity:1;stroke:none;stroke-width:7.3439;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
          id="circle152-7"
-         r="34.508389"
+         r="32.804546"
          cy="921.1546"
          cx="90.552315" />
       <g
@@ -977,11 +991,11 @@
        d="m 194.63398,1053.6497 -18.5865,4.6686 v 17.5043 l -6.43025,3.8741 v 8.9887 l 24.75904,14.2989 21.44896,-12.9719 v -9.2537 l -0.0227,-0.013 V 1065.72 Z m -0.78525,5.543 16.61033,9.5895 v 14.8805 l 0.02,0.01 v 3.3485 l -16.19205,9.7978 -19.32699,-11.1581 v -3.2607 l 6.29326,-3.7902 v -15.8905 z m -9.70522,7.5293 v 13.0059 l 14.34311,8.2802 v -13.0049 z"
        sodipodi:nodetypes="ccccccccccccccccccccccccccc" />
     <rect
-       style="opacity:1;fill:#cccccc;fill-opacity:1;stroke:none;stroke-width:9.52448;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+       style="opacity:1;fill:#cccccc;fill-opacity:1;stroke:none;stroke-width:10.09;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
        id="rect5"
-       width="337.80255"
+       width="379.10995"
        height="113.82478"
-       x="429.59671"
+       x="437.3992"
        y="864.24219"
        inkscape:export-filename="icon.png"
        inkscape:export-xdpi="137.37912"
@@ -1018,27 +1032,96 @@
          transform="translate(0,-1.8874687)">
         <text
            xml:space="preserve"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:56.3005px;font-family:'Segoe UI';-inkscape-font-specification:'Segoe UI';opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:90.4354;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
-           x="150.5775"
-           y="926.50116"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:59.424px;font-family:'Segoe UI';-inkscape-font-specification:'Segoe UI';opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:95.4526;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+           x="150.49515"
+           y="926.31055"
            id="text8"><tspan
              sodipodi:role="line"
              id="tspan8"
-             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';fill:#000000;fill-opacity:1;stroke-width:90.4354"
-             x="150.5775"
-             y="926.50116">octos</tspan></text>
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';fill:#000000;fill-opacity:1;stroke-width:95.4526"
+             x="150.49515"
+             y="926.31055">&lt;octos /&gt;</tspan></text>
         <text
            xml:space="preserve"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:19.5049px;font-family:'Segoe UI';-inkscape-font-specification:'Segoe UI';opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:31.3307;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
-           x="152.9351"
-           y="953.20959"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:20.2747px;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:32.5672;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+           x="152.90541"
+           y="953.78693"
            id="text9"><tspan
              sodipodi:role="line"
              id="tspan9"
-             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';fill:#000000;fill-opacity:1;stroke-width:31.3307"
-             x="152.9351"
-             y="953.20959">dynamic desktop engine</tspan></text>
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';fill:#000000;fill-opacity:1;stroke-width:32.5672"
+             x="152.90541"
+             y="953.78693">dynamic HTML wallpapers</tspan></text>
       </g>
     </g>
+    <rect
+       style="fill:#cccccc;fill-opacity:0;stroke:none;stroke-width:9.39418;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+       id="rect154-3"
+       width="328.62311"
+       height="113.82478"
+       x="279.91812"
+       y="1022.8586"
+       inkscape:export-filename="..\docs\_media\icon.png"
+       inkscape:export-xdpi="137.37912"
+       inkscape:export-ydpi="137.37912" />
+    <g
+       id="g157-8"
+       transform="translate(276.88974,158.6164)">
+      <circle
+         style="opacity:1;fill:#e52e2e;fill-opacity:1;stroke:none;stroke-width:9.31795;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+         id="circle152-6"
+         cx="90.552315"
+         cy="921.1546"
+         r="41.622437" />
+      <g
+         id="g156-4"
+         transform="matrix(1.1782762,0,0,1.1782762,-16.143322,-164.21993)">
+        <path
+           id="path153-6"
+           style="color:#000000;fill:#ffffff;fill-opacity:1;stroke-width:1.36541;stroke-linecap:square;-inkscape-stroke:none"
+           d="m 92.175655,900.2195 -15.77431,3.96222 v 14.85585 l -5.45734,3.28792 v 7.62869 l 21.01294,12.13548 18.203675,-11.00927 v -7.85355 l -0.0193,-0.0109 v -12.75222 z"
+           sodipodi:nodetypes="ccccccccccc" />
+        <path
+           id="path154-3"
+           style="color:#000000;fill:#000000;fill-opacity:1;stroke-width:1.36541;stroke-linecap:square;-inkscape-stroke:none"
+           d="m 92.175655,900.2195 -15.77431,3.96222 v 14.85585 l -5.45734,3.28792 v 7.62869 l 21.01294,12.13548 18.203675,-11.00927 v -7.85355 l -0.0193,-0.0109 v -12.75222 z m -0.66644,4.7043 14.097145,8.13859 v 12.62909 l 0.017,0.008 v 2.84189 l -13.742145,8.31535 -16.40277,-9.46985 v -2.76732 l 5.34107,-3.21672 v -13.48629 z m -8.23679,6.39013 v 11.03809 l 12.17296,7.02732 v -11.03715 z"
+           sodipodi:nodetypes="ccccccccccccccccccccccccccc" />
+      </g>
+    </g>
+    <g
+       id="g155-7"
+       transform="matrix(0.86466353,0,0,0.86466353,297.51719,284.24959)">
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:60.4261px;font-family:'Segoe UI';-inkscape-font-specification:'Segoe UI';opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:97.0623;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+         x="148.34549"
+         y="939.62708"
+         id="text154-6"><tspan
+           sodipodi:role="line"
+           id="tspan154-1"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';fill:#000000;fill-opacity:1;stroke-width:97.0623"
+           x="148.34549"
+           y="939.62708">octos</tspan></text>
+    </g>
+    <path
+       id="path1"
+       style="color:#000000;fill:none;fill-opacity:1;stroke:#ffffff;stroke-width:1.46163841;stroke-linecap:round;stroke-opacity:1;stroke-dasharray:none;stroke-linejoin:round"
+       d="m 194.46484,1135.3398 c 5.97536,3.4498 11.95164,6.9003 17.92774,10.3497 -0.001,6.8157 0.004,13.6315 0.0215,20.4472 -6.03496,3.6503 -12.06848,7.303 -18.10351,10.9531 -7.09457,-4.0954 -14.18848,-8.1919 -21.28321,-12.2871 v -5.4707 c 2.09845,-1.261 4.1952,-2.5249 6.29297,-3.7871 v -16.2656 c 4.92969,-1.3832 9.86079,-2.7613 14.79102,-4.1426 0.11784,0.068 0.23568,0.1354 0.35351,0.2031 z"
+       sodipodi:nodetypes="sccccccccss" />
+    <path
+       id="path3"
+       style="color:#000000;fill:#ffffff;fill-opacity:1;stroke-width:1.60963;stroke-linecap:square;stroke-dasharray:none"
+       d="m 232.08984,1141.2285 c 0,5.7656 0,11.5313 0,17.2969 -2.14413,1.2889 -4.28632,2.5809 -6.42968,3.8711 0,2.6289 0,5.2578 0,7.8867 7.92708,4.5781 15.85416,9.1563 23.78125,13.7344 6.83138,-4.1315 13.66276,-8.263 20.49414,-12.3946 -9.4e-4,-7.7334 -0.0394,-15.4436 -0.0234,-23.1875 -6.7806,-3.8658 -13.5612,-7.7317 -20.3418,-11.5976 -5.82682,1.4635 -11.65364,2.9271 -17.48047,4.3906 z m 17.32032,-0.7187 c 5.69715,3.2899 11.39518,6.5783 17.09179,9.8691 -0.004,6.4546 2.2e-4,12.9038 0.0195,19.3438 -5.71489,3.4593 -11.43064,6.9172 -17.14648,10.375 -6.76921,-3.9059 -13.53694,-7.8143 -20.30469,-11.7227 0,-1.4551 0,-2.9102 0,-4.3652 2.09858,-1.2615 4.19517,-2.5263 6.29297,-3.7891 0,-5.3594 0,-10.7187 0,-16.0781 4.56383,-1.2809 9.129,-2.557 13.69336,-3.836 0.11784,0.068 0.23568,0.1355 0.35352,0.2032 z m -9.22266,20.8144 c 4.13607,2.388 8.27214,4.7761 12.4082,7.1641 0,-3.5905 0,-7.181 0,-10.7715 -4.13606,-2.388 -8.27213,-4.776 -12.4082,-7.1641 0,3.5905 0,7.181 0,10.7715 z"
+       inkscape:export-filename="..\assets\app\img\icon.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path15"
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#ffffff;stroke-width:3.07127;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+       d="m 78.426673,1152.6574 7.87013,7.8701 7.87013,-7.8701 m -7.87013,-12.8646 0,20.7347"
+       sodipodi:nodetypes="ccccc"
+       inkscape:export-filename="../assets/app/img/white-arrow-down.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
   </g>
 </svg>

@@ -5,3 +5,5 @@ out/
 *.exe
 CMakeUserPresets.json
 .vscode/
+TODO
+node_modules

@@ -30,3 +30,4 @@ void NavigateWallpaperByMonitorId(std::wstring monitorId, std::wstring url);
 void ReleaseMainWindow();
 void ReattachMainWindow();
 void NavigateAllWallpapers(std::wstring url);
+MonitorWindow *FindMonitorWindowById(const std::wstring monitorId);

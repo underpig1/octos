@@ -9,3 +9,4 @@ void DispatchJson(std::wstring message);
 void DispatchMonitorData();
 void DispatchVisibility();
 void DispatchNavigateAllWallpapers(std::wstring id);
+void DispatchToHwnd(HWND hwnd, std::wstring message);

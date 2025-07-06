@@ -2,30 +2,19 @@
 
 - Getting started
 
-  - [Quick start](quickstart.md)
-  - [Adding pages](adding-pages.md)
-  - [Cover page](cover.md)
-  - [Custom navbar](custom-navbar.md)
+    - [Quick start](quickstart.md)
+    - [Using the app](app.md)
+    - [Community mods](community.md)
 
-- Customization
+- Guides
 
-  - [Configuration](configuration.md)
-  - [Themes](themes.md)
-  - [List of Plugins](plugins.md)
-  - [Write a Plugin](write-a-plugin.md)
-  - [Markdown configuration](markdown.md)
-  - [Language highlighting](language-highlight.md)
-  - [Emoji](emoji.md)
+    - [Making a simple mod](devstart.md)
+    - [Getting started with the API](api.md)
+    - [Adding user options](share.md)
+    - [Sharing a mod](share.md)
+    - [`octos.json` Reference](config.md)
 
-- Guide
+- API Reference
 
-  - [Deploy](deploy.md)
-  - [Helpers](helpers.md)
-  - [Vue compatibility](vue.md)
-  - [CDN](cdn.md)
-  - [Offline Mode (PWA)](pwa.md)
-  - [Embed Files](embed-files.md)
-  - [UI Kit](ui-kit.md)
-
-- [Awesome docsify](awesome.md)
-- [Changelog](changelog.md)
+- [GitHub](https://github.com/underpig1/octos/)
+- [Edit Docs](https://github.com/underpig1/octos/docs)

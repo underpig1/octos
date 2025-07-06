@@ -172,6 +172,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_DISPATCHJSON:
     {
         std::wstring *message = reinterpret_cast<std::wstring *>(lParam);
+        wprintf(L"\n\nWERE DISPATCHING FROM MAIN THREAD %ws\n\n", (*message).c_str());
         DispatchJson(*message);
         delete message;
         return 0;
@@ -203,10 +204,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 {
     SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
-    // AllocConsole();
-    // freopen("CONOUT$", "w", stdout);
-    // freopen("CONOUT$", "w", stderr);
-    // freopen("CONIN$", "r", stdin);
+    AllocConsole();
+    freopen("CONOUT$", "w", stdout);
+    freopen("CONOUT$", "w", stderr);
+    freopen("CONIN$", "r", stdin);
 
     LoadAndHandleAppPrefs();
     InitializeWebViewEnvironment();

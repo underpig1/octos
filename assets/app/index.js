@@ -112,6 +112,12 @@ window.chrome.webview.addEventListener('message', (e) => {
         onWallpaperInstalled();
     else if (msg.type == 'navigate-all')
         onNavigateAll(msg.id);
+    else if (msg.type == 'request-options')
+        sendWallpaperAllOptions(msg['monitor-id']);
+    else if (msg.type == 'request-prefs')
+        window.chrome.webview.postMessage({type: 'prefs', 'data': userPrefs});
+    else if (msg.type == 'wallpaper-loaded')
+        handleWallpaperLoaded(msg.entryPath);
 });
 
 // MOD DATA
@@ -158,6 +164,24 @@ function onNavigateAll(id) {
     updateCardDescription()
     dumpUserPrefs();
     updateMonitorIndicators();
+}
+
+function handleWallpaperLoaded(entryPath) {
+    console.log('loaded', entryPath);
+    for (const monitorId of Object.keys(userPrefs.selected)) {
+        const id = userPrefs.selected[monitorId];
+        if (id) {
+            const modData = userPrefs.modData[id];
+            if (modData) {
+                if (modData.entryPath.replaceAll('\\', '/') == entryPath) {
+                    
+                    sendWallpaperAllOptions(monitorId);
+
+                    break;
+                }
+            }
+        }
+    }
 }
 
 // INITIALIZATION SCRIPT
@@ -236,7 +260,7 @@ function setContent(el) {
 
     var title = document.getElementById("title");
     title.style.opacity = 0;
-    const nameMap = { "explore": "Gallery", "modules": "Library", "settings": "Settings" }
+    const nameMap = { "explore": "Gallery", "modules": "Library", "settings": "Preferences" }
     setTimeout(() => title.textContent = nameMap[name], 100);
     setTimeout(() => title.style.opacity = 1, 100);
 
@@ -353,11 +377,10 @@ function removeFocusedCard() {
             // }
             if (Object.values(userPrefs.selected).includes(focusedId)) {
                 for (const monitorId of monitorIds) {
-                    if (userPrefs.selected[monitorId] == focusedId)
-                        {
-                            console.log('removing wallpaper associated with ', monitorId);
-                            window.chrome.webview.postMessage({ type: "set-wallpaper", url: "", "monitor-id": monitorId });
-                        }
+                    if (userPrefs.selected[monitorId] == focusedId) {
+                        console.log('removing wallpaper associated with ', monitorId);
+                        window.chrome.webview.postMessage({ type: "set-wallpaper", url: "", "monitor-id": monitorId });
+                    }
                 }
             }
             setTimeout(() => {
@@ -393,7 +416,7 @@ function updateMods() {
         installedModCards[id] = card;
         for (const monitorId of monitorIds) {
             if (userPrefs.selected[monitorId] == id) {
-                window.chrome.webview.postMessage({type: 'set-wallpaper', url: data.entryPath, 'monitor-id': monitorId});
+                window.chrome.webview.postMessage({ type: 'set-wallpaper', url: data.entryPath, 'monitor-id': monitorId });
             }
         }
     }
@@ -775,17 +798,44 @@ function restoreModOptions() {
 }
 
 function updateCardOptions() {
-    const id = focusedIds.modules
+    const id = focusedIds.modules;
     if (id) {
         const modData = userPrefs.modData[id];
         if (modData) {
             for (const inputId of Object.keys(inputGetters)) {
                 const value = getInput(inputId);
-                if (userPrefs.modOptions[id].hasOwnProperty(inputId))
-                    userPrefs.modOptions[id][inputId].value = value;
+                if (userPrefs.modOptions[id].hasOwnProperty(inputId)) {
+                    if (userPrefs.modOptions[id][inputId].value != value) {
+                        userPrefs.modOptions[id][inputId].value = value;
+                        for (const monitorId of Object.keys(userPrefs.selected)) {
+                            if (userPrefs.selected[monitorId] == id) {
+                                const payload = { 'type': 'options-change', 'id': inputId, 'value': value };
+                                window.chrome.webview.postMessage({
+                                    type: 'send-to-wallpaper',
+                                    'monitor-id': monitorId,
+                                    data: JSON.stringify(payload)
+                                });
+                            }
+                        }
+                    }
+                }
             }
             dumpUserPrefs()
         }
+    }
+}
+
+function sendWallpaperAllOptions(monitorId) {
+    const id = userPrefs.selected[monitorId];
+    const options = userPrefs.modOptions[id];
+    for (const inputId of Object.keys(options))
+    {
+        const payload = { 'type': 'options-load', 'id': inputId, 'value': options[inputId].value };
+        window.chrome.webview.postMessage({
+            type: 'send-to-wallpaper',
+            'monitor-id': monitorId,
+            data: JSON.stringify(payload)
+        });
     }
 }
 

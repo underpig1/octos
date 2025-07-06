@@ -3,7 +3,7 @@
 }
 
 :root {
-    --accent: #de3f3ffb;
+    --accent: #e52e2eff;
     --sidebar-width: 250px;
     --default-sidebar-width: 215px;
     --card-width: 248px;
@@ -59,6 +59,7 @@ body {
     z-index: 3;
     border-radius: inherit;
     -webkit-user-select: none;
+    user-select: none;
     -webkit-app-region: drag;
 }
 
@@ -106,13 +107,8 @@ body {
     height: 22px;
 }
 
-.nav-item:hover {
-    transform: scale(0.95);
-}
-
 .nav-item:active {
-    transform: scale(0.9);
-    opacity: 0.5;
+    opacity: 0.7;
 }
 
 .nav-highlight {
@@ -135,7 +131,7 @@ body {
 
 .nav-highlight>.nav-accent {
     position: absolute;
-    left: 43px;
+    left: 44px;
     height: 0;
     top: 10px;
 }
@@ -144,7 +140,7 @@ body {
     display: block;
     content: "";
     height: 22px;
-    width: 3px;
+    width: 2px;
     border-radius: 9px;
     background-color: var(--nav-accent-color);
 }
@@ -291,11 +287,20 @@ body {
 .card .checkmark,
 .card .downloaded {
     position: absolute;
-    width: 16px;
+    width: 20px;
+    height: 20px;
     right: 10px;
     top: 10px;
     opacity: 0;
     transition: opacity var(--transition-speed);
+    border-radius: 999px;
+    border: 1px solid var(--button-border-color);
+    background-color: var(--button-color);
+    box-shadow: 0 2px 2px #00000011;
+    background-image: url('img/white-arrow-down.png');
+    background-size: 50%;
+    background-repeat: no-repeat;
+    background-position: center center;
 }
 
 .card.selected .checkmark,
@@ -368,6 +373,7 @@ body {
 }
 
 .footer-icon {
+    opacity: 0.5;
     height: 24px;
     margin-bottom: 5px;
 }
@@ -636,6 +642,7 @@ button:not(.inactive):not(:has(.monitor-arrow:hover)):hover {
 
 .settings-main {
     padding: 0 20px;
+    padding-top: 15px;
     width: 98%;
     padding-right: calc(98% - 500px);
     overflow-x: hidden;

@@ -1,9 +1,12 @@
 #include <windows.h>
 #include <iostream>
 #include <shlobj.h>
+#include <nlohmann/json.hpp>
 
-constexpr UINT ID_VIEW_SHOWDESKTOPICONS = 0x7402;
-bool show = true;
+#include "../Bridge/Bridge.h"
+#include "../Storage/Storage.h"
+
+using json = nlohmann::json;
 
 void SetDesktopIconsVisibility(BOOL show)
 {
@@ -14,4 +17,22 @@ void SetDesktopIconsVisibility(BOOL show)
     HWND progman = FindWindow(L"Progman", nullptr);
     if (progman)
         PostMessage(progman, WM_COMMAND, 41504, 0);
+}
+
+void HandleRequest(json data, HWND hwnd)
+{
+    if (data.contains("requestId") && data.contains("requestType"))
+    {
+        json response = {
+            "type", "response",
+            "requestId", data["requestId"],
+            "requestType", data["requestType"],
+
+        };
+    }
+}
+
+void HandleCommand(json data, HWND hwnd)
+{
+
 }

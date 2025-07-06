@@ -61,17 +61,17 @@ void InitializeWebViewEnvironment()
 
     auto options = Microsoft::WRL::Make<CoreWebView2EnvironmentOptions>();
     std::wstring browserArgs = L"--no-sandbox "
-                              L"--disable-sync "
-                              L"--disable-background-networking "
-                              L"--disable-default-apps "
-                              L"--disable-translate "
-                              L"--disable-features=TranslateUI,AudioServiceOutOfProcess "
-                              L"--no-first-run "
-                              L"--no-default-browser-check "
-                              L"--disable-renderer-backgrounding "
-                              L"--disable-web-resources "
-                              L"--password-store=basic "
-                              L"--use-mock-keychain ";
+                               L"--disable-sync "
+                               L"--disable-background-networking "
+                               L"--disable-default-apps "
+                               L"--disable-translate "
+                               L"--disable-features=TranslateUI,AudioServiceOutOfProcess "
+                               L"--no-first-run "
+                               L"--no-default-browser-check "
+                               L"--disable-renderer-backgrounding "
+                               L"--disable-web-resources "
+                               L"--password-store=basic "
+                               L"--use-mock-keychain ";
     if (!enableGPU)
         browserArgs += L"--disable-gpu";
     wprintf(browserArgs.c_str());
@@ -107,7 +107,6 @@ void InitializeWebViewEnvironment()
 }
 
 void OnWebViewControllerCreated(
-
     HWND hwnd,
     const std::wstring &htmlPath,
     wil::com_ptr<ICoreWebView2> webview,
@@ -156,6 +155,24 @@ void OnWebViewControllerCreated(
     // wprintf(L"SAME??? %b\n", url.c_str() == ResolvePath(L"app/index.html", true).c_str());
 
     // handle messages
+    webview->add_NavigationCompleted(
+        Microsoft::WRL::Callback<ICoreWebView2NavigationCompletedEventHandler>(
+            [webview, htmlPath, hwnd](ICoreWebView2 *sender, ICoreWebView2NavigationCompletedEventArgs *args) -> HRESULT
+            {
+                // webview->PostWebMessageAsJson((L"{ \"type\": \"loaded\", \"entryPath\":\"" + htmlPath + L"\"}").c_str());
+                if (hwnd != app_hwnd)
+                {
+                    std::wstring entryPath = htmlPath;
+                    for (auto &ch : entryPath)
+                        if (ch == L'\\')
+                            ch = L'/';
+                    std::wstring message = L"{ \"type\": \"wallpaper-loaded\", \"entryPath\":\"" + entryPath + L"\"}";
+                    PostMessage(app_hwnd, WM_USER + 5, 0, (LPARAM) new std::wstring(message));
+                }
+                return S_OK;
+            })
+            .Get(),
+        nullptr);
     webview->add_WebMessageReceived(
         Microsoft::WRL::Callback<ICoreWebView2WebMessageReceivedEventHandler>(
             [hwnd](ICoreWebView2 *, ICoreWebView2WebMessageReceivedEventArgs *args) -> HRESULT
@@ -164,8 +181,7 @@ void OnWebViewControllerCreated(
                 if (SUCCEEDED(args->get_WebMessageAsJson(&messageRaw)))
                 {
                     std::wstring msg = messageRaw.get();
-                    if (hwnd == app_hwnd)
-                        HandleWebMessage(msg, hwnd);
+                    HandleWebMessage(msg, hwnd);
                 }
                 return S_OK;
             })
