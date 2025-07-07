@@ -19,12 +19,12 @@ class Interface {
         }
     }
 
-    on(eventName, callback) {
+    _on(eventName, callback) {
         if (!this._listeners[eventName]) this._listeners[eventName] = [];
         this._listeners[eventName].push(callback);
     }
 
-    once(eventName, callback) {
+    _once(eventName, callback) {
         const wrapper = (data) => {
             this.off(eventName, wrapper);
             callback(data);
@@ -33,7 +33,7 @@ class Interface {
         this._subscribe(eventName);
     }
 
-    off(eventName, callback) {
+    _off(eventName, callback) {
         if (!this._listeners[eventName]) return;
         this._listeners[eventName] = this._listeners[eventName].filter(cb => cb !== callback);
     }
@@ -63,7 +63,7 @@ class Interface {
         }
     }
 
-    request(requestType, data = {}) {
+    _request(requestType, data = {}) {
         return new Promise((resolve, reject) => {
             const requestId = crypto.randomUUID?.() || Math.random().toString(36).slice(2);
             this._pendingRequests.set(requestId, { resolve, reject });
@@ -82,7 +82,7 @@ class Interface {
         });
     }
 
-    command(commandType, data) {
+    _command(commandType, data) {
         window.chrome?.webview?.postMessage({
             type: 'command',
             commandType,

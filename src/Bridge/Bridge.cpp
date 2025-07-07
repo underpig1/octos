@@ -239,8 +239,8 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
         else { // API
             if (type == "request")
                 HandleRequest(j, hwnd);
-            else if (type == "subscribe")
-                HandleSubscription(j, hwnd);
+            else if (type == "subscribe" || type == "unsubscribe")
+                HandleSubscription(j, hwnd, type == "subscribe");
             else if (type == "command")
                 HandleCommand(j, hwnd);
         }

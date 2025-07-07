@@ -91,6 +91,8 @@ void HandleRequest(json msg, HWND hwnd)
             {
                 HandleTimelinePropertiesRequest(hwnd, msg);
             }
+            else if (type == "thumbnail")
+                HandleThumbnailRequest(hwnd, msg);
         }
     }
 }
@@ -110,17 +112,51 @@ void HandleCommand(json msg, HWND hwnd)
             if (webview)
                 webview->OpenDevToolsWindow();
         }
+        else if (type == "media")
+        {
+            if (msg.contains("data") && msg["data"].is_object())
+            {
+                json data = msg["data"];
+                if (data.contains("cmd") && data["cmd"].is_string())
+                {
+                    std::string cmd = data["cmd"];
+                    if (cmd == "set-playback-position")
+                    {
+                        if (data.contains("position") && data["position"].is_number_integer())
+                            SetPlaybackPosition(data["position"]);
+                    }
+                    else SendMediaCommand(cmd);
+                }
+            }
+        }
     }
 }
 
-void HandleSubscription(json msg, HWND hwnd)
+void HandleSubscription(json msg, HWND hwnd, bool sub)
 {
     if (msg.contains("eventType") && msg["eventType"].is_string())
     {
         std::string type = msg["eventType"];
         if (type == "media-change")
         {
-
+            if (sub)
+                AddMediaSubscription(hwnd, msg);
+            else
+                RemoveMediaSubscription(hwnd);
+        }
+        else if (type == "playback-change")
+        {
+            if (sub)
+                AddPlaybackSubscription(hwnd, msg);
+            else
+                RemovePlaybackSubscription(hwnd);
+        }
+        else if (type == "timeline-change")
+        {
+            if (sub)
+                AddTimelineSubscription(hwnd, msg);
+            else
+                RemoveTimelineSubscription(hwnd);
         }
     }
 }

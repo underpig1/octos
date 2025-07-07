@@ -67,7 +67,7 @@ class UserOptions extends Interface {
      * })
      */
     on(eventName, callback) {
-        super.on(eventName, callback);
+        super._on(eventName, callback);
     }
 
     /**
@@ -76,7 +76,7 @@ class UserOptions extends Interface {
      * @param {function(object)} callback
      */
     once(eventName, callback) {
-        super.once(eventName, callback);
+        super._once(eventName, callback);
     }
 
     /**
@@ -85,7 +85,7 @@ class UserOptions extends Interface {
      * @param {Function} callback
      */
     off(eventName, callback) {
-        this.off(eventName, callback);
+        this._off(eventName, callback);
     }
 
     /**
@@ -111,7 +111,7 @@ class UserOptions extends Interface {
      * ```
      */
     async request() {
-        return super.request('options');
+        return super._request('options');
     }
 
     /**
@@ -122,7 +122,7 @@ class UserOptions extends Interface {
      * userOptions.set()
      */
     set(id, value) {
-        super.command('set-option', { id, value });
+        super._command('set-option', { id, value });
     }
 }
 

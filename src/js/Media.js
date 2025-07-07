@@ -1,33 +1,56 @@
 import { Interface } from './Interface.js'
 
 /**
- * Handle events relating to changes in user options for your mod.
- * 
- * User options are defined in the [`options` object in your octos.json file](config.md#options), and are configurable by users in the Octos app:
- * 
- * <img height="300px" src="_media/user-options.png" aria-hidden />
+ * Handle and control events related to system media and playback.
  */
-class Media extends Interface {
+class MediaController extends Interface {
+    /**
+     * @typedef {Object} MediaProperties
+     * @property {string} title - The title of the current media.
+     * @property {string} albumArtist - The album artist of the current media.
+     * @property {string} albumTitle - The album title of the current media.
+     * @property {number} albumTrackCount - The number of tracks in the album of the current media.
+     * @property {string} artist - The name of the artist of the current media.
+     * @property {Array<string>} genres - A list of the current media's genres.
+     * @property {number} trackNumber - The track number of the current media.
+     */
+
+    /**
+     * @typedef {Object} PlaybackInfo
+     * @property {'Closed' | 'Opened' | 'Changing' | 'Stopped' | 'Playing' | 'Paused' | 'Unknown'} playbackStatus - The status of the current media's playback.
+     * @property {number} playbackRate - The playback rate of the current media (ex. 1.5 for 1.5x speed-up playback).
+     * @property {bool} shuffleActie - Whether or not the current media has shuffle enabled.
+     * @property {'Music' | 'Image' | 'Video' | 'Unknown'} playbackType - The type of the current media.
+     */
+
+    /**
+     * @typedef {Object} TimelineProperties
+     * @property {number} startTime - The starting time of the current media in seconds.
+     * @property {number} endTime - The ending time of the current media in seconds.
+     * @property {number} position - The seek position of playback in the current media in seconds (ex. a user is N seconds into a song).
+     * @property {number} minSeekTime - The minimum seek time of playback in the current media in seconds.
+     * @property {number} maxSeekTime - The maximum seek time of playback in the current media in seoconds (ex. the length of the media is `maxSeekTime - minSeekTime`).
+     */
+
     constructor() {
         super();
         this._listeners = {
-            change: []
+            change: [],
+            playback: [],
+            timeline: []
         };
     }
 
     _handleReceiveEvent(msg) {
         switch (msg.eventType) {
-            case 'session-change':
-                this._emit('media-change', msg.data);
-                break;
             case 'media-change':
-                this._emit('media-change', msg.data);
+                this._emit('changes', msg.data);
                 break;
             case 'playback-change':
-                this._emit('playback-change', msg.data);
+                this._emit('playback', msg.data);
                 break;
             case 'timeline-change':
-                this._emit('timeline-change', msg.data);
+                this._emit('timeline', msg.data);
                 break;
             default:
                 break;
@@ -35,42 +58,32 @@ class Media extends Interface {
     }
 
     /**
-     * Add an event listener.
-     * @param {'change' | 'load'} eventName
-     * Events with type `change` are fired whenever a user changes an option. `load` events are fired when the wallpaper first loads in.
+     * Add a listener to changes in media events.
+     * @param { 'change' | 'playback' | 'timeline' } eventName
+     * <ul>
+     * <li>Events with type `change` are fired when the current playing media changes (ex. skipping to the next song).</li>
+     * <li>Events with type `playback` are fired when the media playback state changes (ex. pausing/playing a song, enabling shuffle, etc.).</li>
+     * <li>Events with type `timeline` are fired whenever the timestamp of the current playing media changes (ex. seeking ahead or back, song progressing, etc.).</li>
+     * </ul>
      * @param {function(object)} callback
-     * Callback receives an object containing the ID of the affected option (as specified in `octos.json`) along with its value in the form `{id, value}`.
+     * Callback recieves an object containing one of the following:
+     * <ul>
+     * <li>`change`: [MediaProperties](#mediaproperties)</li>
+     * <li>`playback`: [PlaybackInfo](#playbackinfo)</li>
+     * <li>`timeline`: [TimelineProperties](#timelineproperties)</li>
+     * </ul>
      * @example
-     * // This example shows how to add a simple checkbox for dark mode in your mod and listen for changes by the user.
-     * // In your octos.json:
-     * {
-     * ...
-     *  "options": {
-     *    "dark-mode": {
-     *      "type": "checkbox",
-     *      "value": true,
-     *      "label": "Enable dark mode?"
-     *    }
-     *  }
-     * ...
-     * }
+     * mediaController.on('change', (mediaProps) => {
+     *      console.log('Currently playing: ' + mediaProps.title);
+     * });
      * 
-     * // In your script.js:
-     * // Listen for changes in user options for your mod
-     * userOptions.on('change', ({id, value}) => {
-     *   if (id == 'dark-mode') {
-     *      if (value)
-     *          myElement.classList.add('dark-mode')
-     *       }
-     *       else {
-     *           myElement.classList.remove('dark-mode')
-     *       }
-     *   }
-     *   ... // handle changes for other options
-     * })
+     * mediaController.on('playback', (playbackInfo) => {
+     *      if (playbackInfo.playbackStatus == 'Paused')
+     *          console.log('Media is paused.');
+     * });
      */
     on(eventName, callback) {
-        super.on(eventName, callback);
+        super._on(eventName, callback);
     }
 
     /**
@@ -79,7 +92,7 @@ class Media extends Interface {
      * @param {function(object)} callback
      */
     once(eventName, callback) {
-        super.once(eventName, callback);
+        super._once(eventName, callback);
     }
 
     /**
@@ -88,7 +101,7 @@ class Media extends Interface {
      * @param {Function} callback
      */
     off(eventName, callback) {
-        this.off(eventName, callback);
+        this._off(eventName, callback);
     }
 
     /**
@@ -96,8 +109,8 @@ class Media extends Interface {
      * @returns {Promise<any>} Resolves to an object containing `options` from `octos.json` along with user-set values.
      */
     async request() {
-        return super.request('options');
+        return super._request('options');
     }
 }
 
-export { UserOptions };
+export { Media };

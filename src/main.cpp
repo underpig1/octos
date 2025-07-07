@@ -142,6 +142,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_DESTROY:
     {
         wprintf(L"[WinMain] Destroyed\n");
+        SubscriptionCleanup(hwnd);
         HandleOnDestroy(hwnd);
         return 0;
     }
