@@ -36,11 +36,24 @@ auto GetWebViewInstance(HWND hwnd)
         return data->webview;
 }
 
-void RespondToHwnd(HWND hwnd, json msg, json data)
+void RespondToHwnd(HWND hwnd, json msg, json data, bool mainThread)
 {
     msg["type"] = "response";
     msg["data"] = data;
-    DispatchToHwnd(hwnd, to_wstring(msg.dump()));
+    if (mainThread)
+        PostMessage(hwnd, WM_USER + 5, 0, (LPARAM) new std::wstring(to_wstring(msg.dump())));
+    else
+        DispatchToHwnd(hwnd, to_wstring(msg.dump()));
+}
+
+void SendEventToHwnd(HWND hwnd, json msg, json data, bool mainThread)
+{
+    msg["type"] = "event";
+    msg["data"] = data;
+    if (mainThread)
+        PostMessage(hwnd, WM_USER + 5, 0, (LPARAM) new std::wstring(to_wstring(msg.dump())));
+    else
+        DispatchToHwnd(hwnd, to_wstring(msg.dump()));
 }
 
 void HandleRequest(json msg, HWND hwnd)
@@ -62,11 +75,21 @@ void HandleRequest(json msg, HWND hwnd)
                 {
                     LPWSTR uri;
                     webview->get_Source(&uri);
-                    RespondToHwnd(hwnd, msg, to_string(uri));
+                    std::string uriStr = to_string(uri);
+                    RespondToHwnd(hwnd, msg, uriStr);
                 }
             }
-            else {
-                RouteArbitraryMediaRequest(hwnd, msg, type);
+            else if (type == "media-props")
+            {
+                HandleMediaPropertiesRequest(hwnd, msg);
+            }
+            else if (type == "playback-info")
+            {
+                HandlePlaybackInfoRequest(hwnd, msg);
+            }
+            else if (type == "timeline-props")
+            {
+                HandleTimelinePropertiesRequest(hwnd, msg);
             }
         }
     }
@@ -97,7 +120,7 @@ void HandleSubscription(json msg, HWND hwnd)
         std::string type = msg["eventType"];
         if (type == "media-change")
         {
-            
+
         }
     }
 }

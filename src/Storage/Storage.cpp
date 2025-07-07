@@ -295,7 +295,7 @@ std::vector<ConfigParams> IterateWallpapersDir()
                     if (entryCandidate.empty())
                         params.entryPath = L"";
                     else
-                        params.entryPath = AddFileScheme(entry / NormalizePath(entryCandidate));
+                        params.entryPath = AddFileScheme(fs::path(entry) / NormalizePath(entryCandidate));
 
                     wprintf(L"\n--- ConfigParams ---\n");
                     wprintf(L"Author      : %s\n", params.author.c_str());

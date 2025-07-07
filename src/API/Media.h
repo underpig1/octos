@@ -6,4 +6,6 @@
 
 using json = nlohmann::json;
 
-bool RouteArbitraryMediaRequest(HWND hwnd, json msg, std::string key);
+void HandleMediaPropertiesRequest(HWND hwnd, json msg);
+void HandlePlaybackInfoRequest(HWND hwnd, json msg);
+void HandleTimelinePropertiesRequest(HWND hwnd, json msg);
