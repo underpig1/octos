@@ -182,6 +182,22 @@ MonitorWindow *FindMonitorWindowById(const std::wstring monitorId)
     return nullptr;
 }
 
+std::vector<std::wstring> FindMonitorIdsByHwnd(HWND hwnd)
+{
+    std::vector<std::wstring> monitorIds;
+    for (auto &mw : ms)
+    {
+        if (mw.hwnd == hwnd)
+        {
+            MONITORINFOEXW mi = {};
+            mi.cbSize = sizeof(mi);
+            if (GetMonitorInfoW(mw.monitor, &mi))
+                monitorIds.push_back(mi.szDevice);
+        }
+    }
+    return monitorIds;
+}
+
 void NavigateWallpaperByMonitorId(std::wstring monitorId, std::wstring url)
 {
     MonitorWindow *mw = FindMonitorWindowById(monitorId);

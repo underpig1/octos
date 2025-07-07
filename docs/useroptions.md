@@ -1,7 +1,7 @@
 <a name="UserOptions"></a>
 
 ## UserOptions
-Handle events relating to changes in user options for your mod.User options are defined in the [`options` object in your octos.json file](config.md#options), and are configurable by users in the Octos app:<img height="300px" src="docs/_media/user-options.png" aria-hidden />
+Handle events relating to changes in user options for your mod.User options are defined in the [`options` object in your octos.json file](config.md#options), and are configurable by users in the Octos app:<img height="300px" src="_media/user-options.png" aria-hidden />
 
 **Kind**: global class  
 
@@ -10,6 +10,7 @@ Handle events relating to changes in user options for your mod.User options ar
     * [.once(eventName, callback)](#UserOptions+once)
     * [.off(eventName, callback)](#UserOptions+off)
     * [.request()](#UserOptions+request) ⇒ <code>Promise.&lt;any&gt;</code>
+    * [.set(id, value)](#UserOptions+set)
 
 <a name="UserOptions+on"></a>
 
@@ -54,9 +55,25 @@ Remove an event listener.
 <a name="UserOptions+request"></a>
 
 ### userOptions.request() ⇒ <code>Promise.&lt;any&gt;</code>
-Request all user options and await a response.
+Request all user options along with their properties and values and await a response.
 
 **Kind**: instance method of [<code>UserOptions</code>](#UserOptions)  
-**Returns**: <code>Promise.&lt;any&gt;</code> - Resolves with an object containing the entire `options` object.  
+**Returns**: <code>Promise.&lt;any&gt;</code> - Resolves to an object containing `options` from `octos.json` along with user-set values.  
 **Example**  
-```jsuserOptions.request().then((options) => {    if (options['dark-mode'].value) {         myElement.classList.add('dark-mode')    }});```
+```jsuserOptions.request().then((options) => {// what the options object looks like:// {//   "dark-mode": {//     "type": "checkbox",//     "value": (user-set),//     "label": "Enable dark mode?"//   }//   ... any other options// }    if (options['dark-mode'].value) {         myElement.classList.add('dark-mode')    }});```
+<a name="UserOptions+set"></a>
+
+### userOptions.set(id, value)
+Set the value of a user option. Note that this will not trigger user events such as `'change'`.
+
+**Kind**: instance method of [<code>UserOptions</code>](#UserOptions)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| id | <code>string</code> | The id of the option to set, as specified in `options` of `octos.json`. |
+| value | <code>any</code> | The value to set. |
+
+**Example**  
+```js
+userOptions.set()
+```

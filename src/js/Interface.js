@@ -30,6 +30,7 @@ class Interface {
             callback(data);
         };
         this.on(eventName, wrapper);
+        this._subscribe(eventName);
     }
 
     off(eventName, callback) {
@@ -55,11 +56,9 @@ class Interface {
             }
             return;
         }
-        
-        if (typeof this._handleCustomMessage === 'function') {
-            this._handleCustomMessage(msg);
-        }
-        if (msg.type in this._listeners) {
+        else if (msg.type == 'event' && typeof this._handleReceiveEvent === 'function')
+            this._handleReceiveEvent(msg);
+        else if (msg.type in this._listeners) {
             this._emit(msg.type, msg.data);
         }
     }
@@ -82,6 +81,21 @@ class Interface {
             }
         });
     }
+
+    command(commandType, data) {
+        window.chrome?.webview?.postMessage({
+            type: 'command',
+            commandType,
+            data
+        });
+    }
+
+    _subscribe(eventType) {
+        window.chrome?.webview?.postMessage({
+            type: 'subscribe',
+            eventType
+        });
+    }
 }
 
-module.exports = { Interface }
+export { Interface }

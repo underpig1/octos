@@ -229,17 +229,18 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
             else if (type == "send-to-wallpaper")
             {
                 if (j.contains("data") && j.contains("monitor-id") &&
-                    j["data"].is_string() && j["monitor-id"].is_string())
+                    j["data"].is_object() && j["monitor-id"].is_string())
                 {
-                    std::string data = j["data"];
                     std::string monitorId = j["monitor-id"];
-                    DispatchByMonitorId(to_wstring(data), to_wstring(monitorId));
+                    DispatchByMonitorId(to_wstring(j["data"].dump()), to_wstring(monitorId));
                 }
             }
         }
         else { // API
             if (type == "request")
                 HandleRequest(j, hwnd);
+            else if (type == "subscribe")
+                HandleSubscription(j, hwnd);
             else if (type == "command")
                 HandleCommand(j, hwnd);
         }

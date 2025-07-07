@@ -7,24 +7,27 @@ import { Interface } from './Interface.js'
  * 
  * <img height="300px" src="_media/user-options.png" aria-hidden />
  */
-class UserOptions extends Interface {
+class Media extends Interface {
     constructor() {
         super();
         this._listeners = {
-            change: [],
-            load: []
+            change: []
         };
     }
 
     _handleReceiveEvent(msg) {
         switch (msg.eventType) {
-            case 'options-change':
-                var { id, value } = msg.data;
-                this._emit('change', { id, value });
+            case 'session-change':
+                this._emit('media-change', msg.data);
                 break;
-            case 'options-load':
-                var { id, value } = msg.data;
-                this._emit('load', { id, value });
+            case 'media-change':
+                this._emit('media-change', msg.data);
+                break;
+            case 'playback-change':
+                this._emit('playback-change', msg.data);
+                break;
+            case 'timeline-change':
+                this._emit('timeline-change', msg.data);
                 break;
             default:
                 break;
@@ -91,38 +94,9 @@ class UserOptions extends Interface {
     /**
      * Request all user options along with their properties and values and await a response.
      * @returns {Promise<any>} Resolves to an object containing `options` from `octos.json` along with user-set values.
-     * @example
-     * ```js
-     * userOptions.request().then((options) => {
-     * // what the options object looks like:
-     * // {
-     * //   "dark-mode": {
-     * //     "type": "checkbox",
-     * //     "value": (user-set),
-     * //     "label": "Enable dark mode?"
-     * //   }
-     * //   ... any other options
-     * // }
-     * 
-     *     if (options['dark-mode'].value) {
-     *          myElement.classList.add('dark-mode')
-     *     }
-     * });
-     * ```
      */
     async request() {
         return super.request('options');
-    }
-
-    /**
-     * Set the value of a user option. Note that this will not trigger user events such as `'change'`.
-     * @param {string} id - The id of the option to set, as specified in `options` of `octos.json`.
-     * @param {any} value - The value to set.
-     * @example
-     * userOptions.set()
-     */
-    set(id, value) {
-        super.command('set-option', { id, value });
     }
 }
 

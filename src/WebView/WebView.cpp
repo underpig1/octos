@@ -124,7 +124,7 @@ void OnWebViewControllerCreated(
     if (SUCCEEDED(hr) && settings)
     {
         settings->put_IsStatusBarEnabled(FALSE);
-        settings->put_AreDevToolsEnabled(FALSE);
+        // settings->put_AreDevToolsEnabled(FALSE);
         settings->put_IsZoomControlEnabled(FALSE);
         settings->put_AreDefaultContextMenusEnabled(FALSE);
         settings->put_AreHostObjectsAllowed(FALSE);

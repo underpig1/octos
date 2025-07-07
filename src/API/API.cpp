@@ -1,12 +1,13 @@
 #include <windows.h>
 #include <iostream>
 #include <shlobj.h>
-#include <nlohmann/json.hpp>
 
+#include "API.h"
 #include "../Bridge/Bridge.h"
 #include "../Storage/Storage.h"
-
-using json = nlohmann::json;
+#include "../Core/Core.h"
+#include "../WebView/WebView.h"
+#include "Media.h"
 
 void SetDesktopIconsVisibility(BOOL show)
 {
@@ -19,20 +20,84 @@ void SetDesktopIconsVisibility(BOOL show)
         PostMessage(progman, WM_COMMAND, 41504, 0);
 }
 
-void HandleRequest(json data, HWND hwnd)
+void PropogateToAppHwnd(HWND targetHwnd, json msg)
 {
-    if (data.contains("requestId") && data.contains("requestType"))
+    for (std::wstring monitorId : FindMonitorIdsByHwnd(targetHwnd))
     {
-        json response = {
-            "type", "response",
-            "requestId", data["requestId"],
-            "requestType", data["requestType"],
-
-        };
+        msg["monitor-id"] = to_string(monitorId);
+        DispatchJson(to_wstring(msg.dump()));
     }
 }
 
-void HandleCommand(json data, HWND hwnd)
+auto GetWebViewInstance(HWND hwnd)
 {
+    WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+    if (data && data->webview)
+        return data->webview;
+}
 
+void RespondToHwnd(HWND hwnd, json msg, json data)
+{
+    msg["type"] = "response";
+    msg["data"] = data;
+    DispatchToHwnd(hwnd, to_wstring(msg.dump()));
+}
+
+void HandleRequest(json msg, HWND hwnd)
+{
+    if (msg.contains("requestId") && msg.contains("requestType") &&
+        msg["requestId"].is_string() && msg["requestId"].is_string())
+    {
+        std::string type = msg["requestType"];
+        if (type == "options" || false) // handled by app_hwnd
+        {
+            PropogateToAppHwnd(hwnd, msg);
+        }
+        else // handled directly
+        {
+            if (type == "source")
+            {
+                auto webview = GetWebViewInstance(hwnd);
+                if (webview)
+                {
+                    LPWSTR uri;
+                    webview->get_Source(&uri);
+                    RespondToHwnd(hwnd, msg, to_string(uri));
+                }
+            }
+            else {
+                RouteArbitraryMediaRequest(hwnd, msg, type);
+            }
+        }
+    }
+}
+
+void HandleCommand(json msg, HWND hwnd)
+{
+    if (msg.contains("commandType") && msg["commandType"].is_string())
+    {
+        std::string type = msg["commandType"];
+        if (type == "set-option" || false)
+        {
+            PropogateToAppHwnd(hwnd, msg);
+        }
+        else if (type == "open-dev-tools")
+        {
+            auto webview = GetWebViewInstance(hwnd);
+            if (webview)
+                webview->OpenDevToolsWindow();
+        }
+    }
+}
+
+void HandleSubscription(json msg, HWND hwnd)
+{
+    if (msg.contains("eventType") && msg["eventType"].is_string())
+    {
+        std::string type = msg["eventType"];
+        if (type == "media-change")
+        {
+            
+        }
+    }
 }

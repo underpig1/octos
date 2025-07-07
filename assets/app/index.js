@@ -118,6 +118,10 @@ window.chrome.webview.addEventListener('message', (e) => {
         window.chrome.webview.postMessage({type: 'prefs', 'data': userPrefs});
     else if (msg.type == 'wallpaper-loaded')
         handleWallpaperLoaded(msg.entryPath);
+    else if (msg.type == 'request')
+        handleRequest(msg);
+    else if (msg.type == 'command')
+        handleCommand(msg);
 });
 
 // MOD DATA
@@ -173,14 +177,60 @@ function handleWallpaperLoaded(entryPath) {
         if (id) {
             const modData = userPrefs.modData[id];
             if (modData) {
-                if (modData.entryPath.replaceAll('\\', '/') == entryPath) {
-                    
+                if (modData.entryPath.replaceAll('\\', '/') == entryPath) { // found target
                     sendWallpaperAllOptions(monitorId);
-
                     break;
                 }
             }
         }
+    }
+}
+
+function handleRequest(msg) {
+    console.log('recieved request', msg)
+    const monitorId = msg['monitor-id'];
+    if (!monitorId)
+        return;
+    const id = userPrefs.selected[monitorId]
+    if (!id)
+        return;
+    const response = {
+        "type": "response",
+        "requestId": msg.requestId,
+        "requestType": msg.requestType
+    };
+    switch (msg.requestType) {
+        case 'options':
+            response['data'] = userPrefs.modOptions[id];
+            break;
+        default:
+            break;
+    }
+    console.log('sending', { type: 'send-to-wallpaper', 'monitor-id': monitorId, data: response });
+    window.chrome.webview.postMessage({ type: 'send-to-wallpaper', 'monitor-id': monitorId, data: response });
+}
+
+function handleCommand(msg) {
+    console.log('recieved command', msg)
+    const monitorId = msg['monitor-id'];
+    if (!monitorId)
+        return;
+    const id = userPrefs.selected[monitorId]
+    if (!id)
+        return;
+    switch (msg.commandType) {
+        case 'set-option':
+            const inputId = msg.data.id;
+            const value = msg.data.value;
+            if (inputId != null && value != null) {
+                console.log('setting')
+                userPrefs.modOptions[id][inputId].value = value.toString();
+                if (activeTab == 'modules' && focusedIds.modules == id)
+                    updateCardDescription();
+            }
+            break;
+        default:
+            break;
     }
 }
 
@@ -660,6 +710,7 @@ function setCardDescription(prefix = "explore", title = "", author = "", descrip
 
 // CARD OPTIONS
 function createInput(options, id) {
+    console.log('creating input from ', options)
     const cardOptions = document.getElementById("card-options");
     var type = options.type;
     var getter = () => null;
@@ -809,11 +860,11 @@ function updateCardOptions() {
                         userPrefs.modOptions[id][inputId].value = value;
                         for (const monitorId of Object.keys(userPrefs.selected)) {
                             if (userPrefs.selected[monitorId] == id) {
-                                const payload = { 'type': 'options-change', 'id': inputId, 'value': value };
+                                const payload = { 'type': 'event', 'eventType': 'options-change', 'data': {'id': inputId, 'value': value } };
                                 window.chrome.webview.postMessage({
                                     type: 'send-to-wallpaper',
                                     'monitor-id': monitorId,
-                                    data: JSON.stringify(payload)
+                                    data: payload
                                 });
                             }
                         }
@@ -830,11 +881,11 @@ function sendWallpaperAllOptions(monitorId) {
     const options = userPrefs.modOptions[id];
     for (const inputId of Object.keys(options))
     {
-        const payload = { 'type': 'options-load', 'id': inputId, 'value': options[inputId].value };
+        const payload = { 'type': 'event', 'eventType': 'options-load', 'data': {'id': inputId, 'value': options[inputId].value } };
         window.chrome.webview.postMessage({
             type: 'send-to-wallpaper',
             'monitor-id': monitorId,
-            data: JSON.stringify(payload)
+            data: payload
         });
     }
 }
