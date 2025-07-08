@@ -115,7 +115,7 @@ window.chrome.webview.addEventListener('message', (e) => {
     else if (msg.type == 'request-options')
         sendWallpaperAllOptions(msg['monitor-id']);
     else if (msg.type == 'request-prefs')
-        window.chrome.webview.postMessage({type: 'prefs', 'data': userPrefs});
+        window.chrome.webview.postMessage({ type: 'prefs', 'data': userPrefs });
     else if (msg.type == 'wallpaper-loaded')
         handleWallpaperLoaded(msg.entryPath);
     else if (msg.type == 'request')
@@ -237,6 +237,7 @@ function handleCommand(msg) {
 // INITIALIZATION SCRIPT
 document.addEventListener("DOMContentLoaded", () => {
     for (var range of document.getElementsByClassName("range-input")) updateRange(range);
+    for (var fileInput of document.getElementsByClassName("file-input")) updateFileInput(fileInput);
     for (var img of document.getElementsByTagName("img")) img.draggable = false;
 
     window.chrome.webview.postMessage({ type: 'request-prefs' });
@@ -730,7 +731,10 @@ function createInput(options, id) {
             if (options.value) input.checked = options.value;
             getter = () => input.checked;
         }
-        else if (type == "file") getter = () => input.files[0];
+        else if (type == "file") {
+            getter = () => input.files[0];
+            updateFileInput(input);
+        }
         else if (type == "description") {
             if (options.value) div.querySelector("p").innerText = options.value;
             getter = () => null;
@@ -770,6 +774,15 @@ function updateRange(el) {
     var input = el;
     var p = el.parentNode.querySelector(".range-value");
     p.innerText = input.value;
+}
+
+function updateFileInput(el) {
+    const p = el.parentNode.querySelector('p');
+    console.log('file has value', el.value)
+    if (el.files[0])
+        p.style.setProperty('--after-content', `'${el.files[0].name}'`);
+    else
+        p.style.setProperty('--after-content', `''`);
 }
 
 function setCardOptions(json) {
@@ -860,7 +873,7 @@ function updateCardOptions() {
                         userPrefs.modOptions[id][inputId].value = value;
                         for (const monitorId of Object.keys(userPrefs.selected)) {
                             if (userPrefs.selected[monitorId] == id) {
-                                const payload = { 'type': 'event', 'eventType': 'options-change', 'data': {'id': inputId, 'value': value } };
+                                const payload = { 'type': 'event', 'eventType': 'options-change', 'data': { 'id': inputId, 'value': value } };
                                 window.chrome.webview.postMessage({
                                     type: 'send-to-wallpaper',
                                     'monitor-id': monitorId,
@@ -879,9 +892,8 @@ function updateCardOptions() {
 function sendWallpaperAllOptions(monitorId) {
     const id = userPrefs.selected[monitorId];
     const options = userPrefs.modOptions[id];
-    for (const inputId of Object.keys(options))
-    {
-        const payload = { 'type': 'event', 'eventType': 'options-load', 'data': {'id': inputId, 'value': options[inputId].value } };
+    for (const inputId of Object.keys(options)) {
+        const payload = { 'type': 'event', 'eventType': 'options-load', 'data': { 'id': inputId, 'value': options[inputId].value } };
         window.chrome.webview.postMessage({
             type: 'send-to-wallpaper',
             'monitor-id': monitorId,

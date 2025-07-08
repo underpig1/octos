@@ -90,10 +90,10 @@ class UserOptions extends Interface {
 
     /**
      * Request all user options along with their properties and values and await a response.
-     * @returns {Promise<any>} Resolves to an object containing `options` from `octos.json` along with user-set values.
+     * @returns {Promise<object>} Resolves to an object containing `options` from `octos.json` along with user-set values.
      * @example
      * ```js
-     * userOptions.request().then((options) => {
+     * userOptions.requestOptions().then((options) => {
      * // what the options object looks like:
      * // {
      * //   "dark-mode": {
@@ -110,7 +110,7 @@ class UserOptions extends Interface {
      * });
      * ```
      */
-    async request() {
+    async requestOptions() {
         return super._request('options');
     }
 
@@ -119,9 +119,9 @@ class UserOptions extends Interface {
      * @param {string} id - The id of the option to set, as specified in `options` of `octos.json`.
      * @param {any} value - The value to set.
      * @example
-     * userOptions.set()
+     * userOptions.setOption('dark-mode', true);
      */
-    set(id, value) {
+    setOption(id, value) {
         super._command('set-option', { id, value });
     }
 }

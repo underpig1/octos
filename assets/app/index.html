@@ -42,7 +42,7 @@
         <template id="file-input">
             <label class="file-input">
                 <p>Input</p>
-                <input type="file" onchange="updateCardOptions()">
+                <input type="file" onchange="updateFileInput(this); updateCardOptions();">
                 <span class="file-upload"></span>
             </label>
         </template>

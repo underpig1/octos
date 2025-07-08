@@ -28,7 +28,19 @@ Handle and control events related to system media and playback.
     * [.on(eventName, callback)](#MediaController+on)
     * [.once(eventName, callback)](#MediaController+once)
     * [.off(eventName, callback)](#MediaController+off)
-    * [.request()](#MediaController+request) ⇒ <code>Promise.&lt;any&gt;</code>
+    * [.requestMediaProperties()](#MediaController+requestMediaProperties) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.requestPlaybackInfo()](#MediaController+requestPlaybackInfo) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.requestTimelineProperties()](#MediaController+requestTimelineProperties) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.requestThumbnail()](#MediaController+requestThumbnail) ⇒ <code>Promise.&lt;string&gt;</code>
+    * [.play()](#MediaController+play)
+    * [.pause()](#MediaController+pause)
+    * [.stop()](#MediaController+stop)
+    * [.togglePlayPause()](#MediaController+togglePlayPause)
+    * [.skipNext()](#MediaController+skipNext)
+    * [.skipPrevious()](#MediaController+skipPrevious)
+    * [.setShuffle(state)](#MediaController+setShuffle)
+    * [.setRepeatMode(mode)](#MediaController+setRepeatMode)
+    * [.setSeekPosition(position)](#MediaController+setSeekPosition)
 
 <a name="MediaController+on"></a>
 
@@ -39,12 +51,12 @@ Add a listener to changes in media events.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| eventName | <code>&#x27;change&#x27;</code> \| <code>&#x27;playback&#x27;</code> \| <code>&#x27;timeline&#x27;</code> | <ul> <li>Events with type `change` are fired when the current playing media changes (ex. skipping to the next song).</li> <li>Events with type `playback` are fired when the media playback state changes (ex. pausing/playing a song, enabling shuffle, etc.).</li> <li>Events with type `timeline` are fired whenever the timestamp of the current playing media changes (ex. seeking ahead or back, song progressing, etc.).</li> </ul> |
-| callback | <code>function</code> | Callback recieves an object containing one of the following: <ul> <li>`change`: [MediaProperties](#mediaproperties)</li> <li>`playback`: [PlaybackInfo](#playbackinfo)</li> <li>`timeline`: [TimelineProperties](#timelineproperties)</li> </ul> |
+| eventName | <code>&#x27;mediaChange&#x27;</code> \| <code>&#x27;playbackChange&#x27;</code> \| <code>&#x27;timelineChange&#x27;</code> | <ul> <li>Events with type `mediaChange` are fired when the current playing media changes (ex. skipping to the next song).</li> <li>Events with type `playbackchange` are fired when the media playback state changes (ex. pausing/playing a song, enabling shuffle, etc.).</li> <li>Events with type `timelinechange` are fired whenever the timestamp of the current playing media changes (ex. seeking ahead or back, song progressing, etc.).</li> </ul> |
+| callback | <code>function</code> | Callback recieves an object containing one of the following: <ul> <li>`mediaChange`: [MediaProperties](#mediaproperties)</li> <li>`playbackchange`: [PlaybackInfo](#playbackinfo)</li> <li>`timelinechange`: [TimelineProperties](#timelineproperties)</li> </ul> |
 
 **Example**  
 ```js
-mediaController.on('change', (mediaProps) => {     console.log('Currently playing: ' + mediaProps.title);});mediaController.on('playback', (playbackInfo) => {     if (playbackInfo.playbackStatus == 'Paused')         console.log('Media is paused.');});
+mediaController.on('mediaChange', (mediaProps) => {     console.log('Currently playing: ' + mediaProps.title);});mediaController.on('playbackchange', (playbackInfo) => {     if (playbackInfo.playbackStatus == 'Paused')         console.log('Media is paused.');});
 ```
 <a name="MediaController+once"></a>
 
@@ -55,7 +67,7 @@ Add a one-time event listener that removes itself after firing.
 
 | Param | Type |
 | --- | --- |
-| eventName | <code>&#x27;change&#x27;</code> \| <code>&#x27;load&#x27;</code> | 
+| eventName | <code>&#x27;mediaChange&#x27;</code> \| <code>&#x27;playbackChange&#x27;</code> \| <code>&#x27;timelineChange&#x27;</code> | 
 | callback | <code>function</code> | 
 
 <a name="MediaController+off"></a>
@@ -67,16 +79,114 @@ Remove an event listener.
 
 | Param | Type |
 | --- | --- |
-| eventName | <code>&#x27;change&#x27;</code> \| <code>&#x27;load&#x27;</code> | 
+| eventName | <code>&#x27;mediaChange&#x27;</code> \| <code>&#x27;playbackChange&#x27;</code> \| <code>&#x27;timelineChange&#x27;</code> | 
 | callback | <code>function</code> | 
 
-<a name="MediaController+request"></a>
+<a name="MediaController+requestMediaProperties"></a>
 
-### mediaController.request() ⇒ <code>Promise.&lt;any&gt;</code>
-Request all user options along with their properties and values and await a response.
+### mediaController.requestMediaProperties() ⇒ <code>Promise.&lt;object&gt;</code>
+Request all media properties.
 
 **Kind**: instance method of [<code>MediaController</code>](#MediaController)  
-**Returns**: <code>Promise.&lt;any&gt;</code> - Resolves to an object containing `options` from `octos.json` along with user-set values.  
+**Returns**: <code>Promise.&lt;object&gt;</code> - Resolves to a [MediaProperties](#mediaproperties) object.  
+**Example**  
+```js
+mediaController.getMediaProperties().then((mediaProps) => {     console.log('Currently playing: ' + mediaProps.title);})
+```
+<a name="MediaController+requestPlaybackInfo"></a>
+
+### mediaController.requestPlaybackInfo() ⇒ <code>Promise.&lt;object&gt;</code>
+Request all playback info.
+
+**Kind**: instance method of [<code>MediaController</code>](#MediaController)  
+**Returns**: <code>Promise.&lt;object&gt;</code> - Resolves to a [PlaybackInfo](#playbackinfo) object.  
+<a name="MediaController+requestTimelineProperties"></a>
+
+### mediaController.requestTimelineProperties() ⇒ <code>Promise.&lt;object&gt;</code>
+Request all timeline properties.
+
+**Kind**: instance method of [<code>MediaController</code>](#MediaController)  
+**Returns**: <code>Promise.&lt;object&gt;</code> - Resolves to a [TimelineProperties](#timelineproperties) object.  
+<a name="MediaController+requestThumbnail"></a>
+
+### mediaController.requestThumbnail() ⇒ <code>Promise.&lt;string&gt;</code>
+Request the thumbnail image of the current playing media.
+
+**Kind**: instance method of [<code>MediaController</code>](#MediaController)  
+**Returns**: <code>Promise.&lt;string&gt;</code> - Resolves to a base64-encoded image string.  
+**Example**  
+```js
+myImage = document.getElementById('img');mediaController.getThumbnail().then((thumbnail) => {     myImage.src = thumbnail;     console.log('Recieved thumbnail image');});
+```
+<a name="MediaController+play"></a>
+
+### mediaController.play()
+Play the current media.
+
+**Kind**: instance method of [<code>MediaController</code>](#MediaController)  
+<a name="MediaController+pause"></a>
+
+### mediaController.pause()
+Pause the current media.
+
+**Kind**: instance method of [<code>MediaController</code>](#MediaController)  
+<a name="MediaController+stop"></a>
+
+### mediaController.stop()
+Stop the current media.
+
+**Kind**: instance method of [<code>MediaController</code>](#MediaController)  
+<a name="MediaController+togglePlayPause"></a>
+
+### mediaController.togglePlayPause()
+Toggle play/pause. If the current playback state is paused, this will play the current media, and vice versa.
+
+**Kind**: instance method of [<code>MediaController</code>](#MediaController)  
+<a name="MediaController+skipNext"></a>
+
+### mediaController.skipNext()
+Skip to the next media.
+
+**Kind**: instance method of [<code>MediaController</code>](#MediaController)  
+<a name="MediaController+skipPrevious"></a>
+
+### mediaController.skipPrevious()
+Skip to the previous media.
+
+**Kind**: instance method of [<code>MediaController</code>](#MediaController)  
+<a name="MediaController+setShuffle"></a>
+
+### mediaController.setShuffle(state)
+Set the shuffle state.
+
+**Kind**: instance method of [<code>MediaController</code>](#MediaController)  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| state | <code>bool</code> | <code>true</code> | The suffle state. Set to `true` to enable shuffling, `false` to disable it. |
+
+<a name="MediaController+setRepeatMode"></a>
+
+### mediaController.setRepeatMode(mode)
+Set the repeat mode.
+
+**Kind**: instance method of [<code>MediaController</code>](#MediaController)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| mode | <code>&#x27;track&#x27;</code> \| <code>&#x27;list&#x27;</code> \| <code>&#x27;none&#x27;</code> | The repeat mode. `track` enables repeat for the current track, `list` enables repeat for the current media's playlist/album, `none` disables repeat. |
+
+<a name="MediaController+setSeekPosition"></a>
+
+### mediaController.setSeekPosition(position)
+Set the seek position.
+
+**Kind**: instance method of [<code>MediaController</code>](#MediaController)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| position | <code>int</code> | The seek position of playback in the current media in seconds. |
+
 <a name="MediaProperties"></a>
 
 ## MediaProperties : <code>Object</code>

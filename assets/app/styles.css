@@ -833,7 +833,7 @@ label>p {
     margin-bottom: 5px;
 }
 
-.file-input>input {
+/* .file-input>input {
     display: none;
 }
 
@@ -854,6 +854,46 @@ label>p {
     background-color: #404040ff;
     text-align: center;
     float: left;
+    cursor: pointer;
+} */
+
+.file-input {
+    display: flex;
+    min-height: 25px;
+    width: var(--input-width);
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.file-input>input {
+    display: none;
+}
+
+.file-input>p {
+    margin: 0;
+    --after-content: '';
+}
+
+.file-input>p::after {
+    color: gray;
+    margin-left: 15px;
+    content: var(--after-content);
+}
+
+.file-input>.file-upload {
+    display: block;
+    width: 65px;
+    height: 100%;
+    border-radius: 2px;
+    border: 1px solid var(--button-border-color);
+    background-color: var(--button-color);
+    box-shadow: 0 2px 2px #00000011;
+    background-image: url('img/folder.png');
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+    opacity: 0.8;
     cursor: pointer;
 }
 

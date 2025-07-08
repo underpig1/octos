@@ -1,3 +1,3 @@
 export { UserOptions } from './UserOptions.js';
-export { WebView } from './WebView.js';
-export { Media } from './Media.js';
+export { System } from './System.js';
+export { MediaController } from './MediaController.js';

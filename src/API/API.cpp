@@ -20,6 +20,30 @@ void SetDesktopIconsVisibility(BOOL show)
         PostMessage(progman, WM_COMMAND, 41504, 0);
 }
 
+bool IsLightTheme()
+{
+    HKEY hKey;
+    DWORD value = 1;
+    DWORD valueSize = sizeof(value);
+    if (RegOpenKeyExW(HKEY_CURRENT_USER,
+                      L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+                      0,
+                      KEY_READ,
+                      &hKey) == ERROR_SUCCESS)
+    {
+        if (RegQueryValueExW(hKey,
+                             L"AppsUseLightTheme",
+                             nullptr,
+                             nullptr,
+                             reinterpret_cast<LPBYTE>(&value),
+                             &valueSize) != ERROR_SUCCESS)
+            value = 1;
+
+        RegCloseKey(hKey);
+    }
+    return value != 0;
+}
+
 void PropogateToAppHwnd(HWND targetHwnd, json msg)
 {
     for (std::wstring monitorId : FindMonitorIdsByHwnd(targetHwnd))
@@ -93,6 +117,22 @@ void HandleRequest(json msg, HWND hwnd)
             }
             else if (type == "thumbnail")
                 HandleThumbnailRequest(hwnd, msg);
+            else if (type == "is-light-theme")
+            {
+                bool light = IsLightTheme();
+                RespondToHwnd(hwnd, msg, light);
+            }
+            else if (type == "visibility")
+            {
+                WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+                if (data)
+                {
+                    if (data->hidden)
+                        RespondToHwnd(hwnd, msg, false);
+                    else
+                        RespondToHwnd(hwnd, msg, true);
+                }
+            }
         }
     }
 }
@@ -129,6 +169,14 @@ void HandleCommand(json msg, HWND hwnd)
                 }
             }
         }
+        else if (type == "set-visible")
+            SetWebViewVisibility(hwnd, true);
+        else if (type == "set-hidden")
+            SetWebViewVisibility(hwnd, false);
+        else if (type == "set-desktop-icons-visible")
+            SetDesktopIconsVisibility(true);
+        else if (type == "set-desktop-icons-hidden")
+            SetDesktopIconsVisibility(false);
     }
 }
 
