@@ -161,14 +161,7 @@ void OnWebViewControllerCreated(
             {
                 // webview->PostWebMessageAsJson((L"{ \"type\": \"loaded\", \"entryPath\":\"" + htmlPath + L"\"}").c_str());
                 if (hwnd != app_hwnd)
-                {
-                    std::wstring entryPath = htmlPath;
-                    for (auto &ch : entryPath)
-                        if (ch == L'\\')
-                            ch = L'/';
-                    std::wstring message = L"{ \"type\": \"wallpaper-loaded\", \"entryPath\":\"" + entryPath + L"\"}";
-                    PostMessage(app_hwnd, WM_USER + 5, 0, (LPARAM) new std::wstring(message));
-                }
+                    HandleOnHwndLoadMessage(hwnd);
                 return S_OK;
             })
             .Get(),

@@ -254,3 +254,19 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
         wprintf(L"UNKNOWN EXCEPTION\n");
     }
 }
+
+void HandleOnHwndLoadMessage(HWND hwnd)
+{
+    std::thread([hwnd]()
+                {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        std::wstring monitorId = FindMonitorIdByHwnd(hwnd);
+        json msg = {
+            {"type", "wallpaper-loaded"},
+            {"monitor-id", to_string(monitorId)}
+        };
+        std::wstring wjsonString = to_wstring(msg.dump());
+        wprintf(L"\n\n\n---- HANDLINGONLOAD %hs\n\n\n", msg.dump().c_str());
+        PostMessage(app_hwnd, WM_USER + 5, 0, (LPARAM)new std::wstring(wjsonString)); })
+        .detach();
+}

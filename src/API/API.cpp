@@ -46,11 +46,9 @@ bool IsLightTheme()
 
 void PropogateToAppHwnd(HWND targetHwnd, json msg)
 {
-    for (std::wstring monitorId : FindMonitorIdsByHwnd(targetHwnd))
-    {
-        msg["monitor-id"] = to_string(monitorId);
-        DispatchJson(to_wstring(msg.dump()));
-    }
+    std::wstring monitorId = FindMonitorIdByHwnd(targetHwnd);
+    msg["monitor-id"] = to_string(monitorId);
+    DispatchJson(to_wstring(msg.dump()));
 }
 
 auto GetWebViewInstance(HWND hwnd)
@@ -125,13 +123,32 @@ void HandleRequest(json msg, HWND hwnd)
             else if (type == "visibility")
             {
                 WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-                if (data)
+                if (data && data->controller)
                 {
-                    if (data->hidden)
-                        RespondToHwnd(hwnd, msg, false);
-                    else
-                        RespondToHwnd(hwnd, msg, true);
+                    BOOL visibility;
+                    HRESULT hr = data->controller->get_IsVisible(&visibility);
+                    if (hr)
+                    {
+                        if (visibility)
+                            RespondToHwnd(hwnd, msg, false);
+                        else
+                            RespondToHwnd(hwnd, msg, true);
+                    }
                 }
+            }
+            else if (type == "siblings")
+            {
+                std::vector<std::string> siblingIds8;
+                std::vector<std::wstring> siblingIds16 = GetSiblingMonitorIds(hwnd);
+                for (auto &sibling16 : siblingIds16)
+                    siblingIds8.push_back(to_string(sibling16));
+                RespondToHwnd(hwnd, msg, siblingIds8);
+            }
+            else if (type == "monitor-id")
+            {
+                std::wstring monitorId = FindMonitorIdByHwnd(hwnd);
+                if (!monitorId.empty())
+                    RespondToHwnd(hwnd, msg, to_string(monitorId));
             }
         }
     }
@@ -142,7 +159,7 @@ void HandleCommand(json msg, HWND hwnd)
     if (msg.contains("commandType") && msg["commandType"].is_string())
     {
         std::string type = msg["commandType"];
-        if (type == "set-option" || false)
+        if (type == "set-option" || type == "send-to-monitor-hwnd")
         {
             PropogateToAppHwnd(hwnd, msg);
         }
@@ -165,7 +182,8 @@ void HandleCommand(json msg, HWND hwnd)
                         if (data.contains("position") && data["position"].is_number_integer())
                             SetPlaybackPosition(data["position"]);
                     }
-                    else SendMediaCommand(cmd);
+                    else
+                        SendMediaCommand(cmd);
                 }
             }
         }
@@ -177,6 +195,26 @@ void HandleCommand(json msg, HWND hwnd)
             SetDesktopIconsVisibility(true);
         else if (type == "set-desktop-icons-hidden")
             SetDesktopIconsVisibility(false);
+        else if (type == "redirect")
+        {
+            if (msg.contains("data") && msg["data"].is_object())
+            {
+                json data = msg["data"];
+                if (data.contains("receiver-id") && data["receiver-id"].is_string() &&
+                    data.contains("message"))
+                {
+                    std::string receiverId = data["receiver-id"];
+                    MonitorWindow *receiverMw = FindMonitorWindowById(to_wstring(receiverId));
+                    std::string senderId = to_string(FindMonitorIdByHwnd(hwnd));
+                    if (receiverMw && receiverMw->hwnd && IsWindow(receiverMw->hwnd) && !senderId.empty())
+                    {
+                        data["sender-id"] = senderId;
+                        msg["eventType"] = "redirect";
+                        SendEventToHwnd(receiverMw->hwnd, msg, data);
+                    }
+                }
+            }
+        }
     }
 }
 

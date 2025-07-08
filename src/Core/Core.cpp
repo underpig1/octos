@@ -152,6 +152,17 @@ void SetWallpaperVisibility(bool visible)
         ShowWindow(mw.hwnd, visible ? SW_SHOW : SW_HIDE);
 }
 
+std::wstring GetDeviceStringFromSzDevice(const std::wstring &szDevice)
+{
+    DISPLAY_DEVICEW dd;
+    dd.cb = sizeof(dd);
+    if (EnumDisplayDevicesW(szDevice.c_str(), 0, &dd, 0))
+    {
+        return dd.DeviceString;
+    }
+    return szDevice;
+}
+
 std::vector<std::wstring> GetMonitorIds()
 {
     std::vector<std::wstring> monitorIds;
@@ -166,6 +177,28 @@ std::vector<std::wstring> GetMonitorIds()
     return monitorIds;
 }
 
+std::vector<std::wstring> GetSiblingMonitorIds(HWND hwnd)
+{
+    MonitorWindow thisMw;
+    for (auto &mw : ms)
+    {
+        if (mw.hwnd == hwnd)
+            thisMw = mw;
+    }
+    std::vector<std::wstring> siblingIds;
+    for (auto &mw : ms)
+    {
+        if (mw.htmlPath == thisMw.htmlPath && mw.hwnd != hwnd)
+            {
+                MONITORINFOEXW mi = {};
+                mi.cbSize = sizeof(mi);
+                if (GetMonitorInfoW(mw.monitor, &mi))
+                    siblingIds.push_back(mi.szDevice);
+            }
+    }
+    return siblingIds;
+}
+
 MonitorWindow *FindMonitorWindowById(const std::wstring monitorId)
 {
     for (auto &mw : ms)
@@ -174,7 +207,6 @@ MonitorWindow *FindMonitorWindowById(const std::wstring monitorId)
         mi.cbSize = sizeof(mi);
         if (GetMonitorInfoW(mw.monitor, &mi))
         {
-            wprintf(L"ITERATING MONITORS %ws\n", mi.szDevice);
             if (monitorId == mi.szDevice)
                 return &mw;
         }
@@ -182,9 +214,8 @@ MonitorWindow *FindMonitorWindowById(const std::wstring monitorId)
     return nullptr;
 }
 
-std::vector<std::wstring> FindMonitorIdsByHwnd(HWND hwnd)
+std::wstring FindMonitorIdByHwnd(HWND hwnd)
 {
-    std::vector<std::wstring> monitorIds;
     for (auto &mw : ms)
     {
         if (mw.hwnd == hwnd)
@@ -192,10 +223,11 @@ std::vector<std::wstring> FindMonitorIdsByHwnd(HWND hwnd)
             MONITORINFOEXW mi = {};
             mi.cbSize = sizeof(mi);
             if (GetMonitorInfoW(mw.monitor, &mi))
-                monitorIds.push_back(mi.szDevice);
+            {
+                return mi.szDevice;
+            }
         }
     }
-    return monitorIds;
 }
 
 void NavigateWallpaperByMonitorId(std::wstring monitorId, std::wstring url)

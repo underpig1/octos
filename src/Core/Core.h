@@ -31,4 +31,5 @@ void ReleaseMainWindow();
 void ReattachMainWindow();
 void NavigateAllWallpapers(std::wstring url);
 MonitorWindow *FindMonitorWindowById(const std::wstring monitorId);
-std::vector<std::wstring> FindMonitorIdsByHwnd(HWND hwnd);
+std::wstring FindMonitorIdByHwnd(HWND hwnd);
+std::vector<std::wstring> GetSiblingMonitorIds(HWND hwnd);

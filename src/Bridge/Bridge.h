@@ -10,3 +10,4 @@ void DispatchMonitorData();
 void DispatchVisibility();
 void DispatchNavigateAllWallpapers(std::wstring id);
 void DispatchToHwnd(HWND hwnd, std::wstring message);
+void HandleOnHwndLoadMessage(HWND hwnd);

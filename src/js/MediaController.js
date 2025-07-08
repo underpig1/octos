@@ -35,9 +35,9 @@ class MediaController extends Interface {
     constructor() {
         super();
         this._listeners = {
-            change: [],
-            playback: [],
-            timeline: []
+            mediaChange: [],
+            playbackChange: [],
+            timelineChange: []
         };
     }
 

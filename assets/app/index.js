@@ -117,7 +117,7 @@ window.chrome.webview.addEventListener('message', (e) => {
     else if (msg.type == 'request-prefs')
         window.chrome.webview.postMessage({ type: 'prefs', 'data': userPrefs });
     else if (msg.type == 'wallpaper-loaded')
-        handleWallpaperLoaded(msg.entryPath);
+        handleWallpaperLoaded(msg['monitor-id']);
     else if (msg.type == 'request')
         handleRequest(msg);
     else if (msg.type == 'command')
@@ -170,18 +170,13 @@ function onNavigateAll(id) {
     updateMonitorIndicators();
 }
 
-function handleWallpaperLoaded(entryPath) {
-    console.log('loaded', entryPath);
-    for (const monitorId of Object.keys(userPrefs.selected)) {
-        const id = userPrefs.selected[monitorId];
-        if (id) {
-            const modData = userPrefs.modData[id];
-            if (modData) {
-                if (modData.entryPath.replaceAll('\\', '/') == entryPath) { // found target
-                    sendWallpaperAllOptions(monitorId);
-                    break;
-                }
-            }
+function handleWallpaperLoaded(monitorId) {
+    if (!monitorId || !userPrefs.selected)
+        return;
+    console.log('loaded', monitorId);
+    for (const mid of Object.keys(userPrefs.selected)) {
+        if (mid == monitorId) {
+            sendWallpaperAllOptions(monitorId);
         }
     }
 }
@@ -466,7 +461,7 @@ function updateMods() {
         modScrollbox.appendChild(card);
         installedModCards[id] = card;
         for (const monitorId of monitorIds) {
-            if (userPrefs.selected[monitorId] == id) {
+            if (userPrefs.selected && userPrefs.selected[monitorId] == id) {
                 window.chrome.webview.postMessage({ type: 'set-wallpaper', url: data.entryPath, 'monitor-id': monitorId });
             }
         }
@@ -491,6 +486,8 @@ function updateMods() {
 }
 
 function updateMonitorIndicators() {
+    if (!userPrefs.modData)
+        return;
     for (const id of Object.keys(userPrefs.modData)) {
         const card = document.getElementById(id);
         if (card) {
@@ -506,13 +503,13 @@ function updateMonitorIndicators() {
             }
             var allMonitors = true;
             for (const monitorId of monitorIds) {
-                if (userPrefs.selected[monitorId] != id)
+                if (userPrefs.selected && userPrefs.selected[monitorId] != id)
                     allMonitors = false;
             }
             if (allMonitors && monitorIds.length == 1) addIndicator(monitorIds[0]);
             else {
                 for (const monitorId of monitorIds) {
-                    if (userPrefs.selected[monitorId] == id) addIndicator(monitorId);
+                    if (userPrefs.selected && userPrefs.selected[monitorId] == id) addIndicator(monitorId);
                 }
             }
         }
@@ -647,7 +644,7 @@ function setCardDescription(prefix = "explore", title = "", author = "", descrip
     var buttonDisabled = true;
     if (prefix == "modules") {
         for (const monitorId of monitorIds) {
-            if (userPrefs.selected[monitorId] != focusedIds.modules) {
+            if (userPrefs.selected && userPrefs.selected[monitorId] != focusedIds.modules) {
                 buttonDisabled = false;
                 break;
             }
@@ -971,7 +968,12 @@ function updateAppOptions(el) {
 }
 
 function handleRecieveUserPrefs(msg) {
-    userPrefs = msg.data
+    userPrefs = Object.assign({
+        modData: {},
+        modOptions: {},
+        selected: {},
+        appOptions: {}
+    }, msg.data ?? {});    
     console.log('recieved prefs', userPrefs);
 
     var inputs = document.getElementsByClassName("settings-input");
@@ -1020,6 +1022,8 @@ function goToSource() {
 }
 
 function updateDownloadedMods() {
+    if (!userPrefs.modData)
+        return;
     for (var id of Object.keys(exploreMods)) {
         var modData = exploreMods[id];
         var installed = false;
