@@ -78,7 +78,7 @@ Add an event listener.
 | Param | Type | Description |
 | --- | --- | --- |
 | eventName | <code>&#x27;message&#x27;</code> | `'message'` events fire when another instance sends a message to this monitor ID. |
-| callback | <code>function</code> | Resolves to a [MonitorMessage](#monitormessage) object, containing both `senderId` and `message`. |
+| callback | <code>function</code> | Resolves to a [MonitorMessage](#monitormessage-object) object, containing both `senderId` and `message`. |
 
 **Example**  
 ```js

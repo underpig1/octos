@@ -15,6 +15,10 @@
     - [`octos.json` Reference](config.md)
 
 - API Reference
+    - [MediaController](mediacontroller.md)
+    - [MonitorBridge](monitorbridge.md)
+    - [System](system.md)
+    - [UserOptions](useroptions.md)
 
 - [GitHub](https://github.com/underpig1/octos/)
 - [Edit Docs](https://github.com/underpig1/octos/docs)

@@ -1,6 +1,7 @@
 import { Interface } from './Interface.js'
 
 /**
+ * @class
  * Handle events relating to changes in user options for your mod.
  * 
  * User options are defined in the [`options` object in your octos.json file](config.md#options), and are configurable by users in the Octos app:

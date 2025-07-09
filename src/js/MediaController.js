@@ -1,6 +1,7 @@
 import { Interface } from './Interface.js'
 
 /**
+ * @class
  * Handle and control events related to system media and playback.
  */
 class MediaController extends Interface {
@@ -68,9 +69,9 @@ class MediaController extends Interface {
      * @param {function(object)} callback
      * Callback recieves an object containing one of the following:
      * <ul>
-     * <li>`mediaChange`: [MediaProperties](#mediaproperties)</li>
-     * <li>`playbackchange`: [PlaybackInfo](#playbackinfo)</li>
-     * <li>`timelinechange`: [TimelineProperties](#timelineproperties)</li>
+     * <li>`mediaChange`: [MediaProperties](#mediaproperties-object)</li>
+     * <li>`playbackchange`: [PlaybackInfo](#playbackinfo-object)</li>
+     * <li>`timelinechange`: [TimelineProperties](#timelineproperties-object)</li>
      * </ul>
      * @example
      * mediaController.on('mediaChange', (mediaProps) => {
@@ -106,7 +107,7 @@ class MediaController extends Interface {
 
     /**
      * Request all media properties.
-     * @returns {Promise<object>} Resolves to a [MediaProperties](#mediaproperties) object.
+     * @returns {Promise<object>} Resolves to a [MediaProperties](#mediaproperties-object) object.
      * @example
      * mediaController.getMediaProperties().then((mediaProps) => {
      *      console.log('Currently playing: ' + mediaProps.title);
@@ -118,7 +119,7 @@ class MediaController extends Interface {
 
     /**
      * Request all playback info.
-     * @returns {Promise<object>} Resolves to a [PlaybackInfo](#playbackinfo) object.
+     * @returns {Promise<object>} Resolves to a [PlaybackInfo](#playbackinfo-object) object.
      */
     async requestPlaybackInfo() {
         return super._request('playback-info');
@@ -126,7 +127,7 @@ class MediaController extends Interface {
 
     /**
      * Request all timeline properties.
-     * @returns {Promise<object>} Resolves to a [TimelineProperties](#timelineproperties) object.
+     * @returns {Promise<object>} Resolves to a [TimelineProperties](#timelineproperties-object) object.
      */
     async requestTimelineProperties() {
         return super._request('timeline-props');

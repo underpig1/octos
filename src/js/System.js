@@ -1,6 +1,7 @@
 import { Interface } from './Interface.js'
 
 /**
+ * @class
  * Configure system options and request system information.
  */
 class System extends Interface {

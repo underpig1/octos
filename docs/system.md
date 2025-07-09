@@ -12,6 +12,7 @@ Configure system options and request system information.
     * [.setVisibility(state)](#System+setVisibility)
     * [.getVisibility()](#System+getVisibility) ⇒ <code>Promise.&lt;bool&gt;</code>
     * [.setDesktopIconVisibility(state)](#System+setDesktopIconVisibility)
+    * [.getDesktopIconVisibility()](#System+getDesktopIconVisibility) ⇒ <code>Promise.&lt;bool&gt;</code>
 
 <a name="System+enableDevTools"></a>
 
@@ -74,3 +75,10 @@ Set the visibility of desktop icons. Useful for hiding the desktop icons when mo
 | --- | --- | --- |
 | state | <code>bool</code> | `true` for visible, `false` for hidden. |
 
+<a name="System+getDesktopIconVisibility"></a>
+
+### system.getDesktopIconVisibility() ⇒ <code>Promise.&lt;bool&gt;</code>
+Request the visibility of desktop icons.
+
+**Kind**: instance method of [<code>System</code>](#System)  
+**Returns**: <code>Promise.&lt;bool&gt;</code> - Resolves to `true` for visible, `false` for hidden.  

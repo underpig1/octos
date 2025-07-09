@@ -52,7 +52,7 @@ Add a listener to changes in media events.
 | Param | Type | Description |
 | --- | --- | --- |
 | eventName | <code>&#x27;mediaChange&#x27;</code> \| <code>&#x27;playbackChange&#x27;</code> \| <code>&#x27;timelineChange&#x27;</code> | <ul> <li>Events with type `mediaChange` are fired when the current playing media changes (ex. skipping to the next song).</li> <li>Events with type `playbackchange` are fired when the media playback state changes (ex. pausing/playing a song, enabling shuffle, etc.).</li> <li>Events with type `timelinechange` are fired whenever the timestamp of the current playing media changes (ex. seeking ahead or back, song progressing, etc.).</li> </ul> |
-| callback | <code>function</code> | Callback recieves an object containing one of the following: <ul> <li>`mediaChange`: [MediaProperties](#mediaproperties)</li> <li>`playbackchange`: [PlaybackInfo](#playbackinfo)</li> <li>`timelinechange`: [TimelineProperties](#timelineproperties)</li> </ul> |
+| callback | <code>function</code> | Callback recieves an object containing one of the following: <ul> <li>`mediaChange`: [MediaProperties](#mediaproperties-object)</li> <li>`playbackchange`: [PlaybackInfo](#playbackinfo-object)</li> <li>`timelinechange`: [TimelineProperties](#timelineproperties-object)</li> </ul> |
 
 **Example**  
 ```js
@@ -88,7 +88,7 @@ Remove an event listener.
 Request all media properties.
 
 **Kind**: instance method of [<code>MediaController</code>](#MediaController)  
-**Returns**: <code>Promise.&lt;object&gt;</code> - Resolves to a [MediaProperties](#mediaproperties) object.  
+**Returns**: <code>Promise.&lt;object&gt;</code> - Resolves to a [MediaProperties](#mediaproperties-object) object.  
 **Example**  
 ```js
 mediaController.getMediaProperties().then((mediaProps) => {     console.log('Currently playing: ' + mediaProps.title);})
@@ -99,14 +99,14 @@ mediaController.getMediaProperties().then((mediaProps) => {     console.log('Cu
 Request all playback info.
 
 **Kind**: instance method of [<code>MediaController</code>](#MediaController)  
-**Returns**: <code>Promise.&lt;object&gt;</code> - Resolves to a [PlaybackInfo](#playbackinfo) object.  
+**Returns**: <code>Promise.&lt;object&gt;</code> - Resolves to a [PlaybackInfo](#playbackinfo-object) object.  
 <a name="MediaController+requestTimelineProperties"></a>
 
 ### mediaController.requestTimelineProperties() ⇒ <code>Promise.&lt;object&gt;</code>
 Request all timeline properties.
 
 **Kind**: instance method of [<code>MediaController</code>](#MediaController)  
-**Returns**: <code>Promise.&lt;object&gt;</code> - Resolves to a [TimelineProperties](#timelineproperties) object.  
+**Returns**: <code>Promise.&lt;object&gt;</code> - Resolves to a [TimelineProperties](#timelineproperties-object) object.  
 <a name="MediaController+requestThumbnail"></a>
 
 ### mediaController.requestThumbnail() ⇒ <code>Promise.&lt;string&gt;</code>
