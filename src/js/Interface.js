@@ -1,6 +1,7 @@
 /**
+ * @class
  * Interface with a host WebView2 instance.
- * @private
+ * @ignore
  */
 class Interface {
     constructor() {

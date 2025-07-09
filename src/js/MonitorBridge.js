@@ -52,11 +52,11 @@ class MonitorBridge extends Interface {
      * @example
      * monitorBridge.requestSiblingIds().then((siblingIds) => {
      *      for (const siblingId of siblingIds) {
-     *          console.log('Sibling ID: ' + siblingId)
+     *          console.log('Sibling ID: ' + siblingId);
      *          // do something with each one
      *      }
      *      console.log('We have ' + siblingIds.length + ' simultaneous instances of our wallpaper running on different monitors');
-     * }
+     * });
      */
     async requestSiblingIds() {
         return super._request('siblings');
@@ -97,7 +97,7 @@ class MonitorBridge extends Interface {
      *      // You can also respond:
      *      const recipientId = e.senderId;
      *      monitorBridge.send(recipientId, {
-     *          someString: 'I got your message'
+     *          someString: 'I got your message',
      *          someData: 3
      *      });
      * })

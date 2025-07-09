@@ -117,10 +117,12 @@ HWND CreateMainWindow()
     // AttachWebViewController(hwnd, L"app/index.html");
     g_appHwndAttached = false;
     SetTimer(hwnd, 1, 100, NULL);
+    std::lock_guard<std::mutex> lock(app_hwnd_mutex);
     app_hwnd = hwnd;
     ShowWindow(hwnd, SW_SHOW);
     SetWindowPos(hwnd, nullptr, 0, 0, 0, 0,
                  SWP_NOZORDER | SWP_NOMOVE | SWP_NOSIZE | SWP_FRAMECHANGED);
+    app_hwnd_cv.notify_all();
     return hwnd;
 }
 

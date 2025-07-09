@@ -7,10 +7,13 @@
 #include "Storage/Storage.h"
 #include "Bridge/Bridge.h"
 #include "API/Media.h"
+#include "CLI/CLI.h"
 
 const wchar_t CLASS_NAME[] = L"OctosWorker";
 HINSTANCE g_hInstance;
 HWND app_hwnd;
+std::mutex app_hwnd_mutex;
+std::condition_variable app_hwnd_cv;
 bool g_appHwndAttached = false;
 HICON g_hIcon;
 
@@ -211,6 +214,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     freopen("CONOUT$", "w", stderr);
     freopen("CONIN$", "r", stdin);
 
+    ParseCommandLineArgs();
     LoadAndHandleAppPrefs();
     InitializeWebViewEnvironment();
     RegisterWndClass(hInstance);

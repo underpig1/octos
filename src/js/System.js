@@ -72,6 +72,14 @@ class System extends Interface {
         else
             throw TypeError('Expected boolean');
     }
+
+    /**
+     * Request the visibility of desktop icons.
+     * @returns {Promise<bool>} Resolves to `true` for visible, `false` for hidden.
+    */
+    async getDesktopIconVisibility() {
+        return super._request('desktop-icons-visibility');
+    }
 }
 
 export { System };

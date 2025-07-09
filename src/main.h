@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <bitset>
+#include <mutex>
 
 #define WM_RECREATEHWND (WM_USER + 1)
 #define WM_DESTROYTRIGGER (WM_USER + 2)
@@ -16,6 +17,9 @@ extern HINSTANCE g_hInstance;
 extern HWND app_hwnd;
 extern bool g_appHwndAttached;
 extern HICON g_hIcon;
+
+extern std::mutex app_hwnd_mutex;
+extern std::condition_variable app_hwnd_cv;
 
 enum Pref
 {

@@ -27,9 +27,9 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      borderlayer="true"
-     inkscape:zoom="8.4259192"
-     inkscape:cx="167.6375"
-     inkscape:cy="2387.9887"
+     inkscape:zoom="0.52661995"
+     inkscape:cx="314.26838"
+     inkscape:cy="1995.7466"
      inkscape:window-width="1920"
      inkscape:window-height="1094"
      inkscape:window-x="-11"
@@ -991,9 +991,9 @@
        d="m 194.63398,1053.6497 -18.5865,4.6686 v 17.5043 l -6.43025,3.8741 v 8.9887 l 24.75904,14.2989 21.44896,-12.9719 v -9.2537 l -0.0227,-0.013 V 1065.72 Z m -0.78525,5.543 16.61033,9.5895 v 14.8805 l 0.02,0.01 v 3.3485 l -16.19205,9.7978 -19.32699,-11.1581 v -3.2607 l 6.29326,-3.7902 v -15.8905 z m -9.70522,7.5293 v 13.0059 l 14.34311,8.2802 v -13.0049 z"
        sodipodi:nodetypes="ccccccccccccccccccccccccccc" />
     <rect
-       style="opacity:1;fill:#cccccc;fill-opacity:1;stroke:none;stroke-width:10.09;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+       style="opacity:1;fill:#cccccc;fill-opacity:1;stroke:none;stroke-width:10.385;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
        id="rect5"
-       width="379.10995"
+       width="401.59952"
        height="113.82478"
        x="437.3992"
        y="864.24219"
@@ -1032,26 +1032,26 @@
          transform="translate(0,-1.8874687)">
         <text
            xml:space="preserve"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:59.424px;font-family:'Segoe UI';-inkscape-font-specification:'Segoe UI';opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:95.4526;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
-           x="150.49515"
-           y="926.31055"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:48.2861px;font-family:'Segoe UI';-inkscape-font-specification:'Segoe UI';opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:77.5619;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+           x="150.8541"
+           y="911.88922"
            id="text8"><tspan
              sodipodi:role="line"
              id="tspan8"
-             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';fill:#000000;fill-opacity:1;stroke-width:95.4526"
-             x="150.49515"
-             y="926.31055">&lt;octos /&gt;</tspan></text>
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';fill:#000000;fill-opacity:1;stroke-width:77.5619"
+             x="150.8541"
+             y="911.88922">octos</tspan></text>
         <text
            xml:space="preserve"
-           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:20.2747px;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:32.5672;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
-           x="152.90541"
-           y="953.78693"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:16.6667px;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:26.7717;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+           x="153.11081"
+           y="937.5481"
            id="text9"><tspan
              sodipodi:role="line"
-             id="tspan9"
-             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';fill:#000000;fill-opacity:1;stroke-width:32.5672"
-             x="152.90541"
-             y="953.78693">dynamic HTML wallpapers</tspan></text>
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';fill:#000000;fill-opacity:1;stroke-width:26.7717"
+             x="153.11081"
+             y="937.5481"
+             id="tspan1">HTML-powered dynamicdesktop engine</tspan></text>
       </g>
     </g>
     <rect

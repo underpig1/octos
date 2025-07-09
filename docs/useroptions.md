@@ -9,8 +9,8 @@ Handle events relating to changes in user options for your mod.User options ar
     * [.on(eventName, callback)](#UserOptions+on)
     * [.once(eventName, callback)](#UserOptions+once)
     * [.off(eventName, callback)](#UserOptions+off)
-    * [.request()](#UserOptions+request) ⇒ <code>Promise.&lt;any&gt;</code>
-    * [.set(id, value)](#UserOptions+set)
+    * [.requestOptions()](#UserOptions+requestOptions) ⇒ <code>Promise.&lt;object&gt;</code>
+    * [.setOption(id, value)](#UserOptions+setOption)
 
 <a name="UserOptions+on"></a>
 
@@ -52,18 +52,18 @@ Remove an event listener.
 | eventName | <code>&#x27;change&#x27;</code> \| <code>&#x27;load&#x27;</code> | 
 | callback | <code>function</code> | 
 
-<a name="UserOptions+request"></a>
+<a name="UserOptions+requestOptions"></a>
 
-### userOptions.request() ⇒ <code>Promise.&lt;any&gt;</code>
+### userOptions.requestOptions() ⇒ <code>Promise.&lt;object&gt;</code>
 Request all user options along with their properties and values and await a response.
 
 **Kind**: instance method of [<code>UserOptions</code>](#UserOptions)  
-**Returns**: <code>Promise.&lt;any&gt;</code> - Resolves to an object containing `options` from `octos.json` along with user-set values.  
+**Returns**: <code>Promise.&lt;object&gt;</code> - Resolves to an object containing `options` from `octos.json` along with user-set values.  
 **Example**  
-```jsuserOptions.request().then((options) => {// what the options object looks like:// {//   "dark-mode": {//     "type": "checkbox",//     "value": (user-set),//     "label": "Enable dark mode?"//   }//   ... any other options// }    if (options['dark-mode'].value) {         myElement.classList.add('dark-mode')    }});```
-<a name="UserOptions+set"></a>
+```jsuserOptions.requestOptions().then((options) => {// what the options object looks like:// {//   "dark-mode": {//     "type": "checkbox",//     "value": (user-set),//     "label": "Enable dark mode?"//   }//   ... any other options// }    if (options['dark-mode'].value) {         myElement.classList.add('dark-mode')    }});```
+<a name="UserOptions+setOption"></a>
 
-### userOptions.set(id, value)
+### userOptions.setOption(id, value)
 Set the value of a user option. Note that this will not trigger user events such as `'change'`.
 
 **Kind**: instance method of [<code>UserOptions</code>](#UserOptions)  
@@ -75,5 +75,5 @@ Set the value of a user option. Note that this will not trigger user events such
 
 **Example**  
 ```js
-userOptions.set()
+userOptions.setOption('dark-mode', true);
 ```

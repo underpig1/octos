@@ -26,7 +26,8 @@ void DispatchJson(std::wstring message)
 void DispatchByMonitorId(std::wstring message, std::wstring monitorId)
 {
     MonitorWindow *mw = FindMonitorWindowById(monitorId);
-    if (mw && mw->hwnd && IsWindow(mw->hwnd)) {
+    if (mw && mw->hwnd && IsWindow(mw->hwnd))
+    {
         WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(mw->hwnd, GWLP_USERDATA));
         if (data && data->webview)
         {
@@ -50,8 +51,7 @@ void DispatchNavigateAllWallpapers(std::wstring id)
     json message =
         {
             {"type", "navigate-all"},
-            {"id", to_string(id)}
-        };
+            {"id", to_string(id)}};
     DispatchJson(to_wstring(message.dump()));
 }
 
@@ -91,7 +91,8 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
         std::string type = j.value("type", "");
         // printf("RECIEVED MESSAGE: %s\n", j.dump().c_str());
 
-        if (hwnd == app_hwnd) {
+        if (hwnd == app_hwnd)
+        {
             if (type == "drag")
             {
                 ReleaseCapture();
@@ -236,7 +237,8 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
                 }
             }
         }
-        else { // API
+        else
+        { // API
             if (type == "request")
                 HandleRequest(j, hwnd);
             else if (type == "subscribe" || type == "unsubscribe")
@@ -257,16 +259,22 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
 
 void HandleOnHwndLoadMessage(HWND hwnd)
 {
+    if (!IsWindow(hwnd))
+        return;
     std::thread([hwnd]()
                 {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        std::wstring monitorId = FindMonitorIdByHwnd(hwnd);
-        json msg = {
-            {"type", "wallpaper-loaded"},
-            {"monitor-id", to_string(monitorId)}
-        };
-        std::wstring wjsonString = to_wstring(msg.dump());
-        wprintf(L"\n\n\n---- HANDLINGONLOAD %hs\n\n\n", msg.dump().c_str());
-        PostMessage(app_hwnd, WM_USER + 5, 0, (LPARAM)new std::wstring(wjsonString)); })
+        std::unique_lock<std::mutex> lock(app_hwnd_mutex);
+        bool ready = app_hwnd_cv.wait_for(lock, std::chrono::seconds(2), [hwnd]()
+                                          { return app_hwnd != nullptr && IsWindow(app_hwnd); });
+        if (ready)
+        {
+            std::wstring monitorId = FindMonitorIdByHwnd(hwnd);
+            json msg = {
+                {"type", "wallpaper-loaded"},
+                {"monitor-id", to_string(monitorId)}};
+            std::wstring wjsonString = to_wstring(msg.dump());
+            wprintf(L"\n\n\n---- HANDLINGONLOAD %hs\n\n\n", msg.dump().c_str());
+            PostMessage(app_hwnd, WM_USER + 5, 0, (LPARAM) new std::wstring(wjsonString));
+        } })
         .detach();
 }

@@ -9,15 +9,25 @@
 #include "../WebView/WebView.h"
 #include "Media.h"
 
-void SetDesktopIconsVisibility(BOOL show)
+HWND GetSysListViewHwnd()
 {
-    SHELLSTATE shellState = {};
-    SHGetSetSettings(&shellState, SSF_HIDEICONS, FALSE);
-    shellState.fHideIcons = !show;
-    SHGetSetSettings(&shellState, SSF_HIDEICONS, TRUE);
     HWND progman = FindWindow(L"Progman", nullptr);
-    if (progman)
-        PostMessage(progman, WM_COMMAND, 41504, 0);
+    HWND listView = nullptr;
+    HWND shellViewWin = FindWindowEx(progman, nullptr, L"SHELLDLL_DefView", nullptr);
+    if (!shellViewWin)
+    {
+        HWND desktopHWND = nullptr;
+        HWND workerW = nullptr;
+        while ((workerW = FindWindowEx(nullptr, workerW, L"WorkerW", nullptr)) != nullptr)
+        {
+            shellViewWin = FindWindowEx(workerW, nullptr, L"SHELLDLL_DefView", nullptr);
+            if (shellViewWin)
+                break;
+        }
+    }
+    if (shellViewWin)
+        listView = FindWindowEx(shellViewWin, nullptr, L"SysListView32", L"FolderView");
+    return listView;
 }
 
 bool IsLightTheme()
@@ -115,7 +125,7 @@ void HandleRequest(json msg, HWND hwnd)
             }
             else if (type == "thumbnail")
                 HandleThumbnailRequest(hwnd, msg);
-            else if (type == "is-light-theme")
+            else if (type == "is-theme-light")
             {
                 bool light = IsLightTheme();
                 RespondToHwnd(hwnd, msg, light);
@@ -127,12 +137,12 @@ void HandleRequest(json msg, HWND hwnd)
                 {
                     BOOL visibility;
                     HRESULT hr = data->controller->get_IsVisible(&visibility);
-                    if (hr)
+                    if (SUCCEEDED(hr))
                     {
                         if (visibility)
-                            RespondToHwnd(hwnd, msg, false);
-                        else
                             RespondToHwnd(hwnd, msg, true);
+                        else
+                            RespondToHwnd(hwnd, msg, false);
                     }
                 }
             }
@@ -149,6 +159,12 @@ void HandleRequest(json msg, HWND hwnd)
                 std::wstring monitorId = FindMonitorIdByHwnd(hwnd);
                 if (!monitorId.empty())
                     RespondToHwnd(hwnd, msg, to_string(monitorId));
+            }
+            else if (type == "desktop-icons-visibility")
+            {
+                HWND listView = GetSysListViewHwnd();
+                if (listView != nullptr && IsWindow(listView))
+                    RespondToHwnd(hwnd, msg, IsWindowVisible(listView) ? true : false);
             }
         }
     }
@@ -192,9 +208,17 @@ void HandleCommand(json msg, HWND hwnd)
         else if (type == "set-hidden")
             SetWebViewVisibility(hwnd, false);
         else if (type == "set-desktop-icons-visible")
-            SetDesktopIconsVisibility(true);
+        {
+            HWND listView = GetSysListViewHwnd();
+            if (listView != nullptr && IsWindow(listView))
+                ShowWindow(listView, SW_SHOW);
+        }
         else if (type == "set-desktop-icons-hidden")
-            SetDesktopIconsVisibility(false);
+        {
+            HWND listView = GetSysListViewHwnd();
+            if (listView != nullptr && IsWindow(listView))
+                ShowWindow(listView, SW_HIDE);
+        }
         else if (type == "redirect")
         {
             if (msg.contains("data") && msg["data"].is_object())
