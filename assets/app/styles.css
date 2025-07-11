@@ -577,6 +577,10 @@ button:not(.inactive):not(:has(.monitor-arrow:hover)):hover {
     background-color: #21212180;
 }
 
+.unset {
+    color: var(--accent);
+}
+
 .card-options {
     /* height: calc(100% - 120px); */
     display: flex;

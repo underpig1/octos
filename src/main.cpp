@@ -30,11 +30,35 @@ std::bitset<static_cast<size_t>(Pref::Count)> g_prefs = []
 void OnClose()
 {
     KillTimer(app_hwnd, 1);
-    KillTimer(app_hwnd, 2);
     DestroyTrayIcon();
     CoUninitialize();
     UninstallEventHooks();
     PostQuitMessage(0);
+}
+
+void RestartApp()
+{
+    TCHAR szPath[MAX_PATH];
+    GetModuleFileName(NULL, szPath, MAX_PATH);
+    STARTUPINFO si = {sizeof(si)};
+    PROCESS_INFORMATION pi;
+    if (CreateProcess(
+            szPath,
+            NULL,
+            NULL,
+            NULL,
+            FALSE,
+            0,
+            NULL,
+            NULL,
+            &si,
+            &pi))
+    {
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+        OnClose();
+        ExitProcess(0);
+    }
 }
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)

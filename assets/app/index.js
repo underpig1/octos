@@ -229,6 +229,13 @@ function handleCommand(msg) {
     }
 }
 
+function unsetByMonitorId(monitorId) {
+    delete userPrefs.selected[monitorId]
+    window.chrome.webview.postMessage({ type: 'set-wallpaper', 'monitor-id': monitorId, 'url': '' });
+    updateMonitorIndicators();
+    updateCardDescription();
+}
+
 // INITIALIZATION SCRIPT
 document.addEventListener("DOMContentLoaded", () => {
     for (var range of document.getElementsByClassName("range-input")) updateRange(range);
@@ -499,6 +506,7 @@ function updateMonitorIndicators() {
                 const div = document.createElement('div');
                 div.classList.add('monitor-indicator');
                 div.innerText = cleanMonitorId(monitorId);
+                div.setAttribute('onclick', `unsetByMonitorId(${JSON.stringify(monitorId)})`);
                 indicators.appendChild(div);
             }
             var allMonitors = true;
@@ -512,6 +520,62 @@ function updateMonitorIndicators() {
                     if (userPrefs.selected && userPrefs.selected[monitorId] == id) addIndicator(monitorId);
                 }
             }
+        }
+    }
+}
+
+function configureSetAsWallpaperButton() {
+    const button = document.getElementById('set-wallpaper');
+    const monitorArrow = button.querySelector(".monitor-arrow");
+    const focusedId = focusedIds.modules
+    if (!focusedId)
+        return;
+    var buttonDisabled = true;
+    for (const monitorId of monitorIds) {
+        if (userPrefs.selected[monitorId] != focusedId) {
+            buttonDisabled = false;
+            break;
+        }
+    }
+    if (!monitorArrow)
+        return;
+    if (monitorIds.length > 1) {
+        monitorArrow.classList.add('active');
+    }
+    else {
+        monitorArrow.classList.remove('active');
+    }
+
+    const useUnset = monitorIds.length == 1;
+    if (useUnset) {
+        if (buttonDisabled) {
+            console.log('unsetting');
+            button.querySelector('.set-wallpaper-text').innerText = 'Unset as Wallpaper';
+            button.classList.add("unset");
+            button.onclick = () => {
+                for (const monitorId of monitorIds) {
+                    if (userPrefs.selected[monitorId] == focusedId) {
+                        unsetByMonitorId(monitorId);
+                    }
+                }
+            }
+        }
+        else {
+            console.log('setting');
+            button.querySelector('.set-wallpaper-text').innerText = 'Set as Wallpaper'
+            button.classList.remove("unset");
+            button.setAttribute("onclick", "selectFocusedCard()");
+        }
+    }
+    else {
+        // disable behavior
+        if (buttonDisabled) {
+            button.classList.add("inactive");
+            button.disabled = true;
+        }
+        else {
+            button.classList.remove("inactive");
+            button.disabled = false;
         }
     }
 }
@@ -539,26 +603,15 @@ function selectFocusedCard(monitorId = null) {
             }
             dumpUserPrefs();
             updateMonitorIndicators();
-
-            var buttonDisabled = true;
-            for (const monitorId of monitorIds) {
-                if (userPrefs.selected[monitorId] != focusedId) {
-                    buttonDisabled = false;
-                    break;
-                }
-            }
-            if (buttonDisabled) {
-                const button = document.getElementById('modules-card-description').querySelector("button");
-                button.classList.add("inactive");
-            }
+            configureSetAsWallpaperButton();
         }
     }
 }
 
 function handleExitMonitorSelector(e) {
-    if (e.target.id != 'monitor-selector' && !e.target.classList.contains('monitor-item')) {
-        document.getElementById('monitor-selector').classList.remove('active');
-    }
+    // if (e.target.id != 'monitor-selector' && !e.target.classList.contains('monitor-item')) {
+    document.getElementById('monitor-selector').classList.remove('active');
+    // }
 }
 function cleanMonitorId(monitorId) {
     return monitorId
@@ -572,14 +625,23 @@ function openMonitorSelector(e) {
     if (!monitorSelector)
         return;
     monitorSelector.innerHTML = "";
-    for (const monitorId of monitorIds) {
+    const sortedMonitorIds = monitorIds.sort((a, b) =>
+        (userPrefs.selected[a] === focusedIds.modules) - (userPrefs.selected[b] === focusedIds.modules)
+    );
+    for (const monitorId of sortedMonitorIds) {
         const div = document.createElement('div');
         div.classList.add('monitor-item');
-        div.setAttribute("onclick", "selectMonitor(event, this)");
-        div.innerText = "Assign to " + cleanMonitorId(monitorId);
         div.id = monitorId;
-        if (userPrefs.selected[monitorId] == focusedIds.modules)
-            div.classList.add('inactive');
+        if (userPrefs.selected[monitorId] == focusedIds.modules) {
+            // div.classList.add('inactive');
+            div.classList.add('unset');
+            div.innerText = "Unset for " + cleanMonitorId(monitorId);
+            div.setAttribute('onclick', `unsetByMonitorId(${JSON.stringify(monitorId)})`);
+        }
+        else {
+            div.innerText = "Set for " + cleanMonitorId(monitorId);
+            div.setAttribute("onclick", "selectMonitor(event, this)");
+        }
         monitorSelector.appendChild(div);
     }
     monitorSelector.classList.add('active');
@@ -634,21 +696,9 @@ function setCardDescription(prefix = "explore", title = "", author = "", descrip
         cardDescription.classList.add("empty");
     }
 
-    setButtonDisabled = (state) => {
-        var button = cardDescription.querySelector("button");
-        button.disabled = state;
-        if (state) button.classList.add("inactive");
-        else button.classList.remove("inactive");
-    }
-
-    var buttonDisabled = true;
+    const button = cardDescription.querySelector("button");
     if (prefix == "modules") {
-        for (const monitorId of monitorIds) {
-            if (userPrefs.selected && userPrefs.selected[monitorId] != focusedIds.modules) {
-                buttonDisabled = false;
-                break;
-            }
-        }
+        configureSetAsWallpaperButton();
     }
     else if (prefix == "explore") {
         const previewImage = cardDescription.querySelector(".preview");
@@ -675,6 +725,7 @@ function setCardDescription(prefix = "explore", title = "", author = "", descrip
             }
         }
         const card = document.getElementById(focusedIds[prefix]);
+        var buttonDisabled = true;
         if (downloadingCards.includes(focusedIds[prefix])) {
             buttonDisabled = true;
             cardDescription.querySelector("button").innerText = "Downloading...";
@@ -690,19 +741,9 @@ function setCardDescription(prefix = "explore", title = "", author = "", descrip
             cardDescription.querySelector("button").innerText = "Downloaded";
             card.classList.remove('loading')
         }
-    }
-    setButtonDisabled(buttonDisabled);
-
-    if (prefix == "modules") {
-        const monitorArrow = cardDescription.querySelector(".monitor-arrow");
-        if (!monitorArrow)
-            return;
-        if (monitorIds.length > 1) {
-            monitorArrow.classList.add('active');
-        }
-        else {
-            monitorArrow.classList.remove('active');
-        }
+        button.disabled = buttonDisabled;
+        if (buttonDisabled) button.classList.add("inactive");
+        else button.classList.remove("inactive");
     }
 }
 
@@ -965,6 +1006,15 @@ function updateAppOptions(el) {
         userPrefs.appOptions = {}
     userPrefs.appOptions[el.id] = value;
     dumpUserPrefs();
+    const restart = el.hasAttribute('requires-restart');
+    if (restart) {
+        modalDialog("Requires reload", "Would you like to restart the app now? If not, the change will apply the next time you close Octos.");
+        modalListener = (state) => {
+            if (state) {
+                window.chrome.webview.postMessage({ type: 'restart' });
+            }
+        }
+    }
 }
 
 function handleRecieveUserPrefs(msg) {
@@ -973,7 +1023,7 @@ function handleRecieveUserPrefs(msg) {
         modOptions: {},
         selected: {},
         appOptions: {}
-    }, msg.data ?? {});    
+    }, msg.data ?? {});
     console.log('recieved prefs', userPrefs);
 
     var inputs = document.getElementsByClassName("settings-input");

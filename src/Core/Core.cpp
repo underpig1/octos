@@ -5,7 +5,7 @@
 
 std::vector<MonitorWindow> ms;
 std::vector<HMONITOR> g_monitors;
-const std::wstring defaultHtmlPath = ResolvePath(L"default/index.html");
+const std::wstring defaultHtmlPath = L"";
 
 RECT GetMonitorRect(HMONITOR hMon)
 {
@@ -77,7 +77,14 @@ HWND CreateWallpaperWindow(const std::wstring &htmlPath)
         NULL,
         NULL, g_hInstance, reinterpret_cast<LPVOID>(data));
     SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA);
-    AttachWebViewCompositionController(hwnd, htmlPath);
+    wprintf(L"\n\n!!!! MAKING NEW WINDOW WITH PATH %ws\n\n", htmlPath.c_str());
+    if (!htmlPath.empty())
+        AttachWebViewCompositionController(hwnd, htmlPath);
+    else // unset
+    {
+        SetLayeredWindowAttributes(hwnd, 0, 0, LWA_ALPHA);
+        wprintf(L"\n\n??? I WASNT ATTACHED\n\n");
+    }
     return hwnd;
 }
 
@@ -191,12 +198,12 @@ std::vector<std::wstring> GetSiblingMonitorIds(HWND hwnd)
     for (auto &mw : ms)
     {
         if (mw.htmlPath == thisMw.htmlPath && mw.hwnd != hwnd)
-            {
-                MONITORINFOEXW mi = {};
-                mi.cbSize = sizeof(mi);
-                if (GetMonitorInfoW(mw.monitor, &mi))
-                    siblingIds.push_back(mi.szDevice);
-            }
+        {
+            MONITORINFOEXW mi = {};
+            mi.cbSize = sizeof(mi);
+            if (GetMonitorInfoW(mw.monitor, &mi))
+                siblingIds.push_back(mi.szDevice);
+        }
     }
     return siblingIds;
 }
@@ -234,6 +241,7 @@ std::wstring FindMonitorIdByHwnd(HWND hwnd)
 
 void NavigateWallpaperByMonitorId(std::wstring monitorId, std::wstring url)
 {
+    wprintf(L"\n\nnavigating to url %ws\n", url.c_str());
     MonitorWindow *mw = FindMonitorWindowById(monitorId);
     if (mw && mw->hwnd && mw->htmlPath != url)
     {

@@ -1,4 +1,4 @@
-<img src="_media/icon.png" width=100px />
+<img src="img/readme-logo.png" width=100px />
 
 # Octos: HTML Dynamic Desktop Engine
 ### HTML-powered dynamic desktop engine

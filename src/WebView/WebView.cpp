@@ -131,11 +131,11 @@ void OnWebViewControllerCreated(
     }
 
     // set background to transparent
-    // Microsoft::WRL::ComPtr<ICoreWebView2Controller2> controller2;
-    // if (SUCCEEDED(controller->QueryInterface(IID_PPV_ARGS(&controller2))))
-    // {
-    //     controller2->put_DefaultBackgroundColor({0, 0, 0, 0});
-    // }
+    Microsoft::WRL::ComPtr<ICoreWebView2Controller2> controller2;
+    if (SUCCEEDED(controller->QueryInterface(IID_PPV_ARGS(&controller2))))
+    {
+        controller2->put_DefaultBackgroundColor({0, 0, 0, 255});
+    }
 
     // Microsoft::WRL::ComPtr<ICoreWebView2Controller3> controller3;
     // if (SUCCEEDED(controller->QueryInterface(IID_PPV_ARGS(&controller3))))

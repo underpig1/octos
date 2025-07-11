@@ -122,7 +122,7 @@
                         <div class="bottom-matter">
                             <!-- <a id="restore-preferences" onclick="restorePreferences()">Restore default
                             mod options</a> -->
-                        <button id="set-wallpaper" onclick="selectFocusedCard()">Set as Wallpaper <span onclick="openMonitorSelector(event)" class="monitor-arrow"></span></button>
+                        <button id="set-wallpaper" onclick="selectFocusedCard()"><span class="set-wallpaper-text">Set as Wallpaper</span><span onclick="openMonitorSelector(event)" class="monitor-arrow"></span></button>
                         </div>
                     </div>
                 </div>
@@ -190,7 +190,7 @@
                             </label>
                             <p class="settings-description">Save memory and boost performance by pausing wallpapers when another app is in full screen.</p>
                             <label class="checkbox-input">
-                                <input class="settings-input" id="enableGPU" type="checkbox" onchange="updateAppOptions(this)">
+                                <input class="settings-input" id="enableGPU" type="checkbox" onchange="updateAppOptions(this)" requires-restart>
                                 <p>Hardware acceleration</p>
                                 <span class="checkmark"></span>
                             </label>

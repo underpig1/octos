@@ -1,7 +1,8 @@
 import { Interface } from './Interface.js'
 
 /**
- * @class
+ * @class MediaController
+ * @description
  * Handle and control events related to system media and playback.
  */
 class MediaController extends Interface {
@@ -20,7 +21,7 @@ class MediaController extends Interface {
      * @typedef {Object} PlaybackInfo
      * @property {'Closed' | 'Opened' | 'Changing' | 'Stopped' | 'Playing' | 'Paused' | 'Unknown'} playbackStatus - The status of the current media's playback.
      * @property {number} playbackRate - The playback rate of the current media (ex. 1.5 for 1.5x speed-up playback).
-     * @property {bool} shuffleActie - Whether or not the current media has shuffle enabled.
+     * @property {boolean} shuffleActive - Whether or not the current media has shuffle enabled.
      * @property {'Music' | 'Image' | 'Video' | 'Unknown'} playbackType - The type of the current media.
      */
 
@@ -30,7 +31,7 @@ class MediaController extends Interface {
      * @property {number} endTime - The ending time of the current media in seconds.
      * @property {number} position - The seek position of playback in the current media in seconds (ex. a user is N seconds into a song).
      * @property {number} minSeekTime - The minimum seek time of playback in the current media in seconds.
-     * @property {number} maxSeekTime - The maximum seek time of playback in the current media in seoconds (ex. the length of the media is `maxSeekTime - minSeekTime`).
+     * @property {number} maxSeekTime - The maximum seek time of playback in the current media in seconds (ex. the length of the media is `maxSeekTime - minSeekTime`).
      */
 
     constructor() {
@@ -48,10 +49,10 @@ class MediaController extends Interface {
                 this._emit('mediaChange', msg.data);
                 break;
             case 'playback-change':
-                this._emit('playbackchange', msg.data);
+                this._emit('playbackChange', msg.data);
                 break;
             case 'timeline-change':
-                this._emit('timelinechange', msg.data);
+                this._emit('timelineChange', msg.data);
                 break;
             default:
                 break;
@@ -60,25 +61,21 @@ class MediaController extends Interface {
 
     /**
      * Add a listener to changes in media events.
-     * @param { 'mediaChange' | 'playbackChange' | 'timelineChange' } eventName
-     * <ul>
-     * <li>Events with type `mediaChange` are fired when the current playing media changes (ex. skipping to the next song).</li>
-     * <li>Events with type `playbackchange` are fired when the media playback state changes (ex. pausing/playing a song, enabling shuffle, etc.).</li>
-     * <li>Events with type `timelinechange` are fired whenever the timestamp of the current playing media changes (ex. seeking ahead or back, song progressing, etc.).</li>
-     * </ul>
+     * @param {'mediaChange' | 'playbackChange' | 'timelineChange'} eventName
+     * - Events with type `mediaChange` are fired when the current playing media changes (ex. skipping to the next song).
+     * - Events with type `playbackChange` are fired when the media playback state changes (ex. pausing/playing a song, enabling shuffle, etc.).
+     * - Events with type `timelineChange` are fired whenever the timestamp of the current playing media changes (ex. seeking ahead or back, song progressing, etc.).
      * @param {function(object)} callback
-     * Callback recieves an object containing one of the following:
-     * <ul>
-     * <li>`mediaChange`: [MediaProperties](#mediaproperties-object)</li>
-     * <li>`playbackchange`: [PlaybackInfo](#playbackinfo-object)</li>
-     * <li>`timelinechange`: [TimelineProperties](#timelineproperties-object)</li>
-     * </ul>
+     * Callback receives an object containing one of the following:
+     * - `mediaChange`: {@link MediaProperties}
+     * - `playbackChange`: {@link PlaybackInfo}
+     * - `timelineChange`: {@link TimelineProperties}
      * @example
      * mediaController.on('mediaChange', (mediaProps) => {
      *      console.log('Currently playing: ' + mediaProps.title);
      * });
      * 
-     * mediaController.on('playbackchange', (playbackInfo) => {
+     * mediaController.on('playbackChange', (playbackInfo) => {
      *      if (playbackInfo.playbackStatus == 'Paused')
      *          console.log('Media is paused.');
      * });
@@ -107,9 +104,9 @@ class MediaController extends Interface {
 
     /**
      * Request all media properties.
-     * @returns {Promise<object>} Resolves to a [MediaProperties](#mediaproperties-object) object.
+     * @returns {Promise<MediaProperties>} Resolves to a MediaProperties object.
      * @example
-     * mediaController.getMediaProperties().then((mediaProps) => {
+     * mediaController.requestMediaProperties().then((mediaProps) => {
      *      console.log('Currently playing: ' + mediaProps.title);
      * })
      */
@@ -119,7 +116,7 @@ class MediaController extends Interface {
 
     /**
      * Request all playback info.
-     * @returns {Promise<object>} Resolves to a [PlaybackInfo](#playbackinfo-object) object.
+     * @returns {Promise<PlaybackInfo>} Resolves to a PlaybackInfo object.
      */
     async requestPlaybackInfo() {
         return super._request('playback-info');
@@ -127,7 +124,7 @@ class MediaController extends Interface {
 
     /**
      * Request all timeline properties.
-     * @returns {Promise<object>} Resolves to a [TimelineProperties](#timelineproperties-object) object.
+     * @returns {Promise<TimelineProperties>} Resolves to a TimelineProperties object.
      */
     async requestTimelineProperties() {
         return super._request('timeline-props');
@@ -138,9 +135,9 @@ class MediaController extends Interface {
      * @returns {Promise<string>} Resolves to a base64-encoded image string.
      * @example
      * myImage = document.getElementById('img');
-     * mediaController.getThumbnail().then((thumbnail) => {
+     * mediaController.requestThumbnail().then((thumbnail) => {
      *      myImage.src = thumbnail;
-     *      console.log('Recieved thumbnail image');
+     *      console.log('Received thumbnail image');
      * });
      */
     async requestThumbnail() {
@@ -151,7 +148,7 @@ class MediaController extends Interface {
      * Play the current media.
      */
     play() {
-        return super._command('media', {cmd: 'play'});
+        return super._command('media', { cmd: 'play' });
     }
 
     /**
@@ -191,7 +188,7 @@ class MediaController extends Interface {
 
     /**
      * Set the shuffle state.
-     * @param {bool} state - The suffle state. Set to `true` to enable shuffling, `false` to disable it.
+     * @param {boolean} state - The shuffle state. Set to `true` to enable shuffling, `false` to disable it.
      */
     setShuffle(state = true) {
         if (state) super._command('media', { cmd: 'enable-shuffle' });
@@ -220,11 +217,14 @@ class MediaController extends Interface {
 
     /**
      * Set the seek position.
-     * @param {int} position - The seek position of playback in the current media in seconds.
+     * @param {number} position - The seek position of playback in the current media in seconds.
      */
     setSeekPosition(position) {
-        if (Number.isInteger(position)) super._command('media', { cmd: 'set-playback-position' });
-        else throw new TypeError('Expected an integer');
+        if (Number.isInteger(position)) {
+            super._command('media', { cmd: 'set-playback-position', position: position });
+        } else {
+            throw new TypeError('Expected an integer');
+        }
     }
 }
 

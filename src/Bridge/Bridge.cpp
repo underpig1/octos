@@ -236,6 +236,10 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
                     DispatchByMonitorId(to_wstring(j["data"].dump()), to_wstring(monitorId));
                 }
             }
+            else if (type == "restart")
+            {
+                RestartApp();
+            }
         }
         else
         { // API

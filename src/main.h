@@ -41,3 +41,5 @@ inline void SetPref(Pref key, bool value)
 {
     g_prefs.set(static_cast<size_t>(key), value);
 }
+
+void RestartApp();

@@ -1,0 +1,86 @@
+site_name: Octos Docs
+site_url: https://underpig1.github.io/octos/docs/
+repo_url: https://github.com/underpig1/octos
+edit_uri: tree/master/docs
+theme:
+  name: material
+  palette:
+    - scheme: slate
+      primary: black
+      accent: custom
+  favicon: img/icon.ico
+  logo: img/icon.ico
+  font:
+    text: Roboto
+    code: Roboto Mono
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - search.suggest
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.indexes
+    - toc.follow
+    - search.highlight
+    - navigation.footer
+    - content.action.edit
+plugins:
+  - search
+  # - git-revision-date-localized:
+  #     fallback_to_build_date: false
+  - git-revision-date-localized
+extra_css:
+  - stylesheets/extra.css
+  - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css
+extra:
+  analytics:
+    provider: google
+    property: G-MTNS79FQ24
+    feedback:
+      title: Was this page helpful?
+      ratings:
+        - icon: octicons/thumbsup-24
+          name: This page was helpful
+          data: 1
+          note: >-
+            Thanks for your feedback!
+        - icon: octicons/thumbsdown-24
+          name: This page could be improved
+          data: 0
+          note: >- 
+            Thanks for your feedback! Help us improve this page by
+            submitting an <a href="https://github.com/underpig1/octos/issues/new" target="_blank" rel="noopener">issue</a>.
+  social:
+    - icon: fontawesome/brands/github 
+      link: https://github.com/underpig1/octos
+    - icon: fontawesome/brands/npm 
+      link: https://www.npmjs.com/package/octos
+copyright: Copyright &copy; 2025 underpig1
+nav:
+  - Home:
+    - README.md
+    - Installation: home/installation
+  - Guides:
+    - Using the API: guides/api
+  - API Reference:
+      - reference/index.md
+      - MediaController: reference/mediacontroller.md
+      - MonitorBridge: reference/monitorbridge.md
+      - System: reference/system.md
+      - UserOptions: reference/useroptions.md
+  - About: about.md
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      use_pygments: false
+      auto_title: true
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+extra_javascript:
+  - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js
+  - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js
+  - js/extra.js

@@ -1,12 +1,13 @@
 import { Interface } from './Interface.js'
 
 /**
- * @class
+ * @class UserOptions
+ * @description
  * Handle events relating to changes in user options for your mod.
  * 
  * User options are defined in the [`options` object in your octos.json file](config.md#options), and are configurable by users in the Octos app:
  * 
- * <img height="300px" src="_media/user-options.png" aria-hidden />
+ * <img width=200 src="../../img/user-options.png" aria-hidden />
  */
 class UserOptions extends Interface {
     constructor() {

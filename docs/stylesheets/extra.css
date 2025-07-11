@@ -1,0 +1,53 @@
+:root>* {
+    --octos: #ff3030;
+    --md-accent-fg-color: var(--octos);
+
+    /* --md-code-fg-color: var(--octos); */
+    /* --md-code-hl-color: var(--octos); */
+    /* --md-typeset-color: var(--octos); */
+    --md-typeset-a-color: var(--octos) !important;
+    --md-footer-fg-color: var(--octos);
+    --scrollbar-highlight-color: gray !important;
+    /* --md-default-fg-color--lighter: white; */
+
+    --md-text-font: "Segoe UI", "Roboto", sans-serif;
+}
+
+.md-main a,
+.md-tabs__link {
+    position: relative;
+}
+
+.md-main a span::after, .md-main a:not(:has(span))::after, .md-tabs__link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 1px;
+    width: 0;
+    border-bottom: 1px solid currentColor;
+    transition: width 0.1s ease, left 0.1s ease;
+    left: 50%;
+}
+
+.md-main a span:hover::after,
+.md-main a:not(:has(span)):hover::after, .md-tabs__link:hover::after {
+    width: 100%;
+    left: 0;
+}
+
+* {
+    scrollbar-color: darkgray #0000 !important;
+}
+
+/* h1 {
+    font-weight: 700 !important;
+}
+
+h2 {
+    font-weight: 600 !important;
+}
+
+h3 {
+    font-weight: 500 !important;
+} */

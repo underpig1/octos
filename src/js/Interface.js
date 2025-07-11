@@ -1,5 +1,5 @@
 /**
- * @class
+ * @class Interface
  * Interface with a host WebView2 instance.
  * @ignore
  */

@@ -1,7 +1,8 @@
 import { Interface } from './Interface.js'
 
 /**
- * @class
+ * @class MonitorBridge
+ * @description
  * Send and recieve messages between instances of your wallpaper across monitors if your wallpaper is running in a multimonitor environment.
  * Each instance of your wallpaper is assigned to a unique monitor and thus has a unique monitor ID string (something like `"\\\\.\\DISPLAY1"`). You can use these IDs to send messages between separate instances of your wallpaper.
  * This is useful for coordinating events between different instances if you want your mod to behave differently across monitors.
