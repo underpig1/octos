@@ -240,6 +240,33 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
             {
                 RestartApp();
             }
+            else if (type == "select-folder")
+            {
+                std::wstring sendJson = SelectFolderAndGetConfigAsJsonString();
+                if (!sendJson.empty())
+                    DispatchJson(sendJson);
+                else
+                    RaiseErrorBox(L"Could not open folder", L"Failed to open selected folder. Please try again.");
+            }
+            else if (type == "request-config")
+            {
+                if (j.contains("folderPath") && j["folderPath"].is_string())
+                {
+                    std::string folderPath = j["folderPath"];
+                    std::wstring sendJson = GetConfigFromFolderAsJsonString(to_wstring(folderPath));
+                    if (!sendJson.empty())
+                        DispatchJson(sendJson);
+                }
+            }
+            else if (type == "dump-config")
+            {
+                if (j.contains("configPath") && j["configPath"].is_string()
+            && j.contains("data") && j["data"].is_object())
+                {
+                    std::string configPath = j["configPath"];
+                    DumpConfig(to_wstring(configPath), j["data"]);
+                }
+            }
         }
         else
         { // API

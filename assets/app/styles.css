@@ -800,12 +800,22 @@ label>p {
     height: 100%;
 }
 
+#develop-card-description {
+    display: flex;
+    flex-direction: column;
+}
+
 #develop-tab.developing .develop-main {
-    display: block;
+    display: flex;
 }
 
 #develop-tab.developing #develop-intro {
     display: none;
+}
+
+.card-edit {
+    cursor: pointer;
+    margin-left: 5px;
 }
 
 .card-options>label {
@@ -1012,8 +1022,8 @@ label>p {
     position: relative;
     background-color: #202020ff;
     border-radius: 10px;
-    width: calc(100% - 245px);
-    height: 97%;
+    height: 100%;
+    flex: 1;
     float: left;
     box-shadow: 0 0 5px #000000aa;
 }
@@ -1057,7 +1067,7 @@ label>p {
     display: none;
 }
 
-#modules-card-description.empty>#set-wallpaper {
+#modules-card-description.empty>.set-wallpaper {
     position: static !important;
     width: 100% !important;
 }
@@ -1153,6 +1163,8 @@ label>p {
 .modal-buttons {
     display: flex;
     gap: 10px;
+    float: left;
+    width: 100%;
 }
 
 .modal-buttons>button {
@@ -1186,10 +1198,10 @@ button.inactive {
     height: 25px;
     width: 100%;
     padding: 15px 8px;
-    margin-top: 3px;
-    margin-bottom: 25px;
-    border: 3px solid #404040ff;
-    background-color: #404040ff;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border: 1px solid var(--button-border-color);
+    background-color: var(--button-color);
     border-radius: 4px;
     color: white;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -1260,6 +1272,12 @@ input[type="range"]:focus {
     width: 22px;
     cursor: pointer;
     z-index: 2;
+}
+
+.develop-options-label {
+    color: #a0b0b0ff;
+    font-size: 9pt;
+    margin-bottom: 15px;
 }
 
 #layout-console {

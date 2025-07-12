@@ -27,5 +27,8 @@ void DumpPrefs(const nlohmann::json prefs);
 void RemoveWallpaper(std::wstring folderPath);
 bool DownloadWallpaper(const std::wstring url);
 void LoadAndHandleAppPrefs();
+std::wstring SelectFolderAndGetConfigAsJsonString();
+std::wstring GetConfigFromFolderAsJsonString(std::wstring dirPath);
+void DumpConfig(std::wstring path, json data);
 
     extern std::vector<ConfigParams> g_allParams;

@@ -162,6 +162,8 @@ void OnWebViewControllerCreated(
                 // webview->PostWebMessageAsJson((L"{ \"type\": \"loaded\", \"entryPath\":\"" + htmlPath + L"\"}").c_str());
                 if (hwnd != app_hwnd)
                     HandleOnHwndLoadMessage(hwnd);
+                else
+                    webview->OpenDevToolsWindow();
                 return S_OK;
             })
             .Get(),
@@ -198,8 +200,6 @@ void AttachWebViewController(HWND hwnd, const std::wstring &htmlPath)
 
                                                                *controller = ctrl;
                                                                (*controller)->get_CoreWebView2(webview->put());
-
-                                                               (*webview)->OpenDevToolsWindow();
 
                                                                // initialize WebViewData
                                                                WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));

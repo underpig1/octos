@@ -7,7 +7,6 @@
 #include "Storage/Storage.h"
 #include "Bridge/Bridge.h"
 #include "API/Media.h"
-#include "CLI/CLI.h"
 
 const wchar_t CLASS_NAME[] = L"OctosWorker";
 HINSTANCE g_hInstance;
@@ -238,7 +237,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
     freopen("CONOUT$", "w", stderr);
     freopen("CONIN$", "r", stdin);
 
-    ParseCommandLineArgs();
     LoadAndHandleAppPrefs();
     InitializeWebViewEnvironment();
     RegisterWndClass(hInstance);

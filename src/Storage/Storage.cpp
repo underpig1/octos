@@ -251,6 +251,84 @@ ConfigParams ReadConfig(fs::path path)
     return params;
 }
 
+fs::path GetFolderConfigPath(fs::directory_entry path)
+{
+    fs::path configPath = path.path() / L"octos.json";
+    if (!fs::exists(configPath))
+        configPath = path.path() / L"mod.json";
+    return configPath;
+}
+
+json GetRawFolderConfig(fs::directory_entry path)
+{
+    fs::path configPath = GetFolderConfigPath(path);
+    if (fs::exists(configPath))
+    {
+        json j;
+        if (ReadJsonFile(configPath, j))
+        {
+            return j;
+        }
+    }
+    return json{};
+}
+
+void DumpConfig(std::wstring path, json data)
+{
+    DumpJson(path, data);
+}
+
+ConfigParams GetFolderConfigParams(fs::directory_entry path)
+{
+    std::wstring name = path.path().filename().wstring();
+    ConfigParams params;
+    fs::path configPath = GetFolderConfigPath(path);
+    if (fs::exists(configPath))
+    {
+        params = ReadConfig(configPath);
+        params.configPath = configPath.wstring();
+    }
+    if (params.name.empty())
+        params.name = name;
+    else
+        name = params.name;
+    if (params.entryPath.empty())
+    {
+        std::wstring entryCandidate = L"";
+        for (const auto &file : fs::directory_iterator(path))
+        {
+            if (file.is_regular_file())
+            {
+                if (file.path().extension() == L".html")
+                {
+                    bool isIndex = file.path().filename() == L"index.html";
+                    if (entryCandidate.empty() || isIndex)
+                        entryCandidate = file.path().filename().wstring();
+                    if (isIndex)
+                        break;
+                }
+            }
+        }
+        if (entryCandidate.empty())
+            params.entryPath = L"";
+        else
+            params.entryPath = AddFileScheme(fs::path(path) / NormalizePath(entryCandidate));
+
+        wprintf(L"\n--- ConfigParams ---\n");
+        wprintf(L"Author      : %s\n", params.author.c_str());
+        wprintf(L"Name        : %s\n", params.name.c_str());
+        wprintf(L"Description : %s\n", params.description.c_str());
+        wprintf(L"Folder Path : %s\n", params.folderPath.c_str());
+        wprintf(L"Config Path : %s\n", params.configPath.c_str());
+        wprintf(L"Image Path  : %s\n", params.imagePath.c_str());
+        wprintf(L"Entry Path  : %s\n", params.entryPath.c_str());
+        wprintf(L"Options     : %s\n", params.options.c_str());
+        wprintf(L"---------------------\n");
+    }
+    params.folderPath = path.path().wstring();
+    return params;
+}
+
 std::vector<ConfigParams> IterateWallpapersDir()
 {
     wprintf(L"\nTERATING WALLPAPERS\n\n");
@@ -261,54 +339,7 @@ std::vector<ConfigParams> IterateWallpapersDir()
         {
             if (entry.is_directory())
             {
-                std::wstring name = entry.path().filename().wstring();
-                fs::path configPath = entry.path() / L"octos.json";
-                ConfigParams params;
-                if (!fs::exists(configPath))
-                    configPath = entry.path() / L"mod.json";
-                if (fs::exists(configPath))
-                {
-                    params = ReadConfig(configPath);
-                    params.configPath = configPath.wstring();
-                }
-                if (params.name.empty())
-                    params.name = name;
-                else
-                    name = params.name;
-                if (params.entryPath.empty())
-                {
-                    std::wstring entryCandidate = L"";
-                    for (const auto &file : fs::directory_iterator(entry))
-                    {
-                        if (file.is_regular_file())
-                        {
-                            if (file.path().extension() == L".html")
-                            {
-                                bool isIndex = file.path().filename() == L"index.html";
-                                if (entryCandidate.empty() || isIndex)
-                                    entryCandidate = file.path().filename().wstring();
-                                if (isIndex)
-                                    break;
-                            }
-                        }
-                    }
-                    if (entryCandidate.empty())
-                        params.entryPath = L"";
-                    else
-                        params.entryPath = AddFileScheme(fs::path(entry) / NormalizePath(entryCandidate));
-
-                    wprintf(L"\n--- ConfigParams ---\n");
-                    wprintf(L"Author      : %s\n", params.author.c_str());
-                    wprintf(L"Name        : %s\n", params.name.c_str());
-                    wprintf(L"Description : %s\n", params.description.c_str());
-                    wprintf(L"Folder Path : %s\n", params.folderPath.c_str());
-                    wprintf(L"Config Path : %s\n", params.configPath.c_str());
-                    wprintf(L"Image Path  : %s\n", params.imagePath.c_str());
-                    wprintf(L"Entry Path  : %s\n", params.entryPath.c_str());
-                    wprintf(L"Options     : %s\n", params.options.c_str());
-                    wprintf(L"---------------------\n");
-                }
-                params.folderPath = entry.path().wstring();
+                ConfigParams params = GetFolderConfigParams(entry);
                 if (!params.entryPath.empty())
                     allParams.push_back(params);
             }
@@ -347,43 +378,91 @@ std::wstring IterateWallpapersAsJsonString()
     return jsonString;
 }
 
-bool SelectAndInstallWallpaper()
+std::wstring SelectFolderAndGetConfigAsJsonString()
 {
-    HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
     std::wstring result;
+    IFileOpenDialog *pFileOpen = nullptr;
+    HRESULT hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL,
+                                  IID_IFileOpenDialog, reinterpret_cast<void **>(&pFileOpen));
     if (SUCCEEDED(hr))
     {
-        IFileOpenDialog *pFileOpen = nullptr;
-        hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL,
-                              IID_IFileOpenDialog, reinterpret_cast<void **>(&pFileOpen));
+        pFileOpen->SetOptions(FOS_PICKFOLDERS | FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST);
+        HRESULT hr = pFileOpen->Show(NULL);
         if (SUCCEEDED(hr))
         {
-            COMDLG_FILTERSPEC zipFilter[] = {
-                {L"ZIP Archives", L"*.zip"},
-                {L"All Files", L"*.*"}};
-            pFileOpen->SetFileTypes(ARRAYSIZE(zipFilter), zipFilter);
-            pFileOpen->SetOptions(FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_FILEMUSTEXIST);
-
-            HRESULT hr = pFileOpen->Show(NULL);
-            if (SUCCEEDED(hr))
+            IShellItem *pItem;
+            if (SUCCEEDED(pFileOpen->GetResult(&pItem)))
             {
-                IShellItem *pItem;
-                if (SUCCEEDED(pFileOpen->GetResult(&pItem)))
+                PWSTR pszFilePath = nullptr;
+                if (SUCCEEDED(pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath)))
                 {
-                    PWSTR pszFilePath = nullptr;
-                    if (SUCCEEDED(pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath)))
-                    {
-                        result = pszFilePath;
-                        CoTaskMemFree(pszFilePath);
-                    }
-                    pItem->Release();
+                    result = pszFilePath;
+                    CoTaskMemFree(pszFilePath);
                 }
+                pItem->Release();
             }
-            else if (hr == HRESULT_FROM_WIN32(ERROR_CANCELLED))
-                return NULL;
-            pFileOpen->Release();
         }
-        CoUninitialize();
+        else if (hr == HRESULT_FROM_WIN32(ERROR_CANCELLED))
+            return NULL;
+
+        pFileOpen->Release();
+    }
+    if (!result.empty())
+    {
+        fs::path dirPath = result;
+        if (fs::exists(dirPath) && fs::is_directory(dirPath))
+        {
+            return GetConfigFromFolderAsJsonString(dirPath);
+        }
+    }
+}
+
+std::wstring GetConfigFromFolderAsJsonString(std::wstring dirPath)
+{
+    if (fs::exists(dirPath) && fs::is_directory(dirPath))
+    {
+        ConfigParams params = GetFolderConfigParams(fs::directory_entry(dirPath));
+        json sendJson = {
+            {"type", "config-data"},
+            {"data", json::parse(ParamsAsJsonString(params))}};
+        sendJson["data"]["config"] = GetRawFolderConfig(fs::directory_entry(dirPath));
+        std::wstring jsonString = to_wstring(sendJson.dump());
+        return jsonString;
+    }
+}
+
+bool SelectAndInstallWallpaper()
+{
+    std::wstring result;
+    IFileOpenDialog *pFileOpen = nullptr;
+    HRESULT hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL,
+                                  IID_IFileOpenDialog, reinterpret_cast<void **>(&pFileOpen));
+    if (SUCCEEDED(hr))
+    {
+        COMDLG_FILTERSPEC zipFilter[] = {
+            {L"ZIP Archives", L"*.zip"},
+            {L"All Files", L"*.*"}};
+        pFileOpen->SetFileTypes(ARRAYSIZE(zipFilter), zipFilter);
+        pFileOpen->SetOptions(FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_FILEMUSTEXIST);
+
+        HRESULT hr = pFileOpen->Show(NULL);
+        if (SUCCEEDED(hr))
+        {
+            IShellItem *pItem;
+            if (SUCCEEDED(pFileOpen->GetResult(&pItem)))
+            {
+                PWSTR pszFilePath = nullptr;
+                if (SUCCEEDED(pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath)))
+                {
+                    result = pszFilePath;
+                    CoTaskMemFree(pszFilePath);
+                }
+                pItem->Release();
+            }
+        }
+        else if (hr == HRESULT_FROM_WIN32(ERROR_CANCELLED))
+            return NULL;
+        pFileOpen->Release();
     }
     bool succeeded = false;
     if (!result.empty())
@@ -493,13 +572,21 @@ void HandlePrefsChange(const json prefs)
     }
 }
 
+void DumpJson(const fs::path path, const json j)
+{
+    if (!fs::is_directory(path) && path.extension().wstring() == L"json")
+    {
+        std::ofstream out(path);
+        if (!out)
+            return;
+        out << j.dump();
+    }
+}
+
 void DumpPrefs(const json prefs)
 {
     const fs::path prefsPath = GetPrefsPath();
-    std::ofstream out(prefsPath);
-    if (!out)
-        return;
-    out << prefs.dump();
+    DumpJson(prefsPath, prefs);
     HandlePrefsChange(prefs);
 }
 

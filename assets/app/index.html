@@ -92,7 +92,7 @@
             </div>
             <div class="nav-item" id="explore" onclick="setContent(this)"><img src="img/explore.png" title="Explore mods"></div>
             <div class="nav-item" id="modules" onclick="setContent(this)"><img src="img/modules.png" title="Installed mods"></div>
-            <!-- <div class="nav-item" id="develop" onclick="setContent(this)"><img src="img/develop.png" title="Developer menu"></div> -->
+            <div class="nav-item" id="develop" onclick="setContent(this)"><img src="img/develop.png" title="Developer menu"></div>
             <div class="nav-item" id="settings" onclick="setContent(this)"><img src="img/settings.png" title="Preferences"></div>
         </div>
         <div class="content">
@@ -110,7 +110,7 @@
                     </div>
                 </div>
             </div>
-            <div class="tab-content active" id="modules-tab">
+            <div class="tab-content" id="modules-tab">
                 <a id="modules-empty" onclick="uploadMod()">Looks like you don't have any mods installed. Click here to install a mod from a .zip file.</a>
                 <div class="scrollbox" id="modules-scrollbox"></div>
                 <div class="sidebar">
@@ -127,12 +127,12 @@
                     </div>
                 </div>
             </div>
-            <div class="tab-content" id="develop-tab">
+            <div class="tab-content active" id="develop-tab">
                 <div id="develop-intro">
                     <h1>Mod creator</h1>
                     <p style="margin-top: 2px;">Welcome to the developer menu! Here you can find tools and information in order to create your own awesome mods.</p>
                     <button class="outline-button" onclick="developNew()" style="margin-top: 12px; margin-bottom: 10px;">Create new mod</button>
-                    <a onclick="developFile()">Edit from mod existing folder</a>
+                    <a onclick="openDevelopFolder()">Edit from mod existing folder</a>
                 </div>
                 <div class="develop-main">
                     <div class="layout">
@@ -144,7 +144,24 @@
                             <img class="develop-button" src="img/debug.png" title="Debug" onclick="debugMod()">
                         </div>
                     </div>
-                    <div class="sidebar" style="padding: 0 10px; margin-right: 10px;">
+                    <div class="sidebar">
+                        <div id="develop-card-description" class="card-description">
+                            <h1 class="title"><span class="edit-content title-content" field="name">Ethereal</span><img class="card-edit" src="img/edit.png" width="15px" onclick="editThis(this)" /></h1>
+                            <h2 class="author">By <a class="edit-content author-content" field="author">Octos</a><img class="card-edit" src="img/edit.png" width="12px" onclick="editThis(this)" /></h2>
+                            <p class="description"><span class="edit-content description-content" field="description">Created in the depths of hell, this wallpaper was designed with designs that show
+                                multiple entities.</span><img class="card-edit" src="img/edit.png" width="12px" onclick="editThis(this)" /></p>
+                            <hr style="width: 100%; margin-top: 0;" />
+                            <label class="develop-options-label"><span class="develop-options-label-content">Mod options</span><img class="card-edit" src="img/edit.png" width="12px" onclick="editThis(this)" /></label>
+                            <div class="card-options" id="develop-options"></div>
+                            <div class="bottom-matter">
+                                <!-- <a id="restore-preferences" onclick="restorePreferences()">Restore default
+                                                    mod options</a> -->
+                                <button onclick="selectFocusedCard()" class="set-wallpaper">Set as Wallpaper</button>
+                                <button onclick="selectFocusedCard()">Open Folder</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- <div class="sidebar" style="padding: 0 10px; margin-right: 10px;">
                         <div class="develop-metadata">
                             <h3 class="subheader" style="margin-top: 0;">Metadata</h3>
                             <h1 class="title" style="margin-bottom: -4px;"><span id="develop-name">Ethereal</span><img class="card-remove" src="img/edit.png" onclick="renameMod()"></h1>
@@ -169,7 +186,7 @@
                             <button class="secondary-button" onclick="buildMod()">Build and share</button>
                             <button class="secondary-button" onclick="openDocumentation()">Documentation</button>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             <div class="tab-content" id="settings-tab">
@@ -279,7 +296,8 @@
             <img />
             <h1 class="modal-title">Remove mod</h1>
             <p class="modal-description">Cannot undo</p>
-            <input class="modal-textbox" type="text" placeholder="Type here...">
+            <input class="modal-textbox" type="text" placeholder="Type here..." onkeydown="
+            (() => {if (event.key === 'Enter') modalResponse(true)})()">
             <div class="modal-buttons">
                 <button class="cancel" onclick="modalResponse(false)">Cancel</button>
                 <button class="ok" onclick="modalResponse(true)">OK</button>

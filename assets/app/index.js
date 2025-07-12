@@ -122,6 +122,8 @@ window.chrome.webview.addEventListener('message', (e) => {
         handleRequest(msg);
     else if (msg.type == 'command')
         handleCommand(msg);
+    else if (msg.type == 'config-data')
+        handleConfigData(msg.data);
 });
 
 // MOD DATA
@@ -313,7 +315,7 @@ function setContent(el) {
 
     var title = document.getElementById("title");
     title.style.opacity = 0;
-    const nameMap = { "explore": "Gallery", "modules": "Library", "settings": "Preferences" }
+    const nameMap = { "explore": "Gallery", "modules": "Library", "develop": "Create", "settings": "Preferences" }
     setTimeout(() => title.textContent = nameMap[name], 100);
     setTimeout(() => title.style.opacity = 1, 100);
 
@@ -748,9 +750,10 @@ function setCardDescription(prefix = "explore", title = "", author = "", descrip
 }
 
 // CARD OPTIONS
-function createInput(options, id) {
+function createInput(options, id, cardOptions = null) {
     console.log('creating input from ', options)
-    const cardOptions = document.getElementById("card-options");
+    if (!cardOptions)
+        cardOptions = document.getElementById("card-options");
     var type = options.type;
     var getter = () => null;
     if (!type) type = "checkbox";
@@ -823,13 +826,17 @@ function updateFileInput(el) {
         p.style.setProperty('--after-content', `''`);
 }
 
-function setCardOptions(json) {
-    const cardOptions = document.getElementById("card-options");
+function setCardOptions(json, cardOptions = null) {
+    const settingForDevelop = cardOptions != null;
+    if (!cardOptions)
+        cardOptions = document.getElementById("card-options");
     cardOptions.innerHTML = "";
     inputGetters = {};
     var candidates = [];
-    for (var id of Object.keys(json))
-        candidates.push(createInput(json[id], id));
+    for (var id of Object.keys(json)) {
+        const newInput = createInput(json[id], id, cardOptions);
+        candidates.push(newInput);
+    }
     if (candidates.every(x => !x)) {
         const cardDescription = document.getElementById(activeTab + "-card-description");
         cardDescription.classList.add("empty");
@@ -873,11 +880,13 @@ function setCardOptions(json) {
         window.addEventListener('resize', handleCardOptionScrollShadows);
         handleCardOptionScrollShadows();
 
-        const restorePrefs = document.createElement('a')
-        restorePrefs.setAttribute('id', 'restore-preferences')
-        restorePrefs.onclick = restoreModOptions
-        restorePrefs.innerText = 'Restore default mod options'
-        cardOptions.appendChild(restorePrefs);
+        if (!settingForDevelop) {
+            const restorePrefs = document.createElement('a')
+            restorePrefs.setAttribute('id', 'restore-preferences')
+            restorePrefs.onclick = restoreModOptions
+            restorePrefs.innerText = 'Restore default mod options'
+            cardOptions.appendChild(restorePrefs);
+        }
     }
 }
 
@@ -900,6 +909,8 @@ function restoreModOptions() {
 }
 
 function updateCardOptions() {
+    if (activeTab != "modules")
+        return;
     const id = focusedIds.modules;
     if (id) {
         const modData = userPrefs.modData[id];
@@ -922,7 +933,7 @@ function updateCardOptions() {
                     }
                 }
             }
-            dumpUserPrefs()
+            dumpUserPrefs();
         }
     }
 }
@@ -1036,6 +1047,8 @@ function handleRecieveUserPrefs(msg) {
             else el.value = userPrefs.appOptions[el.id];
         }
     }
+
+    initDevelop();
 }
 
 // EXPLORE
@@ -1114,4 +1127,90 @@ function populateExplore() {
             })();
         })
         .catch(err => console.error('Failed to load index:', err));
+}
+
+// DEVELOP
+function openDevelopFolder() {
+    window.chrome.webview.postMessage({ type: 'select-folder' });
+}
+
+function developNew() {
+
+}
+
+function initDevelop() {
+    if (!userPrefs.developMod) {
+        document.getElementById('develop-tab').classList.remove('developing');
+        window.chrome.webview.postMessage({ type: 'select-folder' });
+    }
+    else {
+        const folderPath = userPrefs.developMod.folderPath;
+        if (folderPath)
+            window.chrome.webview.postMessage({ type: 'request-config', folderPath });
+    }
+}
+
+function exitDevelop() {
+    delete userPrefs.developMod;
+    document.getElementById('develop-tab').classList.remove('developing');
+    dumpUserPrefs();
+}
+
+function dumpConfig() {
+    const modData = userPrefs.developMod;
+    if (modData) {
+        window.chrome.webview.postMessage({ type: 'dump-config', 'configPath': modData.configPath, 'data': modData.config});
+    }
+}
+
+function handleConfigData(modData) {
+    userPrefs.developMod = modData;
+    document.getElementById('develop-tab').classList.add('developing');
+    setDevelopDescription(modData);
+    dumpUserPrefs();
+}
+
+function setDevelopDescription(modData) {
+    const developDescription = document.getElementById('develop-card-description');
+    const optionsLabel = developDescription.querySelector('.develop-options-label-content')
+    if (modData.options) {
+        setCardOptions(modData.options, document.getElementById('develop-options'));
+        optionsLabel.innerText = "Mod options";
+    }
+    developDescription.querySelector('.description-content').innerText = modData.description || "Add a description.";
+    developDescription.querySelector('.author-content').innerText = modData.author || "Author";
+    developDescription.querySelector('.title-content').innerText = modData.name || "Mod Name";
+    const button = developDescription.querySelector('.set-wallpaper');
+    var buttonDisabled = true;
+    for (const monitorId of monitorIds) {
+        if (userPrefs[monitorId] == modData.folderPath) {
+            buttonDisabled = false;
+            break;
+        }
+    }
+    if (buttonDisabled) {
+        button.classList.add('unset');
+        button.innerText = 'Unset Wallpaper';
+    }
+    else {
+        button.classList.remove('unset');
+        button.innerText = 'Set as Wallpaper';
+    }
+}
+
+function editThis(el) {
+    const content = el.parentNode.querySelector('.edit-content');
+    if (content) {
+        const field = content.getAttribute('field');
+        if (field) {
+            modalDialog('Edit ' + field, '', content.innerText);
+            modalListener = (state, text) => {
+                if (state) {
+                    userPrefs.developMod.config[field] = text;
+                    content.innerText = text;
+                    dumpDevelopConfig();
+                }
+            }
+        }
+    }
 }
