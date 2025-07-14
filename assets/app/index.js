@@ -127,6 +127,8 @@ window.chrome.webview.addEventListener('message', (e) => {
         handleCommand(msg);
     else if (msg.type == 'config-data')
         handleConfigData(msg.data);
+    else if (msg.type == 'preview')
+        handleOnPreview();
 });
 
 // MOD DATA
@@ -234,11 +236,14 @@ function handleCommand(msg) {
     }
 }
 
-function unsetByMonitorId(monitorId) {
-    delete userPrefs.selected[monitorId]
-    window.chrome.webview.postMessage({ type: 'set-wallpaper', 'monitor-id': monitorId, 'url': '' });
-    updateMonitorIndicators();
-    updateCardDescription();
+function unsetByMonitorId(monitorId, send = true) {
+    if (userPrefs.selected[monitorId]) {
+        delete userPrefs.selected[monitorId]
+        if (send)
+        window.chrome.webview.postMessage({ type: 'set-wallpaper', 'monitor-id': monitorId, 'url': '' });
+        updateMonitorIndicators();
+        updateCardDescription();
+    }
 }
 
 // INITIALIZATION SCRIPT
@@ -1407,4 +1412,11 @@ function initEditor() {
         });
         resizeObserver.observe(container);
     });
+}
+
+// PREVIEW
+function handleOnPreview() {
+    for (const monitorId of Object.keys(userPrefs.selected)) {
+        unsetByMonitorId(monitorId, false);
+    }
 }

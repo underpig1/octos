@@ -11,8 +11,12 @@
 #define WM_TRAYICON (WM_USER + 3)
 #define WM_CLOSEAPP (WM_USER + 4)
 #define WM_DISPATCHJSON (WM_USER + 5)
+#define WM_RESTOREMAINWINDOW (WM_USER + 6)
+#define WM_OPENDEVTOOLS (WM_USER + 7)
 
-extern const wchar_t CLASS_NAME[];
+#define CLASS_NAME L"OctosWorker"
+#define GLOBAL_MUTEX_NAME L"Global\\OctosMutex"
+
 extern HINSTANCE g_hInstance;
 extern HWND app_hwnd;
 extern bool g_appHwndAttached;
@@ -20,6 +24,8 @@ extern HICON g_hIcon;
 
 extern std::mutex app_hwnd_mutex;
 extern std::condition_variable app_hwnd_cv;
+extern std::mutex all_hwnd_mutex;
+extern std::condition_variable all_hwnd_cv;
 
 enum Pref
 {

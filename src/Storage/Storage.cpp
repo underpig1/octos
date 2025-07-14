@@ -1,5 +1,4 @@
 #include <Shlwapi.h>
-#include <filesystem>
 #include <vector>
 #include <shlobj.h>
 #include <shobjidl.h>
@@ -14,8 +13,6 @@
 #include "../main.h"
 #include "../TrayIcon/TrayIcon.h"
 
-namespace fs = std::filesystem;
-using json = nlohmann::json;
 std::vector<ConfigParams> g_allParams;
 
 std::wstring to_wstring(const std::string &utf8str)
@@ -479,18 +476,19 @@ std::wstring SelectFolderToCreateWallpaper()
     return L"";
 }
 
-std::wstring GetConfigFromFolderAsJsonString(std::wstring dirPath)
+std::wstring GetConfigFromFolderAsJsonString(std::wstring dirPath, std::string type)
 {
     if (fs::exists(dirPath) && fs::is_directory(dirPath))
     {
         ConfigParams params = GetFolderConfigParams(fs::directory_entry(dirPath));
         json sendJson = {
-            {"type", "config-data"},
+            {"type", type},
             {"data", json::parse(ParamsAsJsonString(params))}};
         sendJson["data"]["config"] = GetRawFolderConfig(fs::directory_entry(dirPath));
         std::wstring jsonString = to_wstring(sendJson.dump());
         return jsonString;
     }
+    return L"";
 }
 
 bool SelectAndInstallWallpaper()

@@ -115,6 +115,17 @@ void ReloadAllWindows()
     }
 }
 
+void RestoreMainWindow()
+{
+    if (IsIconic(app_hwnd))
+        ShowWindow(app_hwnd, SW_RESTORE);
+    else
+        ReattachMainWindow();
+    SetForegroundWindow(app_hwnd);
+    SetWindowPos(app_hwnd, HWND_TOP, 0, 0, 0, 0,
+                 SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+}
+
 void CreateMonitorWindow(HMONITOR hMon)
 {
     HWND hwnd = CreateWallpaperWindow(defaultHtmlPath);
@@ -126,10 +137,46 @@ void CreateMonitorWindow(HMONITOR hMon)
 
 void InitializeWallpaperWindows()
 {
+    std::lock_guard<std::mutex> lock(all_hwnd_mutex);
     EnumDisplayMonitors(nullptr, nullptr, [](HMONITOR hMon, HDC, LPRECT, LPARAM lParam) -> BOOL
                         {
         CreateMonitorWindow(hMon);
         return TRUE; }, NULL);
+    all_hwnd_cv.notify_all();
+}
+
+void WaitForMainWindowAndCallback(std::function<void()> callback)
+{
+    if (!IsWindow(app_hwnd))
+        std::thread([callback]()
+                    {
+            std::unique_lock<std::mutex> lock(app_hwnd_mutex);
+            bool ready = app_hwnd_cv.wait_for(lock, std::chrono::seconds(2), []()
+                                              { return app_hwnd != nullptr && IsWindow(app_hwnd); });
+            if (ready)
+            {
+                callback();
+            } })
+            .detach();
+    else
+        callback();
+}
+
+void WaitForWallpaperWindowsAndCallback(std::function<void()> callback)
+{
+    if (ms.empty())
+        std::thread([callback]()
+                    {
+            std::unique_lock<std::mutex> lock(all_hwnd_mutex);
+            bool ready = all_hwnd_cv.wait_for(lock, std::chrono::seconds(2), []()
+                                              { return !ms.empty(); });
+            if (ready)
+            {
+                callback();
+            } })
+            .detach();
+    else
+        callback();
 }
 
 HWND CreateMainWindow()
@@ -253,6 +300,7 @@ std::wstring FindMonitorIdByHwnd(HWND hwnd)
             }
         }
     }
+    return L"";
 }
 
 void NavigateWallpaperByMonitorId(std::wstring monitorId, std::wstring url)

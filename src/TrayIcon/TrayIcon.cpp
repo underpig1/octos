@@ -74,13 +74,7 @@ void ShowTrayMenu()
 
     if (cmd == 1)
     {
-        if (IsIconic(app_hwnd))
-            ShowWindow(app_hwnd, SW_RESTORE);
-        else
-            ReattachMainWindow();
-        SetForegroundWindow(app_hwnd);
-        SetWindowPos(app_hwnd, HWND_TOP, 0, 0, 0, 0,
-                     SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+        RestoreMainWindow();
     }
     else if (cmd == 2)
         ReleaseMainWindow();

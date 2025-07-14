@@ -352,7 +352,10 @@ void OpenDevTools(HWND hwnd)
 {
     WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
     if (data && data->webview)
+    {
+        wprintf(L"\n\nWE OPENING THE DEVTOOLS\n");
         data->webview->OpenDevToolsWindow();
+    }
 }
 
 void SetWebViewVisibility(HWND hwnd, bool visible)

@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <vector>
 #include <string>
+#include <functional>
 
 struct MonitorWindow
 {
@@ -34,3 +35,6 @@ MonitorWindow *FindMonitorWindowById(const std::wstring monitorId);
 std::wstring FindMonitorIdByHwnd(HWND hwnd);
 std::vector<std::wstring> GetSiblingMonitorIds(HWND hwnd);
 void ReloadAllWindows();
+void RestoreMainWindow();
+void WaitForMainWindowAndCallback(std::function<void()> callback);
+void WaitForWallpaperWindowsAndCallback(std::function<void()> callback);

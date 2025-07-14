@@ -257,7 +257,7 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
                 if (j.contains("folderPath") && j["folderPath"].is_string())
                 {
                     std::string folderPath = j["folderPath"];
-                    std::wstring sendJson = GetConfigFromFolderAsJsonString(to_wstring(folderPath));
+                    std::wstring sendJson = GetConfigFromFolderAsJsonString(to_wstring(folderPath), "config-data");
                     if (!sendJson.empty())
                         DispatchJson(sendJson);
                 }
@@ -315,24 +315,23 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
     }
 }
 
+void WaitForMainWindowAndDispatch(std::wstring message)
+{
+    if (message.empty())
+        return;
+    WaitForMainWindowAndCallback([message]() {
+        PostMessage(app_hwnd, WM_USER + 5, 0, (LPARAM) new std::wstring(message));
+    });
+}
+
 void HandleOnHwndLoadMessage(HWND hwnd)
 {
     if (!IsWindow(hwnd))
         return;
-    std::thread([hwnd]()
-                {
-        std::unique_lock<std::mutex> lock(app_hwnd_mutex);
-        bool ready = app_hwnd_cv.wait_for(lock, std::chrono::seconds(2), [hwnd]()
-                                          { return app_hwnd != nullptr && IsWindow(app_hwnd); });
-        if (ready)
-        {
-            std::wstring monitorId = FindMonitorIdByHwnd(hwnd);
-            json msg = {
-                {"type", "wallpaper-loaded"},
-                {"monitor-id", to_string(monitorId)}};
-            std::wstring wjsonString = to_wstring(msg.dump());
-            wprintf(L"\n\n\n---- HANDLINGONLOAD %hs\n\n\n", msg.dump().c_str());
-            PostMessage(app_hwnd, WM_USER + 5, 0, (LPARAM) new std::wstring(wjsonString));
-        } })
-        .detach();
+    std::wstring monitorId = FindMonitorIdByHwnd(hwnd);
+    json msg = {
+        {"type", "wallpaper-loaded"},
+        {"monitor-id", to_string(monitorId)}};
+    std::wstring wjsonString = to_wstring(msg.dump());
+    WaitForMainWindowAndDispatch(wjsonString);
 }

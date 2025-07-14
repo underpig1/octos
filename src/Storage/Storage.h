@@ -3,8 +3,10 @@
 #include <vector>
 #include <string>
 #include <nlohmann/json.hpp>
+#include <filesystem>
 
-using json=nlohmann::json;
+using json = nlohmann::json;
+namespace fs = std::filesystem;
 
 struct ConfigParams
 {
@@ -30,9 +32,11 @@ void RemoveWallpaper(std::wstring folderPath);
 bool DownloadWallpaper(const std::wstring url);
 void LoadAndHandleAppPrefs();
 std::wstring SelectFolderAndGetConfigAsJsonString();
-std::wstring GetConfigFromFolderAsJsonString(std::wstring dirPath);
+std::wstring GetConfigFromFolderAsJsonString(std::wstring dirPath, std::string type = "config-data");
 void DumpConfig(std::wstring path, json data);
 std::wstring SelectFolderToCreateWallpaper();
 void OpenFile(std::string path);
+ConfigParams GetFolderConfigParams(fs::directory_entry path);
+json LoadPrefs();
 
 extern std::vector<ConfigParams> g_allParams;
