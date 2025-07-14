@@ -8,6 +8,7 @@ if exist .\out\Debug\main.exe (
 if exist .\out\Debug\main.pdb (
     del /s /q .\out\Debug\main.pdb
 )
+@REM del /s /q .\build\*.obj
 @REM call npm run build-docs
 call npm run build-api
 if not exist ".\build\CMakeCache.txt" (

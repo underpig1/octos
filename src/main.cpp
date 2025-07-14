@@ -211,6 +211,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_OPENDEVTOOLS:
     {
         OpenDevTools(hwnd);
+        return 0;
     }
     case WM_RESTOREMAINWINDOW:
     {
@@ -257,7 +258,10 @@ bool HandleInstances(LPWSTR lpCmdLine)
                 SendMessageW(hwndOther, WM_COPYDATA, 0, (LPARAM)&cds);
             }
             else
+            {
+                wprintf(L"\n\n################### HELLO\n\n");
                 SendMessageW(hwndOther, WM_RESTOREMAINWINDOW, 0, 0);
+            }
         }
         return true;
     }

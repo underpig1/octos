@@ -44,19 +44,26 @@ void ParseCommandLineArgs(LPWSTR args)
             WaitForWallpaperWindowsAndCallback([entryPath, devToolsFlag]()
                                                {
                                             wprintf(L"\n\n#### NAVIGATING ALL\n\n");
-                                            NavigateAllWallpapers(entryPath);
-                                            WaitForMainWindowAndDispatch(L"{\"type\":\"preview\"}");
+                                             NavigateAllWallpapers(entryPath);
+                                             WaitForMainWindowAndDispatch(L"{\"type\":\"preview\"}");
                                             if (devToolsFlag)
-                                            {
-                                                for (auto &mw : ms)
-                                                {
-                                                    if (IsWindow(mw.hwnd)) {
-                                                        PostMessage(mw.hwnd, WM_USER + 7, 0, 0);
-                                                    }
-                                                }
-                                            }
-                                        });
+            {
+                std::thread([]()
+                            {
+                                std::this_thread::sleep_for(std::chrono::seconds(1));
+        for (auto &mw : ms)
+        {
+            if (IsWindow(mw.hwnd)) {
+                PostMessage(mw.hwnd, WM_USER + 7, 0, 0);
+            }
+        } })
+                    .detach();
+            } });
         }
+    }
+    else if (subcommand == L"refresh")
+    {
+        ReloadAllWindows();
     }
     LocalFree(argv);
     return;
