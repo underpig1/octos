@@ -350,7 +350,7 @@ body {
 .tab-content.active {
     opacity: 1;
     transform: translateY(0);
-    pointer-events: all;
+    pointer-events: inherit;
 }
 
 .scrollbox {
@@ -620,28 +620,12 @@ button:not(.inactive):not(:has(.monitor-arrow:hover)):hover {
     margin-right: 10px;
 }
 
-#develop-intro {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 225px;
-    height: fit-content;
-}
-
-#develop-intro>* {
-    float: left;
-    margin-bottom: 15px;
-}
-
 .outline-button {
-    outline: 2px solid var(--accent);
+    outline: 1px solid var(--accent);
     background: transparent;
     color: var(--accent);
-}
-
-.outline-button:hover {
-    background: transparent;
+    border: none;
+    margin-right: 100%;
 }
 
 .settings-main {
@@ -795,22 +779,52 @@ label>p {
 }
 
 .develop-main {
-    display: none;
+    display: flex;
     width: 100%;
     height: 100%;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-10px);
+    transition: transform var(--transition-speed) ease, opacity var(--transition-speed) ease;
+}
+
+#develop-intro>* {
+    float: left;
+    margin-bottom: 15px;
+}
+
+#develop-intro {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 350px;
+    height: fit-content;
+    pointer-events: inherit;
+    opacity: 1;
+    transition: transform var(--transition-speed) ease, opacity var(--transition-speed) ease;
+}
+
+#develop-intro>* {
+    float: left;
+    margin-bottom: 15px;
+}
+
+#develop-tab.developing .develop-main {
+    opacity: 1;
+    transform: none;
+    pointer-events: inherit;
+}
+
+#develop-tab.developing #develop-intro {
+    opacity: 0;
+    transform: translate(-40%, -50%);
+    pointer-events: none;
 }
 
 #develop-card-description {
     display: flex;
     flex-direction: column;
-}
-
-#develop-tab.developing .develop-main {
-    display: flex;
-}
-
-#develop-tab.developing #develop-intro {
-    display: none;
 }
 
 .card-edit {
@@ -1020,12 +1034,47 @@ label>p {
 
 .layout {
     position: relative;
+    display: flex;
+    flex-direction: column;
     background-color: #202020ff;
-    border-radius: 10px;
+    /* border-radius: 10px; */
     height: 100%;
     flex: 1;
     float: left;
-    box-shadow: 0 0 5px #000000aa;
+    border-radius: 10px;
+    /* box-shadow: 0 0 5px #000000aa; */
+}
+
+.develop-back {
+    height: 12px;
+    cursor: pointer;
+    margin-right: 15px;
+}
+
+.develop-tabs {
+    width: 100%;
+    height: 50px;
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.develop-tab {
+    color: gray;
+    font-size: 11pt;
+    cursor: pointer;
+    padding: 5px 15px;
+    border-radius: 20px;
+    border: 1px solid transparent;
+    transition: border 0.2s ease, background-color 0.2s ease;
+}
+
+.develop-tab.active {
+    background-color: var(--button-color);
+    border: 1px solid var(--button-border-color);
+    box-shadow: 0 2px 2px #00000011;
 }
 
 .develop-buttons {
@@ -1045,6 +1094,44 @@ label>p {
 .develop-button {
     height: 18px;
     cursor: pointer;
+}
+
+.develop-content {
+    position: relative;
+    width: 100%;
+    flex: 1;
+}
+
+.develop-tab-content {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--transition-speed) ease, transform var(--transition-speed) ease;
+}
+
+#develop-tab.developing.active .develop-tab-content.active {
+    pointer-events: inherit;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.develop-tab-content iframe {
+    width: 100%;
+    height: 100%;
+    outline: none;
+    border: none;
+    border-radius: 0 0 10px 10px;
+}
+
+#develop-editor {
+    width: 100%;
+    height: 100%;
+    border-radius: 0 0 10px 10px;
 }
 
 .title {
@@ -1110,7 +1197,7 @@ label>p {
 
 #modal-container.active {
     opacity: 1;
-    pointer-events: all;
+    pointer-events: inherit;
 }
 
 .modal {
@@ -1189,6 +1276,19 @@ button.inactive {
     border-color: #5b5b5b80
 }
 
+.button-icon {
+    display: inline-block;
+    vertical-align: middle;
+    max-width: 20px;
+    max-height: 20px;
+    height: auto;
+    width: auto;
+    filter: brightness(10);
+    opacity: 0.5;
+    margin-right: 10px;
+    margin-bottom: 3px;
+}
+
 .card-description.inactive {
     display: none;
 }
@@ -1263,15 +1363,6 @@ input[type="range"]:focus {
 
 #modules-empty:active {
     transform: translate(-50%, -50%) scale(0.95);
-}
-
-.develop-back {
-    position: absolute;
-    top: 25px;
-    left: 25px;
-    width: 22px;
-    cursor: pointer;
-    z-index: 2;
 }
 
 .develop-options-label {

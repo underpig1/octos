@@ -273,6 +273,17 @@ json GetRawFolderConfig(fs::directory_entry path)
     return json{};
 }
 
+void DumpJson(const fs::path path, const json j)
+{
+    if (!fs::is_directory(path) && path.extension().wstring() == L".json")
+    {
+        std::ofstream out(path);
+        if (!out)
+            return;
+        out << j.dump();
+    }
+}
+
 void DumpConfig(std::wstring path, json data)
 {
     DumpJson(path, data);
@@ -356,6 +367,7 @@ std::wstring ParamsAsJsonString(ConfigParams p)
         {"description", to_string(p.description)},
         {"folderPath", to_string(p.folderPath)},
         {"imagePath", to_string(p.imagePath)},
+        {"configPath", to_string(p.configPath)},
         {"entryPath", to_string(p.entryPath)},
         {"options", p.options.empty() ? "" : json::parse(to_string(p.options))}};
     std::string dump = j.dump();
@@ -378,9 +390,9 @@ std::wstring IterateWallpapersAsJsonString()
     return jsonString;
 }
 
-std::wstring SelectFolderAndGetConfigAsJsonString()
+std::wstring SelectFolder()
 {
-    std::wstring result;
+    std::wstring result = L"";
     IFileOpenDialog *pFileOpen = nullptr;
     HRESULT hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL,
                                   IID_IFileOpenDialog, reinterpret_cast<void **>(&pFileOpen));
@@ -402,11 +414,14 @@ std::wstring SelectFolderAndGetConfigAsJsonString()
                 pItem->Release();
             }
         }
-        else if (hr == HRESULT_FROM_WIN32(ERROR_CANCELLED))
-            return NULL;
-
         pFileOpen->Release();
     }
+    return result;
+}
+
+std::wstring SelectFolderAndGetConfigAsJsonString()
+{
+    std::wstring result = SelectFolder();
     if (!result.empty())
     {
         fs::path dirPath = result;
@@ -415,6 +430,53 @@ std::wstring SelectFolderAndGetConfigAsJsonString()
             return GetConfigFromFolderAsJsonString(dirPath);
         }
     }
+    return L"";
+}
+
+std::wstring SelectFolderToCreateWallpaper()
+{
+    std::wstring result = SelectFolder();
+    if (!result.empty())
+    {
+        fs::path dirPath = result;
+        if (fs::exists(dirPath) && fs::is_directory(dirPath))
+        {
+            fs::path newConfigPath = dirPath / L"octos.json";
+            fs::path newEntryPath = dirPath / L"index.html";
+
+            if (!fs::exists(newConfigPath))
+            {
+                std::wstring name = dirPath.filename();
+                json newConfig = {
+                    {"name", to_string(name)},
+                    {"entry", to_string(newEntryPath)}};
+                DumpConfig(newConfigPath, newConfig);
+            }
+
+            if (!fs::exists(newEntryPath))
+            {
+                std::ofstream file(newEntryPath);
+                if (!file.is_open())
+                    return L"";
+                file << "<!DOCTYPE html>\n";
+                file << "<html lang=\"en\">\n";
+                file << "<head>\n";
+                file << "  <meta charset=\"UTF-8\">\n";
+                file << "  <title>My Mod</title>\n";
+                file << "  <style>html, body { margin: 0; user-select: none; width: 100%; height: 100%; background-color: #e52e2e; overflow: hidden; text-align: center; align-content: center; font-family: \"Segoe UI\"; color: white;}</style>\n";
+                file << "</head>\n";
+                file << "<body>\n";
+                file << "  <h1>Hello, world!</h1>\n";
+                file << "  <h3>You can edit me at " + to_string(dirPath) + "</h3>\n";
+                file << "</body>\n";
+                file << "</html>\n";
+                file.close();
+            }
+
+            return GetConfigFromFolderAsJsonString(dirPath);
+        }
+    }
+    return L"";
 }
 
 std::wstring GetConfigFromFolderAsJsonString(std::wstring dirPath)
@@ -572,20 +634,11 @@ void HandlePrefsChange(const json prefs)
     }
 }
 
-void DumpJson(const fs::path path, const json j)
-{
-    if (!fs::is_directory(path) && path.extension().wstring() == L"json")
-    {
-        std::ofstream out(path);
-        if (!out)
-            return;
-        out << j.dump();
-    }
-}
-
 void DumpPrefs(const json prefs)
 {
     const fs::path prefsPath = GetPrefsPath();
+    wprintf(L"\n*** DUMPING PREFS TO %ws\n", prefsPath.c_str());
+    wprintf(L"\n*** PREFS ARE %hs\n", prefs.dump().c_str());
     DumpJson(prefsPath, prefs);
     HandlePrefsChange(prefs);
 }
@@ -596,4 +649,10 @@ void LoadAndHandleAppPrefs()
     wprintf(L"prefs %hs", prefs.dump().c_str());
     if (!prefs.empty())
         HandlePrefsChange(prefs);
+}
+
+void OpenFile(std::string path)
+{
+    if (fs::exists(path))
+        ShellExecuteA(NULL, "open", path.c_str(), NULL, NULL, SW_SHOWDEFAULT);
 }

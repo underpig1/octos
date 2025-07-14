@@ -58,6 +58,9 @@ function refresh() {
     chrome.webview.postMessage({ type: "refresh" });
     // chrome.webview.postMessage({ type: "request-wallpaper-data" });
 }
+function reload() {
+    chrome.webview.postMessage({ type: "reload" });
+}
 
 function toggleVisibility() {
     isVisible = !isVisible;
@@ -249,7 +252,6 @@ document.addEventListener("DOMContentLoaded", () => {
     window.chrome.webview.postMessage({ type: 'request-wallpaper-data' });
 
     populateExplore();
-    retrieveWorking();
     setInterval(handleScrollShadows, 100);
     window.onresize();
 });
@@ -606,6 +608,7 @@ function selectFocusedCard(monitorId = null) {
             dumpUserPrefs();
             updateMonitorIndicators();
             configureSetAsWallpaperButton();
+            updateDevelopDescription();
         }
     }
 }
@@ -940,7 +943,11 @@ function updateCardOptions() {
 
 function sendWallpaperAllOptions(monitorId) {
     const id = userPrefs.selected[monitorId];
+    if (!id)
+        return;
     const options = userPrefs.modOptions[id];
+    if (!options)
+        return;
     for (const inputId of Object.keys(options)) {
         const payload = { 'type': 'event', 'eventType': 'options-load', 'data': { 'id': inputId, 'value': options[inputId].value } };
         window.chrome.webview.postMessage({
@@ -1033,7 +1040,7 @@ function handleRecieveUserPrefs(msg) {
         modData: {},
         modOptions: {},
         selected: {},
-        appOptions: {}
+        appOptions: appOptionsDefaults
     }, msg.data ?? {});
     console.log('recieved prefs', userPrefs);
 
@@ -1048,7 +1055,7 @@ function handleRecieveUserPrefs(msg) {
         }
     }
 
-    initDevelop();
+    // initDevelop();
 }
 
 // EXPLORE
@@ -1130,18 +1137,68 @@ function populateExplore() {
 }
 
 // DEVELOP
-function openDevelopFolder() {
+var requestingDevelopSession = false;
+
+function onNewDevelopSession() {
+    selectDevelopMod();
+    initEditor();
+}
+
+function selectDevelopFolder() {
     window.chrome.webview.postMessage({ type: 'select-folder' });
+    requestingDevelopSession = true;
+}
+
+function openDevelopFolder() {
+    const modData = userPrefs.developMod;
+    if (modData) {
+        window.chrome.webview.postMessage({ type: 'open-folder', path: modData.folderPath });
+        requestingDevelopSession = true;
+    }
+}
+
+function selectDevelopMod() {
+    const button = document.getElementById("set-develop-wallpaper");
+    const modData = userPrefs.developMod;
+    if (button.classList.contains('unset')) {
+        for (const monitorId of monitorIds) {
+            if (userPrefs.selected[monitorId] == modData.folderPath) {
+                window.chrome.webview.postMessage({ type: 'set-wallpaper', 'monitor-id': monitorId, 'url': '' });
+                delete userPrefs.selected[monitorId];
+            }
+            dumpUserPrefs();
+            configureSetAsWallpaperButton();
+            updateMonitorIndicators();
+            updateDevelopDescription();
+        }
+        console.log('removing unset');
+        button.classList.remove('unset');
+        button.innerText = 'Set as Wallpaper';
+    }
+    else {
+        if (modData) {
+            for (const monitorId of monitorIds) {
+                userPrefs.selected[monitorId] = modData.folderPath;
+                window.chrome.webview.postMessage({ type: 'set-wallpaper', 'monitor-id': monitorId, 'url': modData.entryPath });
+            }
+            dumpUserPrefs();
+            configureSetAsWallpaperButton();
+            updateMonitorIndicators();
+            updateDevelopDescription();
+        }
+        button.classList.add('unset');
+        button.innerText = 'Unset Wallpaper';
+    }
 }
 
 function developNew() {
-
+    window.chrome.webview.postMessage({ type: 'create-wallpaper' });
 }
 
 function initDevelop() {
     if (!userPrefs.developMod) {
         document.getElementById('develop-tab').classList.remove('developing');
-        window.chrome.webview.postMessage({ type: 'select-folder' });
+        // window.chrome.webview.postMessage({ type: 'select-folder' });
     }
     else {
         const folderPath = userPrefs.developMod.folderPath;
@@ -1151,39 +1208,65 @@ function initDevelop() {
 }
 
 function exitDevelop() {
+    console.log('exiting develop');
     delete userPrefs.developMod;
     document.getElementById('develop-tab').classList.remove('developing');
     dumpUserPrefs();
+    if (developDocsFrame) {
+        developDocsFrame.remove();
+        developDocsFrame = '';
+    }
 }
 
-function dumpConfig() {
+function dumpDevelopConfig() {
     const modData = userPrefs.developMod;
     if (modData) {
-        window.chrome.webview.postMessage({ type: 'dump-config', 'configPath': modData.configPath, 'data': modData.config});
+        console.log(modData.configPath);
+        window.chrome.webview.postMessage({ type: 'dump-config', configPath: modData.configPath, data: modData.config });
     }
 }
 
 function handleConfigData(modData) {
+    console.log('Received config data ', modData);
     userPrefs.developMod = modData;
     document.getElementById('develop-tab').classList.add('developing');
-    setDevelopDescription(modData);
+    updateDevelopDescription();
+    configureSetAsWallpaperButton();
+    console.log('dumping prefs', userPrefs)
     dumpUserPrefs();
+    if (requestingDevelopSession) {
+        onNewDevelopSession();
+        requestingDevelopSession = false;
+    }
+    updateEditorContent();
 }
 
-function setDevelopDescription(modData) {
+function updateEditorContent() {
+    if (userPrefs.developMod && window.setEditorValue)
+        window.setEditorValue(JSON.stringify(userPrefs.developMod.config, null, 4));
+}
+
+function updateDevelopDescription() {
+    const modData = userPrefs.developMod;
+    if (!modData)
+        return;
     const developDescription = document.getElementById('develop-card-description');
     const optionsLabel = developDescription.querySelector('.develop-options-label-content')
-    if (modData.options) {
-        setCardOptions(modData.options, document.getElementById('develop-options'));
+    if (modData.config && modData.config.options) {
+        setCardOptions(modData.config.options, document.getElementById('develop-options'));
         optionsLabel.innerText = "Mod options";
     }
-    developDescription.querySelector('.description-content').innerText = modData.description || "Add a description.";
-    developDescription.querySelector('.author-content').innerText = modData.author || "Author";
-    developDescription.querySelector('.title-content').innerText = modData.name || "Mod Name";
+    else if (modData.options) {
+        setCardOptions(modData.config.options, document.getElementById('develop-options'));
+        optionsLabel.innerText = "Mod options";
+    }
+    developDescription.querySelector('.description-content').innerText = modData.config.description || modData.description || "Add a description.";
+    developDescription.querySelector('.author-content').innerText = modData.config.author || modData.author || "Author";
+    developDescription.querySelector('.title-content').innerText = modData.config.name || modData.name || "Mod Name";
     const button = developDescription.querySelector('.set-wallpaper');
     var buttonDisabled = true;
     for (const monitorId of monitorIds) {
-        if (userPrefs[monitorId] == modData.folderPath) {
+        if (userPrefs.selected[monitorId] != modData.folderPath) {
             buttonDisabled = false;
             break;
         }
@@ -1205,12 +1288,123 @@ function editThis(el) {
         if (field) {
             modalDialog('Edit ' + field, '', content.innerText);
             modalListener = (state, text) => {
-                if (state) {
+                if (state && text != "") {
                     userPrefs.developMod.config[field] = text;
+                    userPrefs.developMod[field] = text;
+                    console.log(userPrefs.developMod.config);
                     content.innerText = text;
                     dumpDevelopConfig();
+                    updateEditorContent();
                 }
             }
         }
     }
+}
+
+function editDevelopOptions() {
+    const modData = userPrefs.developMod;
+    if (modData && modData.configPath)
+        window.chrome.webview.postMessage({ type: 'open-file', path: modData.configPath });
+}
+
+var developTab = 'files';
+var developDocsFrame;
+
+function onTabLoad(tab, tabContent) {
+    console.log('loading', tab, tabContent)
+    switch (tab) {
+        case 'docs':
+            if (!developDocsFrame) {
+                developDocsFrame = document.createElement('iframe');
+                developDocsFrame.src = 'https://underpig1.github.io/octos/docs';
+                tabContent.appendChild(developDocsFrame);
+            }
+            break;
+        default:
+            break;
+    }
+}
+
+function onTabUnload(tab, tabContent) {
+    console.log('unloading', tab, tabContent)
+    switch (tab) {
+        case 'docs':
+            // setTimeout(() => {
+            //     if (developDocsFrame) {
+            //         tabContent.removeChild(developDocsFrame);
+            //         developDocsFrame = '';
+            //     }
+            // }, 500);
+            break;
+        default:
+            break;
+    }
+}
+
+function setDevelopTab(el, tab) {
+    if (developTab == tab)
+        return;
+    for (const tabContent of document.getElementsByClassName('develop-tab-content')) {
+        const tabId = tabContent.id.split('-')[0];
+        if (tabId == tab) {
+            tabContent.classList.add('active');
+            onTabLoad(tab, tabContent);
+        }
+        else {
+            if (developTab == tabId) {
+                onTabUnload(tabId, tabContent);
+                tabContent.classList.remove('active');
+            }
+        }
+    }
+    for (const tab of document.getElementsByClassName('develop-tab')) {
+        if (tab == el) {
+            tab.classList.add('active');
+        }
+        else tab.classList.remove('active');
+    }
+    developTab = tab;
+}
+
+function openDevelopDevTools() {
+    if (userPrefs.developMod) {
+        for (const monitorId of Object.keys(userPrefs.selected)) {
+            if (userPrefs.selected[monitorId] == userPrefs.developMod.folderPath) {
+                console.log('opening devtools');
+                window.chrome.webview.postMessage({ type: 'open-wallpaper-devtools', 'monitor-id': monitorId });
+            }
+        }
+    }
+}
+
+function initEditor() {
+    require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.38.0/min/vs' } });
+    require(['vs/editor/editor.main'], () => {
+        const container = document.getElementById('develop-editor');
+        const editor = monaco.editor.create(container, {
+            value: '// Start coding...',
+            language: 'json',
+            theme: 'vs-dark',
+        });
+
+        if (userPrefs.developMod) {
+            updateEditorContent();
+        }
+
+        window.getEditorValue = () => editor.getValue();
+        window.setEditorValue = (text) => editor.setValue(text);
+        editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+            if (userPrefs.developMod) {
+                const content = JSON.parse(editor.getValue());
+                userPrefs.developMod.config = content;
+                dumpDevelopConfig();
+                updateDevelopDescription();
+            }
+        });
+
+        const resizeObserver = new ResizeObserver(() => {
+            editor.layout();
+        });
+        resizeObserver.observe(container);
+    });
 }

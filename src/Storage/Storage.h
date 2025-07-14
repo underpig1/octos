@@ -4,6 +4,8 @@
 #include <string>
 #include <nlohmann/json.hpp>
 
+using json=nlohmann::json;
+
 struct ConfigParams
 {
     std::wstring author;
@@ -23,12 +25,14 @@ bool SelectAndInstallWallpaper();
 std::wstring to_wstring(const std::string &utf8str);
 std::string to_string(const std::wstring &utf16str);
 std::wstring LoadPrefsAsJsonString();
-void DumpPrefs(const nlohmann::json prefs);
+void DumpPrefs(const json prefs);
 void RemoveWallpaper(std::wstring folderPath);
 bool DownloadWallpaper(const std::wstring url);
 void LoadAndHandleAppPrefs();
 std::wstring SelectFolderAndGetConfigAsJsonString();
 std::wstring GetConfigFromFolderAsJsonString(std::wstring dirPath);
 void DumpConfig(std::wstring path, json data);
+std::wstring SelectFolderToCreateWallpaper();
+void OpenFile(std::string path);
 
-    extern std::vector<ConfigParams> g_allParams;
+extern std::vector<ConfigParams> g_allParams;

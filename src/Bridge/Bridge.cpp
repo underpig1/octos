@@ -121,6 +121,10 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
                 std::wstring message = IterateWallpapersAsJsonString();
                 DispatchJson(message);
             }
+            else if (type == "reload")
+            {
+                ReloadAllWindows();
+            }
             else if (type == "request-wallpaper-data")
             {
                 std::wstring message = IterateWallpapersAsJsonString();
@@ -266,6 +270,29 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
                     std::string configPath = j["configPath"];
                     DumpConfig(to_wstring(configPath), j["data"]);
                 }
+            }
+            else if (type == "create-wallpaper")
+            {
+                std::wstring sendJson = SelectFolderToCreateWallpaper();
+                if (!sendJson.empty())
+                    DispatchJson(sendJson);
+                else
+                    RaiseErrorBox(L"Failed to initialize", L"Please try again.");
+            }
+            else if (type == "open-file")
+            {
+                if (j.contains("path") && j["path"].is_string())
+                    OpenFile(j["path"]);
+            }
+            else if (type == "open-wallpaper-devtools")
+            {
+                if (j.contains("monitor-id") && j["monitor-id"].is_string())
+                {
+                    std::string monitorId = j["monitor-id"];
+                    MonitorWindow *mw = FindMonitorWindowById(to_wstring(monitorId));
+                    if (IsWindow(mw->hwnd))
+                        OpenDevTools(mw->hwnd);
+                } 
             }
         }
         else

@@ -341,6 +341,20 @@ void HandleDPIChange(HWND hwnd, LPARAM lParam)
     }
 }
 
+void ReloadWebViewWindow(HWND hwnd)
+{
+    WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+    if (data && data->webview)
+        data->webview->Reload();
+}
+
+void OpenDevTools(HWND hwnd)
+{
+    WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+    if (data && data->webview)
+        data->webview->OpenDevToolsWindow();
+}
+
 void SetWebViewVisibility(HWND hwnd, bool visible)
 {
     WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));

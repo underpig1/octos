@@ -90,13 +90,29 @@ HWND CreateWallpaperWindow(const std::wstring &htmlPath)
 
 void RecreateWallpapers()
 {
+    // for (auto &mw : ms)
+    // {
+    //     wprintf(L"\nrecreating window with path %ws\n\n", mw.htmlPath.c_str());
+    //     if (IsWindow(mw.hwnd))
+    //         PostMessage(app_hwnd, WM_USER + 2, 0, reinterpret_cast<LPARAM>(mw.hwnd));
+    // }
+    // ms.clear();
+    // InitializeWallpaperWindows();
+
     for (auto &mw : ms)
     {
         if (IsWindow(mw.hwnd))
-            PostMessage(app_hwnd, WM_USER + 2, 0, reinterpret_cast<LPARAM>(mw.hwnd));
+            PostMessage(app_hwnd, WM_USER + 1, 0, reinterpret_cast<LPARAM>(&mw));
     }
-    ms.clear();
-    InitializeWallpaperWindows();
+}
+
+void ReloadAllWindows()
+{
+    for (auto &mw : ms)
+    {
+        if (IsWindow(mw.hwnd))
+            ReloadWebViewWindow(mw.hwnd);
+    }
 }
 
 void CreateMonitorWindow(HMONITOR hMon)

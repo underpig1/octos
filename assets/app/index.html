@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Octos</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@codemirror/view@6.26.0/style.css">
 </head>
 <body>
     <div class="templates" style="display: none">
@@ -92,7 +93,7 @@
             </div>
             <div class="nav-item" id="explore" onclick="setContent(this)"><img src="img/explore.png" title="Explore mods"></div>
             <div class="nav-item" id="modules" onclick="setContent(this)"><img src="img/modules.png" title="Installed mods"></div>
-            <div class="nav-item" id="develop" onclick="setContent(this)"><img src="img/develop.png" title="Developer menu"></div>
+            <!-- <div class="nav-item" id="develop" onclick="setContent(this)"><img src="img/run-and-debug-fill.png" title="Developer menu"></div> -->
             <div class="nav-item" id="settings" onclick="setContent(this)"><img src="img/settings.png" title="Preferences"></div>
         </div>
         <div class="content">
@@ -110,7 +111,7 @@
                     </div>
                 </div>
             </div>
-            <div class="tab-content" id="modules-tab">
+            <div class="tab-content active" id="modules-tab">
                 <a id="modules-empty" onclick="uploadMod()">Looks like you don't have any mods installed. Click here to install a mod from a .zip file.</a>
                 <div class="scrollbox" id="modules-scrollbox"></div>
                 <div class="sidebar">
@@ -127,22 +128,37 @@
                     </div>
                 </div>
             </div>
-            <div class="tab-content active" id="develop-tab">
+            <div class="tab-content" id="develop-tab">
                 <div id="develop-intro">
                     <h1>Mod creator</h1>
-                    <p style="margin-top: 2px;">Welcome to the developer menu! Here you can find tools and information in order to create your own awesome mods.</p>
+                    <p style="margin-top: 2px;">Welcome to the creator menu! Here you can find tools to create your own awesome mods.</p>
                     <button class="outline-button" onclick="developNew()" style="margin-top: 12px; margin-bottom: 10px;">Create new mod</button>
-                    <a onclick="openDevelopFolder()">Edit from mod existing folder</a>
+                    <a onclick="selectDevelopFolder()">Or edit existing mod from folder</a>
                 </div>
                 <div class="develop-main">
                     <div class="layout">
-                        <img src="img/back.png" class="develop-back" onclick="disableDeveloping()">
-                        <div id="layout-console"></div>
-                        <div class="develop-buttons">
+                        <div class="develop-tabs">
+                            <img src="img/back.png" class="develop-back" onclick="exitDevelop()" />
+                            <div class="develop-tab active" onclick="setDevelopTab(this, 'files')">Files</div>
+                            <div class="develop-tab" onclick="setDevelopTab(this, 'editor')">octos.json</div>
+                            <div class="develop-tab" onclick="setDevelopTab(this, 'docs')">Docs</div>
+                            <div class="develop-tab" onclick="openDevelopDevTools()">DevTools</div>
+                        </div>
+                        <div class="develop-content">
+                            <div class="develop-tab-content active" id="files-tab">
+                            </div>
+                            <div class="develop-tab-content" id="editor-tab">
+                                <div id="develop-editor"></div>
+                            </div>
+                            <div class="develop-tab-content" id="docs-tab" style="text-align: center;">
+                                <p style="color: gray; position: absolute; transform: translate(-50%, -50%); left: 50%; top: 50%; z-index: -1;">Loading docs...</p>
+                            </div>
+                        </div>
+                        <!-- <div class="develop-buttons">
                             <img class="develop-button" src="img/play.png" title="Run" onclick="playMod()">
                             <img class="develop-button" src="img/stop.png" title="Pause" onclick="stopMod()">
                             <img class="develop-button" src="img/debug.png" title="Debug" onclick="debugMod()">
-                        </div>
+                        </div> -->
                     </div>
                     <div class="sidebar">
                         <div id="develop-card-description" class="card-description">
@@ -151,13 +167,14 @@
                             <p class="description"><span class="edit-content description-content" field="description">Created in the depths of hell, this wallpaper was designed with designs that show
                                 multiple entities.</span><img class="card-edit" src="img/edit.png" width="12px" onclick="editThis(this)" /></p>
                             <hr style="width: 100%; margin-top: 0;" />
-                            <label class="develop-options-label"><span class="develop-options-label-content">Mod options</span><img class="card-edit" src="img/edit.png" width="12px" onclick="editThis(this)" /></label>
+                            <label class="develop-options-label"><span class="develop-options-label-content">Mod options</span><img class="card-edit" src="img/edit.png" width="12px" onclick="editDevelopOptions()" /></label>
                             <div class="card-options" id="develop-options"></div>
                             <div class="bottom-matter">
                                 <!-- <a id="restore-preferences" onclick="restorePreferences()">Restore default
                                                     mod options</a> -->
-                                <button onclick="selectFocusedCard()" class="set-wallpaper">Set as Wallpaper</button>
-                                <button onclick="selectFocusedCard()">Open Folder</button>
+                                <button onclick="selectDevelopMod()" class="set-wallpaper" id="set-develop-wallpaper">Set as Wallpaper</button>
+                                <button onclick="reload()"><img class="button-icon" src="img/reload-icon.png" />Refresh</button>
+                                <button onclick="openDevelopFolder()"><img class="button-icon" src="img/folder-icon.png" />Open Folder</button>
                             </div>
                         </div>
                     </div>
@@ -252,12 +269,12 @@
                         <h1>Resources</h1>
                         <p>Review your installed mods.</p>
                         <div class="side-by-side">
-                            <button onclick="openModsFolder()">Open mods folder</button>
+                            <button onclick="openModsFolder()"><img class="button-icon" src="img/folder-icon.png" />Open mods folder</button>
                             <button onclick="findMoreMods()">Find more mods</button>
                         </div>
                         <p style="margin-top:0;">Check out some resources to help you make and share your own awesome mods.</p>
                         <div class="side-by-side" style="margin-bottom: 15px;">
-                            <button onclick="openDocumentation()">Documentation</button>
+                            <button onclick="openDocumentation()"><img class="button-icon" src="img/documentation.png" style="height: 15px;" />Documentation</button>
                             <button onclick="shareMod()">Publish your mod</button>
                         </div>
                     </div>
@@ -265,7 +282,7 @@
                         <h1>Contribute</h1>
                         <p>Octos is a free and open-source project maintained and supported by contributors.</p>
                         <div class="side-by-side" style="margin-bottom: 15px;">
-                            <button onclick="openGitHub()">Open in GitHub</button>
+                            <button onclick="openGitHub()"><img class="button-icon" style="height: 15px; opacity: 1;" src="img/github.png" />Open in GitHub</button>
                             <button onclick="openIssues()">Report an issue</button>
                         </div>
                     </div>
@@ -304,6 +321,7 @@
             </div>
         </div>
     </div>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.38.0/min/vs/loader.min.js"></script> -->
     <script src="index.js"></script>
 </body>
 </html>

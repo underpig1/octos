@@ -2,6 +2,9 @@
 setlocal
 taskkill /f /im main.exe
 timeout /t 1 >nul
+if exist .\out\Debug\ (
+    rmdir /s /q .\out\Debug\
+)
 @REM call npm run build-docs
 call npm run build-api
 if not exist ".\build\CMakeCache.txt" (
