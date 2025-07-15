@@ -343,6 +343,7 @@ void HandleDPIChange(HWND hwnd, LPARAM lParam)
 
 void ReloadWebViewWindow(HWND hwnd)
 {
+    wprintf(L"reloading\n");
     WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
     if (data && data->webview)
         data->webview->Reload();

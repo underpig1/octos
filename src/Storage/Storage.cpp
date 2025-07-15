@@ -430,6 +430,43 @@ std::wstring SelectFolderAndGetConfigAsJsonString()
     return L"";
 }
 
+bool CreateNewWallpaper(fs::path dirPath)
+{
+    fs::path newConfigPath = dirPath / L"octos.json";
+    fs::path newEntryPath = dirPath / L"index.html";
+
+    if (!fs::exists(newConfigPath))
+    {
+        std::wstring name = dirPath.filename();
+        json newConfig = {
+            {"name", to_string(name)},
+            {"entry", to_string(newEntryPath)}};
+        DumpConfig(newConfigPath, newConfig);
+    }
+
+    if (!fs::exists(newEntryPath))
+    {
+        std::ofstream file(newEntryPath);
+        if (!file.is_open())
+            return false;
+        file << "<!DOCTYPE html>\n";
+        file << "<html lang=\"en\">\n";
+        file << "<head>\n";
+        file << "  <meta charset=\"UTF-8\">\n";
+        file << "  <title>My Mod</title>\n";
+        file << "  <style>html, body { margin: 0; user-select: none; width: 100%; height: 100%; background-color: #e52e2e; overflow: hidden; text-align: center; align-content: center; font-family: \"Segoe UI\"; color: white;}</style>\n";
+        file << "</head>\n";
+        file << "<body>\n";
+        file << "  <h1>Hello, world!</h1>\n";
+        file << "  <h3>You can edit me at " + to_string(dirPath) + "</h3>\n";
+        file << "</body>\n";
+        file << "</html>\n";
+        file.close();
+    }
+
+    return true;
+}
+
 std::wstring SelectFolderToCreateWallpaper()
 {
     std::wstring result = SelectFolder();
@@ -438,39 +475,8 @@ std::wstring SelectFolderToCreateWallpaper()
         fs::path dirPath = result;
         if (fs::exists(dirPath) && fs::is_directory(dirPath))
         {
-            fs::path newConfigPath = dirPath / L"octos.json";
-            fs::path newEntryPath = dirPath / L"index.html";
-
-            if (!fs::exists(newConfigPath))
-            {
-                std::wstring name = dirPath.filename();
-                json newConfig = {
-                    {"name", to_string(name)},
-                    {"entry", to_string(newEntryPath)}};
-                DumpConfig(newConfigPath, newConfig);
-            }
-
-            if (!fs::exists(newEntryPath))
-            {
-                std::ofstream file(newEntryPath);
-                if (!file.is_open())
-                    return L"";
-                file << "<!DOCTYPE html>\n";
-                file << "<html lang=\"en\">\n";
-                file << "<head>\n";
-                file << "  <meta charset=\"UTF-8\">\n";
-                file << "  <title>My Mod</title>\n";
-                file << "  <style>html, body { margin: 0; user-select: none; width: 100%; height: 100%; background-color: #e52e2e; overflow: hidden; text-align: center; align-content: center; font-family: \"Segoe UI\"; color: white;}</style>\n";
-                file << "</head>\n";
-                file << "<body>\n";
-                file << "  <h1>Hello, world!</h1>\n";
-                file << "  <h3>You can edit me at " + to_string(dirPath) + "</h3>\n";
-                file << "</body>\n";
-                file << "</html>\n";
-                file.close();
-            }
-
-            return GetConfigFromFolderAsJsonString(dirPath);
+            if (CreateNewWallpaper(dirPath));
+                return GetConfigFromFolderAsJsonString(dirPath);
         }
     }
     return L"";
