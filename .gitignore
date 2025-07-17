@@ -7,3 +7,7 @@ CMakeUserPresets.json
 .vscode/
 TODO
 node_modules
+AppPackage
+*.msix
+*.pfx
+# modding

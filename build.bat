@@ -1,12 +1,12 @@
 @echo off
 setlocal
-taskkill /f /im main.exe
+taskkill /f /im octos.exe
 timeout /t 1 >nul
-if exist .\out\Debug\main.exe (
+if exist .\out\Debug\octos.exe (
     del /s /q .\out\Debug\main.exe
 )
-if exist .\out\Debug\main.pdb (
-    del /s /q .\out\Debug\main.pdb
+if exist .\out\Debug\octos.pdb (
+    del /s /q .\out\Debug\octos.pdb
 )
 @REM del /s /q .\build\*.obj
 @REM call npm run build-docs
@@ -15,4 +15,4 @@ if not exist ".\build\CMakeCache.txt" (
     cmake --preset=default
 )
 cmake --build build
-start "" .\out\Debug\main.exe
+start "" .\out\Debug\octos.exe

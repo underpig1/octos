@@ -106,6 +106,14 @@ void ParseCommandLineArgs(LPWSTR args)
             return;
         CreateNewWallpaper(folderPath);
     }
+    else if (subcommand == L"dev-tools")
+    {
+        for (auto &mw : ms)
+        {
+            if (IsWindow(mw.hwnd))
+                PostMessage(mw.hwnd, WM_USER + 7, 0, 0);
+        }
+    }
     LocalFree(argv);
     return;
 }

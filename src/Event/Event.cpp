@@ -12,17 +12,17 @@ bool just_released = false;
 
 LRESULT CALLBACK MouseEventProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
-    static auto lastEventTime = std::chrono::steady_clock::now();
-    constexpr auto debounceInterval = std::chrono::milliseconds(10);
     if (nCode != HC_ACTION || GetPref(Pref::DisableMouseInput))
         return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
 
-    auto now = std::chrono::steady_clock::now();
-    if (now - lastEventTime < debounceInterval)
-    {
-        return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
-    }
-    lastEventTime = now;
+    // static auto lastEventTime = std::chrono::steady_clock::now();
+    // constexpr auto debounceInterval = std::chrono::milliseconds(10);
+    // auto now = std::chrono::steady_clock::now();
+    // if (now - lastEventTime < debounceInterval)
+    // {
+    //     return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
+    // }
+    // lastEventTime = now;
 
     const auto *mouse = reinterpret_cast<MSLLHOOKSTRUCT *>(lParam);
     POINT screenMouse = mouse->pt;
@@ -30,7 +30,7 @@ LRESULT CALLBACK MouseEventProc(int nCode, WPARAM wParam, LPARAM lParam)
     HWND hoverHwnd = WindowFromPoint(screenMouse);
     wchar_t className[256] = {};
     GetClassNameW(hoverHwnd, className, 256);
-    bool not_over_wallpaper = wcscmp(className, L"SysListView32") != 0;
+    bool not_over_wallpaper = wcscmp(className, L"SysListView32") != 0 && wcscmp(className, L"SHELLDLL_DefView") != 0 && wcscmp(className, L"Progman") != 0;
     // if (not_over_wallpaper && just_released)
     //     return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
     // else if (just_released)

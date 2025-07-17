@@ -440,7 +440,7 @@ bool CreateNewWallpaper(fs::path dirPath)
         std::wstring name = dirPath.filename();
         json newConfig = {
             {"name", to_string(name)},
-            {"entry", to_string(newEntryPath)}};
+            {"entry", to_string(fs::relative(newEntryPath, dirPath))}};
         DumpConfig(newConfigPath, newConfig);
     }
 

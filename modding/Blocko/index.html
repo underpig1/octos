@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>My Mod</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            user-select: none;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            overflow: hidden;
+            text-align: center;
+            font-family: "Segoe UI";
+            color: white;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 10px 20px;
+            background: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        #addBtn {
+            top: 50px;
+        }
+
+        #fastenBtn {
+            top: 90px;
+        }
+    </style>
+</head>
+
+<body>
+    <button id="pauseBtn">Pause</button>
+    <button id="addBtn">Add</button>
+    <button id="fastenBtn">Fastener</button>
+    <canvas id="canvas"></canvas>
+    <script src="matter.min.js"></script>
+    <script>
+        // initialize
+        const { Engine, Render, Runner, Bodies, Composite, Mouse, MouseConstraint, Constraint, Events, Body } = Matter;
+
+        const canvas = document.getElementById('canvas');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const engine = Engine.create();
+        engine.gravity.y = 1;
+
+        const render = Render.create({
+            engine: engine,
+            canvas: canvas,
+            options: {
+                width: window.innerWidth,
+                height: window.innerHeight,
+                wireframes: false,
+                background: 'red'
+            }
+        });
+
+        const boxA = Bodies.rectangle(400, 200, 100, 50, { isStatic: true, isFixed: true, render: { fillStyle: "transparent" } });
+        const boxB = Bodies.rectangle(450, 50, 80, 80);
+        const ground = Bodies.rectangle(
+            window.innerWidth / 2,
+            window.innerHeight - 30,
+            window.innerWidth,
+            60,
+            { isStatic: true, isFixed: true, isImmovable: true, render: { fillStyle: "transparent" } }
+        );
+
+        const mouse = Mouse.create(render.canvas);
+        const mouseConstraint = MouseConstraint.create(engine, {
+            mouse: mouse,
+            constraint: {
+                stiffness: 0.2,
+                render: { visible: false }
+            }
+        });
+
+        Composite.add(engine.world, [boxA, boxB, ground, mouseConstraint]);
+
+        Render.run(render);
+        const runner = Runner.create();
+        Runner.run(runner, engine);
+
+        // buttons
+        let paused = false;
+        const pauseBtn = document.getElementById('pauseBtn');
+
+        function freezeBody(body) {
+            body.isPaused = true;
+            body.isSensor = true;
+            Matter.Body.setVelocity(body, { x: 0, y: 0 });
+            Matter.Body.setAngularVelocity(body, 0);
+        }
+
+        pauseBtn.onclick = () => {
+            paused = !paused;
+            pauseBtn.textContent = paused ? 'Resume' : 'Pause';
+            if (paused) {
+                const bodies = Matter.Composite.allBodies(engine.world).filter(b => !b.isStatic);
+                bodies.forEach(body => {
+                    freezeBody(body)
+                });
+                engine.world.gravity.y = 0
+            }
+            else {
+                const bodies = Matter.Composite.allBodies(engine.world).filter(b => b.isPaused);
+                bodies.forEach(body => {
+                    body.isPaused = false;
+                    body.isSensor = false;
+                });
+                engine.world.gravity.y = 1;
+            }
+            // for (const body of Matter.Composite.allBodies(engine.world)) {
+            //     for (const fastener of fasteners) {
+            //         if (fastener.parent == body) {
+            //             fastener.childOffset = Matter.Vector.sub(fastener.parent.position, fastener.child.position)
+            //             console.log(fastener.childOffset);
+            //         }
+            //     }
+            // }
+        };
+
+        document.getElementById('addBtn').onclick = (e) => {
+            const sizes = [
+                [100, 50],
+                [50, 50],
+                [100, 100],
+                [200, 100],
+                [200, 50],
+            ]
+            const body = Bodies.rectangle(window.innerWidth / 2, 0, ...sizes[Math.floor(Math.random() * sizes.length)]);
+            if (paused) freezeBody(body)
+            Composite.add(engine.world, body);
+        }
+
+        document.getElementById('fastenBtn').onclick = (e) => {
+            fasteners.push({
+                type: 'motor',
+                holding: true
+            })
+        }
+
+        // static drag events
+        let maxZ = 0;
+        function sortZ(arr) {
+            arr.sort((a, b) => {
+                const aFixed = a.isFixed ? 1 : 0;
+                const bFixed = b.isFixed ? 1 : 0;
+                if (aFixed !== bFixed) {
+                    return bFixed - aFixed;
+                }
+                return (b.zIndex || 0) - (a.zIndex || 0);
+            });
+        }
+        Matter.Events.on(mouseConstraint, 'startdrag', (event) => {
+            var body;
+            const mpos = event.mouse.position;
+            const bodies = Matter.Composite.allBodies(engine.world);
+            const found = bodies.filter(body => Matter.Bounds.contains(body.bounds, mpos) && Matter.Vertices.contains(body.vertices, mpos));
+            if (found.length) {
+                sortZ(found);
+                body = found[0];
+            }
+            if (!body)
+                return;
+            if (paused && !body.isImmovable) {
+                body.isDragging = true;
+                body.dragOffset = Matter.Vector.sub(mpos, body.position);
+            }
+            body.zIndex = ++maxZ;
+            Composite.remove(engine.world, body);
+            Composite.add(engine.world, body);
+        });
+
+        Matter.Events.on(mouseConstraint, 'enddrag', (event) => {
+            Matter.Composite.allBodies(engine.world).forEach((body) => {
+                if (!body.isImmovable && body.isDragging)
+                    body.isDragging = false;
+            });
+        });
+
+        let nextCategory = 0x0002;
+        let bodyCategories = new Map();
+
+        function assignCategory(body) {
+            if (!bodyCategories.has(body)) {
+                if (nextCategory > 0x80000000)
+                    throw new Error('Exceeded max unique collision categories (32)');
+                bodyCategories.set(body, nextCategory);
+                body.collisionFilter.category = nextCategory;
+                body.collisionFilter.mask = 0xFFFFFFFF;
+                nextCategory <<= 1;
+            }
+        }
+
+        function excludePair(bodyA, bodyB) {
+            assignCategory(bodyA);
+            assignCategory(bodyB);
+            bodyA.collisionFilter.mask &= ~bodyCategories.get(bodyB);
+            bodyB.collisionFilter.mask &= ~bodyCategories.get(bodyA);
+        }
+
+        function includePair(bodyA, bodyB) {
+            if (bodyCategories.has(bodyA) && bodyCategories.has(bodyB)) {
+                bodyA.collisionFilter.mask |= bodyCategories.get(bodyB);
+                bodyB.collisionFilter.mask |= bodyCategories.get(bodyA);
+            }
+        }
+
+        Matter.Events.on(mouseConstraint, 'mousedown', (event) => {
+            for (let i = fasteners.length - 1; i >= 0; i--) {
+                const fastener = fasteners[i]
+                if (fastener.holding) {
+                    const mpos = event.mouse.position;
+                    const bodies = Matter.Composite.allBodies(engine.world);
+                    const found = bodies.filter(body => Matter.Bounds.contains(body.bounds, mpos) && Matter.Vertices.contains(body.vertices, mpos));
+                    sortZ(found)
+                    if (found.length > 1) {
+                        fastener.holding = false;
+                        const bodyA = found[0], bodyB = found[1]
+                        fastener.parent = bodyA
+                        fastener.child = bodyB
+                        fastener.offset = Matter.Vector.sub(mpos, bodyA.position)
+                        // fastener.childOffset = Matter.Vector.sub(bodyA.position, bodyB.position)
+
+                        excludePair(bodyA, bodyB);
+
+                        const constraint = Matter.Constraint.create({
+                            bodyA: bodyA,
+                            pointA: Matter.Vector.sub(mpos, bodyA.position),
+                            bodyB: bodyB,
+                            pointB: Matter.Vector.sub(mpos, bodyB.position),
+                            stiffness: 0.7,
+                            length: 0,
+                        });
+                        Composite.add(engine.world, constraint);
+                    }
+                    else fasteners.splice(i, 1);
+                }
+            }
+        });
+
+        // pause functionality
+        // Events.on(engine, 'beforeUpdate', () => {
+        //     if (paused) {
+        //         engine.gravity.y = 0;
+        //         Composite.allBodies(engine.world).forEach(body => {
+        //             if (!body.isStatic && !body.isSensor) {
+        //                 Body.setVelocity(body, { x: 0, y: 0 });
+        //                 Body.setAngularVelocity(body, 0);
+        //             }
+        //         });
+
+        //     } else {
+        //         engine.gravity.y = 1;
+        //     }
+        // });
+
+        const vec = (x, y) => Matter.Vector.create(x, y)
+
+        const fasteners = []
+
+        function drawStripedTexture(body) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(body.vertices[0].x, body.vertices[0].y);
+            for (let i = 1; i < body.vertices.length; i++) {
+                ctx.lineTo(body.vertices[i].x, body.vertices[i].y);
+            }
+            ctx.closePath();
+            ctx.clip();
+            ctx.translate(body.position.x, body.position.y);
+            ctx.rotate(body.angle);
+            const localVerts = body.vertices.map(v => {
+                const rel = Matter.Vector.sub(v, body.position);
+                const cos = Math.cos(-body.angle);
+                const sin = Math.sin(-body.angle);
+                return {
+                    x: rel.x * cos - rel.y * sin,
+                    y: rel.x * sin + rel.y * cos,
+                };
+            });
+            const width = Matter.Vector.magnitude(Matter.Vector.sub(localVerts[1], localVerts[0]));
+            const height = Matter.Vector.magnitude(Matter.Vector.sub(localVerts[2], localVerts[1]));
+            const stripeWidth = 20;
+            const skew = 50;
+            const stripeCount = (width + skew) / stripeWidth;
+            for (let i = 0; i < stripeCount + 5; i++) {
+                ctx.fillStyle = i % 2 === 0 ? 'yellow' : 'black';
+                ctx.beginPath();
+                ctx.moveTo(-width / 2 - skew + i * stripeWidth, -height / 2);
+                ctx.lineTo(-width / 2 - skew + i * stripeWidth + stripeWidth, -height / 2);
+                ctx.lineTo(-width / 2 - skew + i * stripeWidth + stripeWidth + skew, height / 2);
+                ctx.lineTo(-width / 2 - skew + i * stripeWidth + skew, height / 2);
+                ctx.closePath();
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+
+        function drawFastener(pos, rot) {
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 3;
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, 5, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, 12, 0 + rot, Math.PI / 2 + rot);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, 12, Math.PI + rot, Math.PI * 3 / 2 + rot);
+            ctx.stroke();
+        }
+
+        // render pipeline
+        const ctx = render.context;
+        Events.on(render, 'beforeRender', () => {
+            engine.world.bodies = engine.world.bodies.sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0));
+        });
+        Events.on(render, 'afterRender', () => {
+            const bodies = Composite.allBodies(engine.world);
+            // bodies.sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0));
+            bodies.forEach((body) => {
+                if (!body.isImmovable && body.isDragging) {
+                    Body.setPosition(body, Matter.Vector.sub(mouse.position, body.dragOffset));
+                }
+                if (body.isFixed) {
+                    // draw textures
+                    drawStripedTexture(body);
+                }
+                if (body.isPaused) {
+                    Matter.Body.setVelocity(body, { x: 0, y: 0 });
+                    Matter.Body.setAngularVelocity(body, 0);
+                }
+            });
+
+            for (const fastener of fasteners) {
+                const rotation = performance.now() / 200
+                if (fastener.holding) {
+                    const mpos = mouse.position;
+                    drawFastener(mpos, rotation);
+                }
+                else {
+                    ctx.save();
+                    ctx.translate(fastener.parent.position.x, fastener.parent.position.y);
+                    ctx.rotate(fastener.parent.angle);
+                    drawFastener(fastener.offset, rotation);
+                    ctx.restore();
+                    if (fastener.type == 'motor' && !paused) {
+                        Body.setAngularVelocity(fastener.child, Math.PI / 100);
+                    }
+                    // if (paused) {
+                    //     if (fastener.childOffset)
+                    //         Matter.Body.setPosition(fastener.child, Matter.Vector.sub(fastener.parent.position, fastener.childOffset))
+                    //     if (fastener.parentOffset)
+                    //         Matter.Body.setPosition(fastener.parent, Matter.Vector.sub(fastener.child.position, fastener.parentOffset))
+                    // }
+                }
+            }
+        });
+
+    </script>
+</body>
+
+</html>

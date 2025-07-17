@@ -17,8 +17,8 @@ Create animated and interactive wallpapers with HTML/CSS/JS for Windows 10 & 11
 ## Octos Desktop App
 Customize your desktop, download community wallpapers, and more, all from the Octos desktop app. Download for free on Windows 10 & 11.
 
-## Octos Studio
-Easily personalize your desktop with this interactive interface.
+<!-- ## Octos Studio
+Easily personalize your desktop with this interactive interface. -->
 
 ## Octos Community
 Join the Octos community to share your wonderful creations with the world! It's ridiculously easy to make and share HTML wallpapers with Octos.

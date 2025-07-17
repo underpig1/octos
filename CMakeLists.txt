@@ -4,14 +4,13 @@ project(Octos LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_compile_options(/FS)
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.cpp")
-add_executable(main WIN32 ${SOURCES})
+add_executable(octos WIN32 ${SOURCES})
 
-target_compile_definitions(main PRIVATE WEBVIEW2_NO_IDL UNICODE _UNICODE)
-target_compile_options(main PRIVATE /FS)
+target_compile_definitions(octos PRIVATE WEBVIEW2_NO_IDL UNICODE _UNICODE)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /FS")
 
-target_link_libraries(main PRIVATE
+target_link_libraries(octos PRIVATE
     unofficial::webview2::webview2
     WIL::WIL
     nlohmann_json::nlohmann_json
@@ -29,18 +28,17 @@ target_link_libraries(main PRIVATE
     Crypt32
 )
 
-# Find vcpkg packages
 find_package(wil CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(unofficial-webview2 CONFIG REQUIRED)
 
-set_target_properties(main PROPERTIES
+set_target_properties(octos PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/out"
 )
 
-add_custom_command(TARGET main POST_BUILD
+add_custom_command(TARGET octos POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_SOURCE_DIR}/assets"
-        "$<TARGET_FILE_DIR:main>/"
+        "$<TARGET_FILE_DIR:octos>/"
     COMMENT "Copying asset files to output directory"
 )

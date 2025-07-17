@@ -117,9 +117,12 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
             }
             else if (type == "refresh")
             {
+                std::thread([]()
+                            {
                 RecreateWallpapers();
                 std::wstring message = IterateWallpapersAsJsonString();
-                DispatchJson(message);
+                PostMessage(app_hwnd, WM_USER + 5, 0, (LPARAM) new std::wstring(message)); })
+                    .detach();
             }
             else if (type == "reload")
             {
@@ -127,8 +130,11 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
             }
             else if (type == "request-wallpaper-data")
             {
+                std::thread([]()
+                            {
                 std::wstring message = IterateWallpapersAsJsonString();
-                DispatchJson(message);
+                PostMessage(app_hwnd, WM_USER + 5, 0, (LPARAM) new std::wstring(message)); })
+                    .detach();
             }
             else if (type == "install-wallpaper")
             {
@@ -177,7 +183,10 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
                 }
             }
             else if (type == "request-prefs")
-                DispatchJson(LoadPrefsAsJsonString());
+                std::thread([]()
+                            { std::wstring message = LoadPrefsAsJsonString(); 
+                            PostMessage(app_hwnd, WM_USER + 5, 0, (LPARAM) new std::wstring(message)); })
+                    .detach();
             else if (type == "dump-prefs")
             {
                 if (j.contains("value") && j["value"].is_object())
@@ -264,8 +273,7 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
             }
             else if (type == "dump-config")
             {
-                if (j.contains("configPath") && j["configPath"].is_string()
-            && j.contains("data") && j["data"].is_object())
+                if (j.contains("configPath") && j["configPath"].is_string() && j.contains("data") && j["data"].is_object())
                 {
                     std::string configPath = j["configPath"];
                     DumpConfig(to_wstring(configPath), j["data"]);
@@ -292,7 +300,7 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
                     MonitorWindow *mw = FindMonitorWindowById(to_wstring(monitorId));
                     if (IsWindow(mw->hwnd))
                         OpenDevTools(mw->hwnd);
-                } 
+                }
             }
         }
         else
@@ -319,9 +327,8 @@ void WaitForMainWindowAndDispatch(std::wstring message)
 {
     if (message.empty())
         return;
-    WaitForMainWindowAndCallback([message]() {
-        PostMessage(app_hwnd, WM_USER + 5, 0, (LPARAM) new std::wstring(message));
-    });
+    WaitForMainWindowAndCallback([message]()
+                                 { PostMessage(app_hwnd, WM_USER + 5, 0, (LPARAM) new std::wstring(message)); });
 }
 
 void HandleOnHwndLoadMessage(HWND hwnd)
