@@ -40,6 +40,31 @@
         #fastenBtn {
             top: 90px;
         }
+
+        #tooltip {
+            position: absolute;
+            padding: 8px 12px;
+            background: #222;
+            color: white;
+            border-radius: 5px;
+            pointer-events: none;
+            font-family: sans-serif;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            color: gray;
+            transition: opacity 0.15s ease;
+        }
+
+        #tooltip::after {
+            content: "";
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #222;
+        }
     </style>
 </head>
 
@@ -47,6 +72,7 @@
     <button id="pauseBtn">Pause</button>
     <button id="addBtn">Add</button>
     <button id="fastenBtn">Fastener</button>
+    <p id="tooltip">Right click to delete</p>
     <canvas id="canvas"></canvas>
     <script src="matter.min.js"></script>
     <script>
@@ -125,14 +151,6 @@
                 });
                 engine.world.gravity.y = 1;
             }
-            // for (const body of Matter.Composite.allBodies(engine.world)) {
-            //     for (const fastener of fasteners) {
-            //         if (fastener.parent == body) {
-            //             fastener.childOffset = Matter.Vector.sub(fastener.parent.position, fastener.child.position)
-            //             console.log(fastener.childOffset);
-            //         }
-            //     }
-            // }
         };
 
         document.getElementById('addBtn').onclick = (e) => {
@@ -143,48 +161,96 @@
                 [200, 100],
                 [200, 50],
             ]
-            const body = Bodies.rectangle(window.innerWidth / 2, 0, ...sizes[Math.floor(Math.random() * sizes.length)]);
+            // const body = Bodies.rectangle(window.innerWidth / 2, 0, ...sizes[Math.floor(Math.random() * sizes.length)]);
+            const body = Bodies.circle(window.innerWidth / 2, 0, 100);
             if (paused) freezeBody(body)
             Composite.add(engine.world, body);
         }
 
         document.getElementById('fastenBtn').onclick = (e) => {
+            holdingFastener = true;
             fasteners.push({
-                type: 'motor',
+                type: 'connect',
                 holding: true
             })
+            e.stopPropagation();
         }
+
+        // object handles
+        let editingBody = false;
+        function startEditingBody(body) {
+            editingBody = body;
+            sendToTop(editingBody);
+            editingBody.isStatic = false;
+        }
+
+        function stopEditingBody() {
+            if (editingBody.isFixed)
+                editingBody.isStatic = true;
+            editingBody = false
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            const mpos = mouse.position;
+            const bodies = [...Matter.Composite.allBodies(engine.world)].reverse();
+            for (const b of bodies) {
+                if (Matter.Bounds.contains(b.bounds, mpos) && Matter.Vertices.contains(b.vertices, mpos)) {
+                    return;
+                }
+                else if (isMouseOverBodyHandle(b)) {
+                    startEditingBody(b)
+                    return;
+                }
+            }
+        })
+        canvas.addEventListener('mouseup', (e) => stopEditingBody());
+        canvas.addEventListener('mouseleave', (e) => stopEditingBody());
+        canvas.addEventListener('mousemove', (e) => {
+            if (editingBody) {
+                const mouseX = mouse.position.x;
+                const mouseY = mouse.position.y;
+                const centerX = editingBody.position.x;
+                const centerY = editingBody.position.y;
+                const angle = Math.atan2(mouseY - centerY, mouseX - centerX) + Math.PI/2;
+                Matter.Body.setAngle(editingBody, angle);
+                mouseConstraint.constraint.bodyB = null;
+            }
+        });
 
         // static drag events
         let maxZ = 0;
-        function sortZ(arr) {
-            arr.sort((a, b) => {
-                const aFixed = a.isFixed ? 1 : 0;
-                const bFixed = b.isFixed ? 1 : 0;
-                if (aFixed !== bFixed) {
-                    return bFixed - aFixed;
-                }
-                return (b.zIndex || 0) - (a.zIndex || 0);
-            });
-        }
-        Matter.Events.on(mouseConstraint, 'startdrag', (event) => {
-            var body;
-            const mpos = event.mouse.position;
-            const bodies = Matter.Composite.allBodies(engine.world);
-            const found = bodies.filter(body => Matter.Bounds.contains(body.bounds, mpos) && Matter.Vertices.contains(body.vertices, mpos));
-            if (found.length) {
-                sortZ(found);
-                body = found[0];
-            }
-            if (!body)
-                return;
-            if (paused && !body.isImmovable) {
-                body.isDragging = true;
-                body.dragOffset = Matter.Vector.sub(mpos, body.position);
-            }
+        function sendToTop(body) {
             body.zIndex = ++maxZ;
             Composite.remove(engine.world, body);
             Composite.add(engine.world, body);
+        }
+
+        Matter.Events.on(mouseConstraint, 'startdrag', (event) => {
+            if (paused && !editingBody) {
+                let body;
+                const mpos = event.mouse.position;
+                const bodies = [...Matter.Composite.allBodies(engine.world)].reverse();
+                for (const b of bodies) {
+                    if (Matter.Bounds.contains(b.bounds, mpos) && Matter.Vertices.contains(b.vertices, mpos)) {
+                        body = b;
+                        break;
+                    }
+                    else if (isMouseOverBodyHandle(b)) {
+                        startEditingBody(b)
+                        return;
+                    }
+                }
+
+                if (body) {
+                    if (!body.isImmovable) {
+                        body.isDragging = true;
+                        body.dragOffset = Matter.Vector.sub(mpos, body.position);
+                    }
+                    if (!holdingFastener) {
+                        sendToTop(body);
+                    }
+                }
+            }
         });
 
         Matter.Events.on(mouseConstraint, 'enddrag', (event) => {
@@ -194,6 +260,7 @@
             });
         });
 
+        // collision filters
         let nextCategory = 0x0002;
         let bodyCategories = new Map();
 
@@ -222,70 +289,83 @@
             }
         }
 
-        Matter.Events.on(mouseConstraint, 'mousedown', (event) => {
-            for (let i = fasteners.length - 1; i >= 0; i--) {
-                const fastener = fasteners[i]
-                if (fastener.holding) {
-                    const mpos = event.mouse.position;
-                    const bodies = Matter.Composite.allBodies(engine.world);
-                    const found = bodies.filter(body => Matter.Bounds.contains(body.bounds, mpos) && Matter.Vertices.contains(body.vertices, mpos));
-                    sortZ(found)
-                    if (found.length > 1) {
-                        fastener.holding = false;
-                        const bodyA = found[0], bodyB = found[1]
-                        fastener.parent = bodyA
-                        fastener.child = bodyB
-                        fastener.offset = Matter.Vector.sub(mpos, bodyA.position)
-                        // fastener.childOffset = Matter.Vector.sub(bodyA.position, bodyB.position)
+        function addFastener(fastener, bodyA, bodyB) {
+            const mpos = mouse.position;
+            fastener.holding = false;
+            fastener.parent = bodyA
+            fastener.child = bodyB
+            fastener.offset = Matter.Vector.rotate(Matter.Vector.sub(mpos, bodyA.position), - bodyA.angle)
+            // fastener.childOffset = Matter.Vector.sub(bodyA.position, bodyB.position)
 
-                        excludePair(bodyA, bodyB);
+            excludePair(bodyA, bodyB);
 
-                        const constraint = Matter.Constraint.create({
-                            bodyA: bodyA,
-                            pointA: Matter.Vector.sub(mpos, bodyA.position),
-                            bodyB: bodyB,
-                            pointB: Matter.Vector.sub(mpos, bodyB.position),
-                            stiffness: 0.7,
-                            length: 0,
-                        });
-                        Composite.add(engine.world, constraint);
-                    }
-                    else fasteners.splice(i, 1);
+            const constraint = Matter.Constraint.create({
+                bodyA: bodyA,
+                pointA: Matter.Vector.sub(mpos, bodyA.position),
+                bodyB: bodyB,
+                pointB: Matter.Vector.sub(mpos, bodyB.position),
+                stiffness: fastener.type == 'connect' ? 1 : 0.7,
+                length: 0,
+                render: {
+                    visible: false
+                },
+                offset: vec(0, 0)
+            });
+            fastener.constraints = [constraint]
+            Composite.add(engine.world, constraint);
+
+            if (fastener.type == 'connect') {
+                const offsets = [vec(10, 10), vec(-10, -10)]
+                for (const offset of offsets) {
+                    const addedConstraint = Matter.Constraint.create({
+                        bodyA: bodyA,
+                        pointA: Matter.Vector.add(Matter.Vector.sub(mpos, bodyA.position), offset),
+                        bodyB: bodyB,
+                        pointB: Matter.Vector.add(Matter.Vector.sub(mpos, bodyB.position), offset),
+                        stiffness: 1,
+                        length: 0,
+                        render: {
+                            visible: false
+                        },
+                        offset
+                    });
+                    fastener.constraints.push(addedConstraint);
+                    Composite.add(engine.world, addedConstraint);
                 }
             }
+        }
+
+        // place object
+        canvas.addEventListener('click', (event) => {
+            if (holdingFastener)
+                for (let i = fasteners.length - 1; i >= 0; i--) {
+                    const fastener = fasteners[i]
+                    if (fastener.holding) {
+                        holdingFastener = false;
+                        const mpos = mouse.position;
+                        const bodies = [...Matter.Composite.allBodies(engine.world)].reverse().sort((a, b) => (b.isFixed ? 1 : 0) - (a.isFixed ? 1 : 0));
+                        let bodyA, bodyB
+                        for (const b of bodies) {
+                            if (Matter.Bounds.contains(b.bounds, mpos) && Matter.Vertices.contains(b.vertices, mpos)) {
+                                if (bodyA && bodyB)
+                                    break;
+                                else if (bodyA)
+                                    bodyB = b
+                                else
+                                    bodyA = b
+                            }
+                        }
+                        if (bodyA && bodyB)
+                            addFastener(fastener, bodyA, bodyB);
+                        else fasteners.splice(i, 1);
+                    }
+                }
         });
 
-        // pause functionality
-        // Events.on(engine, 'beforeUpdate', () => {
-        //     if (paused) {
-        //         engine.gravity.y = 0;
-        //         Composite.allBodies(engine.world).forEach(body => {
-        //             if (!body.isStatic && !body.isSensor) {
-        //                 Body.setVelocity(body, { x: 0, y: 0 });
-        //                 Body.setAngularVelocity(body, 0);
-        //             }
-        //         });
-
-        //     } else {
-        //         engine.gravity.y = 1;
-        //     }
-        // });
-
-        const vec = (x, y) => Matter.Vector.create(x, y)
-
-        const fasteners = []
-
-        function drawStripedTexture(body) {
-            ctx.save();
-            ctx.beginPath();
-            ctx.moveTo(body.vertices[0].x, body.vertices[0].y);
-            for (let i = 1; i < body.vertices.length; i++) {
-                ctx.lineTo(body.vertices[i].x, body.vertices[i].y);
-            }
-            ctx.closePath();
-            ctx.clip();
-            ctx.translate(body.position.x, body.position.y);
-            ctx.rotate(body.angle);
+        // render pipeline
+        function getLocalDimensions(body) {
+            if (body.circleRadius)
+                return [body.circleRadius * 2, body.circleRadius * 2];
             const localVerts = body.vertices.map(v => {
                 const rel = Matter.Vector.sub(v, body.position);
                 const cos = Math.cos(-body.angle);
@@ -297,23 +377,46 @@
             });
             const width = Matter.Vector.magnitude(Matter.Vector.sub(localVerts[1], localVerts[0]));
             const height = Matter.Vector.magnitude(Matter.Vector.sub(localVerts[2], localVerts[1]));
-            const stripeWidth = 20;
-            const skew = 50;
-            const stripeCount = (width + skew) / stripeWidth;
-            for (let i = 0; i < stripeCount + 5; i++) {
-                ctx.fillStyle = i % 2 === 0 ? 'yellow' : 'black';
+            return [width, height]
+        }
+
+        function contextDrawLocal(body, callback, clip = true) {
+            ctx.save();
+            if (clip) {
                 ctx.beginPath();
-                ctx.moveTo(-width / 2 - skew + i * stripeWidth, -height / 2);
-                ctx.lineTo(-width / 2 - skew + i * stripeWidth + stripeWidth, -height / 2);
-                ctx.lineTo(-width / 2 - skew + i * stripeWidth + stripeWidth + skew, height / 2);
-                ctx.lineTo(-width / 2 - skew + i * stripeWidth + skew, height / 2);
+                ctx.moveTo(body.vertices[0].x, body.vertices[0].y);
+                for (let i = 1; i < body.vertices.length; i++) {
+                    ctx.lineTo(body.vertices[i].x, body.vertices[i].y);
+                }
                 ctx.closePath();
-                ctx.fill();
+                ctx.clip();
             }
+            ctx.translate(body.position.x, body.position.y);
+            ctx.rotate(body.angle);
+            const [width, height] = getLocalDimensions(body)
+            callback(width, height);
             ctx.restore();
         }
 
-        function drawFastener(pos, rot) {
+        function drawStripedTexture(body) {
+            contextDrawLocal(body, (width, height) => {
+                const stripeWidth = 20;
+                const skew = 50;
+                const stripeCount = (width + skew) / stripeWidth;
+                for (let i = 0; i < stripeCount + 5; i++) {
+                    ctx.fillStyle = i % 2 === 0 ? 'yellow' : 'black';
+                    ctx.beginPath();
+                    ctx.moveTo(-width / 2 - skew + i * stripeWidth, -height / 2);
+                    ctx.lineTo(-width / 2 - skew + i * stripeWidth + stripeWidth, -height / 2);
+                    ctx.lineTo(-width / 2 - skew + i * stripeWidth + stripeWidth + skew, height / 2);
+                    ctx.lineTo(-width / 2 - skew + i * stripeWidth + skew, height / 2);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+            });
+        }
+
+        function drawFastener(pos, rot, type) {
             ctx.strokeStyle = 'white';
             ctx.lineWidth = 3;
             ctx.fillStyle = 'white';
@@ -321,61 +424,136 @@
             ctx.arc(pos.x, pos.y, 5, 0, Math.PI * 2);
             ctx.closePath();
             ctx.fill();
-            ctx.beginPath();
-            ctx.arc(pos.x, pos.y, 12, 0 + rot, Math.PI / 2 + rot);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.arc(pos.x, pos.y, 12, Math.PI + rot, Math.PI * 3 / 2 + rot);
-            ctx.stroke();
+            if (type == 'hinge') {
+                for (let i = 0; i < Math.PI * 2; i += Math.PI) {
+                    ctx.beginPath();
+                    ctx.arc(pos.x, pos.y, 12, i + rot, i + Math.PI / 2 + rot);
+                    ctx.stroke();
+                }
+            }
+            else if (type == 'motor') {
+                for (let i = 0; i < Math.PI * 2; i += Math.PI / 2) {
+                    ctx.beginPath();
+                    ctx.arc(pos.x, pos.y, 12, i + rot, i + Math.PI / 4 + rot);
+                    ctx.stroke();
+                }
+            }
         }
 
-        // render pipeline
+        function drawControls(body) {
+            contextDrawLocal(body, (width, height) => {
+                ctx.strokeStyle = 'white';
+                ctx.fillStyle = 'white'
+                ctx.lineWidth = 3;
+                // borders
+                ctx.beginPath();
+                ctx.rect(-width / 2, -height / 2, width, height)
+                ctx.stroke();
+                // rotate handle
+                ctx.moveTo(0, -height / 2)
+                ctx.lineTo(0, -height / 2 - 15)
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(0, -height / 2 - 15, 5, 0, Math.PI * 2)
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(0, -height / 2 - 15, 8, 0, Math.PI * 2)
+                ctx.stroke();
+                // resize handle
+                ctx.beginPath();
+                ctx.arc(width/2 +5, height / 2 + 5, 5, 0, Math.PI * 2)
+                ctx.fill();
+            }, false);
+        }
+
+        function isMouseOverBodyHandle(body) {
+            const [width, height] = getLocalDimensions(body);
+            const localX = 0;
+            const localY = -height / 2 - 15;
+            const cos = Math.cos(body.angle);
+            const sin = Math.sin(body.angle);
+            const handlePos = {
+                x: body.position.x + localX * cos - localY * sin,
+                y: body.position.y + localX * sin + localY * cos,
+            };
+            const dx = mouse.position.x - handlePos.x;
+            const dy = mouse.position.y - handlePos.y;
+            return dx * dx + dy * dy <= 16**2;
+        }
+
         const ctx = render.context;
+        let rotation = 0;
+        let holdingFastener = false;
+        let controls = {};
+        const vec = (x, y) => Matter.Vector.create(x, y)
+        const fasteners = []
+
         Events.on(render, 'beforeRender', () => {
             engine.world.bodies = engine.world.bodies.sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0));
         });
-        Events.on(render, 'afterRender', () => {
-            const bodies = Composite.allBodies(engine.world);
-            // bodies.sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0));
-            bodies.forEach((body) => {
-                if (!body.isImmovable && body.isDragging) {
-                    Body.setPosition(body, Matter.Vector.sub(mouse.position, body.dragOffset));
-                }
-                if (body.isFixed) {
-                    // draw textures
+
+        Matter.Render.world = (render) => {
+            const ctx = render.context;
+            const bodies = Composite.allBodies(render.engine.world);
+            ctx.clearRect(0, 0, render.options.width, render.options.height);
+            controls = {};
+            for (const body of bodies) {
+                // drawing
+                if (body.isFixed) { // striped texture
                     drawStripedTexture(body);
                 }
-                if (body.isPaused) {
+                else { // base texture
+                    ctx.fillStyle = body.render.fillStyle;
+                    ctx.beginPath();
+                    const verts = body.vertices;
+                    ctx.moveTo(verts[0].x, verts[0].y);
+                    for (let i = 1; i < verts.length; i++) {
+                        ctx.lineTo(verts[i].x, verts[i].y);
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                }
+                if (paused && !body.isImmovable) {
+                    drawControls(body);
+                }
+
+                // dragging
+                if (paused && !body.isImmovable && body.isDragging) {
+                    Body.setPosition(body, Matter.Vector.sub(mouse.position, body.dragOffset));
+                }
+
+                // pause
+                if (paused) {
                     Matter.Body.setVelocity(body, { x: 0, y: 0 });
                     Matter.Body.setAngularVelocity(body, 0);
                 }
-            });
+            }
 
+            // draw fasteners
             for (const fastener of fasteners) {
-                const rotation = performance.now() / 200
                 if (fastener.holding) {
                     const mpos = mouse.position;
-                    drawFastener(mpos, rotation);
+                    drawFastener(mpos, rotation, fastener.type);
                 }
                 else {
                     ctx.save();
                     ctx.translate(fastener.parent.position.x, fastener.parent.position.y);
                     ctx.rotate(fastener.parent.angle);
-                    drawFastener(fastener.offset, rotation);
+                    drawFastener(fastener.offset, rotation, fastener.type);
                     ctx.restore();
                     if (fastener.type == 'motor' && !paused) {
                         Body.setAngularVelocity(fastener.child, Math.PI / 100);
                     }
-                    // if (paused) {
-                    //     if (fastener.childOffset)
-                    //         Matter.Body.setPosition(fastener.child, Matter.Vector.sub(fastener.parent.position, fastener.childOffset))
-                    //     if (fastener.parentOffset)
-                    //         Matter.Body.setPosition(fastener.parent, Matter.Vector.sub(fastener.child.position, fastener.parentOffset))
-                    // }
                 }
             }
-        });
+            if (!paused)
+                rotation += Math.PI / 1000 * engine.timing.lastDelta
 
+            // draw tooltips
+            if (paused) {
+
+            }
+        };
     </script>
 </body>
 
