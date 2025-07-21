@@ -1,0 +1,1348 @@
+// initialize
+const { Engine, Render, Runner, Bodies, Composite, Mouse, MouseConstraint, Constraint, Events, Body } = Matter;
+
+const canvas = document.getElementById('canvas');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+const vec = (x, y) => Matter.Vector.create(x, y)
+
+const engine = Engine.create();
+engine.gravity.y = 1;
+
+const render = Render.create({
+    engine: engine,
+    canvas: canvas,
+    options: {
+        width: window.innerWidth,
+        height: window.innerHeight,
+        wireframes: false,
+        background: 'white'
+    }
+});
+
+const mouse = Mouse.create(document.body);
+const mouseConstraint = MouseConstraint.create(engine, {
+    mouse: mouse,
+    constraint: {
+        stiffness: 0.2,
+        render: { visible: false }
+    }
+});
+
+Composite.add(engine.world, mouseConstraint);
+
+Render.run(render);
+const runner = Runner.create();
+Runner.run(runner, engine);
+
+// menu controls
+let paused = false;
+const pauseBtn = document.getElementById('pauseBtn');
+
+function freezeBody(body) {
+    body.isPaused = true;
+    body.isSensor = true;
+    Matter.Body.setVelocity(body, { x: 0, y: 0 });
+    Matter.Body.setAngularVelocity(body, 0);
+}
+
+function togglePause() {
+    paused = !paused;
+    const el = document.getElementById('pause-btn')
+    if (paused) {
+        el.className = 'ri-play-large-line'
+        const bodies = Matter.Composite.allBodies(engine.world).filter(b => !b.isStatic);
+        bodies.forEach(body => {
+            freezeBody(body)
+        });
+        engine.world.gravity.y = 0
+    }
+    else {
+        el.className = 'ri-pause-line'
+        const bodies = Matter.Composite.allBodies(engine.world).filter(b => b.isPaused);
+        bodies.forEach(body => {
+            body.isPaused = false;
+            body.isSensor = false;
+        });
+        engine.world.gravity.y = settings.gravity;
+    }
+}
+
+let prevSettings = {};
+function updateSettings() {
+    engine.world.gravity.y = settings.gravity;
+    if (prevSettings.weightFactor != settings.weightFactor) {
+        for (const body of Composite.allBodies(engine.world)) {
+            if (body.isWeight) {
+                Matter.Body.setDensity(body, (settings.weightFactor || 1) * 5)
+            }
+        }
+    }
+    for (const id of Object.keys(settings)) {
+        const el = document.getElementById(id);
+        if (el)
+            el.value = settings[id];
+    }
+    if (prevSettings.theme != settings.theme)
+        setThemeElement(settings.theme)
+    prevSettings = { ...settings }
+}
+
+function onSelect(el, e) {
+    settings[el.id] = parseFloat(e.target.value);
+    updateSettings();
+}
+
+document.body.addEventListener('click', (e) => {
+    if (!document.getElementById('theme-menu').contains(e.target) && !document.getElementById('settings-menu').contains(e.target))
+        closeAllMenus()
+})
+
+let wasPausedBefore = false;
+function openMenu(id, e) {
+    const el = document.getElementById(id)
+    if (el.classList.contains('active')) {
+        el.classList.remove('active')
+        return;
+    }
+    for (const menu of document.getElementById('menus').children) {
+        if (menu.id != id)
+            menu.classList.remove('active');
+        else
+            menu.classList.add('active');
+    }
+    if (id == 'add-menu') {
+        wasPausedBefore = paused
+        if (!paused)
+            togglePause()
+    }
+    e.stopPropagation()
+}
+
+function closeAllMenus() {
+    for (const el of document.getElementsByClassName('menu')) {
+        closeMenu(el)
+    }
+}
+
+function closeMenu(el) {
+    el.classList.remove('active')
+}
+
+// adding entities
+let holdingBody = false;
+// let wasPausedBeforeHolding = false;
+function addBody(body) {
+    if (paused) freezeBody(body)
+    Composite.add(engine.world, body);
+    holdingBody = body;
+    // wasPausedBeforeHolding = paused
+    // if (!paused)
+    //     togglePause()
+}
+
+function pickRandomFillStyle() {
+    return Array.isArray(fillStyle) ? fillStyle[Math.floor(Math.random() * fillStyle.length)] : fillStyle
+}
+
+function addBasicShape(shape = 'rect', fixed = false) {
+    const pos = mouse.position
+    const body = shape == 'rect' ? Bodies.rectangle(pos.x, pos.y, 200, 100) : Bodies.circle(pos.x, pos.y, 40)
+    body.render = {
+        fillStyle: pickRandomFillStyle(),
+        lineWidth,
+        strokeStyle
+    };
+    if (fixed) {
+        body.isStatic = true
+        body.isFixed = true
+        body.isStatic = true
+    }
+    addBody(body)
+}
+
+function addBomb() {
+    const pos = mouse.position
+    const body = Bodies.circle(pos.x, pos.y, 20);
+    body.render = {
+        fillStyle: 'black',
+        lineWidth,
+        strokeStyle
+    };
+    body.initialTimer = 3000
+    body.timer = 3000;
+    body.isBomb = true;
+    addBody(body)
+}
+
+function addRadialForceSource(dir = 1) {
+    const pos = mouse.position
+    const body = Bodies.rectangle(pos.x, pos.y, 30, 30);
+    body.render = {
+        fillStyle: pickRandomFillStyle(),
+        lineWidth,
+        strokeStyle
+    };
+    Matter.Body.setDensity(body, 5);
+    body.radialForceSourceDir = dir
+    addBody(body)
+}
+
+function addWeight() {
+    const pos = mouse.position
+    const body = Bodies.circle(pos.x, pos.y, 20);
+    body.render = {
+        fillStyle: 'gray',
+        lineWidth,
+        strokeStyle
+    };
+    body.isWeight = true;
+    Matter.Body.setDensity(body, settings.weightFactor * 5);
+    addBody(body)
+}
+
+function addIce() {
+    const pos = mouse.position
+    const body = Bodies.rectangle(pos.x, pos.y, 50, 50);
+    body.render = {
+        fillStyle: iceStyle,
+        lineWidth,
+        strokeStyle
+    };
+    body.friction = 0;
+    body.frictionAir = 0;
+    body.frictionStatic = 0;
+    body.isIce = true;
+    addBody(body)
+}
+
+function addEntity(entity) {
+    switch (entity) {
+        case 'rect':
+            addBasicShape('rect', false)
+            break;
+        case 'circle':
+            addBasicShape('circle', false)
+            break;
+        case 'fixed-rect':
+            addBasicShape('rect', true)
+            break;
+        case 'fixed-circle':
+            addBasicShape('circle', true)
+            break;
+        case 'connect':
+            holdingFastener = true;
+            fasteners.push({
+                type: 'connect',
+                holding: true
+            })
+            break;
+        case 'hinge':
+            holdingFastener = true;
+            fasteners.push({
+                type: 'hinge',
+                holding: true
+            })
+            break;
+        case 'motor':
+            holdingFastener = true;
+            fasteners.push({
+                type: 'motor',
+                holding: true
+            })
+            break;
+        case 'attractor':
+            addRadialForceSource(-1);
+            break;
+        case 'repeller':
+            addRadialForceSource(1);
+            break;
+        case 'weight':
+            addWeight();
+            break;
+        case 'explosive':
+            addBomb();
+            break;
+        case 'ice':
+            addIce();
+            break;
+        default:
+            break;
+    }
+}
+
+// examples
+function createSevenSegmentRects(w, h, t) {
+    const halfh = h / 2;
+    const verth = h - t * 3
+    const halfw = w / 2;
+    return {
+        // Horizontal segments
+        A: { x: -halfw, y: -halfh, width: w, height: t },
+        D: { x: -halfw, y: halfh - t, width: w, height: t },
+        G: { x: -halfw, y: -t / 2, width: w, height: t },
+        // Vertical segments
+        B: { x: halfw - t + t, y: -halfh + t, width: t, height: verth / 2 },
+        C: { x: halfw - t + t, y: t / 2, width: t, height: verth / 2 },
+        E: { x: -halfw - t, y: t / 2, width: t, height: verth / 2 },
+        F: { x: -halfw - t, y: -halfh + t, width: t, height: verth / 2 },
+        COLON_TOP: { x: -halfw, y: -halfh / 2, width: t, height: t },
+        COLON_BOTTOM: { x: -halfw, y: halfh / 2, width: t, height: t }
+    };
+}
+
+
+const DIGIT_SEGMENTS = {
+    0: ['A', 'B', 'C', 'D', 'E', 'F'],
+    1: ['B', 'C'],
+    2: ['A', 'B', 'G', 'E', 'D'],
+    3: ['A', 'B', 'C', 'D', 'G'],
+    4: ['F', 'G', 'B', 'C'],
+    5: ['A', 'F', 'G', 'C', 'D'],
+    6: ['A', 'F', 'E', 'D', 'C', 'G'],
+    7: ['A', 'B', 'C'],
+    8: ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
+    9: ['A', 'B', 'C', 'D', 'F', 'G'],
+    ':': ['COLON_TOP', 'COLON_BOTTOM']
+};
+
+function createNumberRect(pos, n, width, height, thickness) {
+    const segments = createSevenSegmentRects(width, height, thickness);
+    const active = DIGIT_SEGMENTS[n] || [];
+    const rects = active.map(seg => segments[seg])
+    const bodies = []
+    for (const rect of rects) {
+        const body = Bodies.rectangle(rect.x + pos.x + rect.width / 2, rect.y + pos.y + rect.height / 2, rect.width, rect.height);
+        body.render = {
+            fillStyle: pickRandomFillStyle(),
+            lineWidth,
+            strokeStyle
+        };
+        Matter.Body.setDensity(body, 0.01)
+        // body.isStatic = true;
+        Composite.add(engine.world, body);
+        bodies.push(body)
+    }
+    return bodies
+}
+
+function removeAllBodies() {
+    const bodies = Composite.allBodies(engine.world)
+    for (const body of bodies) {
+        removeBody(body)
+    }
+}
+
+function createTimeRects() {
+    removeAllBodies();
+    const now = new Date();
+    const timeString = now.getHours().toString().padStart(2, '0') + ':' +
+        now.getMinutes().toString().padStart(2, '0');
+    const gap = 50, width = 100, height = 250, thickness = 15;
+    let pos = vec(window.innerWidth / 2, window.innerHeight / 2)
+    let totalWidth = (timeString.length - 1) * width + (timeString.length - 2) * gap + thickness - width / 2
+    pos.x -= totalWidth / 2
+    const bodies = []
+    for (const n of timeString) {
+        const b = createNumberRect(pos, n, width, height, thickness)
+        pos.x += (n == ':' ? thickness : width) + gap
+        bodies.push(...b)
+    }
+}
+
+function createTimeRectsDestroyer() {
+    // if (Math.random() > 0.5) {
+    //     const destroyer = Bodies.circle(window.innerWidth/2, window.innerHeight/2, 5, 5);
+    //     destroyer.render = {
+    //         fillStyle: pickRandomFillStyle(),
+    //         lineWidth,
+    //         strokeStyle
+    //     };
+    //     destroyer.initialTimer = 2000
+    //     destroyer.timer = 2000;
+    //     destroyer.isBomb = true;
+    //     Composite.add(engine.world, destroyer);
+    //     return;
+    // }
+    const o = [-1, 0, 1];
+    let i = Math.floor(Math.random() * 8);
+    if (i >= 4) i++;
+    const dir = vec(o[Math.floor(i / 3)], o[i % 3]);
+    const startY = window.innerHeight / 2 + dir.y * (window.innerHeight / 2 + 25)
+    const startX = window.innerWidth / 2 + dir.x * (window.innerWidth / 2 + 25)
+    const destroyer = Bodies.rectangle(startX, startY, 30, 30);
+    destroyer.render = {
+        fillStyle: pickRandomFillStyle(),
+        lineWidth,
+        strokeStyle
+    };
+    Matter.Body.setDensity(destroyer, 5);
+    destroyer.radialForceSourceDir = Math.random() < 0.5 ? -1 : 1
+    Matter.Body.setVelocity(destroyer, vec(dir.x * -20, dir.y * -20))
+    Composite.add(engine.world, destroyer);
+    if (Math.random() > 0.5) createTimeRectsDestroyer()
+}
+
+function startTime() {
+    settings.gravity = 0
+    engine.world.gravity.y = 0
+    createTimeRects();
+    let lastTime = new Date().getMinutes();
+    setInterval(() => {
+        const currentTime = new Date().getMinutes();
+        if (lastTime != currentTime) {
+            createTimeRectsDestroyer();
+            setTimeout(() => {
+                createTimeRects()
+            }, 3000)
+            lastTime = currentTime
+        }
+    }, 1000)
+}
+
+function loadExample(name) {
+    switch (name) {
+        case 'clock':
+            startTime();
+            break;
+        default:
+            break;
+    }
+}
+
+// theme
+function setThemeElement(newTheme) {
+    for (const menuItem of document.getElementById('theme-menu-content').children) {
+        if (menuItem.id != newTheme + "-theme")
+            menuItem.classList.remove('selected')
+        else
+            menuItem.classList.add('selected')
+    }
+    setTheme(newTheme);
+}
+
+// document.getElementById('fastenBtn').onclick = (e) => {
+//     holdingFastener = true;
+//     fasteners.push({
+//         type: 'motor',
+//         holding: true
+//     })
+//     e.stopPropagation();
+// }
+
+let fillStyle, strokeStyle, backgroundColor, controlStyle, stripeStyleA, stripeStyleB, lineWidth, fastenerStyle, bombActiveStyle, iceStyle
+function setTheme(t) {
+    settings.theme = t
+    if (t == 'outline') {
+        fillStyle = '#000000aa'
+        strokeStyle = 'gray'
+        backgroundColor = 'black'
+        controlStyle = 'gray'
+        stripeStyleA = '#000000aa'
+        stripeStyleB = '#000000aa'
+        fastenerStyle = 'gray'
+        bombActiveStyle = 'gray'
+        iceStyle = 'gray'
+        lineWidth = 2
+    }
+    else if (t == 'pencil') {
+        fillStyle = ['blue', 'orange', 'green', 'pink', 'yellow', 'gray', 'white', 'red']
+        strokeStyle = 'black'
+        backgroundColor = 'white'
+        controlStyle = 'black'
+        stripeStyleA = 'yellow'
+        stripeStyleB = 'black'
+        fastenerStyle = 'black'
+        bombActiveStyle = 'red'
+        iceStyle = '#a2d2df'
+        lineWidth = 5
+    }
+    else if (t == 'jelly') {
+        fillStyle = ['#ffffffaa', '#ff0000aa', '#ffff00aa', '#ff00ffaa', '#0000ffaa', '#00ffffaa', '#00ff00aa']
+        strokeStyle = '#000000aa'
+        backgroundColor = 'red'
+        controlStyle = '#4444ffaa'
+        stripeStyleA = '#ffff00aa'
+        stripeStyleB = '#000000aa'
+        fastenerStyle = '#000000aa'
+        bombActiveStyle = 'red'
+        iceStyle = '#a2d2df'
+        lineWidth = 7
+    }
+    else if (t == 'dark') {
+        fillStyle = '#222'
+        strokeStyle = '#333'
+        backgroundColor = '#111'
+        controlStyle = '#333'
+        stripeStyleA = '#222'
+        stripeStyleB = '#111'
+        fastenerStyle = '#333'
+        bombActiveStyle = '#333'
+        iceStyle = '#333'
+        lineWidth = 4
+    }
+    const bodies = Matter.Composite.allBodies(engine.world);
+    for (const body of bodies) {
+        if (Array.isArray(fillStyle))
+            body.render.fillStyle = fillStyle[Math.floor(Math.random() * fillStyle.length)];
+        else
+            body.render.fillStyle = fillStyle
+        if (body.isIce) body.render.fillStyle = iceStyle
+        body.render.strokeStyle = strokeStyle;
+    }
+    render.options.background = backgroundColor;
+    canvas.style.background = backgroundColor;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    setThemeElement('pencil')
+    restoreLocal()
+    startStorageLoop();
+});
+
+// the local state
+function serializeBody(body, seen = new WeakSet()) {
+    if (seen.has(body)) return { bodyId: body.id };
+    seen.add(body);
+    const result = {};
+    for (const key in body) {
+        let value = body[key];
+        if (value && typeof value === 'object') {
+            if ('id' in value) {
+                result[key] = { bodyId: value.id };
+            } else if (Array.isArray(value)) {
+                result[key] = value.map(item => {
+                    if (item && typeof item === 'object') {
+                        if ('id' in item) {
+                            return { bodyId: item.id };
+                        }
+                        return serializeBody(item, seen);
+                    }
+                    return item;
+                });
+            } else {
+                result[key] = serializeBody(value, seen);
+            }
+        } else {
+            result[key] = value;
+        }
+    }
+    return result;
+}
+
+function restoreBodyReferences(obj, bodyMap) {
+    if (!obj || typeof obj !== 'object') return obj;
+    if ('bodyId' in obj) {
+        if ('id' in obj && obj.id === obj.bodyId)
+            return obj
+        return bodyMap.get(obj.bodyId) || null;
+    }
+    for (const key in obj) {
+        const val = obj[key];
+        if (Array.isArray(val)) {
+            obj[key] = val.map(item => restoreBodyReferences(item, bodyMap));
+        } else if (val && typeof val === 'object') {
+            obj[key] = restoreBodyReferences(val, bodyMap);
+        }
+    }
+    return obj;
+}
+
+function serializeScene() {
+    const bodies = Matter.Composite.allBodies(engine.world);
+    const serializedBodies = bodies.map(body => serializeBody(body));
+    const serializedFasteners = [];
+    for (const fastener of fasteners) {
+        for (const constraint of fastener.constraints)
+            serializedBodies.push(serializeBody(constraint));
+        serializedFasteners.push(serializeBody(fastener))
+    }
+    // const serializedCategories = [];
+    // for (const [body, category] of bodyCategories) {
+    //     serializedCategories.push([serializeBody(body), category])
+    // }
+    // console.log('SERIALIZED BODIES', bodies)
+    return { bodies: serializedBodies, fasteners: serializedFasteners }
+}
+
+function deserializeAndLoadScene(json) {
+    console.log('RESTORING FROM ', json)
+    const bodyMap = new Map();
+    for (const b of json.bodies) bodyMap.set(b.id, b);
+    for (const b of json.fasteners) {
+        for (const c of b.constraints)
+            bodyMap.set(c.id, c);
+    }
+    const restoredBodies = json.bodies.map(data => restoreBodyReferences(data, bodyMap));
+    for (const body of restoredBodies) {
+        console.log('RESTORING IS ADDING ', body)
+        if (body.type == 'body') {
+            // if (paused)
+            //     freezeBody(body)
+            Matter.World.add(engine.world, body.parent);
+            if (body.isFixed) {
+                body.isStatic = true
+            }
+        }
+        else
+            Matter.World.add(engine.world, body);
+    }
+
+    const restoredFasteners = json.fasteners.map(data => restoreBodyReferences(data, bodyMap));
+    for (const data of restoredFasteners) {
+        fasteners.push(data);
+        setTimeout(() => {
+            console.log('EXCLUDING', data)
+            excludePair(data.parent, data.child)
+        }, 100)
+    }
+
+    // const restoredCategories = json.categories.map(data => [restoreBodyReferences(data[0], bodyMap), data[1]]);
+    // console.log(restoredCategories)
+    // bodyCategories = new Map(restoredCategories);
+    // cleanCategories()
+}
+
+function storeLocal() {
+    const { bodies: serializedBodies, fasteners: serializedFasteners } = serializeScene();
+    localStorage.setItem("bodies", JSON.stringify(serializedBodies));
+    localStorage.setItem("fasteners", JSON.stringify(serializedFasteners));
+    localStorage.setItem("settings", JSON.stringify(settings));
+    // localStorage.setItem("categories", JSON.stringify(serializedCategories));
+}
+
+function restoreLocal() {
+    const scene = {
+        bodies: JSON.parse(localStorage.getItem("bodies")),
+        fasteners: JSON.parse(localStorage.getItem("fasteners")),
+        // categories: JSON.parse(localStorage.getItem("categories"))
+    }
+    if (!scene.bodies || !scene.fasteners) {
+        createInitialScene();
+        return;
+    }
+    removeAllBodies();
+    setTimeout(() => {
+        deserializeAndLoadScene(scene);
+    }, 100)
+
+
+    const loadedSettings = JSON.parse(localStorage.getItem("settings"));
+    if (loadedSettings) {
+        settings = loadedSettings
+        updateSettings();
+    }
+}
+
+function startStorageLoop() {
+    setInterval(() => {
+        storeLocal();
+    }, 5000)
+}
+
+function createInitialScene() {
+    removeAllBodies();
+    const boxA = Bodies.rectangle(400, 200, 100, 50, { isStatic: false, isFixed: true, render: { fillStyle: "transparent" } });
+    Matter.Body.setStatic(boxA, true)
+    const boxB = Bodies.rectangle(450, 50, 80, 80);
+    const ground = Bodies.rectangle(
+        window.innerWidth / 2,
+        window.innerHeight - 30,
+        window.innerWidth,
+        60,
+        { isStatic: true, isFixed: true, isImmovable: true, render: { fillStyle: "transparent" } }
+    );
+    Composite.add(engine.world, [boxA, boxB, ground]);
+    settings.gravity = 1;
+    updateSettings();
+}
+
+function createSceneFromJson(json) {
+
+}
+
+// object handles
+let editingBody = false;
+let editingType = 'rotate'
+let originalLocalPos = null;
+let prevFactor = vec(1, 1);
+
+function toLocalPos(body, worldPos) {
+    const dx = worldPos.x - body.position.x;
+    const dy = worldPos.y - body.position.y;
+    const cos = Math.cos(-body.angle);
+    const sin = Math.sin(-body.angle);
+    return {
+        x: dx * cos - dy * sin,
+        y: dx * sin + dy * cos,
+    };
+}
+
+function startEditingBody(body, type) {
+    editingType = type
+    editingBody = body;
+    sendToTop(editingBody);
+    if (editingBody.isFixed)
+        editingBody.isStatic = false;
+
+    if (type == 'scale') {
+        originalLocalPos = toLocalPos(editingBody, mouse.position);
+        prevFactor = vec(1, 1);
+    }
+}
+
+function stopEditingBody() {
+    if (editingBody.isFixed)
+        editingBody.isStatic = true
+    editingBody = false
+}
+
+function handleBodyEdit() {
+    mouseConstraint.constraint.bodyB = null;
+    if (editingType == 'rotate') {
+        const mouseX = mouse.position.x;
+        const mouseY = mouse.position.y;
+        const centerX = editingBody.position.x;
+        const centerY = editingBody.position.y;
+        let angle = Math.atan2(mouseY - centerY, mouseX - centerX) + Math.PI / 2;
+        const snap = Math.PI / 4;
+        const snapped = Math.round(angle / snap) * snap;
+        if (Math.abs(angle - snapped) < Math.PI / 36) angle = snapped;
+        Matter.Body.setAngle(editingBody, angle);
+    }
+    else if (editingType == 'scale') {
+        if (originalLocalPos === null) return;
+        const localPos = toLocalPos(editingBody, mouse.position);
+        const epsilon = 0.0001;
+        const newFactorX = localPos.x / (originalLocalPos.x || epsilon);
+        const newFactorY = localPos.y / (originalLocalPos.y || epsilon);
+        const relativeFactorX = newFactorX / prevFactor.x;
+        const relativeFactorY = newFactorY / prevFactor.y;
+        const originalAngle = editingBody.angle;
+        Matter.Body.setAngle(editingBody, 0);
+        Matter.Body.scale(editingBody, relativeFactorX, relativeFactorY);
+        Matter.Body.setAngle(editingBody, originalAngle);
+        prevFactor.x = newFactorX;
+        prevFactor.y = newFactorY;
+        for (let i = fasteners.length - 1; i >= 0; i--) {
+            const fastener = fasteners[i]
+            if (fastener.parent == editingBody || fastener.child == editingBody) {
+                const checkOffset = (off) => Matter.Vertices.contains(editingBody.vertices, Matter.Vector.add(getWorldFastenerPosition(fastener), off))
+                for (const off of [vec(-10, -10), vec(10, 10)]) {
+                    if (checkOffset(off)) return;
+                }
+                removeFastener(fastener)
+                fasteners.splice(i, 1);
+            }
+        }
+    }
+}
+
+canvas.addEventListener('mousedown', (e) => {
+    const mpos = mouse.position;
+    const bodies = [...Matter.Composite.allBodies(engine.world)].reverse();
+    for (const b of bodies) {
+        if (Matter.Bounds.contains(b.bounds, mpos) && Matter.Vertices.contains(b.vertices, mpos)) {
+            return;
+        }
+        else if (paused) {
+            const overHandle = getMouseOverBodyHandle(b);
+            if (overHandle) {
+                startEditingBody(b, overHandle)
+                return;
+            }
+        }
+    }
+})
+canvas.addEventListener('mouseup', (e) => stopEditingBody());
+canvas.addEventListener('mouseleave', (e) => stopEditingBody());
+canvas.addEventListener('mousemove', (e) => {
+    if (editingBody) {
+        handleBodyEdit();
+    }
+});
+
+// static drag events
+let maxZ = 0;
+function sendToTop(body) {
+    body.zIndex = ++maxZ;
+    Composite.remove(engine.world, body);
+    Composite.add(engine.world, body);
+}
+
+Matter.Events.on(mouseConstraint, 'startdrag', (event) => {
+    if (paused && !editingBody) {
+        let body;
+        const mpos = event.mouse.position;
+        const bodies = [...Matter.Composite.allBodies(engine.world)].reverse();
+        for (const b of bodies) {
+            if (Matter.Bounds.contains(b.bounds, mpos) && Matter.Vertices.contains(b.vertices, mpos)) {
+                body = b;
+                break;
+            }
+        }
+
+        if (body) {
+            if (!body.isImmovable) {
+                body.isDragging = true;
+                body.dragOffset = Matter.Vector.sub(mpos, body.position);
+            }
+            if (!holdingFastener) {
+                sendToTop(body);
+            }
+        }
+    }
+});
+
+Matter.Events.on(mouseConstraint, 'enddrag', (event) => {
+    Matter.Composite.allBodies(engine.world).forEach((body) => {
+        if (!body.isImmovable && body.isDragging)
+            body.isDragging = false;
+    });
+});
+
+// collision filters
+let bodyCategories = new Map();
+
+function assignCategory(body) {
+    if (bodyCategories.has(body)) return;
+    const used = new Set([...bodyCategories.values()]);
+    for (let bit = 0x0002; bit <= 0x80000000; bit <<= 1) {
+        if (!used.has(bit)) {
+            bodyCategories.set(body, bit);
+            body.collisionFilter.category = bit;
+            body.collisionFilter.mask = 0xFFFFFFFF;
+            console.log('assigned filter', bodyCategories)
+            return;
+        }
+    }
+    throw new Error('Exceeded max unique collision categories (32)');
+}
+
+function excludePair(bodyA, bodyB) {
+    assignCategory(bodyA);
+    assignCategory(bodyB);
+    bodyA.collisionFilter.mask &= ~bodyCategories.get(bodyB);
+    bodyB.collisionFilter.mask &= ~bodyCategories.get(bodyA);
+    // cleanCategories();
+}
+
+function includePair(bodyA, bodyB) {
+    console.log('trying to include', bodyCategories, bodyA, bodyB)
+    if (bodyCategories.has(bodyA) && bodyCategories.has(bodyB)) {
+        bodyA.collisionFilter.mask |= bodyCategories.get(bodyB);
+        bodyB.collisionFilter.mask |= bodyCategories.get(bodyA);
+        bodyCategories.delete(bodyA);
+        bodyCategories.delete(bodyB);
+        console.log('including')
+    }
+    // cleanCategories();
+}
+
+function cleanCategories() {
+    for (const [body, category] of bodyCategories) {
+        const found = Composite.allBodies(engine.world).some(target => target.id === body.id);
+        if (!found) {
+            bodyCategories.delete(body);
+        }
+    }
+}
+
+function addFastener(fastener, bodyA, bodyB) {
+    const mpos = mouse.position;
+    fastener.holding = false;
+    fastener.parent = bodyA
+    fastener.child = bodyB
+    fastener.offset = Matter.Vector.rotate(Matter.Vector.sub(mpos, bodyA.position), - bodyA.angle)
+    // fastener.childOffset = Matter.Vector.sub(bodyA.position, bodyB.position)
+
+    excludePair(bodyA, bodyB);
+
+    const constraint = Matter.Constraint.create({
+        bodyA: bodyA,
+        pointA: Matter.Vector.sub(mpos, bodyA.position),
+        bodyB: bodyB,
+        pointB: Matter.Vector.sub(mpos, bodyB.position),
+        stiffness: fastener.type == 'connect' ? 1 : 0.7,
+        length: 0,
+        render: {
+            visible: false
+        },
+        offset: vec(0, 0)
+    });
+    fastener.constraints = [constraint]
+    Composite.add(engine.world, constraint);
+
+    if (fastener.type == 'connect') {
+        const offsets = [vec(10, 10), vec(-10, -10)]
+        for (const offset of offsets) {
+            const addedConstraint = Matter.Constraint.create({
+                bodyA: bodyA,
+                pointA: Matter.Vector.add(Matter.Vector.sub(mpos, bodyA.position), offset),
+                bodyB: bodyB,
+                pointB: Matter.Vector.add(Matter.Vector.sub(mpos, bodyB.position), offset),
+                stiffness: 1,
+                length: 0,
+                render: {
+                    visible: false
+                },
+                offset
+            });
+            fastener.constraints.push(addedConstraint);
+            Composite.add(engine.world, addedConstraint);
+        }
+    }
+}
+
+function removeFastener(fastener) {
+    for (const constraint of fastener.constraints) {
+        Matter.World.remove(engine.world, constraint);
+    }
+    for (const candidateFastener of fasteners) {
+        if (candidateFastener != fastener && (fastener.parent == candidateFastener.parent && fastener.child == candidateFastener.child)
+            || (fastener.child == candidateFastener.parent && fastener.parent == candidateFastener.child))
+            return;
+    }
+    includePair(fastener.parent, fastener.child)
+}
+
+let tooltipTimeout;
+
+// place object
+canvas.addEventListener('click', (event) => {
+    if (holdingFastener) {
+        for (let i = fasteners.length - 1; i >= 0; i--) {
+            const fastener = fasteners[i]
+            if (fastener.holding) {
+                holdingFastener = false;
+                const mpos = mouse.position;
+                const bodies = [...Matter.Composite.allBodies(engine.world)].reverse().sort((a, b) => (b.isFixed ? 1 : 0) - (a.isFixed ? 1 : 0));
+                let bodyA, bodyB
+                for (const b of bodies) {
+                    if (Matter.Bounds.contains(b.bounds, mpos) && Matter.Vertices.contains(b.vertices, mpos)) {
+                        if (bodyA && bodyB)
+                            break;
+                        else if (bodyA)
+                            bodyB = b
+                        else
+                            bodyA = b
+                    }
+                }
+                if (bodyA && bodyB)
+                    addFastener(fastener, bodyA, bodyB);
+                else {
+                    if (tooltipTimeout)
+                        clearTimeout(tooltipTimeout);
+                    const tooltip = document.getElementById('tooltip')
+                    tooltip.classList.add('active')
+                    tooltipTimeout = setTimeout(() => {
+                        tooltip.classList.remove('active')
+                    }, 3000)
+                    fasteners.splice(i, 1);
+                }
+            }
+        }
+    }
+    else if (holdingBody) {
+        holdingBody = false;
+        // if (!wasPausedBeforeHolding)
+        //     togglePause()
+    }
+    else if (paused) {
+        for (let i = fasteners.length - 1; i >= 0; i--) {
+            const fastener = fasteners[i]
+            if (isMouseOverFastener(fastener)) {
+                removeFastener(fastener)
+                fasteners.splice(i, 1);
+                return;
+            }
+        }
+    }
+});
+
+// render pipeline
+function drawTexture(body) {
+    ctx.fillStyle = body.render.fillStyle;
+    ctx.strokeStyle = body.render.strokeStyle
+    ctx.lineWidth = lineWidth
+    ctx.beginPath();
+    const verts = body.vertices;
+    ctx.moveTo(verts[0].x, verts[0].y);
+    for (let i = 1; i < verts.length; i++) {
+        ctx.lineTo(verts[i].x, verts[i].y);
+    }
+    ctx.closePath();
+    ctx.stroke();
+    if (body.isFixed) {
+        drawStripedTexture(body)
+    }
+    else if (body.radialForceSourceDir)
+        drawRadialStripedTexture(body, body.radialForceSourceDir)
+    else
+        ctx.fill();
+}
+
+function getLocalDimensions(body) {
+    const cos = Math.cos(-body.angle);
+    const sin = Math.sin(-body.angle);
+    const localVerts = body.vertices.map(v => {
+        const rel = Matter.Vector.sub(v, body.position);
+        return {
+            x: rel.x * cos - rel.y * sin,
+            y: rel.x * sin + rel.y * cos,
+        };
+    });
+    let minX = Infinity,
+        maxX = -Infinity,
+        minY = Infinity,
+        maxY = -Infinity;
+    for (const v of localVerts) {
+        if (v.x < minX) minX = v.x;
+        if (v.x > maxX) maxX = v.x;
+        if (v.y < minY) minY = v.y;
+        if (v.y > maxY) maxY = v.y;
+    }
+    const width = maxX - minX;
+    const height = maxY - minY;
+    return [width, height];
+
+}
+
+function contextDrawLocal(body, callback, clip = true) {
+    ctx.save();
+    if (clip) {
+        ctx.beginPath();
+        ctx.moveTo(body.vertices[0].x, body.vertices[0].y);
+        for (let i = 1; i < body.vertices.length; i++) {
+            ctx.lineTo(body.vertices[i].x, body.vertices[i].y);
+        }
+        ctx.closePath();
+        ctx.clip();
+    }
+    ctx.translate(body.position.x, body.position.y);
+    ctx.rotate(body.angle);
+    const [width, height] = getLocalDimensions(body)
+    callback(width, height);
+    ctx.restore();
+}
+
+function drawStripedTexture(body) {
+    contextDrawLocal(body, (width, height) => {
+        const stripeWidth = 20;
+        const skew = height / 2;
+        const stripeCount = (width + skew) / stripeWidth;
+        for (let i = 0; i < stripeCount + 5; i++) {
+            ctx.fillStyle = i % 2 === 0 ? stripeStyleA : stripeStyleB;
+            ctx.beginPath();
+            ctx.moveTo(-width / 2 - skew + i * stripeWidth, -height / 2);
+            ctx.lineTo(-width / 2 - skew + i * stripeWidth + stripeWidth, -height / 2);
+            ctx.lineTo(-width / 2 - skew + i * stripeWidth + stripeWidth + skew, height / 2);
+            ctx.lineTo(-width / 2 - skew + i * stripeWidth + skew, height / 2);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.fill();
+        }
+    });
+}
+
+function drawRadialStripedTexture(body, dir = 1) {
+    contextDrawLocal(body, (width, height) => {
+        ctx.fill();
+        const max_radius = Math.max(width, height)
+        const spacing = 20;
+        const offset = globalTimer * 10 % (spacing * 2)
+        for (let i = 0; i <= Math.ceil(max_radius / spacing); i += 2) {
+            let radius = i * spacing + offset * dir;
+            // if (inwards) radius = max_radius - radius
+            ctx.beginPath();
+            ctx.arc(0, 0, radius < 0 ? 0 : radius, 0, Math.PI * 2);
+            ctx.arc(0, 0, (radius - spacing * dir) < 0 ? 0 : radius - spacing * dir, 0, Math.PI * 2, true);
+            ctx.fillStyle = i % 2 === 0 ? 'black' : 'transparent';
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(0, 0, radius < 0 ? 0 : radius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // ctx.beginPath();
+            // ctx.arc(0, 0, ringEnd, 0, Math.PI * 2);
+            // ctx.stroke();
+        }
+    });
+}
+
+function drawFastener(pos, rot, type) {
+    ctx.strokeStyle = fastenerStyle;
+    ctx.lineWidth = 3;
+    ctx.fillStyle = fastenerStyle;
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, 5, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.fill();
+    if (type == 'connect') {
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 8, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+    if (type == 'hinge') {
+        for (let i = 0; i < Math.PI * 2; i += Math.PI) {
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, 8, i + rot, i + Math.PI / 2 + rot);
+            ctx.stroke();
+        }
+    }
+    else if (type == 'motor') {
+        for (let i = 0; i < Math.PI * 2; i += Math.PI / 2) {
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, 8, i + rot, i + Math.PI / 4 + rot);
+            ctx.stroke();
+        }
+    }
+}
+
+function drawHandles(body) {
+    contextDrawLocal(body, (width, height) => {
+        ctx.strokeStyle = controlStyle;
+        ctx.fillStyle = controlStyle
+        ctx.lineWidth = 2;
+        // borders
+        ctx.beginPath();
+        ctx.rect(-width / 2, -height / 2, width, height)
+        ctx.stroke();
+        // rotate handle
+        ctx.moveTo(0, -height / 2)
+        ctx.lineTo(0, -height / 2 - 15)
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(0, -height / 2 - 15, 5, 0, Math.PI * 2)
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(0, -height / 2 - 15, 8, 0, Math.PI * 2)
+        ctx.stroke();
+        // resize handle
+        ctx.fillRect(width / 2, height / 2, 15, 15)
+    }, false);
+}
+
+function getMouseOverBodyHandle(body) {
+    const [width, height] = getLocalDimensions(body);
+    const overLocalToWorld = (localPos, radius) => {
+        const localX = 0;
+        const localY = -height / 2 - 15;
+        const cos = Math.cos(body.angle);
+        const sin = Math.sin(body.angle);
+        const rotateHandlePos = {
+            x: body.position.x + localPos.x * cos - localPos.y * sin,
+            y: body.position.y + localPos.x * sin + localPos.y * cos,
+        };
+        const dx = mouse.position.x - rotateHandlePos.x;
+        const dy = mouse.position.y - rotateHandlePos.y;
+        return dx * dx + dy * dy <= radius * radius
+    }
+    if (overLocalToWorld(vec(0, -height / 2 - 15), 16)) {
+        return 'rotate'
+    }
+    else if (overLocalToWorld(vec(width / 2 + 4, height / 2 + 4), 15)) {
+        return 'scale'
+    }
+}
+
+function getWorldFastenerPosition(fastener) {
+    const px = fastener.parent.position.x;
+    const py = fastener.parent.position.y;
+    const theta = fastener.parent.angle;
+    const ox = fastener.offset.x;
+    const oy = fastener.offset.y;
+    const cos = Math.cos(theta);
+    const sin = Math.sin(theta);
+    const worldX = px + ox * cos - oy * sin;
+    const worldY = py + ox * sin + oy * cos;
+    return vec(worldX, worldY)
+}
+
+function isMouseOverFastener(fastener) {
+    const worldPos = getWorldFastenerPosition(fastener);
+    const dx = mouse.position.x - worldPos.x;
+    const dy = mouse.position.y - worldPos.y;
+    return dx * dx + dy * dy <= 12 ** 2;
+}
+
+function getFastenedChain(body, visited = new Set()) {
+    if (visited.has(body)) return [];
+    visited.add(body);
+    let chain = [body];
+    for (const fastener of fasteners) {
+        if (fastener.parent === body) {
+            chain = chain.concat(getFastenedChain(fastener.child, visited));
+        } else if (fastener.child === body) {
+            chain = chain.concat(getFastenedChain(fastener.parent, visited));
+        }
+    }
+    return chain;
+}
+
+function removeBody(body) {
+    for (let i = fasteners.length - 1; i >= 0; i--) {
+        const fastener = fasteners[i]
+        if (fastener.parent == body || fastener.child == body) {
+            for (const constraint of fastener.constraints) {
+                Matter.World.remove(engine.world, constraint);
+            }
+            fasteners.splice(i, 1);
+        }
+    }
+    Matter.World.remove(engine.world, body);
+}
+
+let doRemove = true;
+function removeFastenedChainIfOutOfBounds(body) {
+    if (!doRemove)
+        return;
+    const isOutOfBounds = (body) => {
+        for (const vertex of body.vertices) {
+            const { x, y } = vertex;
+            if (
+                x >= -100 && x <= canvas.width + 100 &&
+                y >= -100 && y <= canvas.height + 100
+            ) {
+                return false;
+            }
+        }
+        return true;
+    }
+    if (isOutOfBounds(body)) {
+        const chain = getFastenedChain(body);
+        for (const b of chain) {
+            if (!isOutOfBounds(b)) return;
+        }
+        for (const b of chain) {
+            console.log('removing', b)
+            removeBody(body);
+        }
+    }
+}
+
+const ctx = render.context;
+let globalTimer = 0;
+let holdingFastener = false;
+const fasteners = []
+
+Events.on(render, 'beforeRender', () => {
+    engine.world.bodies = engine.world.bodies.sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0));
+});
+
+function applyMotor(bodyA, bodyB, targetRelAngularVel) {
+    if (bodyA.id > bodyB.id) [bodyA, bodyB] = [bodyB, bodyA];
+    const currentRelVel = bodyB.angularVelocity - bodyA.angularVelocity;
+    const error = targetRelAngularVel - currentRelVel;
+    const invI1 = bodyA.inverseInertia || 0;
+    const invI2 = bodyB.inverseInertia || 0;
+    const totalInvI = invI1 + invI2;
+    console.log(invI1 + invI2);
+    if (totalInvI > 0) {
+        const correctionA = (error * invI1) / totalInvI;
+        const correctionB = (error * invI2) / totalInvI;
+        Matter.Body.setAngularVelocity(bodyA, bodyA.angularVelocity - correctionA);
+        Matter.Body.setAngularVelocity(bodyB, bodyB.angularVelocity + correctionB);
+    }
+}
+
+let settings = {
+    explosivePower: 1,
+    attractionPower: 1,
+    gravity: 1,
+    weightFactor: 1,
+    motorSpeed: 1
+}
+
+function applyRadialForce(position, forceMagnitude, applyToSelf = false) {
+    const radius = 1000;
+    const bodies = Matter.Composite.allBodies(engine.world);
+    bodies.forEach(body => {
+        // if (body.radialForceSourceDir)
+        //     return;
+        const dx = body.position.x - position.x + (applyToSelf ? Math.random() * 2 : 0);
+        const dy = body.position.y - position.y + (applyToSelf ? Math.random() * 2 : 0);
+        const distSq = dx * dx + dy * dy;
+        const radiusSq = radius * radius;
+        if (distSq <= radiusSq) {
+            const dist = Math.sqrt(distSq) || 0.0001;
+            const force = forceMagnitude * (1 - dist / radius);
+            const fx = (dx / dist) * force;
+            const fy = (dy / dist) * force;
+            Matter.Body.applyForce(body, body.position, vec(fx, fy));
+        }
+    });
+}
+
+Matter.Render.world = (render) => {
+    const ctx = render.context;
+    const bodies = Composite.allBodies(render.engine.world);
+    ctx.clearRect(0, 0, render.options.width, render.options.height);
+    for (const body of bodies) {
+        // drawing
+        drawTexture(body)
+        if (paused && !body.isImmovable) {
+            drawHandles(body);
+        }
+
+        // dragging
+        if (paused && !body.isImmovable && body.isDragging) {
+            Body.setPosition(body, Matter.Vector.sub(mouse.position, body.dragOffset));
+        }
+
+        // pause
+        if (paused) {
+            Matter.Body.setVelocity(body, { x: 0, y: 0 });
+            Matter.Body.setAngularVelocity(body, 0);
+        }
+        else {
+            if (body.isBomb) {
+                body.timer -= engine.timing.lastDelta
+                if (body.timer < 0) {
+                    applyRadialForce(body.position, 0.2 * settings.explosivePower, true)
+                }
+                else if (Math.sin(2 * Math.PI * 5 * body.timer / body.initialTimer) > 0)
+                    body.render.fillStyle = bombActiveStyle
+                else
+                    body.render.fillStyle = 'black'
+            }
+            else if (body.radialForceSourceDir) {
+                applyRadialForce(body.position, body.radialForceSourceDir * 0.01 * settings.attractionPower, false);
+            }
+        }
+
+        // remove if out of scene
+        removeFastenedChainIfOutOfBounds(body)
+    }
+
+    if (holdingBody) {
+        Body.setPosition(holdingBody, mouse.position)
+    }
+
+    // draw fasteners
+    for (const fastener of fasteners) {
+        if (fastener.holding) {
+            const mpos = mouse.position;
+            drawFastener(mpos, globalTimer, fastener.type);
+        }
+        else {
+            ctx.save();
+            ctx.translate(fastener.parent.position.x, fastener.parent.position.y);
+            ctx.rotate(fastener.parent.angle);
+            drawFastener(fastener.offset, globalTimer, fastener.type);
+            ctx.restore();
+            if (fastener.type == 'motor' && !paused) {
+                applyMotor(fastener.parent, fastener.child, Math.PI / 100 * settings.motorSpeed)
+                // Body.setAngularVelocity(fastener.parent, -Math.PI / 100 * motorSpeed);
+                // Body.setAngularVelocity(fastener.child, Math.PI / 100 * motorSpeed);
+            }
+        }
+    }
+    if (!paused)
+        globalTimer += Math.PI / 1000 * engine.timing.lastDelta
+
+    // draw tooltips
+    if (paused) {
+
+    }
+};
