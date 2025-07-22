@@ -48,7 +48,8 @@
 
         i,
         p,
-        label, li {
+        label,
+        li {
             color: #0000004D;
             transition: color 0.1s ease;
         }
@@ -364,15 +365,8 @@
                 <p>Themes</p><i class="ri-close-line close-menu" onclick="closeMenu(this.parentNode.parentNode)"></i>
             </div>
             <div class="menu-content" id="theme-menu-content">
-                <div class="menu-item" onclick="setThemeElement('dark')" id="dark-theme">
-                    <i class="ri-checkbox-circle-fill selected-icon"></i>
-                    <i class="ri-moon-line add-item-image"></i>
-                    <p>Dark</p>
-                </div>
-                <div class="menu-item" onclick="setThemeElement('light')" id="light-theme">
-                    <i class="ri-checkbox-circle-fill selected-icon"></i>
-                    <i class="ri-sun-line add-item-image"></i>
-                    <p>Light</p>
+                <div class="menu-separator">
+                    <p>Standard</p><i class="ri-paint-brush-line"></i>
                 </div>
                 <div class="menu-item" onclick="setThemeElement('pencil')" id="pencil-theme">
                     <i class="ri-checkbox-circle-fill selected-icon"></i>
@@ -388,6 +382,67 @@
                     <i class="ri-checkbox-circle-fill selected-icon"></i>
                     <i class="ri-sketching add-item-image"></i>
                     <p>Outline</p>
+                </div>
+                <div class="menu-item" onclick="setThemeElement('simple')" id="simple-theme">
+                    <i class="ri-checkbox-circle-fill selected-icon"></i>
+                    <i class="ri-cloud-line add-item-image"></i>
+                    <p>Simple</p>
+                </div>
+                <div class="menu-separator">
+                    <p>Special</p><i class="ri-star-line"></i>
+                </div>
+                <div class="menu-item" onclick="setThemeElement('neon')" id="neon-theme">
+                    <i class="ri-checkbox-circle-fill selected-icon"></i>
+                    <i class="ri-terminal-line add-item-image"></i>
+                    <p>Neon</p>
+                </div>
+                <div class="menu-item" onclick="setThemeElement('space')" id="space-theme">
+                    <i class="ri-checkbox-circle-fill selected-icon"></i>
+                    <i class="ri-planet-line add-item-image"></i>
+                    <p>Space</p>
+                </div>
+                <div class="menu-item" onclick="setThemeElement('lux')" id="lux-theme">
+                    <i class="ri-checkbox-circle-fill selected-icon"></i>
+                    <i class="ri-sparkling-line add-item-image"></i>
+                    <p>Luxury</p>
+                </div>
+                <div class="menu-item" onclick="setThemeElement('candy')" id="candy-theme">
+                    <i class="ri-checkbox-circle-fill selected-icon"></i>
+                    <i class="ri-cake-3-line add-item-image"></i>
+                    <p>Candy</p>
+                </div>
+                <div class="menu-separator">
+                    <p>Monochrome</p><i class="ri-palette-line"></i>
+                </div>
+                <div class="menu-item" onclick="setThemeElement('dark')" id="dark-theme">
+                    <i class="ri-checkbox-circle-fill selected-icon"></i>
+                    <i class="ri-moon-line add-item-image"></i>
+                    <p>Dark</p>
+                </div>
+                <div class="menu-item" onclick="setThemeElement('light')" id="light-theme">
+                    <i class="ri-checkbox-circle-fill selected-icon"></i>
+                    <i class="ri-sun-line add-item-image"></i>
+                    <p>Light</p>
+                </div>
+                <div class="menu-item" onclick="setThemeElement('reds')" id="reds-theme">
+                    <i class="ri-checkbox-circle-fill selected-icon"></i>
+                    <i class="ri-palette-line add-item-image"></i>
+                    <p>Reds</p>
+                </div>
+                <div class="menu-item" onclick="setThemeElement('blues')" id="blues-theme">
+                    <i class="ri-checkbox-circle-fill selected-icon"></i>
+                    <i class="ri-palette-line add-item-image"></i>
+                    <p>Blues</p>
+                </div>
+                <div class="menu-item" onclick="setThemeElement('greens')" id="greens-theme">
+                    <i class="ri-checkbox-circle-fill selected-icon"></i>
+                    <i class="ri-palette-line add-item-image"></i>
+                    <p>Greens</p>
+                </div>
+                <div class="menu-item" onclick="setThemeElement('glass')" id="glass-theme">
+                    <i class="ri-checkbox-circle-fill selected-icon"></i>
+                    <i class="ri-glasses-2-line add-item-image"></i>
+                    <p>Glass</p>
                 </div>
             </div>
         </div>
@@ -510,25 +565,49 @@
                     <p>Controls</p><i class="ri-shapes-line"></i>
                 </div>
                 <ul>
-                    <li><p>Click <i class="ri-pause-line"></i> to pause physics and enable edit mode.</p></li>
-                    <li><p>In edit mode, you can move around, scale, rotate, and fasten objects.</p></li>
-                    <li><p>Once you finish editing, click <i class="ri-play-line"></i> to exit edit mode resume physics.</p></li>
-                    <li><p>Click <i class="ri-add-line"></i> to add all objects to your scene.</p></li>
+                    <li>
+                        <p>Click <i class="ri-pause-line"></i> to pause physics and enable edit mode.</p>
+                    </li>
+                    <li>
+                        <p>In edit mode, you can move around, scale, rotate, and fasten objects.</p>
+                    </li>
+                    <li>
+                        <p>Once you finish editing, click <i class="ri-play-line"></i> to exit edit mode resume physics.
+                        </p>
+                    </li>
+                    <li>
+                        <p>Click <i class="ri-add-line"></i> to add all objects to your scene.</p>
+                    </li>
                 </ul>
                 <div class="menu-separator">
                     <p>Fasteners</p><i class="ri-links-line"></i>
                 </div>
                 <ul>
-                    <li><p>Fasteners (<i class="ri-links-line"></i>) allow you to connect two objects together with different joints.</p></li>
-                    <li><p>First, click <i class="ri-pause-line"></i> to enter edit mode. Then, drag one object to be overlapped on another.</li>
-                    <li><p>Select your desired fastener in the add (<i class="ri-add-line"></i>) menu. Click on where you want to connect the two overlapping objects.</p></li>
-                    <li><p>Fasteners can only be placed on two overlapped objects.</p></li>
-                    <li><p>Click a fastener while in edit mode to delete it.</p></li>
+                    <li>
+                        <p>Fasteners (<i class="ri-links-line"></i>) allow you to connect two objects together with
+                            different joints.</p>
+                    </li>
+                    <li>
+                        <p>First, click <i class="ri-pause-line"></i> to enter edit mode. Then, drag one object to be
+                            overlapped on another.
+                    </li>
+                    <li>
+                        <p>Select your desired fastener in the add (<i class="ri-add-line"></i>) menu. Click on where
+                            you want to connect the two overlapping objects.</p>
+                    </li>
+                    <li>
+                        <p>Fasteners can only be placed on two overlapped objects.</p>
+                    </li>
+                    <li>
+                        <p>Click a fastener while in edit mode to delete it.</p>
+                    </li>
                 </ul>
             </div>
         </div>
     </div>
-    <div class="ui" id="tooltip"><i class="ri-question-mark"></i><p id="tooltip-content">Click where two objects overlap to fasten them together.</p></div>
+    <div class="ui" id="tooltip"><i class="ri-question-mark"></i>
+        <p id="tooltip-content">Click where two objects overlap to fasten them together.</p>
+    </div>
     <canvas id="canvas"></canvas>
     <script src="matter.min.js"></script>
     <script src="index.js"></script>

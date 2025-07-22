@@ -70,7 +70,8 @@ function togglePause() {
 
 let prevSettings = {};
 function updateSettings() {
-    engine.world.gravity.y = settings.gravity;
+    if (!paused)
+        engine.world.gravity.y = settings.gravity;
     if (prevSettings.weightFactor != settings.weightFactor) {
         for (const body of Composite.allBodies(engine.world)) {
             if (body.isWeight) {
@@ -251,6 +252,13 @@ function addEntity(entity) {
                 holding: true
             })
             break;
+        case 'r-motor':
+            holdingFastener = true;
+            fasteners.push({
+                type: 'r-motor',
+                holding: true
+            })
+            break;
         case 'attractor':
             addRadialForceSource(-1);
             break;
@@ -331,6 +339,10 @@ function removeAllBodies() {
     for (const body of bodies) {
         removeBody(body)
     }
+    if (timeInterval) {
+        clearInterval(timeInterval)
+        timeInterval = null;
+    }
 }
 
 function createTimeRects() {
@@ -383,12 +395,13 @@ function createTimeRectsDestroyer() {
     if (Math.random() > 0.5) createTimeRectsDestroyer()
 }
 
+let timeInterval;
 function startTime() {
     settings.gravity = 0
     engine.world.gravity.y = 0
     createTimeRects();
     let lastTime = new Date().getMinutes();
-    setInterval(() => {
+    timeInterval = setInterval(() => {
         const currentTime = new Date().getMinutes();
         if (lastTime != currentTime) {
             createTimeRectsDestroyer();
@@ -448,7 +461,7 @@ function setTheme(t) {
     else if (t == 'pencil') {
         fillStyle = ['blue', 'orange', 'green', 'pink', 'yellow', 'gray', 'white', 'red']
         strokeStyle = 'black'
-        backgroundColor = 'white'
+        backgroundColor = '#ff5b5b'
         controlStyle = 'black'
         stripeStyleA = 'yellow'
         stripeStyleB = 'black'
@@ -460,7 +473,7 @@ function setTheme(t) {
     else if (t == 'jelly') {
         fillStyle = ['#ffffffaa', '#ff0000aa', '#ffff00aa', '#ff00ffaa', '#0000ffaa', '#00ffffaa', '#00ff00aa']
         strokeStyle = '#000000aa'
-        backgroundColor = 'red'
+        backgroundColor = 'lightblue'
         controlStyle = '#4444ffaa'
         stripeStyleA = '#ffff00aa'
         stripeStyleB = '#000000aa'
@@ -481,14 +494,182 @@ function setTheme(t) {
         iceStyle = '#333'
         lineWidth = 4
     }
+    else if (t == 'light') {
+        fillStyle = '#ddd'
+        strokeStyle = '#bbb'
+        backgroundColor = '#fff'
+        controlStyle = '#bbb'
+        stripeStyleA = '#bbb'
+        stripeStyleB = '#ddd'
+        fastenerStyle = '#aaa'
+        bombActiveStyle = '#ccc'
+        iceStyle = '#ccc'
+        lineWidth = 4
+    }
+    else if (t == 'simple') {
+        fillStyle = ['blue', 'orange', 'green', 'pink', 'yellow', 'white', 'black', 'red', 'cyan', 'purple']
+        strokeStyle = 'transparent'
+        backgroundColor = 'gray'
+        controlStyle = 'darkblue'
+        stripeStyleA = 'yellow'
+        stripeStyleB = 'black'
+        fastenerStyle = 'darkblue'
+        bombActiveStyle = 'red'
+        iceStyle = '#a2d2df'
+        lineWidth = 0
+    }
+    else if (t == 'blues') {
+        fillStyle = ['#0d47a1', '#1976d2', '#42a5f5', '#90caf9', '#bbdefb', '#e3f2fd', '#64b5f6', '#1e88e5', '#1565c0', '#0d47a1']
+        strokeStyle = 'transparent'
+        backgroundColor = '#0d1b2a'
+        controlStyle = '#1565c0'
+        stripeStyleA = '#42a5f5'
+        stripeStyleB = '#0d47a1'
+        fastenerStyle = '#1565c0'
+        bombActiveStyle = '#82b1ff'
+        iceStyle = '#a2d2df'
+        lineWidth = 0
+    }
+    else if (t == 'reds') {
+        fillStyle = ['#b71c1c', '#c62828', '#d32f2f', '#e53935', '#f44336', '#ef5350', '#e57373', '#ef9a9a', '#ffcdd2', '#ff8a80']
+        strokeStyle = 'transparent'
+        backgroundColor = '#3e0f0f'
+        controlStyle = '#b71c1c'
+        stripeStyleA = '#f44336'
+        stripeStyleB = '#b71c1c'
+        fastenerStyle = '#b71c1c'
+        bombActiveStyle = '#ff5252'
+        iceStyle = '#ffcdd2'
+        lineWidth = 0
+    }
+    else if (t == 'greens') {
+        fillStyle = ['#1b5e20', '#2e7d32', '#388e3c', '#43a047', '#4caf50', '#66bb6a', '#81c784', '#a5d6a7', '#c8e6c9', '#e8f5e9']
+        strokeStyle = 'transparent'
+        backgroundColor = '#102914'
+        controlStyle = '#1b5e20'
+        stripeStyleA = '#4caf50'
+        stripeStyleB = '#1b5e20'
+        fastenerStyle = '#1b5e20'
+        bombActiveStyle = '#00e676'
+        iceStyle = '#c8e6c9'
+        lineWidth = 0
+    }
+    else if (t == 'glass') {
+        fillStyle = [
+            '#ffffff33',
+            '#c8e4ff33',
+            '#b4dcff33',
+            '#dcf0ff33',
+            '#ffffff55',
+            '#ffffff1a',
+            '#f0faff33',
+            '#c8e6ff33',
+            '#ffffff26',
+            '#d2f0ff33'
+        ]
+        strokeStyle = 'transparent'
+        backgroundColor = '#9ca9b5ff'
+        controlStyle = '#4a4a4a'
+        stripeStyleA = '#ffffff55'
+        stripeStyleB = '#cccccc33'
+        fastenerStyle = '#333333'
+        bombActiveStyle = '#ff505080'
+        iceStyle = '#b4dcff80'
+        lineWidth = 0
+    }
+    else if (t == 'neon') {
+        fillStyle = [
+            '#00ffffaa', '#00ff99aa', '#ff00ffaa',
+            '#ffff00aa', '#ff00ccaa', '#00ffccaa',
+            '#33ff00aa', '#ff3300aa', '#ff6600aa', '#33ffffaa'
+        ]
+        strokeStyle = '#00ffff'
+        backgroundColor = '#000000'
+        controlStyle = '#00ffff'
+        stripeStyleA = '#00ffcc80'
+        stripeStyleB = '#ff00ff80'
+        fastenerStyle = '#ffffff'
+        bombActiveStyle = '#ff00ff'
+        iceStyle = '#00ffff55'
+        lineWidth = 2
+    }
+    else if (t == 'lux') {
+        fillStyle = [
+            '#1a0d2955',
+            '#2e126a55',
+            '#4b237f66',
+            '#5c2e9166',
+            '#7a3a9c88',
+            '#8d4d9c88',
+            '#a05aa999',
+            '#bb6eaa99',
+            '#d27aabcc',
+            '#f9e4aacc'
+        ]
+        strokeStyle = '#f9e4aaff'
+        backgroundColor = '#0a0518ff'
+        controlStyle = '#f0d9a3'
+        stripeStyleA = '#44246655'
+        stripeStyleB = '#77335a55'
+        fastenerStyle = '#ccb88c'
+        bombActiveStyle = '#e84f4fcc'
+        iceStyle = '#a67d9dcc'
+        lineWidth = 2
+    }
+    else if (t == 'space') {
+        fillStyle = [
+            '#070a1a99',
+            '#0a123399',
+            '#1c1f4a99',
+            '#2b2e6099',
+            '#3a3f7bbb',
+            '#524d7ebb',
+            '#6a6288cc',
+            '#7f75a2cc',
+            '#9e96b8dd',
+            '#bfbadfff'
+        ]
+        strokeStyle = '#838bb6cc'
+        backgroundColor = '#02030fdd'
+        controlStyle = '#8899cc'
+        stripeStyleA = '#1f224466'
+        stripeStyleB = '#36385666'
+        fastenerStyle = '#cfcfffcc'
+        bombActiveStyle = '#d84343cc'
+        iceStyle = '#75a9ffff'
+        lineWidth = 2
+    }
+    else if (t == 'candy') {
+        fillStyle = [
+            '#ffbad2cc',
+            '#ff8fbacc',
+            '#ff6faacc',
+            '#ff4f99cc',
+            '#ff77b2dd',
+            '#ff9ccddd',
+            '#ffb2d4ee',
+            '#ffc8d9ee',
+            '#ffdceeee',
+            '#ffeeffff'
+        ]
+        strokeStyle = '#ff5a9bcc'
+        backgroundColor = '#ffc0cbff'
+        controlStyle = '#ff4a7aff'
+        stripeStyleA = '#ffa6c2bb'
+        stripeStyleB = '#ff7a9bbb'
+        fastenerStyle = '#ff3f81cc'
+        bombActiveStyle = '#ff264dcc'
+        iceStyle = '#ffd6efff'
+        lineWidth = 2
+    }
     const bodies = Matter.Composite.allBodies(engine.world);
     for (const body of bodies) {
         if (Array.isArray(fillStyle))
             body.render.fillStyle = fillStyle[Math.floor(Math.random() * fillStyle.length)];
         else
             body.render.fillStyle = fillStyle
-        if (body.isIce) body.render.fillStyle = iceStyle
         body.render.strokeStyle = strokeStyle;
+        if (body.isIce) body.render.fillStyle = iceStyle
     }
     render.options.background = backgroundColor;
     canvas.style.background = backgroundColor;
@@ -501,100 +682,89 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // the local state
-function serializeBody(body, seen = new WeakSet()) {
-    if (seen.has(body)) return { bodyId: body.id };
-    seen.add(body);
-    const result = {};
-    for (const key in body) {
-        let value = body[key];
-        if (value && typeof value === 'object') {
-            if ('id' in value) {
-                result[key] = { bodyId: value.id };
-            } else if (Array.isArray(value)) {
-                result[key] = value.map(item => {
-                    if (item && typeof item === 'object') {
-                        if ('id' in item) {
-                            return { bodyId: item.id };
-                        }
-                        return serializeBody(item, seen);
-                    }
-                    return item;
-                });
-            } else {
-                result[key] = serializeBody(value, seen);
-            }
-        } else {
-            result[key] = value;
-        }
-    }
-    return result;
-}
-
-function restoreBodyReferences(obj, bodyMap) {
-    if (!obj || typeof obj !== 'object') return obj;
-    if ('bodyId' in obj) {
-        if ('id' in obj && obj.id === obj.bodyId)
-            return obj
-        return bodyMap.get(obj.bodyId) || null;
-    }
-    for (const key in obj) {
-        const val = obj[key];
-        if (Array.isArray(val)) {
-            obj[key] = val.map(item => restoreBodyReferences(item, bodyMap));
-        } else if (val && typeof val === 'object') {
-            obj[key] = restoreBodyReferences(val, bodyMap);
-        }
-    }
-    return obj;
-}
-
 function serializeScene() {
     const bodies = Matter.Composite.allBodies(engine.world);
-    const serializedBodies = bodies.map(body => serializeBody(body));
+    const serializedBodies = [];
+    for (const body of bodies) {
+        const cachedAngle = body.angle
+        Body.setAngle(body, 0)
+        const { parent, parts, id, ...rest } = body
+        rest.vertices = body.vertices.map(v => (vec(v.x, v.y)));
+        rest.cachedAngle = cachedAngle
+        serializedBodies.push(rest)
+        Body.setAngle(body, cachedAngle)
+    }
+
     const serializedFasteners = [];
     for (const fastener of fasteners) {
-        for (const constraint of fastener.constraints)
-            serializedBodies.push(serializeBody(constraint));
-        serializedFasteners.push(serializeBody(fastener))
+        const { parent, child, ...serializedFastener } = fastener
+        serializedFastener.constraints = [];
+        for (const constraint of fastener.constraints) {
+            const { bodyA, bodyB, id, ...rest } = constraint
+            const serializedConstraint = rest;
+            serializedConstraint.bodyAId = bodyA.position
+            serializedConstraint.bodyBId = bodyB.position
+            serializedFastener.constraints.push(serializedConstraint)
+        }
+        serializedFasteners.push(serializedFastener)
     }
-    // const serializedCategories = [];
-    // for (const [body, category] of bodyCategories) {
-    //     serializedCategories.push([serializeBody(body), category])
-    // }
-    // console.log('SERIALIZED BODIES', bodies)
+    console.log('SERIALIZING', { bodies: serializedBodies, fasteners: serializedFasteners })
     return { bodies: serializedBodies, fasteners: serializedFasteners }
 }
 
 function deserializeAndLoadScene(json) {
-    console.log('RESTORING FROM ', json)
-    const bodyMap = new Map();
-    for (const b of json.bodies) bodyMap.set(b.id, b);
-    for (const b of json.fasteners) {
-        for (const c of b.constraints)
-            bodyMap.set(c.id, c);
-    }
-    const restoredBodies = json.bodies.map(data => restoreBodyReferences(data, bodyMap));
+    const restoredBodies = json.bodies;
+    const newBodies = [];
+    console.log('RESTORING FROM ', restoredBodies)
     for (const body of restoredBodies) {
         console.log('RESTORING IS ADDING ', body)
-        if (body.type == 'body') {
-            // if (paused)
-            //     freezeBody(body)
-            Matter.World.add(engine.world, body.parent);
-            if (body.isFixed) {
-                body.isStatic = true
-            }
+        const newBody = Matter.Body.create(body)
+        newBodies.push(newBody)
+        Matter.World.add(engine.world, newBody);
+        for (const vertex of newBody.vertices) {
+            vertex.body = newBody;
         }
-        else
-            Matter.World.add(engine.world, body);
+        Body.setAngle(newBody, newBody.cachedAngle)
+        if (paused) freezeBody(newBody)
     }
 
-    const restoredFasteners = json.fasteners.map(data => restoreBodyReferences(data, bodyMap));
+    const getBodyFromId = (id) => {
+        for (const body of newBodies) {
+            if (body.position.x == id.x && body.position.y == id.y)
+                return body;
+        }
+    }
+
+    const restoredFasteners = json.fasteners;
     for (const data of restoredFasteners) {
-        fasteners.push(data);
-        setTimeout(() => {
-            console.log('EXCLUDING', data)
-            excludePair(data.parent, data.child)
-        }, 100)
+        console.log('data', data)
+        const newConstraints = []
+        for (const serializedConstraint of data.constraints) {
+            const actualBodyA = getBodyFromId(serializedConstraint.bodyAId)
+            const actualBodyB = getBodyFromId(serializedConstraint.bodyBId)
+            delete serializedConstraint.bodyAId
+            delete serializedConstraint.bodyBId
+            const newConstraint = Matter.Constraint.create(serializedConstraint);
+            newConstraint.bodyA = actualBodyA
+            newConstraint.bodyB = actualBodyB
+            if (newConstraint.bodyA && newConstraint.bodyB) {
+                newConstraints.push(newConstraint)
+                Matter.World.add(engine.world, newConstraint);
+            }
+        }
+        data.constraints = newConstraints;
+        data.parent = data.constraints[0].bodyA
+        data.child = data.constraints[0].bodyB
+        if (data.parent && data.child) {
+            for (const constraint of data.constraints) {
+                Matter.World.add(engine.world, constraint);
+            }
+            fasteners.push(data);
+            setTimeout(() => {
+                console.log('EXCLUDING', data)
+                excludePair(data.parent, data.child)
+            }, 100)
+        }
     }
 
     // const restoredCategories = json.categories.map(data => [restoreBodyReferences(data[0], bodyMap), data[1]]);
@@ -682,8 +852,10 @@ function startEditingBody(body, type) {
     editingType = type
     editingBody = body;
     sendToTop(editingBody);
-    if (editingBody.isFixed)
+    if (editingBody.isFixed) {
         editingBody.isStatic = false;
+        editingBody.isSensor = true;
+    }
 
     if (type == 'scale') {
         originalLocalPos = toLocalPos(editingBody, mouse.position);
@@ -692,8 +864,10 @@ function startEditingBody(body, type) {
 }
 
 function stopEditingBody() {
-    if (editingBody.isFixed)
+    if (editingBody.isFixed) {
         editingBody.isStatic = true
+        editingBody.isSensor = false;
+    }
     editingBody = false
 }
 
@@ -904,6 +1078,9 @@ function removeFastener(fastener) {
             return;
     }
     includePair(fastener.parent, fastener.child)
+    for (const constraint of fastener.constraints) {
+        Matter.World.remove(engine.world, constraint);
+    }
 }
 
 let tooltipTimeout;
@@ -1090,7 +1267,8 @@ function drawFastener(pos, rot, type) {
             ctx.stroke();
         }
     }
-    else if (type == 'motor') {
+    else if (type == 'motor' || type == 'r-motor') {
+        if (type == 'r-motor') rot *= -1
         for (let i = 0; i < Math.PI * 2; i += Math.PI / 2) {
             ctx.beginPath();
             ctx.arc(pos.x, pos.y, 8, i + rot, i + Math.PI / 4 + rot);
@@ -1198,16 +1376,14 @@ function removeFastenedChainIfOutOfBounds(body) {
     if (!doRemove)
         return;
     const isOutOfBounds = (body) => {
-        for (const vertex of body.vertices) {
-            const { x, y } = vertex;
-            if (
-                x >= -100 && x <= canvas.width + 100 &&
-                y >= -100 && y <= canvas.height + 100
-            ) {
-                return false;
-            }
-        }
-        return true;
+        const bounds = body.bounds;
+        const margin = 100
+        return (
+            bounds.max.x < -margin ||
+            bounds.min.x > canvas.width + margin ||
+            bounds.max.y < -margin ||
+            bounds.min.y > canvas.height + margin
+        );
     }
     if (isOutOfBounds(body)) {
         const chain = getFastenedChain(body);
@@ -1236,9 +1412,11 @@ function applyMotor(bodyA, bodyB, targetRelAngularVel) {
     const error = targetRelAngularVel - currentRelVel;
     const invI1 = bodyA.inverseInertia || 0;
     const invI2 = bodyB.inverseInertia || 0;
-    const totalInvI = invI1 + invI2;
-    console.log(invI1 + invI2);
-    if (totalInvI > 0) {
+    const totalInvI = invI1 + invI2; if (bodyA.isStatic && !bodyB.isStatic) {
+        Matter.Body.setAngularVelocity(bodyB, bodyB.angularVelocity + error);
+    } else if (!bodyA.isStatic && bodyB.isStatic) {
+        Matter.Body.setAngularVelocity(bodyA, bodyA.angularVelocity - error);
+    } else if (totalInvI > 0) {
         const correctionA = (error * invI1) / totalInvI;
         const correctionB = (error * invI2) / totalInvI;
         Matter.Body.setAngularVelocity(bodyA, bodyA.angularVelocity - correctionA);
@@ -1331,8 +1509,8 @@ Matter.Render.world = (render) => {
             ctx.rotate(fastener.parent.angle);
             drawFastener(fastener.offset, globalTimer, fastener.type);
             ctx.restore();
-            if (fastener.type == 'motor' && !paused) {
-                applyMotor(fastener.parent, fastener.child, Math.PI / 100 * settings.motorSpeed)
+            if ((fastener.type == 'motor' || fastener.type == 'r-motor') && !paused) {
+                applyMotor(fastener.parent, fastener.child, Math.PI / 100 * settings.motorSpeed * (fastener.type == 'r-motor' ? -1 : 1))
                 // Body.setAngularVelocity(fastener.parent, -Math.PI / 100 * motorSpeed);
                 // Body.setAngularVelocity(fastener.child, Math.PI / 100 * motorSpeed);
             }
