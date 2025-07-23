@@ -345,6 +345,11 @@ function removeAllBodies() {
     }
 }
 
+function clearScene() {
+    removeAllBodies();
+    createAndAddGround();
+}
+
 function createTimeRects() {
     removeAllBodies();
     const now = new Date();
@@ -413,10 +418,80 @@ function startTime() {
     }, 1000)
 }
 
+function addVirtualBody(body, fixed = false) {
+    body.render = {
+        fillStyle: pickRandomFillStyle(),
+        lineWidth,
+        strokeStyle
+    };
+    if (fixed) {
+        body.isFixed = true;
+        body.isStatic = true;
+    }
+    if (paused) freezeBody(body)
+    Composite.add(engine.world, body);
+}
+
+function addVirtualFastener(type, bodyA, bodyB, position) {
+    const fastener = { type, holding: false }
+    addFastener(fastener, bodyA, bodyB, position);
+    fasteners.push(fastener);
+}
+
+function resetSettings() {
+    settings.gravity = 1;
+    settings.weightFactor = 1;
+    settings.attractionPower = 1;
+    settings.motorSpeed = 1;
+    settings.explosivePower = 1;
+    updateSettings();
+}
+
+function createCarScene() {
+    resetSettings();
+    removeAllBodies();
+    createAndAddGround()
+    const center = vec(window.innerWidth/2, window.innerHeight/2);
+    const wheelA = Bodies.circle(center.x - 100, center.y, 40)
+    addVirtualBody(wheelA);
+    const wheelB = Bodies.circle(center.x + 100, center.y, 40)
+    addVirtualBody(wheelB);
+    const chassis = Bodies.rectangle(center.x, center.y - 40, 215, 100);
+    addVirtualBody(chassis);
+    addVirtualFastener('hinge', wheelA, chassis, wheelA.position);
+    addVirtualFastener('hinge', wheelB, chassis, wheelB.position);
+
+    const obstacleA = Bodies.rectangle(center.x, center.y - 40, 215, 100);
+    Body.setAngle(obstacleA, 15)
+    addVirtualBody(obstacleA);
+}
+
+function createChainScene() {
+    resetSettings();
+    removeAllBodies();
+    const center = vec(window.innerWidth / 2, window.innerHeight / 2);
+    const startY = center.y - 200
+    const block = Bodies.circle(center.x, startY, 50)
+    addVirtualBody(block, true);
+    let prevLink = block;
+    for (let i = 1; i < 10; i++) {
+        const link = Bodies.circle(center.x, startY + i*60, 50)
+        addVirtualBody(link);
+        addVirtualFastener('hinge', link, prevLink, vec(link.position.x, link.position.y - 35));
+        prevLink = link;
+    }
+}
+
 function loadExample(name) {
     switch (name) {
         case 'clock':
             startTime();
+            break;
+        case 'car':
+            createCarScene();
+            break;
+        case 'chain':
+            createChainScene();
             break;
         default:
             break;
@@ -676,7 +751,7 @@ function setTheme(t) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    setThemeElement('pencil')
+    setThemeElement('jelly')
     restoreLocal()
     startStorageLoop();
 });
@@ -794,13 +869,19 @@ function restoreLocal() {
     removeAllBodies();
     setTimeout(() => {
         deserializeAndLoadScene(scene);
+        setTheme(settings.theme)
     }, 100)
-
 
     const loadedSettings = JSON.parse(localStorage.getItem("settings"));
     if (loadedSettings) {
         settings = loadedSettings
         updateSettings();
+    }
+
+    const loadedScenes = JSON.parse(localStorage.getItem("scenes"));
+    if (loadedScenes) {
+        savedScenes = loadedScenes;
+        updateSavedScenes();
     }
 }
 
@@ -810,25 +891,70 @@ function startStorageLoop() {
     }, 5000)
 }
 
-function createInitialScene() {
-    removeAllBodies();
-    const boxA = Bodies.rectangle(400, 200, 100, 50, { isStatic: false, isFixed: true, render: { fillStyle: "transparent" } });
-    Matter.Body.setStatic(boxA, true)
-    const boxB = Bodies.rectangle(450, 50, 80, 80);
+function createAndAddGround() {
     const ground = Bodies.rectangle(
         window.innerWidth / 2,
         window.innerHeight - 30,
         window.innerWidth,
         60,
-        { isStatic: true, isFixed: true, isImmovable: true, render: { fillStyle: "transparent" } }
+        { isStatic: true, isFixed: true, render: { fillStyle: "transparent" } }
     );
-    Composite.add(engine.world, [boxA, boxB, ground]);
+    Composite.add(engine.world, ground);
+}
+
+function createInitialScene() {
+    removeAllBodies();
+    const boxA = Bodies.rectangle(400, 200, 100, 50, { isStatic: false, isFixed: true, render: { fillStyle: "transparent" } });
+    Matter.Body.setStatic(boxA, true)
+    const boxB = Bodies.rectangle(450, 50, 80, 80);
+    createAndAddGround();
     settings.gravity = 1;
     updateSettings();
 }
 
-function createSceneFromJson(json) {
+function deleteScene(el) {
+    const id = el.getAttribute('scene-id')
+    if (id && id in savedScenes) {
+        delete savedScenes[id];
+        localStorage.setItem("scenes", JSON.stringify(savedScenes));
+    }
+    updateSavedScenes();
+}
 
+function loadScene(el, event) {
+    event.stopPropagation();
+    const id = el.getAttribute('scene-id')
+    if (id && id in savedScenes) {
+        removeAllBodies();
+        deserializeAndLoadScene(JSON.parse(JSON.stringify(savedScenes[id])));
+        setTheme(settings.theme)
+    }
+}
+
+function updateSavedScenes() {
+    const container = document.getElementById('saved-scene-content');
+    container.innerHTML = '';
+    for (const id in savedScenes) {
+        const el = `<div class="menu-item" onclick="loadScene(this, event)" scene-id="${id}">
+    <i class="ri-delete-bin-line delete-scene-icon" onclick="deleteScene(this.parentNode)"></i>
+    <i class="ri-save-3-line add-item-image"></i>
+    <p>Scene ${id}</p>
+</div>`
+        container.innerHTML += el;
+    }
+    console.log(savedScenes);
+}
+
+function saveScene(event) {
+    event.stopPropagation();
+    for (let id = 1; id < 25; id++) {
+        if (!(id in savedScenes)) {
+            savedScenes[id] = serializeScene();
+            localStorage.setItem("scenes", JSON.stringify(savedScenes));
+            updateSavedScenes();
+            return;
+        }
+    }
 }
 
 // object handles
@@ -836,6 +962,7 @@ let editingBody = false;
 let editingType = 'rotate'
 let originalLocalPos = null;
 let prevFactor = vec(1, 1);
+let savedScenes = {};
 
 function toLocalPos(body, worldPos) {
     const dx = worldPos.x - body.position.x;
@@ -1022,21 +1149,20 @@ function cleanCategories() {
     }
 }
 
-function addFastener(fastener, bodyA, bodyB) {
-    const mpos = mouse.position;
+function addFastener(fastener, bodyA, bodyB, pos = mouse.position) {
     fastener.holding = false;
     fastener.parent = bodyA
     fastener.child = bodyB
-    fastener.offset = Matter.Vector.rotate(Matter.Vector.sub(mpos, bodyA.position), - bodyA.angle)
+    fastener.offset = Matter.Vector.rotate(Matter.Vector.sub(pos, bodyA.position), - bodyA.angle)
     // fastener.childOffset = Matter.Vector.sub(bodyA.position, bodyB.position)
 
     excludePair(bodyA, bodyB);
 
     const constraint = Matter.Constraint.create({
         bodyA: bodyA,
-        pointA: Matter.Vector.sub(mpos, bodyA.position),
+        pointA: Matter.Vector.sub(pos, bodyA.position),
         bodyB: bodyB,
-        pointB: Matter.Vector.sub(mpos, bodyB.position),
+        pointB: Matter.Vector.sub(pos, bodyB.position),
         stiffness: fastener.type == 'connect' ? 1 : 0.7,
         length: 0,
         render: {
@@ -1052,9 +1178,9 @@ function addFastener(fastener, bodyA, bodyB) {
         for (const offset of offsets) {
             const addedConstraint = Matter.Constraint.create({
                 bodyA: bodyA,
-                pointA: Matter.Vector.add(Matter.Vector.sub(mpos, bodyA.position), offset),
+                pointA: Matter.Vector.add(Matter.Vector.sub(pos, bodyA.position), offset),
                 bodyB: bodyB,
-                pointB: Matter.Vector.add(Matter.Vector.sub(mpos, bodyB.position), offset),
+                pointB: Matter.Vector.add(Matter.Vector.sub(pos, bodyB.position), offset),
                 stiffness: 1,
                 length: 0,
                 render: {

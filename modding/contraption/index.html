@@ -133,16 +133,23 @@
             color: black;
         }
 
-        .menu-item>.selected-icon {
+        .menu-item>.selected-icon, .menu-item>.delete-scene-icon {
             position: absolute;
             top: 2px;
             right: 2px;
-            opacity: 0;
             transition: opacity 0.1s ease;
+        }
+
+        .menu-item>.selected-icon {
+            opacity: 0;
         }
 
         .menu-item.selected>.selected-icon {
             opacity: 1;
+        }
+
+        .menu-item>.delete-scene-icon:hover {
+            opacity: 0.5;
         }
 
         .add-item-image {
@@ -265,6 +272,32 @@
             transform: translateX(-50%);
             pointer-events: all;
         }
+
+        .save-button {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-direction: row;
+            height: 35px;
+            outline: none;
+            border: 1px solid #0000004D;
+            align-items: center;
+            justify-content: center;
+            background-color: transparent;
+            gap: 10px;
+            transition: border 0.1s ease;
+        }
+
+        .save-button:hover {
+            border-color: black;
+        }
+
+        .save-button:hover * {
+            color: black;
+        }
+
+        #saved-scene-content {
+            display: contents;
+        }
     </style>
 </head>
 
@@ -273,9 +306,9 @@
         <i class="ri-pause-line" onclick="togglePause(this, event)" title="Edit" id="pause-btn"></i>
         <i class="ri-add-line" onclick="openMenu('add-menu', event)" title="Add"></i>
         <i class="ri-paint-fill" onclick="openMenu('theme-menu', event)" title="Themes"></i>
-        <i class="ri-dice-3-line" onclick="openMenu('sample-menu', event)" title="Samples"></i>
+        <i class="ri-save-3-line" onclick="openMenu('sample-menu', event)" title="Load"></i>
         <i class="ri-settings-4-line" onclick="openMenu('settings-menu', event)" title="Settings"></i>
-        <i class="ri-delete-bin-line" onclick="removeAllBodies()" title="Clear"></i>
+        <i class="ri-delete-bin-line" onclick="clearScene()" title="Clear"></i>
         <i class="ri-question-mark" onclick="openMenu('tutorial-menu', event)" title="Help"></i>
     </div>
     <div id="menus">
@@ -368,11 +401,6 @@
                 <div class="menu-separator">
                     <p>Standard</p><i class="ri-paint-brush-line"></i>
                 </div>
-                <div class="menu-item" onclick="setThemeElement('pencil')" id="pencil-theme">
-                    <i class="ri-checkbox-circle-fill selected-icon"></i>
-                    <i class="ri-pencil-ruler-2-line add-item-image"></i>
-                    <p>Pencil</p>
-                </div>
                 <div class="menu-item" onclick="setThemeElement('jelly')" id="jelly-theme">
                     <i class="ri-checkbox-circle-fill selected-icon"></i>
                     <i class="ri-shape-line add-item-image"></i>
@@ -382,6 +410,11 @@
                     <i class="ri-checkbox-circle-fill selected-icon"></i>
                     <i class="ri-sketching add-item-image"></i>
                     <p>Outline</p>
+                </div>
+                <div class="menu-item" onclick="setThemeElement('pencil')" id="pencil-theme">
+                    <i class="ri-checkbox-circle-fill selected-icon"></i>
+                    <i class="ri-pencil-ruler-2-line add-item-image"></i>
+                    <p>Pencil</p>
                 </div>
                 <div class="menu-item" onclick="setThemeElement('simple')" id="simple-theme">
                     <i class="ri-checkbox-circle-fill selected-icon"></i>
@@ -404,7 +437,7 @@
                 <div class="menu-item" onclick="setThemeElement('lux')" id="lux-theme">
                     <i class="ri-checkbox-circle-fill selected-icon"></i>
                     <i class="ri-sparkling-line add-item-image"></i>
-                    <p>Luxury</p>
+                    <p>Lux</p>
                 </div>
                 <div class="menu-item" onclick="setThemeElement('candy')" id="candy-theme">
                     <i class="ri-checkbox-circle-fill selected-icon"></i>
@@ -544,15 +577,39 @@
         </div>
         <div class="menu" id="sample-menu">
             <div class="menu-header">
-                <i class="ri-dice-3-line"></i>
-                <p>Samples</p><i class="ri-close-line close-menu" onclick="closeMenu(this.parentNode.parentNode)"></i>
+                <i class="ri-save-3-line"></i>
+                <p>Load scene</p><i class="ri-close-line close-menu" onclick="closeMenu(this.parentNode.parentNode)"></i>
             </div>
             <div class="menu-content" id="theme-menu-content">
+                <div class="menu-separator">
+                    <p>Samples</p><i class="ri-dice-3-line"></i>
+                </div>
                 <div class="menu-item" onclick="loadExample('clock')">
-                    <i class="ri-checkbox-circle-fill selected-icon"></i>
                     <i class="ri-time-line add-item-image"></i>
                     <p>Clock</p>
                 </div>
+                <div class="menu-item" onclick="loadExample('car')">
+                    <i class="ri-car-line add-item-image"></i>
+                    <p>Car</p>
+                </div>
+                <div class="menu-item" onclick="loadExample('chain')">
+                    <i class="ri-link-unlink-m add-item-image"></i>
+                    <p>Chain</p>
+                </div>
+                <div class="menu-separator">
+                    <p>Saves</p><i class="ri-save-3-line"></i>
+                </div>
+                <div id="saved-scene-content">
+                    <div class="menu-item" onclick="loadExample('clock')">
+                        <i class="ri-delete-bin-line delete-scene-icon"></i>
+                        <i class="ri-save-3-line add-item-image"></i>
+                        <p>Scene 1</p>
+                    </div>
+                </div>
+                <button class="save-button" onclick="saveScene(event)">
+                    <i class="ri-download-line"></i>
+                    <p>Save current scene</p>
+                </button>
             </div>
         </div>
         <div class="menu" id="tutorial-menu">
