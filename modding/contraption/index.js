@@ -62,7 +62,8 @@ function togglePause() {
         const bodies = Matter.Composite.allBodies(engine.world).filter(b => b.isPaused);
         bodies.forEach(body => {
             body.isPaused = false;
-            body.isSensor = false;
+            if (!body.isPermanentSensor)
+                body.isSensor = false;
         });
         engine.world.gravity.y = settings.gravity;
     }
@@ -75,7 +76,7 @@ function updateSettings() {
     if (prevSettings.weightFactor != settings.weightFactor) {
         for (const body of Composite.allBodies(engine.world)) {
             if (body.isWeight) {
-                Matter.Body.setDensity(body, (settings.weightFactor || 1) * 5)
+                Matter.Body.setDensity(body, (settings.weightFactor || 1) * 0.1)
             }
         }
     }
@@ -148,7 +149,7 @@ function pickRandomFillStyle() {
 
 function addBasicShape(shape = 'rect', fixed = false) {
     const pos = mouse.position
-    const body = shape == 'rect' ? Bodies.rectangle(pos.x, pos.y, 200, 100) : Bodies.circle(pos.x, pos.y, 40)
+    const body = shape == 'rect' ? Bodies.rectangle(pos.x, pos.y, 150, 75) : Bodies.circle(pos.x, pos.y, 40)
     body.render = {
         fillStyle: pickRandomFillStyle(),
         lineWidth,
@@ -184,7 +185,7 @@ function addRadialForceSource(dir = 1) {
         lineWidth,
         strokeStyle
     };
-    Matter.Body.setDensity(body, 5);
+    Matter.Body.setDensity(body, 1);
     body.radialForceSourceDir = dir
     addBody(body)
 }
@@ -198,7 +199,7 @@ function addWeight() {
         strokeStyle
     };
     body.isWeight = true;
-    Matter.Body.setDensity(body, settings.weightFactor * 5);
+    Matter.Body.setDensity(body, settings.weightFactor * 0.1);
     addBody(body)
 }
 
@@ -216,6 +217,169 @@ function addIce() {
     body.isIce = true;
     addBody(body)
 }
+
+function addPortal() {
+    const pos = mouse.position
+    const body = Bodies.polygon(pos.x, pos.y, 6, 25);
+    addBody(body)
+    body.render = {
+        fillStyle: pickRandomFillStyle(),
+        lineWidth,
+        strokeStyle
+    };
+    body.isPermanentSensor = true;
+    body.isPortal = true;
+    body.isStatic = true;
+    body.isSensor = true;
+}
+
+function addDuplicator() {
+    const pos = mouse.position
+    const body = Bodies.polygon(pos.x, pos.y, 8, 25);
+    Body.setAngle(body, Math.PI / 2)
+    addBody(body)
+    body.render = {
+        fillStyle: pickRandomFillStyle(),
+        lineWidth,
+        strokeStyle
+    };
+    body.isPermanentSensor = true;
+    body.isDuplicator = true;
+    body.isStatic = true;
+    body.isSensor = true;
+}
+
+function addSpawner() {
+    const pos = mouse.position
+    const body = Bodies.polygon(pos.x, pos.y, 3, 25);
+    Body.setAngle(body, -Math.PI / 2)
+    addBody(body)
+    body.render = {
+        fillStyle: pickRandomFillStyle(),
+        lineWidth,
+        strokeStyle
+    };
+    body.isPermanentSensor = true;
+    body.isSpawner = true;
+    body.lastSpawnTime = 0;
+    body.isStatic = true;
+    body.isSensor = true;
+}
+
+// handle teleport
+Matter.Events.on(engine, 'collisionStart', (event) => {
+    const shuffle = (array) => {
+        const result = array.slice();
+        for (let i = result.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [result[i], result[j]] = [result[j], result[i]];
+        }
+        return result;
+    };
+
+    const getChainCenter = (bodies) => {
+        let sumX = 0;
+        let sumY = 0;
+        bodies.forEach(body => {
+            sumX += body.position.x;
+            sumY += body.position.y;
+        });
+        const centerX = sumX / bodies.length;
+        const centerY = sumY / bodies.length;
+        return vec(centerX, centerY);
+    }
+
+    const handlePortal = (fromPortal, targetBody) => {
+        if (targetBody.justPortaled || targetBody.isDragging)
+            return;
+        let targetPortal;
+        const targetChain = getFastenedChain(targetBody);
+        for (const body of shuffle(Composite.allBodies(engine.world))) {
+            if (body.isPortal && body != fromPortal) {
+                targetPortal = body;
+                break;
+            }
+        }
+        if (targetPortal) {
+            const chainCenter = getChainCenter(targetChain);
+            const offset = Matter.Vector.sub(targetPortal.position, chainCenter);
+            for (const b of targetChain) {
+                Matter.Body.setPosition(b, Matter.Vector.add(b.position, offset))
+                b.justPortaled = true;
+                setTimeout(() => {
+                    b.justPortaled = false;
+                }, 100)
+            }
+        }
+        else {
+            for (const b of targetChain) {
+                removeBody(targetBody);
+            }
+        }
+    }
+
+    const handleDuplicate = (fromPortal, targetBody) => {
+        if (targetBody.justPortaled || targetBody.isDragging)
+            return;
+        let targetPortal;
+        const targetChain = getFastenedChain(targetBody);
+        for (const body of shuffle(Composite.allBodies(engine.world))) {
+            if (body.isDuplicator && body != fromPortal) {
+                targetPortal = body;
+                break;
+            }
+        }
+        for (const b of targetChain) {
+            b.justPortaled = true;
+            setTimeout(() => {
+                b.justPortaled = false;
+            }, 1000)
+        }
+        if (targetPortal) {
+            const chainCenter = getChainCenter(targetChain);
+            const offset = Matter.Vector.sub(targetPortal.position, chainCenter);
+            const newChain = cloneChain(targetBody)
+            for (const b of newChain) {
+                Matter.Body.setPosition(b, Matter.Vector.add(b.position, offset))
+                b.justPortaled = true;
+                setTimeout(() => {
+                    b.justPortaled = false;
+                }, 1000)
+            }
+        }
+        else {
+            const newChain = cloneChain(targetBody)
+            for (const b of newChain) {
+                Matter.Body.setPosition(b, Matter.Vector.add(b.position, vec(0, -100)))
+                b.justPortaled = true;
+                setTimeout(() => {
+                    b.justPortaled = false;
+                }, 1000)
+            }
+        }
+    }
+
+    if (paused)
+        return;
+
+    const pairs = event.pairs;
+    for (const pair of pairs) {
+        const bodyA = pair.bodyA;
+        const bodyB = pair.bodyB;
+        if (bodyA.isPortal && !bodyB.isPortal) {
+            handlePortal(bodyA, bodyB)
+        }
+        else if (bodyB.isPortal && !bodyA.isPortal) {
+            handlePortal(bodyB, bodyA)
+        }
+        else if (bodyA.isDuplicator && !bodyB.isDuplicator) {
+            handleDuplicate(bodyA, bodyB)
+        }
+        else if (bodyB.isDuplicator && !bodyA.isDuplicator) {
+            handleDuplicate(bodyB, bodyA)
+        }
+    }
+});
 
 function addEntity(entity) {
     switch (entity) {
@@ -273,6 +437,15 @@ function addEntity(entity) {
             break;
         case 'ice':
             addIce();
+            break;
+        case 'portal':
+            addPortal();
+            break;
+        case 'duplicator':
+            addDuplicator();
+            break;
+        case 'spawner':
+            addSpawner();
             break;
         default:
             break;
@@ -438,12 +611,46 @@ function addVirtualFastener(type, bodyA, bodyB, position) {
     fasteners.push(fastener);
 }
 
+function addVirtualPortal(pos) {
+    const body = Bodies.polygon(pos.x, pos.y, 6, 25);
+    body.render = {
+        fillStyle: pickRandomFillStyle(),
+        lineWidth,
+        strokeStyle
+    };
+    body.isPermanentSensor = true;
+    body.isPortal = true;
+    body.isStatic = true;
+    body.isSensor = true;
+    if (paused) freezeBody(body)
+    Composite.add(engine.world, body);
+}
+
+function addVirtualSpawner(pos) {
+    const body = Bodies.polygon(pos.x, pos.y, 3, 25);
+    Body.setAngle(body, -Math.PI / 2)
+    body.render = {
+        fillStyle: pickRandomFillStyle(),
+        lineWidth,
+        strokeStyle
+    };
+    body.isPermanentSensor = true;
+    body.isSpawner = true;
+    body.lastSpawnTime = 0;
+    body.isStatic = true;
+    body.isSensor = true;
+    if (paused) freezeBody(body)
+    Composite.add(engine.world, body);
+}
+
 function resetSettings() {
     settings.gravity = 1;
     settings.weightFactor = 1;
     settings.attractionPower = 1;
     settings.motorSpeed = 1;
     settings.explosivePower = 1;
+    settings.spawnRate = 0.5;
+    settings.spawnSpeed = 10;
     updateSettings();
 }
 
@@ -451,19 +658,30 @@ function createCarScene() {
     resetSettings();
     removeAllBodies();
     createAndAddGround()
-    const center = vec(window.innerWidth/2, window.innerHeight/2);
-    const wheelA = Bodies.circle(center.x - 100, center.y, 40)
+    const center = vec(window.innerWidth / 2, window.innerHeight / 2);
+    const carPos = vec(center.x - 200, 0)
+    const wheelA = Bodies.circle(carPos.x - 50, carPos.y, 40)
     addVirtualBody(wheelA);
-    const wheelB = Bodies.circle(center.x + 100, center.y, 40)
+    const wheelB = Bodies.circle(carPos.x + 50, carPos.y, 40)
+    Body.setMass(wheelB, 50);
     addVirtualBody(wheelB);
-    const chassis = Bodies.rectangle(center.x, center.y - 40, 215, 100);
+    const chassis = Bodies.rectangle(carPos.x, carPos.y, 115, 25);
     addVirtualBody(chassis);
     addVirtualFastener('hinge', wheelA, chassis, wheelA.position);
     addVirtualFastener('hinge', wheelB, chassis, wheelB.position);
 
-    const obstacleA = Bodies.rectangle(center.x, center.y - 40, 215, 100);
-    Body.setAngle(obstacleA, 15)
-    addVirtualBody(obstacleA);
+    const obstacleA = Bodies.rectangle(center.x - 200, center.y - 200, 600, 25);
+    Body.setAngle(obstacleA, 0.2)
+    addVirtualBody(obstacleA, true);
+    const obstacleB = Bodies.rectangle(center.x + 200, center.y, 600, 25);
+    Body.setAngle(obstacleB, -0.2)
+    addVirtualBody(obstacleB, true);
+    const obstacleC = Bodies.rectangle(center.x - 200, center.y + 200, 600, 25);
+    Body.setAngle(obstacleC, 0.2)
+    addVirtualBody(obstacleC, true);
+
+    addVirtualPortal(vec(center.x - 400, center.y - 300));
+    addVirtualPortal(vec(center.x + 200, center.y + 200));
 }
 
 function createChainScene() {
@@ -475,11 +693,38 @@ function createChainScene() {
     addVirtualBody(block, true);
     let prevLink = block;
     for (let i = 1; i < 10; i++) {
-        const link = Bodies.circle(center.x, startY + i*60, 50)
+        const link = Bodies.circle(center.x, startY + i * 60, 50)
         addVirtualBody(link);
         addVirtualFastener('hinge', link, prevLink, vec(link.position.x, link.position.y - 35));
         prevLink = link;
     }
+}
+
+function createPistonScene() {
+    resetSettings();
+    settings.motorSpeed = 4;
+    settings.spawnRate = 5;
+    removeAllBodies();
+    const center = vec(window.innerWidth / 2, window.innerHeight / 2);
+    const block = Bodies.circle(center.x - 400, center.y, 50)
+    addVirtualBody(block, true);
+    const rotator = Bodies.circle(block.position.x, block.position.y, 150)
+    addVirtualBody(rotator);
+    addVirtualFastener('motor', rotator, block, block.position);
+    const arm = Bodies.rectangle(block.position.x + 250, block.position.y - 75, 550, 25)
+    Body.setAngle(arm, 0.25)
+    addVirtualBody(arm);
+    addVirtualFastener('hinge', rotator, arm, vec(block.position.x, block.position.y - 130));
+    const piston = Bodies.rectangle(block.position.x + 500, block.position.y, 200, 100)
+    addVirtualBody(piston);
+    addVirtualFastener('hinge', arm, piston, vec(piston.position.x, piston.position.y));
+    const stand = Bodies.rectangle(piston.position.x, piston.position.y + 100, 400, 100)
+    addVirtualBody(stand, true);
+    const cover = Bodies.rectangle(piston.position.x - 75, piston.position.y - 100, 250, 100)
+    addVirtualBody(cover, true);
+    excludePair(stand, arm)
+    excludePair(block, arm)
+    addVirtualSpawner(vec(cover.position.x + 200, cover.position.y - 200))
 }
 
 function loadExample(name) {
@@ -492,6 +737,9 @@ function loadExample(name) {
             break;
         case 'chain':
             createChainScene();
+            break;
+        case 'piston':
+            createPistonScene();
             break;
         default:
             break;
@@ -757,30 +1005,44 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // the local state
+function serializeBody(body) {
+    const cachedAngle = body.angle
+    Body.setAngle(body, 0)
+    const { parent, parts, id, justPortaled, ...serializedBody } = body
+    serializedBody.vertices = body.vertices.map(v => (vec(v.x, v.y)));
+    serializedBody.cachedAngle = cachedAngle
+    Body.setAngle(body, cachedAngle)
+    return serializedBody;
+}
+
+function serializeConstraint(constraint) {
+    const { bodyA, bodyB, id, ...serializedConstraint } = constraint
+    serializedConstraint.bodyAId = bodyA.position
+    serializedConstraint.bodyBId = bodyB.position
+    return serializedConstraint;
+}
+
+function serializeFastener(fastener) {
+    const { parent, child, ...serializedFastener } = fastener
+    serializedFastener.constraints = [];
+    for (const constraint of fastener.constraints) {
+        const serializedConstraint = serializeConstraint(constraint)
+        serializedFastener.constraints.push(serializedConstraint)
+    }
+    return serializedFastener
+}
+
 function serializeScene() {
     const bodies = Matter.Composite.allBodies(engine.world);
     const serializedBodies = [];
     for (const body of bodies) {
-        const cachedAngle = body.angle
-        Body.setAngle(body, 0)
-        const { parent, parts, id, ...rest } = body
-        rest.vertices = body.vertices.map(v => (vec(v.x, v.y)));
-        rest.cachedAngle = cachedAngle
-        serializedBodies.push(rest)
-        Body.setAngle(body, cachedAngle)
+        const serializedBody = serializeBody(body)
+        serializedBodies.push(serializedBody);
     }
 
     const serializedFasteners = [];
     for (const fastener of fasteners) {
-        const { parent, child, ...serializedFastener } = fastener
-        serializedFastener.constraints = [];
-        for (const constraint of fastener.constraints) {
-            const { bodyA, bodyB, id, ...rest } = constraint
-            const serializedConstraint = rest;
-            serializedConstraint.bodyAId = bodyA.position
-            serializedConstraint.bodyBId = bodyB.position
-            serializedFastener.constraints.push(serializedConstraint)
-        }
+        const serializedFastener = serializeFastener(fastener)
         serializedFasteners.push(serializedFastener)
     }
     console.log('SERIALIZING', { bodies: serializedBodies, fasteners: serializedFasteners })
@@ -849,38 +1111,33 @@ function deserializeAndLoadScene(json) {
 }
 
 function storeLocal() {
-    const { bodies: serializedBodies, fasteners: serializedFasteners } = serializeScene();
-    localStorage.setItem("bodies", JSON.stringify(serializedBodies));
-    localStorage.setItem("fasteners", JSON.stringify(serializedFasteners));
+    const scene = serializeScene();
+    localStorage.setItem("scene", JSON.stringify(scene));
     localStorage.setItem("settings", JSON.stringify(settings));
     // localStorage.setItem("categories", JSON.stringify(serializedCategories));
 }
 
 function restoreLocal() {
-    const scene = {
-        bodies: JSON.parse(localStorage.getItem("bodies")),
-        fasteners: JSON.parse(localStorage.getItem("fasteners")),
-        // categories: JSON.parse(localStorage.getItem("categories"))
-    }
-    if (!scene.bodies || !scene.fasteners) {
+    const scene = localStorage.getItem("scene")
+    if (!scene) {
         createInitialScene();
         return;
     }
     removeAllBodies();
     setTimeout(() => {
-        deserializeAndLoadScene(scene);
+        deserializeAndLoadScene(JSON.parse(scene));
         setTheme(settings.theme)
-    }, 100)
+    }, 200)
 
-    const loadedSettings = JSON.parse(localStorage.getItem("settings"));
+    const loadedSettings = localStorage.getItem("settings");
     if (loadedSettings) {
-        settings = loadedSettings
+        settings = JSON.parse(loadedSettings)
         updateSettings();
     }
 
-    const loadedScenes = JSON.parse(localStorage.getItem("scenes"));
+    const loadedScenes = localStorage.getItem("scenes");
     if (loadedScenes) {
-        savedScenes = loadedScenes;
+        savedScenes = JSON.parse(loadedScenes);
         updateSavedScenes();
     }
 }
@@ -904,15 +1161,15 @@ function createAndAddGround() {
 
 function createInitialScene() {
     removeAllBodies();
-    const boxA = Bodies.rectangle(400, 200, 100, 50, { isStatic: false, isFixed: true, render: { fillStyle: "transparent" } });
-    Matter.Body.setStatic(boxA, true)
-    const boxB = Bodies.rectangle(450, 50, 80, 80);
     createAndAddGround();
-    settings.gravity = 1;
+    resetSettings();
+    // TODO
     updateSettings();
 }
 
-function deleteScene(el) {
+function deleteScene(el, event) {
+    console.log('deleting')
+    event.stopPropagation();
     const id = el.getAttribute('scene-id')
     if (id && id in savedScenes) {
         delete savedScenes[id];
@@ -922,6 +1179,8 @@ function deleteScene(el) {
 }
 
 function loadScene(el, event) {
+    if (el.querySelector('.delete-scene-icon').contains(event.target))
+        return;
     event.stopPropagation();
     const id = el.getAttribute('scene-id')
     if (id && id in savedScenes) {
@@ -936,7 +1195,7 @@ function updateSavedScenes() {
     container.innerHTML = '';
     for (const id in savedScenes) {
         const el = `<div class="menu-item" onclick="loadScene(this, event)" scene-id="${id}">
-    <i class="ri-delete-bin-line delete-scene-icon" onclick="deleteScene(this.parentNode)"></i>
+    <i class="ri-delete-bin-line delete-scene-icon" onclick="deleteScene(this.parentNode, event)"></i>
     <i class="ri-save-3-line add-item-image"></i>
     <p>Scene ${id}</p>
 </div>`
@@ -947,7 +1206,7 @@ function updateSavedScenes() {
 
 function saveScene(event) {
     event.stopPropagation();
-    for (let id = 1; id < 25; id++) {
+    for (let id = 1; id < 13; id++) {
         if (!(id in savedScenes)) {
             savedScenes[id] = serializeScene();
             localStorage.setItem("scenes", JSON.stringify(savedScenes));
@@ -1281,6 +1540,8 @@ function drawTexture(body) {
     }
     else if (body.radialForceSourceDir)
         drawRadialStripedTexture(body, body.radialForceSourceDir)
+    else if (body.isPortal || body.isDuplicator)
+        drawRadialStripedTexture(body, 1)
     else
         ctx.fill();
 }
@@ -1470,6 +1731,80 @@ function isMouseOverFastener(fastener) {
     return dx * dx + dy * dy <= 12 ** 2;
 }
 
+function cloneBody(body) {
+    const cachedAngle = body.angle
+    Body.setAngle(body, 0)
+    const { id, parent, parts, axis, bounds, vertices, ...rest } = body
+    for (const vertex of vertices) {
+        delete vertex.body
+    }
+    rest.vertices = vertices
+    let newBody = JSON.parse(JSON.stringify(rest));
+    Body.setAngle(body, cachedAngle)
+    newBody = Matter.Body.create(newBody);
+    Matter.Composite.add(engine.world, newBody)
+    Body.setAngle(newBody, cachedAngle)
+    return newBody
+}
+
+function cloneConstraint(constraint, newBodyA, newBodyB) {
+    const { id, bodyA, bodyB, ...rest } = constraint
+    let newConstraint = JSON.parse(JSON.stringify(rest))
+    newConstraint = Matter.Constraint.create(newConstraint);
+    newConstraint.bodyA = newBodyA
+    newConstraint.bodyB = newBodyB
+    Matter.Composite.add(engine.world, newConstraint)
+    return newConstraint
+}
+
+function cloneFastener(fastener, newBodyA, newBodyB) {
+    const newFastener = Object.assign({}, fastener);
+    newFastener.constraints = [];
+    newFastener.parent = newBodyA
+    newFastener.child = newBodyB
+    excludePair(newBodyA, newBodyB)
+    for (const constraint of fastener.constraints) {
+        newFastener.constraints.push(cloneConstraint(constraint, newBodyA, newBodyB))
+    }
+    fasteners.push(newFastener)
+}
+
+// while (true) {
+//     localStorage.setItem('bodies', '')
+//     clearScene();
+// }
+function cloneChain(body, visited = new Map(), clonedFasteners = new Set()) {
+    if (visited.has(body)) return [];
+    const clonedBody = cloneBody(body);
+    visited.set(body, clonedBody);
+    let clonedChain = [clonedBody];
+    for (const fastener of fasteners) {
+        if (fastener.parent === body) {
+            const childClones = cloneChain(fastener.child, visited, clonedFasteners);
+            clonedChain = clonedChain.concat(childClones);
+        } else if (fastener.child === body) {
+            const parentClones = cloneChain(fastener.parent, visited, clonedFasteners);
+            clonedChain = clonedChain.concat(parentClones);
+        }
+    }
+    for (const fastener of fasteners) {
+        if (
+            visited.has(fastener.parent) &&
+            visited.has(fastener.child) &&
+            !clonedFasteners.has(fastener)
+        ) {
+            cloneFastener(
+                fastener,
+                visited.get(fastener.parent),
+                visited.get(fastener.child)
+            );
+            clonedFasteners.add(fastener);
+        }
+    }
+
+    return clonedChain;
+}
+
 function getFastenedChain(body, visited = new Set()) {
     if (visited.has(body)) return [];
     visited.add(body);
@@ -1550,13 +1885,8 @@ function applyMotor(bodyA, bodyB, targetRelAngularVel) {
     }
 }
 
-let settings = {
-    explosivePower: 1,
-    attractionPower: 1,
-    gravity: 1,
-    weightFactor: 1,
-    motorSpeed: 1
-}
+let settings = {}
+resetSettings()
 
 function applyRadialForce(position, forceMagnitude, applyToSelf = false) {
     const radius = 1000;
@@ -1576,6 +1906,21 @@ function applyRadialForce(position, forceMagnitude, applyToSelf = false) {
             Matter.Body.applyForce(body, body.position, vec(fx, fy));
         }
     });
+}
+
+function spawnBody(parent) {
+    const spawn = Bodies.circle(parent.position.x, parent.position.y, 15)
+    spawn.render = {
+        fillStyle: pickRandomFillStyle(),
+        lineWidth,
+        strokeStyle
+    };
+    const speed = settings.spawnSpeed;
+    const angle = Math.PI + parent.angle;
+    const vel = vec(speed * Math.cos(angle), speed * Math.sin(angle));
+    Matter.Body.setVelocity(spawn, vel)
+    if (paused) freezeBody(spawn)
+    Composite.add(engine.world, spawn);
 }
 
 Matter.Render.world = (render) => {
@@ -1612,6 +1957,14 @@ Matter.Render.world = (render) => {
             }
             else if (body.radialForceSourceDir) {
                 applyRadialForce(body.position, body.radialForceSourceDir * 0.01 * settings.attractionPower, false);
+            }
+            else if (body.isSpawner) {
+                const interval = 1 / settings.spawnRate;
+                const intervalInt = Math.floor(globalTimer / interval);
+                if (intervalInt !== body.lastSpawnTime) {
+                    spawnBody(body);
+                    body.lastSpawnTime = intervalInt;
+                }
             }
         }
 

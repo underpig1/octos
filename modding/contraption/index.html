@@ -358,26 +358,6 @@
                 <div class="menu-separator">
                     <p>Special</p><i class="ri-sparkling-line"></i>
                 </div>
-                <div class="menu-item" onclick="addEntity('repeller')">
-                    <i class="ri-windy-line add-item-image"></i>
-                    <p>Repeller</p>
-                </div>
-                <div class="menu-item" onclick="addEntity('attractor')">
-                    <i class="ri-signal-tower-line add-item-image"></i>
-                    <p>Attractor</p>
-                </div>
-                <div class="menu-item" onclick="addEntity('launcher')">
-                    <i class="ri-crosshair-2-line add-item-image"></i>
-                    <p>Launcher</p>
-                </div>
-                <div class="menu-item" onclick="addEntity('cloner')">
-                    <i class="ri-magic-line add-item-image"></i>
-                    <p>Cloner</p>
-                </div>
-                <div class="menu-item" onclick="addEntity('blackhole')">
-                    <i class="ri-typhoon-line add-item-image"></i>
-                    <p>Black hole</p>
-                </div>
                 <div class="menu-item" onclick="addEntity('weight')">
                     <i class="ri-weight-line add-item-image"></i>
                     <p>Weight</p>
@@ -389,6 +369,26 @@
                 <div class="menu-item" onclick="addEntity('ice')">
                     <i class="ri-snowflake-fill add-item-image"></i>
                     <p>Ice</p>
+                </div>
+                <div class="menu-item" onclick="addEntity('spawner')">
+                    <i class="ri-crosshair-2-line add-item-image"></i>
+                    <p>Spawner</p>
+                </div>
+                <div class="menu-item" onclick="addEntity('repeller')">
+                    <i class="ri-windy-line add-item-image"></i>
+                    <p>Repeller</p>
+                </div>
+                <div class="menu-item" onclick="addEntity('attractor')">
+                    <i class="ri-signal-tower-line add-item-image"></i>
+                    <p>Attractor</p>
+                </div>
+                <div class="menu-item" onclick="addEntity('portal')">
+                    <i class="ri-typhoon-line add-item-image"></i>
+                    <p>Portal</p>
+                </div>
+                <div class="menu-item" onclick="addEntity('duplicator')">
+                    <i class="ri-magic-line add-item-image"></i>
+                    <p>Dupli-portal</p>
                 </div>
             </div>
         </div>
@@ -573,6 +573,26 @@
                         <option value="2">2</option>
                     </select>
                 </div>
+                <div class="settings-item">
+                    <label for="spawnRate">Spawn rate:</label>
+                    <select name="spawnRate" id="spawnRate" onchange="onSelect(this, event)">
+                        <option value="0.01">0.01</option>
+                        <option value="0.05">0.05</option>
+                        <option value="0.1">0.1</option>
+                        <option value="0.5" selected>0.5</option>
+                        <option value="1">1</option>
+                        <option value="5">5</option>
+                    </select>
+                </div><div class="settings-item">
+                    <label for="spawnSpeed">Spawn launch speed:</label>
+                    <select name="spawnSpeed" id="spawnSpeed" onchange="onSelect(this, event)">
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="10" selected>10</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
             </div>
         </div>
         <div class="menu" id="sample-menu">
@@ -595,6 +615,10 @@
                 <div class="menu-item" onclick="loadExample('chain')">
                     <i class="ri-link-unlink-m add-item-image"></i>
                     <p>Chain</p>
+                </div>
+                <div class="menu-item" onclick="loadExample('piston')">
+                    <i class="ri-shape-2-line add-item-image"></i>
+                    <p>Piston</p>
                 </div>
                 <div class="menu-separator">
                     <p>Saves</p><i class="ri-save-3-line"></i>
