@@ -73,13 +73,5 @@ mediaController.requestPlaybackInfo().then(playbackInfo => updateStatus(playback
 
 This is kind of ugly, so hopefully you jazz it up a bit before you actually use it in a project. This is really just the beginning of what you can do with the MediaController class. Some more things you can add is a timeline to show the user how far along they are in their music, add a thumbnail image for current playing media, and so much more with just `octos.MediaController`.
 
-## Debugging
-Debugging is a crucial part of making any mod, which you can do through the System class. Enable DevTools to access the JavaScript console, element inspector, and more in a popup window. Add this to the start of your script after adding `octos.min.js` to your mod:
-```js
-const sys = octos.System();
-sys.enableDevTools();
-```
-Just make to sure remove it before releasing your mod!
-
 ## Next steps
 Consult the [API reference](../../reference) for documentation and examples of all the Octos API member classes. Happy creating! Remember to [share your mod](publish) with the world when you're finished.

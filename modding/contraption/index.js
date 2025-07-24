@@ -1163,6 +1163,8 @@ function createInitialScene() {
     removeAllBodies();
     createAndAddGround();
     resetSettings();
+
+    createCarScene();
     // TODO
     updateSettings();
 }
