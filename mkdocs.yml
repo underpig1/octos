@@ -1,9 +1,10 @@
-site_name: Octos Docs
+site_name: Octos
 site_url: https://underpig1.github.io/octos/docs/
 repo_url: https://github.com/underpig1/octos
 edit_uri: tree/master/docs
 theme:
   name: material
+  custom_dir: docs/overrides
   palette:
     - scheme: slate
       primary: black
@@ -60,10 +61,15 @@ extra:
 copyright: Copyright &copy; 2025 underpig1
 nav:
   - Home:
-    - README.md
+    - index.md
     - Installation: home/installation
   - Guides:
-    - Using the API: guides/api
+    - guides/index.md
+    - Making a mod: guides/mod.md
+    - Using the API: guides/api.md
+    - Using the CLI: guides/cli.md
+    - octos.json: guides/config.md
+    - Publishing your mod: guides/publish.md
   - API Reference:
       - reference/index.md
       - MediaController: reference/mediacontroller.md

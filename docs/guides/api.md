@@ -1,6 +1,6 @@
 # Getting started with the Octos API
 
-The Octos API is a lightweight tool that can make your wallpapers even more powerful by interfacing with select native Windows functions from JavaScript.
+The Octos API is a lightweight tool that can make your wallpapers even more powerful by interfacing with select native Windows features from JavaScript.
 
 Here's a quick (but not exhaustive) overview of the different classes provided in the Octos API:
 
@@ -28,7 +28,7 @@ Alternatively, you can download [`octos.min.js`](https://unpkg.com/octos@latest/
 <script src="js/octos.min.js"></script>
 ```
 
-## Example: make a simple media player
+## Example: a simple media player
 If you need some inspiration, let's get you started with a simple fully functional example. We're going to make a media player that allows the user to pause/play media and enable/disable shuffle with the MediaController class.
 
 #### Preview
@@ -74,4 +74,4 @@ mediaController.requestPlaybackInfo().then(playbackInfo => updateStatus(playback
 This is kind of ugly, so hopefully you jazz it up a bit before you actually use it in a project. This is really just the beginning of what you can do with the MediaController class. Some more things you can add is a timeline to show the user how far along they are in their music, add a thumbnail image for current playing media, and so much more with just `octos.MediaController`.
 
 ## Next steps
-Consult the [API reference](../../reference) for documentation and examples of all the Octos API member classes. Happy creating! Remember to [share your mod](publish) with the world when you're finished.
+Consult the [API reference](../../reference) for documentation and examples of all the Octos API member classes. Happy creating! Remember to [share your mod](publish.md) with the world when you're finished.

@@ -1,0 +1,473 @@
+{#-
+This file was automatically generated - do not edit
+-#}
+{% extends "main.html" %}
+{% block tabs %}
+{{ super() }}
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
+<style>
+    :root {
+        --scroll: 0;
+        --octos: #e52e2e
+    }
+
+    .md-header {
+        position: initial;
+        background-color: transparent !important;
+        /* backdrop-filter: blur(4px); */
+    }
+
+    .md-tabs {
+        background-color: transparent !important;
+        /* backdrop-filter: blur(4px); */
+    }
+
+    .md-main__inner {
+        margin: 0;
+    }
+
+    .md-content {
+        display: none;
+    }
+
+    @media screen and (min-width:60em) {
+        .md-sidebar--secondary {
+            display: none;
+        }
+    }
+
+    @media screen and (min-width:76.25em) {
+        .md-sidebar--primary {
+            display: none;
+        }
+    }
+
+    body {
+        background-color: black;
+    }
+
+    .background {
+        position: absolute;
+        width: 100%;
+        height: 100vh;
+        top: -10px;
+        left: 0;
+        margin: 0;
+        z-index: -1;
+        overflow: hidden;
+    }
+
+    #background {
+        min-width: 100%;
+        min-height: 100%;
+        z-index: 0;
+        opacity: 0.6;
+        object-fit: cover;
+    }
+
+    .gradient-overlay {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 30%;
+        background: linear-gradient(to bottom, transparent, black);
+        pointer-events: none;
+    }
+
+    .gradient-top {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 20%;
+        background: linear-gradient(to top, transparent, black);
+        pointer-events: none;
+    }
+
+    .scrollable {
+        transform: translateY(calc((var(--scroll) - (100vh*var(--pos)))/var(--damp)));
+        transition: transformY 0.1s linear;
+    }
+
+    .mdx-container h1 {
+        font-weight: bold;
+        color: white;
+        font-size: 32pt;
+        margin: auto;
+    }
+
+    .mdx-container h3 {
+        font-weight: bold;
+        color: white;
+        font-size: 18pt;
+    }
+
+    .mdx-hero {
+        width: 100%;
+        height: 100vh;
+    }
+
+    .mdx-hero__content {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .mdx-container button {
+        position: relative;
+        box-shadow: 0 4px 4px #00000033;
+        border-radius: 6px;
+        border: 1px solid #5b5b5b;
+        outline: none;
+        background-color: #111;
+        width: 170px;
+        height: 42px;
+        line-height: 42px;
+        font-size: 11pt;
+        font-weight: 600;
+        margin-right: 10px;
+        margin-top: 10px;
+        cursor: pointer;
+        transition: opacity 0.1s ease-in-out;
+    }
+
+    .mdx-container button:hover {
+        opacity: 0.7;
+    }
+
+    .hero-centered {
+        width: 65%;
+    }
+
+    .feature-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;
+        height: auto;
+        margin: 0 auto;
+        text-align: center;
+        margin-bottom: 150px;
+    }
+
+    .feature {
+        padding: 20px;
+        flex: 1 0 250px;
+        max-width: 400px;
+    }
+
+    .feature-icon {
+        background: #111;
+        color: white;
+        font-size: 24pt;
+        border-radius: 50%;
+        width: 64px;
+        height: 64px;
+        line-height: 64px;
+        margin: 0;
+        display: inline-block;
+        border: 1px solid #5b5b5b;
+    }
+
+    .feature p {
+        text-justify: distribute;
+        font-size: 11pt;
+    }
+
+    .feature h3 {
+        margin-top: 40px;
+        margin-bottom: 0;
+    }
+
+    .reveal {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .reveal.revealed {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .centered-header {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 50px !important;
+    }
+
+    .examples {
+        height: auto;
+        /* background-color: #111;
+        border: 1px solid #5b5b5b; */
+        margin: 0 50px;
+    }
+
+    .cards {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 10px;
+    }
+
+    @media (min-width: 900px) {
+        .examples {
+            margin: 0 50px;
+        }
+
+        .cards {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
+    @media (max-width: 899px) {
+        .examples {
+            margin: 0 20px;
+        }
+
+        .cards {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .card {
+        position: relative;
+        /* max-width: 350px; */
+        flex: 1 1 250px;
+        aspect-ratio: 16 / 9;
+        float: left;
+    }
+
+    .card-content {
+        width: 100%;
+        height: 100%;
+        border-radius: 3px;
+        background-color: #111;
+        box-shadow: 0 1px 10px #00000055;
+        border: 1px solid #5b5b5b;
+        cursor: pointer;
+        background-size: cover;
+        background-position: center center;
+        transition: transform 0.1s ease;
+        transform-style: preserve-3d;
+    }
+
+    .card-info {
+        position: absolute;
+        display: flex;
+        width: 100%;
+        bottom: 0;
+        height: 36px;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 15px;
+        background-color: #00000025;
+        font-size: 13px;
+    }
+
+    .card-info>.card-title {
+        color: #ffffffff;
+        font-weight: 500;
+    }
+
+    .card-info>.card-author {
+        font-weight: 400;
+        color: #ffffff85;
+    }
+
+    .example-content {
+        margin-top: 10px;
+        width: 100%;
+        aspect-ratio: 16 / 8;
+        border: 1px solid #5b5b5b;
+        background: #111;
+    }
+
+    .footer {
+        margin-top: 150px;
+        height: 350px;
+    }
+
+    .footer-content {
+        position: absolute;
+        left: 0;
+        right: 0;
+        display: flex;
+        height: inherit;
+        /* background-color: #e52e2e; */
+        background-color: #222;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .md-main {
+        height: 0;
+    }
+</style>
+<section class="mdx-container">
+    <div class="md-grid md-typeset">
+        <div class="mdx-hero" style="--pos: 0;">
+            <div class="background">
+                <video id="background" src="img/octos-preview.mp4" alt="" draggable="false" autoplay playsinline muted
+                    loop></video>
+                <div class="gradient-top"></div>
+                <div class="gradient-overlay"></div>
+            </div>
+            <div class="mdx-hero__content">
+                <div class="hero-centered">
+                    <h1 class="scrollable" style="--damp: -2">Your new desktop awaits. 🚀</h1>
+                    <p class="scrollable" style="--damp: -2">The open-source HTML dynamic desktop engine for Windows
+                        10 &amp; 11.</p>
+                    <button class="scrollable" style="--damp: -3; background-color: red">Download</button>
+                    <button class="scrollable" style="--damp: -3">GitHub</button>
+                </div>
+            </div>
+        </div>
+        <div class="feature-grid">
+            <div class="feature reveal">
+                <i class="ri-tools-line feature-icon"></i>
+                <h3>Quick and easy</h3>
+                <p>Customizing your desktop has never been easier. Create your own live, interactive wallpapers with
+                    HTML, CSS, and JS, or browse and download others' creations right from the app.</p>
+            </div>
+            <div class="feature reveal" style="transition-delay: 0.2s">
+                <i class="ri-github-fill feature-icon"></i>
+                <h3>Open-source</h3>
+                <p>Octos is driven by its community. Contribute your own wallpaper or check out the repository on
+                    GitHub. And, of course, Octos and all wallpapers are completely free. Join our community!</p>
+            </div>
+            <div class="feature reveal" style="transition-delay: 0.4s">
+                <i class="ri-speed-up-line feature-icon"></i>
+                <h3>Performant</h3>
+                <p>Octos is optimized for any and all web technologies to run smoothly on the desktop, like by
+                    pausing when an app is in fullscreen. Octos is designed for all machines,
+                    from beefed-up PCs to battery-powered
+                    laptops.</p>
+            </div>
+            <div class="feature reveal" style="transition-delay: 0.6s">
+                <i class="ri-settings-3-line feature-icon"></i>
+                <h3>Powerful</h3>
+                <p>Octos provides loads of powerful and easy-to-use features, from music visualization and
+                    media controls right on your desktop to multi-monitor synchronization. Try it out for yourself!
+                </p>
+            </div>
+        </div>
+        <h1 class="centered-header">Give it a try:</h1>
+        <div class="examples">
+            <div class="cards">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="card-info">
+                            <p class="card-title">Title</p>
+                            <p class="card-author">Author</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-content">
+                        <div class="card-info">
+                            <p class="card-title">Title</p>
+                            <p class="card-author">Author</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-content">
+                        <div class="card-info">
+                            <p class="card-title">Title</p>
+                            <p class="card-author">Author</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-content">
+                        <div class="card-info">
+                            <p class="card-title">Title</p>
+                            <p class="card-author">Author</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="example-content">
+            </div>
+        </div>
+        <div class="footer">
+            <div class="footer-content">
+                <div style="width: max-content;">
+                    <h1>Let's do this! 🤘</h1>
+                    <p style="margin: 10px 0;">Download for free on Windows 10 &amp; 11 today</p>
+                    <button style="background-color: white; color: black;">Download</button>
+                    <button>GitHub</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    function revealOnScroll() {
+        const reveals = document.querySelectorAll('.reveal');
+        for (const reveal of reveals) {
+            const windowHeight = window.innerHeight;
+            const elementTop = reveal.getBoundingClientRect().top;
+            const revealPoint = 150;
+            if (elementTop < windowHeight - revealPoint) {
+                reveal.classList.add('revealed');
+            } else {
+                reveal.classList.remove('revealed');
+            }
+        }
+    }
+    document.addEventListener('scroll', (e) => {
+        document.documentElement.style.setProperty('--scroll', this.scrollY + 'px')
+        revealOnScroll();
+    })
+    document.addEventListener('load', revealOnScroll)
+
+    function calc3dEffect(e) {
+        const clamp = (x, t) => Math.min(Math.max(x, -t), t)
+        const { clientX, clientY, currentTarget } = e;
+        const { clientWidth, clientHeight } = currentTarget;
+        const rect = currentTarget.getBoundingClientRect();
+
+        const x = clientX - rect.left - clientWidth / 2;
+        const y = clientY - rect.top - clientHeight / 2;
+
+        const rotateX = clamp(-y / e.target.offsetWidth * 20, 10);
+        const rotateY = clamp(x / e.target.offsetHeight * 20, 10);
+        return { rotateX, rotateY }
+    }
+
+    document.addEventListener('DOMContentLoaded', (e) => {
+        const cards = document.getElementsByClassName('card');
+        for (const card of cards) {
+            card.onmousemove = (e) => {
+                let { rotateX, rotateY } = calc3dEffect(e)
+                e.currentTarget.querySelector('.card-content').style.transform = ` perspective(500px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(0.95)`;
+            }
+            card.onmouseleave = (e) => {
+                e.currentTarget.querySelector('.card-content').style.transform = `perspective(500px) rotateX(0) rotateY(0) scale(1)`, 100;
+            }
+            card.onmousedown = (e) => {
+                let { rotateX, rotateY } = calc3dEffect(e)
+                e.currentTarget.querySelector('.card-content').style.transform = ` perspective(500px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(0.92)`;
+            }
+            card.onmouseup = (e) => {
+                let { rotateX, rotateY } = calc3dEffect(e)
+                e.currentTarget.querySelector('.card-content').style.transform = ` perspective(500px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(0.95)`;
+            }
+        }
+    })
+</script>
+{% endblock %}
+{% block content %}{% endblock %}
+{% block footer %}
+{{ super() }}
+{% endblock %}

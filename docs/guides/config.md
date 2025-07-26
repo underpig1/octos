@@ -1,6 +1,6 @@
 # `octos.json` Reference
 
-Each mod folder can optionally include an `octos.json` file, which includes metadata, entry point, preview image, and user options.
+Each mod folder can optionally include an `octos.json` file, which includes metadata, the mod's entry point, a preview image for the explore page, and user options.
 
 ## Example
 `octos.json`:
@@ -9,8 +9,8 @@ Each mod folder can optionally include an `octos.json` file, which includes meta
   "name": "My Awesome Mod",
   "author": "Me",
   "description": "A dynamic live wallpaper with interactive elements.",
-  "image": "assets/image.png", // path to image to display in Octos explore page
-  "preview": "assets/preview.gif", // path to preview image
+  "image": "assets/image.png", // path to card image to display in Octos app
+  "preview": "assets/preview.gif", // path to preview image to display in explore page
   "entry": "index.html", // entry point, path to local HTML file or external webpage
   "options": { // user options, configurable in Octos app
     "enable-effect": {
@@ -41,11 +41,15 @@ Mod's display name.
 
 ### `description`
 **Type:** `string`  
-A short description of the mod' purpose or features.
+A short description of the mod's purpose or features.
 
 ### `image`
+**Type:** `string`  
+Path within the mod folder to the card image to be shown in the Octos app. Typically a stylistic/aesthetic image that doesn't necessarily represent the mod as it appears on the wallpaper. Use the `preview` field to specify a more accurate image/animation.
+
+### `preview`
 **Type:** `string`
-Path to the card image to be shown in the Octos explore page.
+Path within the mod folder to the preview image/animated gif to be shown in the Octos explore page. Typically more like an accurate representation of how the mod will appear as a wallpaper.
 
 ### `entry`
 **Type:** `string`  
@@ -55,7 +59,7 @@ The main HTML entry point that launches the wallpaper. Can either be a local HTM
 **Type:** `object`  
 A JSON object that defines one or more **customizable settings** that can be changed by users of your mod in the Octos app:
 
-<img src="../img/user-options.png" width="150px" aria-hidden />
+<img src="../../img/user-options.png" width="150px" aria-hidden />
 
 These settings, along with input change event listeners, can be accessed in JS with the [`UserOptions` class](../reference/useroptions.md) of the [Octos API](api.md).
 
@@ -77,6 +81,8 @@ The keys of the `options` object represent IDs that can be accessed with the `Us
 #### Notes:
 - An option of `"type": "description"` only renders its `label` property.
 - An option must include `label` to render.
+- `options` maps directly to standard HTML input elements.
+- Add as many options as you like — they will be rendered dynamically in the app.
 
 #### Example `options`
 
@@ -105,18 +111,18 @@ The keys of the `options` object represent IDs that can be accessed with the `Us
 ```
 
 ## Notes
-- All paths can be absolute or relative to the mod folder root location.
-- `options` maps directly to standard HTML input elements.
-- Add as many options as you like — they will be rendered dynamically in the app.
+- All paths should be relative to the mod folder root location. Paths may also be external links.
 
-## Example Project Structure
-
+## Example Folder Structure
 ```
-MyAwesomeWallpaper/
+MyAwesomeMod/
 ├── index.html
 ├── octos.json
 ├── assets/
-│   └── preview.jpg
-└── config/
-    └── settings.json
+│   └── preview.png
+│   └── image.png
+└── js/
+│   └── index.js
+└── css/
+    └── style.css
 ```

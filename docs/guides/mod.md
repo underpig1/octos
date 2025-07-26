@@ -1,6 +1,6 @@
-# Creating a mod
+# Making your own mod
 
-Creating a mod is super easy in Octos. Let's work through a simple example.
+In Octos, custom HTML wallpapers are called mods. Creating a mod is super easy in Octos. Let's work through a simple example.
 
 ### Getting started
 Start by making a folder that looks like this:
@@ -70,14 +70,17 @@ document.addEventListener('click', (e) => {
 })
 ```
 A few notes:
-- You probably want to make sure the body is styled as `user-select: none;`. This prevents users from dragging to select text on the wallpaper. `overflow: hidden;` is also useful for disabling the scroll bar on the side of the screen.
-- In addition, notice how you can reference any local files within your mod folder like `index.js` in your files.
-- Lastly, one of Octos' most important features: user input! Currently, all types of mouse events on the wallpaper are supported.
+- You probably want to make sure the body is styled as `user-select: none;`. This prevents users from dragging to select text on the wallpaper. `overflow: hidden;` is also useful for disabling the scroll bar on the side of the screen.   
+
+- In addition, notice how you can reference any local files within your mod folder like `index.js` in your files.   
+
+- Lastly, one of Octos' most important features: user input! Currently, all types of mouse events on the wallpaper are supported.   
 
 ### Testing and debugging
 Now we have a nice and simple mod to test out as our wallpaper. There are a few ways to test and debug your mod:
-- **In the browser**: this is good for simple mods that don't need to use the Octos API or any other Octos features. Simply go to `file:///C:/path/to/MyAwesomeMod` in your browser to preview and debug your HTML.
-- **With the Octos CLI**: this is ideal for actually testing your mod on the wallpaper. This will allow you to use any features like the Octos API in your mod as well.
+- **In the browser**: this is good for simple mods that don't need to use the Octos API or any other Octos features. Simply go to `file:///C:/path/to/MyAwesomeMod` in your browser to preview and debug your HTML.  
+
+- **With the Octos CLI**: this is ideal for actually testing your mod on the wallpaper. This will allow you to use any features like the Octos API in your mod as well.  
     ```batch
     octos run MyAwesomeMod
     ```
@@ -89,14 +92,18 @@ Now we have a nice and simple mod to test out as our wallpaper. There are a few 
     ```batch
     octos dev-tools
     ```
-    See more about using the [Octos CLI](cli.md)
+    See more about using the [Octos CLI](cli.md)  
+
 - **Bundled as a .zip**: see the next section for more details
 
 ### Sharing your mod
 Octos mods are distributed as .zip archive files. To distribute your mod, zip your whole `MyAwesomeMod` mod folder. You can then share it and others can install it through the Octos app.
 
 ### Next steps
-- Supercharge your mod with the [Octos API](api.md)
-- See some [example mods](https://github.com/underpig1/octos-community/tree/master) for inspiration
-- Learn more about the [Octos CLI](cli.md)
-- Learn how to [publish your mod](publish.md) to the Octos communtiy
+- Supercharge your mod with the [Octos API](api.md)  
+
+- See some [example mods](https://github.com/underpig1/octos-community/tree/master) for inspiration  
+
+- Learn more about the [Octos CLI](cli.md)  
+
+- Learn how to [publish your mod](publish.md) to the Octos community  
