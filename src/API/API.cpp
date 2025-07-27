@@ -82,6 +82,7 @@ void SendEventToHwnd(HWND hwnd, json msg, json data, bool mainThread)
 {
     msg["type"] = "event";
     msg["data"] = data;
+    wprintf(L"\n\n--- OK WE ARE SENDING ---\n\n");
     if (mainThread)
         PostMessage(hwnd, WM_USER + 5, 0, (LPARAM) new std::wstring(to_wstring(msg.dump())));
     else
@@ -247,21 +248,21 @@ void HandleSubscription(json msg, HWND hwnd, bool sub)
     if (msg.contains("eventType") && msg["eventType"].is_string())
     {
         std::string type = msg["eventType"];
-        if (type == "media-change")
+        if (type == "mediaChange")
         {
             if (sub)
                 AddMediaSubscription(hwnd, msg);
             else
                 RemoveMediaSubscription(hwnd);
         }
-        else if (type == "playback-change")
+        else if (type == "playbackChange")
         {
             if (sub)
                 AddPlaybackSubscription(hwnd, msg);
             else
                 RemovePlaybackSubscription(hwnd);
         }
-        else if (type == "timeline-change")
+        else if (type == "timelineChange")
         {
             if (sub)
                 AddTimelineSubscription(hwnd, msg);

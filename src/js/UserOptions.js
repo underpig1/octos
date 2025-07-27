@@ -12,10 +12,6 @@ import { Interface } from './Interface.js'
 class UserOptions extends Interface {
     constructor() {
         super();
-        this._listeners = {
-            change: [],
-            load: []
-        };
     }
 
     _handleReceiveEvent(msg) {
@@ -58,7 +54,7 @@ class UserOptions extends Interface {
      * // Listen for changes in user options for your mod
      * userOptions.on('change', ({id, value}) => {
      *   if (id == 'dark-mode') {
-     *      if (value)
+     *      if (value) {
      *          myElement.classList.add('dark-mode')
      *       }
      *       else {

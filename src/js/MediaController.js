@@ -36,22 +36,17 @@ class MediaController extends Interface {
 
     constructor() {
         super();
-        this._listeners = {
-            mediaChange: [],
-            playbackChange: [],
-            timelineChange: []
-        };
     }
 
     _handleReceiveEvent(msg) {
         switch (msg.eventType) {
-            case 'media-change':
+            case 'mediaChange':
                 this._emit('mediaChange', msg.data);
                 break;
-            case 'playback-change':
+            case 'playbackChange':
                 this._emit('playbackChange', msg.data);
                 break;
-            case 'timeline-change':
+            case 'timelineChange':
                 this._emit('timelineChange', msg.data);
                 break;
             default:
@@ -99,7 +94,7 @@ class MediaController extends Interface {
      * @param {Function} callback
      */
     off(eventName, callback) {
-        this._off(eventName, callback);
+        super._off(eventName, callback);
     }
 
     /**

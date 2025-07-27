@@ -414,40 +414,48 @@ void SubscribeToPlaybackInfo(GlobalSystemMediaTransportControlsSession session, 
 void UnsubscribeToPlaybackInfo(GlobalSystemMediaTransportControlsSession session);
 void SubscribeToTimelineProperties(GlobalSystemMediaTransportControlsSession session, bool replaceInstance = false);
 void UnsubscribeToTimelineProperties(GlobalSystemMediaTransportControlsSession session);
+void UnsubscribeToSessionChange();
 
 // EVENT: SESSION
 void SubscribeToSessionChange()
 {
+    // issue: on close/open spotify, then hitting play, subscribing to playback stops (fixed for now??)
     GetSessionManagerAsync([](GlobalSystemMediaTransportControlsSessionManager sessionManager)
-                           { sessionToken = sessionManager.SessionsChanged([&](auto &&, auto &&)
-                                                                           {
-    auto session = sessionManager.GetCurrentSession();
-    if (session && session != oldSession) {
-        if (mediaToken.value != 0)
-        {
-            UnsubscribeToMediaProperties(oldSession);
-            SubscribeToMediaProperties(session, true);
-        }
-        if (playbackToken.value != 0)
-        {
-            UnsubscribeToPlaybackInfo(oldSession);
-            SubscribeToPlaybackInfo(session, true);
-        }
-        if (timelineToken.value != 0)
-        {
-            UnsubscribeToTimelineProperties(oldSession);
-            SubscribeToTimelineProperties(session, true);
-        }
-        oldSession = session;
-    } }); });
+                           { sessionToken = sessionManager.CurrentSessionChanged([&](auto &&, auto &&)
+                                                                                 { GetSessionManagerAsync([](GlobalSystemMediaTransportControlsSessionManager SM)
+                                                                                                          {
+                                                    wprintf(L"\n((((((( SESSIONSCHANGED FIRED \n");
+                                                    auto session = SM.GetCurrentSession();// Synchronous call 
+                                                    if (session)
+                                                    {
+                                                            wprintf(L"\n)))))))) SESSIONSCHANGED FIRED \n");
+                                                            // if (mediaToken.value != 0)
+                                                            //     UnsubscribeToMediaProperties(oldSession);
+                                                            if (!mediaSubscriptions.empty())
+                                                            {SubscribeToMediaProperties(session, true);}
+                                                            else{
+                                                                UnsubscribeToMediaProperties(session);}
+                                                                    // if (playbackToken.value != 0)
+                                                                    //     UnsubscribeToPlaybackInfo(oldSession);
+                                                                    if (!playbackSubscriptions.empty())
+                                                                        {SubscribeToPlaybackInfo(session, true);}
+                                                            else {UnsubscribeToPlaybackInfo(session);}
+                                                                // if (timelineToken.value != 0)
+                                                                //     UnsubscribeToTimelineProperties(oldSession);
+                                                                if (!timelineSubscriptions.empty())
+                                                                    {SubscribeToTimelineProperties(session, true);}
+                                                            else {UnsubscribeToTimelineProperties(session);}
+                                                                oldSession = session;
+                                                    } }); }); });
 }
 
 void UnsubscribeToSessionChange()
 {
     GetSessionManagerAsync([](GlobalSystemMediaTransportControlsSessionManager sessionManager)
                            {
+                            if (sessionToken.value != 0) {
                             sessionManager.SessionsChanged(sessionToken);
-                            sessionToken = {}; });
+                            sessionToken = {};} });
 }
 
 // EVENT: MEDIA
@@ -486,33 +494,40 @@ void UnsubscribeToMediaProperties(GlobalSystemMediaTransportControlsSession sess
 void AddMediaSubscription(HWND hwnd, json msg)
 {
     if (!mediaSubscriptions.contains(hwnd) || mediaSubscriptions[hwnd] != msg)
+    {
+        if (sessionToken.value == 0)
+            SubscribeToSessionChange();
+        mediaSubscriptions[hwnd] = msg;
         GetSessionManagerAsync([hwnd, msg](GlobalSystemMediaTransportControlsSessionManager sessionManager)
                                {
                             auto session = sessionManager.GetCurrentSession();
                             if (session)
                             {
                                 SubscribeToMediaProperties(session);
-                                mediaSubscriptions[hwnd] = msg;
                             } });
+    }
 }
 
 void RemoveMediaSubscription(HWND hwnd)
 {
     if (mediaSubscriptions.contains(hwnd))
+    {
+        mediaSubscriptions.erase(hwnd);
         GetSessionManagerAsync([hwnd](GlobalSystemMediaTransportControlsSessionManager sessionManager)
                                {
                             auto session = sessionManager.GetCurrentSession();
                             if (session)
                             {
-                                mediaSubscriptions.erase(hwnd);
                                 if (mediaSubscriptions.empty())
                                     UnsubscribeToMediaProperties(session);
                             } });
+    }
 }
 
 // EVENT: PLAYBACK
 void SubscribeToPlaybackInfo(GlobalSystemMediaTransportControlsSession session, bool replaceInstance)
 {
+    wprintf(L"\nsubscribing - first go\n\n");
     if (sessionToken.value == 0)
         SubscribeToSessionChange();
     if (playbackToken.value == 0 || replaceInstance)
@@ -522,9 +537,13 @@ void SubscribeToPlaybackInfo(GlobalSystemMediaTransportControlsSession session, 
                                                     {
             auto playbackInfo = sender.GetPlaybackInfo();
             json data = GetAllPlaybackInfoJson(playbackInfo);
-            wprintf(L"\n\ndoing subscribe change\n\n");
-            for (auto &[hwnd, msg] : playbackSubscriptions)
-                SendEventToHwnd(hwnd, msg, data, true); });
+            wprintf(L"\n\ndoing subscribe change %hs\n\n", data.dump().c_str());
+            wprintf(L"\n\ndoing subscribe change %hs\n\n", data.dump().c_str());
+            for (auto &[hwnd, msg] : playbackSubscriptions){
+                SendEventToHwnd(hwnd, msg, data, true);
+                wprintf(L"HWND: %p\n", hwnd);
+                wprintf(L"MSG: %hs\n", msg.dump().c_str());
+            } });
     }
 }
 
@@ -532,6 +551,7 @@ void UnsubscribeToPlaybackInfo(GlobalSystemMediaTransportControlsSession session
 {
     if (playbackToken.value != 0)
     {
+        wprintf(L"\n\n************************* WE ARE SUBSUBSCRIBING\n\n");
         session.PlaybackInfoChanged(playbackToken);
         playbackToken = {};
         if (mediaToken.value == 0 && playbackToken.value == 0 && timelineToken.value == 0)
@@ -542,28 +562,34 @@ void UnsubscribeToPlaybackInfo(GlobalSystemMediaTransportControlsSession session
 void AddPlaybackSubscription(HWND hwnd, json msg)
 {
     if (!playbackSubscriptions.contains(hwnd) || playbackSubscriptions[hwnd] != msg)
+    {
+        if (sessionToken.value == 0)
+            SubscribeToSessionChange();
+        playbackSubscriptions[hwnd] = msg;
         GetSessionManagerAsync([hwnd, msg](GlobalSystemMediaTransportControlsSessionManager sessionManager)
                                {
                             auto session = sessionManager.GetCurrentSession();
                             if (session)
                             {
                                 SubscribeToPlaybackInfo(session);
-                                playbackSubscriptions[hwnd] = msg;
                             } });
+    }
 }
 
 void RemovePlaybackSubscription(HWND hwnd)
 {
     if (playbackSubscriptions.contains(hwnd))
+    {
+        playbackSubscriptions.erase(hwnd);
         GetSessionManagerAsync([hwnd](GlobalSystemMediaTransportControlsSessionManager sessionManager)
                                {
                             auto session = sessionManager.GetCurrentSession();
                             if (session)
                             {
-                                playbackSubscriptions.erase(hwnd);
                                 if (playbackSubscriptions.empty())
                                     UnsubscribeToPlaybackInfo(session);
                             } });
+    }
 }
 
 // EVENT: TIMELINE
@@ -596,28 +622,34 @@ void UnsubscribeToTimelineProperties(GlobalSystemMediaTransportControlsSession s
 void AddTimelineSubscription(HWND hwnd, json msg)
 {
     if (!timelineSubscriptions.contains(hwnd) || timelineSubscriptions[hwnd] != msg)
+    {
+        if (sessionToken.value == 0)
+            SubscribeToSessionChange();
+        timelineSubscriptions[hwnd] = msg;
         GetSessionManagerAsync([hwnd, msg](GlobalSystemMediaTransportControlsSessionManager sessionManager)
                                {
                             auto session = sessionManager.GetCurrentSession();
                             if (session)
                             {
                                 SubscribeToTimelineProperties(session);
-                                timelineSubscriptions[hwnd] = msg;
                             } });
+    }
 }
 
 void RemoveTimelineSubscription(HWND hwnd)
 {
     if (timelineSubscriptions.contains(hwnd))
+    {
+        timelineSubscriptions.erase(hwnd);
         GetSessionManagerAsync([hwnd](GlobalSystemMediaTransportControlsSessionManager sessionManager)
                                {
                             auto session = sessionManager.GetCurrentSession();
                             if (session)
                             {
-                                timelineSubscriptions.erase(hwnd);
                                 if (timelineSubscriptions.empty())
                                     UnsubscribeToTimelineProperties(session);
                             } });
+    }
 }
 
 // EVENT: CLEANUP

@@ -454,6 +454,8 @@ function removeFocusedCard() {
                         document.getElementById(id).classList.remove("installed");
                     }
                 }
+                delete userPrefs.modOptions[focusedId]
+                dumpUserPrefs();
             }, 1000);
         }
     }
@@ -801,9 +803,16 @@ function createInput(options, id, cardOptions = null) {
             getter = () => select.options[select.selectedIndex].text;
         }
         else if (type == "range" || type == "number") {
+            console.log('creating range or number')
             if (options.min) input.setAttribute("min", options.min);
             if (options.max) input.setAttribute("max", options.max);
             if (options.step) input.setAttribute("step", options.step);
+            if (options.value) {
+                console.log('value is ', options.value.toString())
+                input.setAttribute('value', options.value.toString())
+                input.value = options.value.toString();
+                console.log('input.value is', input.value)
+            }
             if (type == "range") updateRange(input);
         }
         inputGetters[id] = getter;
@@ -822,6 +831,7 @@ function getInput(id) {
 function updateRange(el) {
     var input = el;
     var p = el.parentNode.querySelector(".range-value");
+    console.log('updating to input.value', input.value)
     p.innerText = input.value;
 }
 

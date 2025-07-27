@@ -13,5 +13,14 @@
     "jsdoc-to-markdown": "^9.1.1",
     "rollup": "^4.44.2",
     "terser": "^5.43.1"
-  }
+  },
+  "name": "octos",
+  "version": "0.1.1",
+  "description": "HTML-powered dynamic desktop engine.",
+  "main": "octos.min.js",
+  "keywords": ["js", "desktop", "wallpaper", "octos"],
+  "author": "underpig1",
+  "license": "MIT",
+  "repository": "https://github.com/underpig1/octos",
+  "homepage": "https://underpig1.github.io/octos/docs/"
 }

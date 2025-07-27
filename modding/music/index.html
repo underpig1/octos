@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Simple Media Player</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 400px;
+            margin: 2rem auto;
+            text-align: center;
+        }
+
+        #thumbnail {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        #info {
+            margin: 1rem 0;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Simple Media Player</h1>
+    <img id="thumbnail" src="" alt="Media thumbnail">
+    <div id="info">
+        <h2 id="title">Title</h2>
+        <p id="artist">Artist</p>
+    </div>
+    <button id="playPause">Play</button>
+    <script src="https://cdn.jsdelivr.net/npm/octos@0.1.1/octos.min.js"></script>
+    <script>
+        const mediaController = new octos.MediaController();
+
+        const img = document.getElementById('thumbnail');
+        const titleEl = document.getElementById('title');
+        const artistEl = document.getElementById('artist');
+        const playPauseBtn = document.getElementById('playPause');
+
+        // Load media properties
+        function loadMedia() {
+            mediaController.requestMediaProperties().then(mediaProps => {
+                titleEl.textContent = mediaProps.title;
+                artistEl.textContent = mediaProps.artist;
+            });
+
+            mediaController.requestThumbnail().then(thumbnail => {
+                img.src = thumbnail;
+            });
+
+            mediaController.requestPlaybackInfo().then(playbackInfo => {
+                updateButton(playbackInfo.playbackStatus);
+            });
+        }
+
+        // Update button text based on playback status
+        function updateButton(status) {
+            if (status === 'Playing') {
+                playPauseBtn.textContent = 'Pause';
+            } else {
+                playPauseBtn.textContent = 'Play';
+            }
+        }
+
+        mediaController.on('playbackChange', (playbackInfo) => {
+                // alert(playbackInfo.playbackStatus)
+            updateButton(playbackInfo.playbackStatus);
+        });
+            // mediaController.on('mediaChange', (playbackInfo) => {
+            //     alert('media has changed')
+            // });
+
+        playPauseBtn.addEventListener('click', () => {
+            mediaController.togglePlayPause();
+        });
+
+        // Initial load
+        loadMedia();
+    </script>
+</body>
+
+</html>

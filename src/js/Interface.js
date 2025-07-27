@@ -16,27 +16,39 @@ class Interface {
                 this._handleWebviewMessage(e.data);
             });
         } else {
-            console.warn(`Failed to initialize, could not attach to a WebView2 instance. ${this.constructor.name} requires a WebView2 environment.`);
+            console.warn(`[Octos] Failed to initialize, could not attach to a WebView2 instance. ${this.constructor.name} requires a WebView2 environment.`);
         }
     }
 
     _on(eventName, callback) {
-        if (!this._listeners[eventName]) this._listeners[eventName] = [];
+        const wasEmpty = !this._listeners[eventName] || this._listeners[eventName].length === 0;
+
+        if (!this._listeners[eventName]) {
+            this._listeners[eventName] = [];
+        }
         this._listeners[eventName].push(callback);
+
+        if (wasEmpty) {
+            this._subscribe(eventName);
+        }
     }
 
     _once(eventName, callback) {
         const wrapper = (data) => {
-            this.off(eventName, wrapper);
+            this._off(eventName, wrapper);
             callback(data);
         };
         this.on(eventName, wrapper);
-        this._subscribe(eventName);
     }
 
     _off(eventName, callback) {
         if (!this._listeners[eventName]) return;
+
         this._listeners[eventName] = this._listeners[eventName].filter(cb => cb !== callback);
+
+        if (this._listeners[eventName].length === 0) {
+            this._unsubscribe(eventName);
+        }
     }
 
     _emit(eventName, data) {
@@ -94,6 +106,13 @@ class Interface {
     _subscribe(eventType) {
         window.chrome?.webview?.postMessage({
             type: 'subscribe',
+            eventType
+        });
+    }
+
+    _unsubscribe(eventType) {
+        window.chrome?.webview?.postMessage({
+            type: 'unsubscribe',
             eventType
         });
     }

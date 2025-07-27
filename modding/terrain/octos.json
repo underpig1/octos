@@ -1,0 +1,24 @@
+{
+    "name": "Terrain",
+    "author": "Octos",
+    "description": "A nice scrolling terrain. Click to draw.",
+    "options": {
+        "speed": {
+            "type": "range",
+            "label": "Scroll speed",
+            "min": 0,
+            "max": 20,
+            "step": 1,
+            "value": 5
+        },
+        "interval": {
+            "type": "range",
+            "label": "Scroll interval (ms)",
+            "min": 100,
+            "max": 1000,
+            "step": 100,
+            "value": 800
+        }
+    },
+    "image": "img.png"
+}

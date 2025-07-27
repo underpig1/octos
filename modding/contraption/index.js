@@ -1118,12 +1118,12 @@ function storeLocal() {
 }
 
 function restoreLocal() {
+    removeAllBodies();
     const scene = localStorage.getItem("scene")
     if (!scene) {
         createInitialScene();
         return;
     }
-    removeAllBodies();
     setTimeout(() => {
         deserializeAndLoadScene(JSON.parse(scene));
         setTheme(settings.theme)

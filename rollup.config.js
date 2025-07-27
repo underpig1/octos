@@ -5,10 +5,10 @@ import terser from '@rollup/plugin-terser';
 export default {
     input: 'src/js/index.js',
     output: {
-        file: 'out/octos.min.js',
+        file: 'octos.min.js',
         format: 'umd',
         name: 'octos',
-        sourcemap: true
+        sourcemap: false
     },
     plugins: [resolve(), commonjs(), terser()]
 };

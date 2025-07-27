@@ -10,9 +10,6 @@ import { Interface } from './Interface.js'
 class MonitorBridge extends Interface {
     constructor() {
         super();
-        this._listeners = {
-            message: []
-        };
     }
 
     /**

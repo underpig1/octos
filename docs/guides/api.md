@@ -20,12 +20,12 @@ The Octos API is super easy to use! Let's get started by adding it to your mod u
 #### Option 1: CDN (recommended)
 Include this script tag in your HTML:
 ```html
-<script src="https://unpkg.com/octos@latest/octos.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/octos@latest/octos.min.js"></script>
 ```
 #### Option 2: direct download
-Alternatively, you can download [`octos.min.js`](https://unpkg.com/octos@latest/octos.min.js) from the source and include it directly in your wallpaper's source folder:
+Alternatively, you can download [`octos.min.js`](https://cdn.jsdelivr.net/npm/octos@latest/octos.min.js) from the source and include it directly in your wallpaper's source folder:
 ```html
-<script src="js/octos.min.js"></script>
+<script src="octos.min.js"></script>
 ```
 
 ## Example: a simple media player
