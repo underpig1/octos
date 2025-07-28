@@ -10,6 +10,7 @@
 #include <unordered_set>
 
 #include "API.h"
+#include "../WebView/WebView.h"
 
 using namespace winrt;
 using namespace winrt::Windows::Media::Control;
@@ -101,7 +102,7 @@ void GetTimelinePropertiesAsync(std::function<void(GlobalSystemMediaTransportCon
     }; });
 }
 
-// MEDIA PROPERTIES
+// THUMBNAIL
 std::string Base64Encode(const std::vector<uint8_t> &data)
 {
     DWORD size = 0;
@@ -133,6 +134,57 @@ std::string GetMediaThumbnail(GlobalSystemMediaTransportControlsSessionMediaProp
     return nullptr;
 }
 
+void GetMediaThumbnailAsync(
+    GlobalSystemMediaTransportControlsSessionMediaProperties p,
+    std::function<void(std::string)> callback)
+{
+    if (!p)
+    {
+        callback("");
+        return;
+    }
+
+    auto thumbnailRef = p.Thumbnail();
+    if (!thumbnailRef)
+    {
+        callback("");
+        return;
+    }
+
+    thumbnailRef.OpenReadAsync().Completed(
+        [callback](auto asyncOp, auto status)
+        {
+            if (status != winrt::Windows::Foundation::AsyncStatus::Completed)
+            {
+                callback("");
+                return;
+            }
+
+            auto stream = asyncOp.GetResults();
+            auto size = stream.Size();
+
+            winrt::Windows::Storage::Streams::Buffer buffer((uint32_t)size);
+            stream.ReadAsync(buffer, (uint32_t)size, winrt::Windows::Storage::Streams::InputStreamOptions::None).Completed([callback, buffer](auto readOp, auto readStatus)
+                                                                                                                           {
+                    if (readStatus != winrt::Windows::Foundation::AsyncStatus::Completed)
+                    {
+                        callback("");
+                        return;
+                    }
+
+                    auto dataReader = winrt::Windows::Storage::Streams::DataReader::FromBuffer(buffer);
+                    std::vector<uint8_t> bytes(buffer.Length());
+                    dataReader.ReadBytes(bytes);
+                    std::thread([callback, bytes = std::move(bytes)]() mutable
+                    {
+                        std::string base64 = Base64Encode(bytes);
+                        std::string result = "data:image/*;base64," + base64;
+                        callback(result);
+                    }).detach(); });
+        });
+}
+
+// MEDIA PROPERTIES
 std::string GetMediaAlbumArtist(GlobalSystemMediaTransportControlsSessionMediaProperties p)
 {
     if (p)
@@ -402,9 +454,8 @@ void HandleTimelinePropertiesRequest(HWND hwnd, json msg)
 void HandleThumbnailRequest(HWND hwnd, json msg)
 {
     GetMediaPropertiesAsync([hwnd, msg](auto mediaProps)
-                            {
-        json data = GetMediaThumbnail(mediaProps);
-        RespondToHwnd(hwnd, msg, data, true); });
+                            { GetMediaThumbnailAsync(mediaProps, [hwnd, msg](std::string data)
+                                                     { if (!data.empty()) RespondToHwnd(hwnd, msg, data, true); }); });
 }
 
 // EVENT LISTENERS

@@ -34,6 +34,13 @@ class MediaController extends Interface {
      * @property {number} maxSeekTime - The maximum seek time of playback in the current media in seconds (ex. the length of the media is `maxSeekTime - minSeekTime`).
      */
 
+    /**
+     * @typedef {Object} AudioStream
+     * @property {number} channels - Number of audio channels (e.g., 2 for stereo).
+     * @property {number} sampleCount - Number of PCM frames in this chunk.
+     * @property {number[]} samples - Normalized PCM samples, in interleaved order if stereo.
+     */
+
     constructor() {
         super();
     }
@@ -49,6 +56,9 @@ class MediaController extends Interface {
             case 'timelineChange':
                 this._emit('timelineChange', msg.data);
                 break;
+            case 'audioStream':
+                this._emit('audioStream', msg.data);
+                break;
             default:
                 break;
         }
@@ -56,15 +66,17 @@ class MediaController extends Interface {
 
     /**
      * Add a listener to changes in media events.
-     * @param {'mediaChange' | 'playbackChange' | 'timelineChange'} eventName
+     * @param {'mediaChange' | 'playbackChange' | 'timelineChange' | 'audioStream'} eventName
      * - Events with type `mediaChange` are fired when the current playing media changes (ex. skipping to the next song).
      * - Events with type `playbackChange` are fired when the media playback state changes (ex. pausing/playing a song, enabling shuffle, etc.).
      * - Events with type `timelineChange` are fired whenever the timestamp of the current playing media changes (ex. seeking ahead or back, song progressing, etc.).
+     * - Subscribing to the `audioStream` event returns chunks of PCM (pulse-code modulation) samples of the current audio every 100ms (useful for audio visualizations).
      * @param {function(object)} callback
      * Callback receives an object containing one of the following:
      * - `mediaChange`: {@link MediaProperties}
      * - `playbackChange`: {@link PlaybackInfo}
      * - `timelineChange`: {@link TimelineProperties}
+     * - `audioStream`: {@link AudioStream}
      * @example
      * mediaController.on('mediaChange', (mediaProps) => {
      *      console.log('Currently playing: ' + mediaProps.title);
@@ -81,7 +93,7 @@ class MediaController extends Interface {
 
     /**
      * Add a one-time event listener that removes itself after firing.
-     * @param {'mediaChange' | 'playbackChange' | 'timelineChange'} eventName
+     * @param {'mediaChange' | 'playbackChange' | 'timelineChange' | 'audioStream'} eventName
      * @param {function(object)} callback
      */
     once(eventName, callback) {
@@ -90,7 +102,7 @@ class MediaController extends Interface {
 
     /**
      * Remove an event listener.
-     * @param {'mediaChange' | 'playbackChange' | 'timelineChange'} eventName
+     * @param {'mediaChange' | 'playbackChange' | 'timelineChange' | 'audioStream'} eventName
      * @param {Function} callback
      */
     off(eventName, callback) {

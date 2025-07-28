@@ -8,6 +8,7 @@
 #include "Bridge/Bridge.h"
 #include "API/Media.h"
 #include "CLI/CLI.h"
+#include "API/Audio.h"
 
 HINSTANCE g_hInstance;
 HWND app_hwnd;
@@ -164,6 +165,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
         wprintf(L"[WinMain] Destroyed\n");
         SubscriptionCleanup(hwnd);
+        RemoveAudioSubscription(hwnd);
         HandleOnDestroy(hwnd);
         return 0;
     }
@@ -195,7 +197,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_DISPATCHJSON:
     {
         std::wstring *message = reinterpret_cast<std::wstring *>(lParam);
-        wprintf(L"\n\nWERE DISPATCHING FROM MAIN THREAD %ws\n\n", (*message).c_str());
+        // wprintf(L"\n\nWERE DISPATCHING FROM MAIN THREAD %ws\n\n", (*message).c_str());
         DispatchToHwnd(hwnd, *message);
         delete message;
         return 0;

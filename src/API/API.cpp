@@ -8,6 +8,7 @@
 #include "../Core/Core.h"
 #include "../WebView/WebView.h"
 #include "Media.h"
+#include "Audio.h"
 
 HWND GetSysListViewHwnd()
 {
@@ -61,11 +62,12 @@ void PropogateToAppHwnd(HWND targetHwnd, json msg)
     DispatchJson(to_wstring(msg.dump()));
 }
 
-auto GetWebViewInstance(HWND hwnd)
+wil::com_ptr<ICoreWebView2> GetWebViewInstance(HWND hwnd)
 {
     WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
     if (data && data->webview)
         return data->webview;
+    return {};
 }
 
 void RespondToHwnd(HWND hwnd, json msg, json data, bool mainThread)
@@ -268,6 +270,13 @@ void HandleSubscription(json msg, HWND hwnd, bool sub)
                 AddTimelineSubscription(hwnd, msg);
             else
                 RemoveTimelineSubscription(hwnd);
+        }
+        else if (type == "audioStream")
+        {
+            if (sub)
+                AddAudioSubscription(hwnd, msg);
+            else
+                RemoveAudioSubscription(hwnd);
         }
     }
 }

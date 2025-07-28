@@ -3,88 +3,353 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>Simple Media Player</title>
+    <title>Simple Media Player with FFT.js</title>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
     <style>
+        html,
         body {
-            font-family: sans-serif;
-            max-width: 400px;
-            margin: 2rem auto;
-            text-align: center;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            user-select: none;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: #000;
+        }
+
+        .overlay-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .overlay {
+            position: relative;
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            gap: 35px;
+            z-index: 1;
+            min-width: 400px;
+            height: min-content;
+            background-color: #222222aa;
+            border: 1px solid #555;
+            border-radius: 4px;
+            color: #aaa;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            padding: 35px;
+            backdrop-filter: blur(2px);
         }
 
         #thumbnail {
+            display: block;
+            float: left;
+            width: 150px;
+            height: 150px;
+            border-radius: 4px;
+            border: 1px solid #555;
+            opacity: 0.5;
+        }
+
+        .info {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .props {
             width: 100%;
-            height: auto;
-            border-radius: 8px;
         }
 
-        #info {
-            margin: 1rem 0;
+        .props * {
+            margin: 0;
+            width: max-content;
+            max-width: 175px;
         }
 
-        button {
-            padding: 0.5rem 1rem;
-            font-size: 1rem;
+        #title {
+            font-size: 16pt;
+            margin-bottom: 5px;
+        }
+
+        #artist {
+            font-size: 12pt;
+        }
+
+        .controls {
+            display: flex;
+            width: 175px;
+            height: max-content;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .playback {
+            width: 100%;
+            max-width: 175px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5px;
+            font-size: 16pt;
+            color: #444;
+        }
+
+        #timeline {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            background: #444;
+            border-color: transparent;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        #timeline::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: #aaa;
+            border-radius: 50%;
+            cursor: pointer;
         }
     </style>
 </head>
 
 <body>
-    <h1>Simple Media Player</h1>
-    <img id="thumbnail" src="" alt="Media thumbnail">
-    <div id="info">
-        <h2 id="title">Title</h2>
-        <p id="artist">Artist</p>
+    <canvas id="canvas"></canvas>
+    <div class="overlay-container">
+        <div class="overlay">
+            <img id="thumbnail" src="" alt="Media thumbnail" draggable="false" />
+            <div class="info">
+                <div class="props">
+                    <h2 id="title">Title</h2>
+                    <p id="artist">Artist</p>
+                </div>
+                <div class="controls">
+                    <input id="timeline" type="range" min="0" max="100" value="0" step="1" />
+                    <div class="playback">
+                        <i class="ri-skip-back-fill" id="skipBack"></i>
+                        <i class="ri-play-large-fill" id="playPause"></i>
+                        <i class="ri-skip-forward-fill" id="skipForward"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <button id="playPause">Play</button>
-    <script src="https://cdn.jsdelivr.net/npm/octos@0.1.1/octos.min.js"></script>
-    <script>
+
+    <script src="https://cdn.jsdelivr.net/npm/octos@0.1.2/octos.min.js"></script>
+    <script type="module">
+        import FFT from 'https://cdn.skypack.dev/fft.js';
+
+        // media controls
         const mediaController = new octos.MediaController();
+        const playPause = document.getElementById('playPause');
+            const skipForward = document.getElementById('skipForward');
+            const skipBack = document.getElementById('skipBack');
+        const timeline = document.getElementById('timeline');
 
-        const img = document.getElementById('thumbnail');
-        const titleEl = document.getElementById('title');
-        const artistEl = document.getElementById('artist');
-        const playPauseBtn = document.getElementById('playPause');
-
-        // Load media properties
-        function loadMedia() {
-            mediaController.requestMediaProperties().then(mediaProps => {
-                titleEl.textContent = mediaProps.title;
-                artistEl.textContent = mediaProps.artist;
-            });
-
-            mediaController.requestThumbnail().then(thumbnail => {
-                img.src = thumbnail;
-            });
-
-            mediaController.requestPlaybackInfo().then(playbackInfo => {
-                updateButton(playbackInfo.playbackStatus);
-            });
+        function updateMediaProps(props) {
+            document.getElementById('title').innerText = props.title || "Unknown Title";
+            document.getElementById('artist').innerText = props.artist || "Unknown Artist";
         }
 
-        // Update button text based on playback status
-        function updateButton(status) {
-            if (status === 'Playing') {
-                playPauseBtn.textContent = 'Pause';
-            } else {
-                playPauseBtn.textContent = 'Play';
-            }
+        function updateThumbnail(src) {
+            document.getElementById('thumbnail').src = src || "";
         }
 
-        mediaController.on('playbackChange', (playbackInfo) => {
-                // alert(playbackInfo.playbackStatus)
-            updateButton(playbackInfo.playbackStatus);
+        function updateTimeline(props) {
+            timeline.setAttribute('max', props.maxSeekTime);
+            timeline.setAttribute('min', props.minSeekTime);
+            timeline.value = props.position;
+        }
+
+        mediaController.on('playbackChange', playbackInfo => {
+            updatePlayPause(playbackInfo.playbackStatus);
         });
-            // mediaController.on('mediaChange', (playbackInfo) => {
-            //     alert('media has changed')
-            // });
 
-        playPauseBtn.addEventListener('click', () => {
+        mediaController.on('mediaChange', mediaProps => {
+            updateMediaProps(mediaProps);
+            mediaController.requestThumbnail().then(updateThumbnail);
+        });
+
+        mediaController.on('timelineChange', timeProps => {
+            updateTimeline(timeProps);
+        });
+
+        playPause.onclick = () => {
             mediaController.togglePlayPause();
+        };
+        skipForward.onclick = () => {
+            mediaController.skipNext();
+        };
+        skipBack.onclick = () => {
+            mediaController.skipPrevious();
+        };
+        timeline.onchange = () => {
+            mediaController.setSeekPosition(parseInt(timeline.value))
+        }
+
+
+        function updatePlayPause(status) {
+            playPause.className = status == 'Playing' ? 'ri-pause-large-fill' : 'ri-play-large-fill';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            mediaController.requestMediaProperties().then(updateMediaProps);
+            mediaController.requestThumbnail().then(updateThumbnail);
+            mediaController.requestPlaybackInfo().then(info => {
+                updatePlayPause(info.playbackStatus);
+            });
+            mediaController.requestTimelineProperties().then(updateTimeline);
         });
 
-        // Initial load
-        loadMedia();
+        // visualization
+        const fftSize = 1024;
+        const fft = new FFT(fftSize);
+        const input = new Array(fftSize).fill(0);
+        const output = fft.createComplexArray();
+
+        const displayBars = 128;
+
+        let smoothedMagnitudes = new Array(displayBars).fill(0);
+
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const SMOOTHING_FACTOR = 0.8;
+
+        function getLogFrequencyBins(linearMags, sampleRate = 44100) {
+            const nyquist = sampleRate / 2;
+            const logBins = new Array(displayBars).fill(0);
+            const logMinFreq = Math.log10(100);
+            const logMaxFreq = Math.log10(nyquist);
+            const binCount = linearMags.length;
+            for (let i = 0; i < displayBars; i++) {
+                const freqStart = Math.pow(10, logMinFreq + (i / displayBars) * (logMaxFreq - logMinFreq));
+                const freqEnd = Math.pow(10, logMinFreq + ((i + 1) / displayBars) * (logMaxFreq - logMinFreq));
+                const startBin = Math.floor(freqStart / nyquist * binCount);
+                const endBin = Math.min(binCount - 1, Math.ceil(freqEnd / nyquist * binCount));
+
+                let sum = 0;
+                let count = 0;
+                for (let bin = startBin; bin <= endBin; bin++) {
+                    sum += linearMags[bin];
+                    count++;
+                }
+                logBins[i] = count > 0 ? sum / count : 0;
+            }
+            return logBins;
+        }
+
+        function handleAudioStream(audioStream) {
+            const samples = audioStream.samples;
+            const channels = audioStream.channels;
+            const mono = [];
+            for (let i = 0; i < samples.length; i += channels) {
+                let sum = 0;
+                for (let c = 0; c < channels; c++) {
+                    sum += samples[i + c];
+                }
+                mono.push(sum / channels);
+            }
+            const mean = mono.reduce((acc, val) => acc + val, 0) / mono.length;
+            for (let i = 0; i < fftSize; i++) {
+                input[i] = (mono[i] !== undefined ? mono[i] : 0) - mean;
+            }
+            fft.realTransform(output, input);
+            fft.completeSpectrum(output);
+            const linearMagnitudes = new Array(fftSize / 2);
+            for (let i = 0; i < fftSize / 2; i++) {
+                const re = output[2 * i];
+                const im = output[2 * i + 1];
+                linearMagnitudes[i] = Math.sqrt(re * re + im * im);
+            }
+            const logMagnitudes = getLogFrequencyBins(linearMagnitudes);
+            for (let i = 0; i < displayBars; i++) {
+                smoothedMagnitudes[i] = SMOOTHING_FACTOR * smoothedMagnitudes[i] + (1 - SMOOTHING_FACTOR) * logMagnitudes[i];
+            }
+            requestAnimationFrame(draw);
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "rgba(0, 0, 0, 0.15)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const barWidth = canvas.width / displayBars;
+            const maxHeight = canvas.height;
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, maxHeight);
+            gradient.addColorStop(0, '#00ff00');
+            gradient.addColorStop(1, '#003300');
+            ctx.fillStyle = gradient;
+
+            const drawSpectrum = (mult) => {
+                ctx.beginPath()
+                for (let i = 0; i < displayBars; i++) {
+                    let mag = smoothedMagnitudes[i];
+                    let db = 20 * Math.log10(mag);
+                    if (!isFinite(db)) db = -100;
+                    const barHeight = db * mult
+                    const x = i * barWidth;
+                    const y = maxHeight - barHeight;
+                    if (i == 0)
+                        ctx.moveTo(x, y)
+                    else
+                        ctx.lineTo(x, y)
+                    if (i == displayBars - 1) {
+                        ctx.lineTo(x + i * barWidth, y)
+                    }
+                }
+                ctx.lineTo(canvas.width, canvas.height);
+                ctx.lineTo(0, canvas.height)
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            }
+
+            ctx.strokeStyle = 'blue'
+            ctx.fillStyle = 'rgba(0, 0, 255, 0.2)';
+            drawSpectrum(20);
+
+            ctx.strokeStyle = 'red'
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.2)';
+            drawSpectrum(10);
+
+            ctx.strokeStyle = 'green'
+            ctx.fillStyle = 'rgba(0, 255, 0, 0.2)';
+            drawSpectrum(5);
+        }
+
+        mediaController.on('audioStream', handleAudioStream);
     </script>
 </body>
 
