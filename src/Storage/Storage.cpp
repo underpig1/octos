@@ -612,7 +612,7 @@ bool RemoveFromStartup()
 
 void HandlePrefsChange(const json prefs)
 {
-    // if (prefs.contains("appOptions") && prefs["appOptions"].is_object())
+    if (prefs.contains("appOptions") && prefs["appOptions"].is_object())
     {
         const auto &appOptions = prefs["appOptions"];
         auto setPrefOnChange = [&](const char *key, Pref prefId, std::function<void(bool result)> onChanged = {})

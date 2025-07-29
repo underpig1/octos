@@ -11,7 +11,11 @@
     - Get started with the Octos API to supercharge your mods.
 - [Using the CLI](cli.md)
     - Learn how to test and debug mods with Octos' command line interface.
+- [Adding user options](options.md)
+    - Learn how to add user options to allow users to configure and customize your mod.
 - [octos.json](config.md)
     - A handy reference for configuring your `octos.json` file.
 - [Publishing your mod](publish.md)
     - Share your mod with the Octos community.
+- [Tips and tricks](tips.md)
+    - Level up your mod-making skills with some short tips and tricks for getting started.

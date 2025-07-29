@@ -1,0 +1,6 @@
+{
+    "name": "Audio",
+    "description": "Visualize music on the wallpaper. Includes a media player widget for controlling audio on the desktop. Automatically syncs to the current playing media (including YouTube, Spotify, videos, etc.).",
+    "author": "Octos",
+    "image": "audio.png"
+}

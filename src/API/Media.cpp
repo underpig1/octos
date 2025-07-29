@@ -50,6 +50,8 @@ void GetSessionManagerAsync(std::function<void(GlobalSystemMediaTransportControl
             if (sender.Status() == AsyncStatus::Completed)
             {
                 g_sessionManager = sender.GetResults();
+                if (!g_sessionManager)
+                    return;
                 g_sessionInitialized = true;
                 for (auto& cb : g_initCallbacks)
                     cb(g_sessionManager);
@@ -86,7 +88,8 @@ void GetPlaybackInfoAsync(std::function<void(GlobalSystemMediaTransportControlsS
     if (currentSession)
     {
         auto playbackInfo = currentSession.GetPlaybackInfo();
-        callback(playbackInfo);
+        if (playbackInfo)
+            callback(playbackInfo);
     }; });
 }
 
@@ -225,7 +228,7 @@ json GetMediaGenres(GlobalSystemMediaTransportControlsSessionMediaProperties p)
         }
         return genresJson;
     }
-    return nullptr;
+    return json{};
 }
 
 std::string GetMediaSubtitle(GlobalSystemMediaTransportControlsSessionMediaProperties p)
@@ -319,7 +322,7 @@ std::string GetMediaRepeatMode(GlobalSystemMediaTransportControlsSessionPlayback
             return repeatModeStr;
         }
     }
-    return nullptr;
+    return "";
 }
 
 // TIMELINE
@@ -397,7 +400,7 @@ json GetAllMediaPropertiesJson(GlobalSystemMediaTransportControlsSessionMediaPro
             details["thumbnail"] = GetMediaThumbnail(p);
         return details;
     }
-    return nullptr;
+    return json{};
 }
 
 json GetAllPlaybackInfoJson(GlobalSystemMediaTransportControlsSessionPlaybackInfo p)
@@ -410,7 +413,7 @@ json GetAllPlaybackInfoJson(GlobalSystemMediaTransportControlsSessionPlaybackInf
             {"repeatMode", GetMediaRepeatMode(p)},
             {"playbackType", GetMediaPlaybackType(p)},
         };
-    return nullptr;
+    return json{};
 }
 
 json GetAllTimelinePropertiesJson(GlobalSystemMediaTransportControlsSessionTimelineProperties p)
@@ -423,7 +426,7 @@ json GetAllTimelinePropertiesJson(GlobalSystemMediaTransportControlsSessionTimel
             {"minSeekTime", GetMediaMinSeekTime(p)},
             {"maxSeekTime", GetMediaMaxSeekTime(p)},
         };
-    return nullptr;
+    return json{};
 }
 
 // DISPATCH
@@ -440,7 +443,8 @@ void HandlePlaybackInfoRequest(HWND hwnd, json msg)
     GetPlaybackInfoAsync([hwnd, msg](auto playbackInfo)
                          {
         json data = GetAllPlaybackInfoJson(playbackInfo);
-        RespondToHwnd(hwnd, msg, data, true); });
+        RespondToHwnd(hwnd, msg, data, true);
+    });
 }
 
 void HandleTimelinePropertiesRequest(HWND hwnd, json msg)
@@ -587,6 +591,8 @@ void SubscribeToPlaybackInfo(GlobalSystemMediaTransportControlsSession session, 
         playbackToken = session.PlaybackInfoChanged([](auto const &sender, auto const &)
                                                     {
             auto playbackInfo = sender.GetPlaybackInfo();
+            if (!playbackInfo)
+                return;
             json data = GetAllPlaybackInfoJson(playbackInfo);
             wprintf(L"\n\ndoing subscribe change %hs\n\n", data.dump().c_str());
             wprintf(L"\n\ndoing subscribe change %hs\n\n", data.dump().c_str());
@@ -721,9 +727,12 @@ void SendMediaCommand(std::string const &cmd)
         auto session = sessionManager.GetCurrentSession();
         if (session)
         {
-            auto controls = session.GetPlaybackInfo().Controls();
+            auto playbackInfo = session.GetPlaybackInfo();
+            if (!playbackInfo)
+                return;
+            auto controls = playbackInfo.Controls();
             if (!controls)
-            return;
+                return;
             if (cmd == "play" && controls.IsPlayEnabled())
                 session.TryPlayAsync();
             else if (cmd == "pause" && controls.IsPauseEnabled())

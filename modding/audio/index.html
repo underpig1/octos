@@ -30,7 +30,7 @@
             background: #000;
         }
 
-        .overlay-container {
+        #overlay-container {
             position: absolute;
             left: 0;
             top: 0;
@@ -39,6 +39,14 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            opacity: 0;
+            filter: blur(4px);
+            transition: opacity 0.5s ease, filter 0.5s ease;
+        }
+
+        #overlay-container.active {
+            opacity: 1;
+            filter: none;
         }
 
         .overlay {
@@ -48,7 +56,7 @@
             align-items: stretch;
             gap: 35px;
             z-index: 1;
-            min-width: 400px;
+            /* min-width: 400px; */
             height: min-content;
             background-color: #222222aa;
             border: 1px solid #555;
@@ -57,10 +65,12 @@
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
             padding: 35px;
             backdrop-filter: blur(2px);
+            height: 220px;
         }
 
         #thumbnail {
             display: block;
+            position: relative;
             float: left;
             width: 150px;
             height: 150px;
@@ -89,10 +99,18 @@
         #title {
             font-size: 16pt;
             margin-bottom: 5px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         #artist {
             font-size: 12pt;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .controls {
@@ -133,14 +151,31 @@
             border-radius: 50%;
             cursor: pointer;
         }
+
+        #thumbnail[alt]:after {
+            content: "\ee04";
+            font-family: 'remixicon' !important;
+            display: block;
+            font-size: 64pt;
+            position: absolute;
+            color: #fff;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #555;
+            font-weight: 300;
+            text-align: center;
+            line-height: 150px;
+        }
     </style>
 </head>
 
 <body>
     <canvas id="canvas"></canvas>
-    <div class="overlay-container">
+    <div id="overlay-container">
         <div class="overlay">
-            <img id="thumbnail" src="" alt="Media thumbnail" draggable="false" />
+            <img id="thumbnail" src="" alt="" draggable="false" />
             <div class="info">
                 <div class="props">
                     <h2 id="title">Title</h2>
@@ -155,6 +190,7 @@
                     </div>
                 </div>
             </div>
+            <!-- <div class=""></div> -->
         </div>
     </div>
 
@@ -165,13 +201,26 @@
         // media controls
         const mediaController = new octos.MediaController();
         const playPause = document.getElementById('playPause');
-            const skipForward = document.getElementById('skipForward');
-            const skipBack = document.getElementById('skipBack');
+        const skipForward = document.getElementById('skipForward');
+        const skipBack = document.getElementById('skipBack');
         const timeline = document.getElementById('timeline');
+        const overlayContainer = document.getElementById('overlay-container');
+        let active = false;
 
         function updateMediaProps(props) {
-            document.getElementById('title').innerText = props.title || "Unknown Title";
-            document.getElementById('artist').innerText = props.artist || "Unknown Artist";
+            if (props.title) {
+                overlayContainer.classList.add('active')
+                document.getElementById('title').innerText = props.title;
+                document.getElementById('artist').innerText = props.artist;
+                active = true;
+            }
+            else {
+                overlayContainer.classList.remove('active')
+                setTimeout(() => {
+                    active = false
+                    drawRadialPattern()
+                }, 1000);
+            }
         }
 
         function updateThumbnail(src) {
@@ -199,23 +248,26 @@
 
         playPause.onclick = () => {
             mediaController.togglePlayPause();
+            mediaController.requestTimelineProperties().then(updateTimeline);
         };
         skipForward.onclick = () => {
             mediaController.skipNext();
+            mediaController.requestTimelineProperties().then(updateTimeline);
         };
         skipBack.onclick = () => {
             mediaController.skipPrevious();
+            mediaController.requestTimelineProperties().then(updateTimeline);
         };
         timeline.onchange = () => {
             mediaController.setSeekPosition(parseInt(timeline.value))
         }
-
 
         function updatePlayPause(status) {
             playPause.className = status == 'Playing' ? 'ri-pause-large-fill' : 'ri-play-large-fill';
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            drawRadialPattern()
             mediaController.requestMediaProperties().then(updateMediaProps);
             mediaController.requestThumbnail().then(updateThumbnail);
             mediaController.requestPlaybackInfo().then(info => {
@@ -270,6 +322,8 @@
         }
 
         function handleAudioStream(audioStream) {
+            if (!active)
+                return;
             const samples = audioStream.samples;
             const channels = audioStream.channels;
             const mono = [];
@@ -296,7 +350,55 @@
             for (let i = 0; i < displayBars; i++) {
                 smoothedMagnitudes[i] = SMOOTHING_FACTOR * smoothedMagnitudes[i] + (1 - SMOOTHING_FACTOR) * logMagnitudes[i];
             }
+            // const edgeSmoothFactor = 1;
+            // const first = smoothedMagnitudes[0];
+            // const last = smoothedMagnitudes[displayBars - 1];
+            // smoothedMagnitudes[0] = edgeSmoothFactor * last + (1 - edgeSmoothFactor) * first;
+            // smoothedMagnitudes[displayBars - 1] = edgeSmoothFactor * first + (1 - edgeSmoothFactor) * last;
+            smoothedMagnitudes[displayBars - 1] = smoothedMagnitudes[displayBars - 2]
             requestAnimationFrame(draw);
+        }
+
+        function drawRadialPattern() {
+            if (active)
+                return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const drawWave = (baseRadius = 30, amplitude = 30, waveCount = 6, rot = 0) => {
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                const points = 100;
+                ctx.beginPath();
+                for (let i = 0; i <= points; i++) {
+                    const angle = (i / points) * 2 * Math.PI;
+                    const rotatedAngle = angle + rot; // add rotation here
+                    const radius = baseRadius + amplitude * Math.sin(waveCount * angle);
+                    const x = centerX + radius * Math.cos(rotatedAngle);
+                    const y = centerY + radius * Math.sin(rotatedAngle);
+
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            }
+
+            const pulse = (x) => Math.cos(performance.now()/2000 + x);
+            const rotate = performance.now() / 8000
+            ctx.strokeStyle = 'blue'
+            ctx.fillStyle = 'rgba(0, 0, 255, 0.2)';
+            drawWave(250 + 10 * pulse(0), 20 + 5* pulse(0), 12, -rotate/3);
+
+            ctx.strokeStyle = 'red'
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.2)';
+            drawWave(175 + 10 * pulse(Math.PI/2), 10 + 5* pulse(0), 10, rotate/2);
+            
+            ctx.strokeStyle = 'green'
+            ctx.fillStyle = 'rgba(0, 255, 0, 0.2)';
+            drawWave(100 + 10*pulse(Math.PI), 10, 6, -rotate);
+
+            setTimeout(() => requestAnimationFrame(drawRadialPattern), 60);
         }
 
         function draw() {
@@ -312,29 +414,62 @@
             gradient.addColorStop(1, '#003300');
             ctx.fillStyle = gradient;
 
+            // const drawSpectrum = (mult) => {
+            //     ctx.beginPath()
+            //     for (let i = 0; i < displayBars; i++) {
+            //         let mag = smoothedMagnitudes[i];
+            //         let db = 20 * Math.log10(mag);
+            //         if (!isFinite(db)) db = -100;
+            //         const barHeight = db * mult
+            //         const x = i * barWidth;
+            //         const y = maxHeight - barHeight;
+            //         if (i == 0)
+            //             ctx.moveTo(x, y)
+            //         else
+            //             ctx.lineTo(x, y)
+            //         if (i == displayBars - 1) {
+            //             ctx.lineTo(x + i * barWidth, y)
+            //         }
+            //     }
+            //     ctx.lineTo(canvas.width, canvas.height);
+            //     ctx.lineTo(0, canvas.height)
+            //     ctx.closePath();
+            //     ctx.fill();
+            //     ctx.stroke();
+            // }
+
             const drawSpectrum = (mult) => {
-                ctx.beginPath()
+                ctx.beginPath();
+
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                const baseRadius = 50;
+                const angleStep = (2 * Math.PI) / displayBars;
+
                 for (let i = 0; i < displayBars; i++) {
                     let mag = smoothedMagnitudes[i];
                     let db = 20 * Math.log10(mag);
                     if (!isFinite(db)) db = -100;
-                    const barHeight = db * mult
-                    const x = i * barWidth;
-                    const y = maxHeight - barHeight;
-                    if (i == 0)
-                        ctx.moveTo(x, y)
-                    else
-                        ctx.lineTo(x, y)
-                    if (i == displayBars - 1) {
-                        ctx.lineTo(x + i * barWidth, y)
+
+                    const reduction = 1 - (1 - i / displayBars) * 0.4;
+                    let radius = (baseRadius + db * mult) * reduction;
+                    radius = radius > 0 ? radius : 0
+                    const angle = i * angleStep + performance.now()/8000;
+
+                    const x = centerX + radius * Math.cos(angle);
+                    const y = centerY + radius * Math.sin(angle);
+
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
                     }
                 }
-                ctx.lineTo(canvas.width, canvas.height);
-                ctx.lineTo(0, canvas.height)
+
                 ctx.closePath();
                 ctx.fill();
                 ctx.stroke();
-            }
+            };
 
             ctx.strokeStyle = 'blue'
             ctx.fillStyle = 'rgba(0, 0, 255, 0.2)';
@@ -342,11 +477,11 @@
 
             ctx.strokeStyle = 'red'
             ctx.fillStyle = 'rgba(255, 0, 0, 0.2)';
-            drawSpectrum(10);
+            drawSpectrum(15);
 
             ctx.strokeStyle = 'green'
             ctx.fillStyle = 'rgba(0, 255, 0, 0.2)';
-            drawSpectrum(5);
+            drawSpectrum(10);
         }
 
         mediaController.on('audioStream', handleAudioStream);

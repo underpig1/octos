@@ -68,8 +68,10 @@ nav:
     - Making a mod: guides/mod.md
     - Using the API: guides/api.md
     - Using the CLI: guides/cli.md
+    - Adding user options: guides/options.md
     - octos.json: guides/config.md
     - Publishing your mod: guides/publish.md
+    - Tips and tricks: guides/tips.md
   - API Reference:
       - reference/index.md
       - MediaController: reference/mediacontroller.md

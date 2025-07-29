@@ -1,0 +1,6 @@
+{
+    "name": "Conway",
+    "description": "A simple mouse-interactive visualization for Conway's Game of Life.",
+    "image": "conway.png",
+    "author": "squiemperor"
+}
