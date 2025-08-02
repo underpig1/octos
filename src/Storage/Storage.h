@@ -39,5 +39,6 @@ void OpenFile(std::string path);
 ConfigParams GetFolderConfigParams(fs::directory_entry path);
 json LoadPrefs();
 bool CreateNewWallpaper(fs::path dirPath);
+std::wstring ParamsAsJsonString(ConfigParams p);
 
-extern std::vector<ConfigParams> g_allParams;
+    extern std::vector<ConfigParams> g_allParams;

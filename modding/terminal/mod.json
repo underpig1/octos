@@ -1,0 +1,7 @@
+{
+    "name": "Terminal",
+    "entry": "3d.html",
+    "author": "Octos",
+    "image": "terminal.png",
+    "description": "A digital clock with a live old TV effect and customizable 3D text art."
+}

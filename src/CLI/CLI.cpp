@@ -14,30 +14,36 @@ void RunWallpaperCommand(std::wstring folderPath, bool devToolsFlag)
         json prefs = LoadPrefs();
         prefs["selected"] = json::object();
         DumpPrefs(prefs);
-        WaitForWallpaperWindowsAndCallback([entryPath, devToolsFlag]()
+        WaitForWallpaperWindowsAndCallback([entryPath, devToolsFlag, params]()
                                            {
                 wprintf(L"\n\n#### NAVIGATING ALL\n\n");
                 NavigateAllWallpapers(entryPath);
-                WaitForMainWindowAndDispatch(L"{\"type\":\"preview\"}");
+                std::wstring paramStr = ParamsAsJsonString(params);
+                if (paramStr.empty()) return;
+                std::wstring sendStr = L"{\"type\":\"preview\",\"data\":" + paramStr + L"}";
+                wprintf(sendStr.c_str());
+                WaitForMainWindowAndDispatch(sendStr);
+
+                // dev tools
                 if (devToolsFlag) {
-                std::thread([]() {
-                    std::this_thread::sleep_for(std::chrono::seconds(1));
-                    bool found_window = false;
-                    for (auto &mw : ms) {
-                        if (IsWindow(mw.hwnd)) {
-                            PostMessage(mw.hwnd, WM_USER + 7, 0, 0);
-                            found_window = true;
-                        }
-                    }
-                    if (!found_window) {
+                    std::thread([]() {
                         std::this_thread::sleep_for(std::chrono::seconds(1));
+                        bool found_window = false;
                         for (auto &mw : ms) {
-                            if (IsWindow(mw.hwnd))
+                            if (IsWindow(mw.hwnd)) {
                                 PostMessage(mw.hwnd, WM_USER + 7, 0, 0);
+                                found_window = true;
+                            }
                         }
-                    }
-                }).detach();
-            } });
+                        if (!found_window) {
+                            std::this_thread::sleep_for(std::chrono::seconds(1));
+                            for (auto &mw : ms) {
+                                if (IsWindow(mw.hwnd))
+                                    PostMessage(mw.hwnd, WM_USER + 7, 0, 0);
+                            }
+                        }
+                    }).detach();
+                } });
         // if (configFlag && !params.configPath.empty())
         // {
         //     OpenFile(to_string(params.configPath));

@@ -128,7 +128,7 @@ window.chrome.webview.addEventListener('message', (e) => {
     else if (msg.type == 'config-data')
         handleConfigData(msg.data);
     else if (msg.type == 'preview')
-        handleOnPreview();
+        handleOnPreview(msg.data);
 });
 
 // MOD DATA
@@ -149,6 +149,9 @@ function handleRecieveModData(msg) {
             const newOptions = modData[id].options
             Object.keys(newOptions).forEach(k => { if (!existingOptions.hasOwnProperty(k)) userPrefs.modOptions[id][k] = newOptions[k] });
         }
+    if (previewModData) {
+        appendModData(previewModData);
+    }
     updateMods();
 }
 
@@ -240,7 +243,7 @@ function unsetByMonitorId(monitorId, send = true) {
     if (userPrefs.selected[monitorId]) {
         delete userPrefs.selected[monitorId]
         if (send)
-        window.chrome.webview.postMessage({ type: 'set-wallpaper', 'monitor-id': monitorId, 'url': '' });
+            window.chrome.webview.postMessage({ type: 'set-wallpaper', 'monitor-id': monitorId, 'url': '' });
         updateMonitorIndicators();
         updateCardDescription();
     }
@@ -446,6 +449,13 @@ function removeFocusedCard() {
                 }
             }
             setTimeout(() => {
+                console.log(previewModData, focusedId)
+                if (previewModData && focusedId == previewModData.folderPath) {
+                    unappendModData(previewModData);
+                    previewModData = null;
+                    updateMods();
+                    return;
+                }
                 const modData = userPrefs.modData[focusedId];
                 window.chrome.webview.postMessage({ type: "remove-wallpaper", folderPath: modData.folderPath });
                 for (var id of Object.keys(exploreMods)) {
@@ -933,14 +943,18 @@ function updateCardOptions() {
     if (id) {
         const modData = userPrefs.modData[id];
         if (modData) {
+            console.log('a')
             for (const inputId of Object.keys(inputGetters)) {
+                console.log('b', inputId)
                 const value = getInput(inputId);
                 if (userPrefs.modOptions[id].hasOwnProperty(inputId)) {
+                    console.log('c')
                     if (userPrefs.modOptions[id][inputId].value != value) {
                         userPrefs.modOptions[id][inputId].value = value;
                         for (const monitorId of Object.keys(userPrefs.selected)) {
                             if (userPrefs.selected[monitorId] == id) {
                                 const payload = { 'type': 'event', 'eventType': 'options-change', 'data': { 'id': inputId, 'value': value } };
+                                console.log('payload', payload, 'to', monitorId)
                                 window.chrome.webview.postMessage({
                                     type: 'send-to-wallpaper',
                                     'monitor-id': monitorId,
@@ -1013,7 +1027,21 @@ const appOptionsDefaults = {
 }
 
 function dumpUserPrefs() {
-    window.chrome.webview.postMessage({ type: 'dump-prefs', value: userPrefs });
+    if (previewModData)
+        var filteredPrefs = {
+            ...userPrefs,
+            modOptions: Object.fromEntries(
+                Object.entries(userPrefs.modOptions)
+                    .filter(([key]) => key !== previewModData.folderPath)
+            ),
+            modData: Object.fromEntries(
+                Object.entries(userPrefs.modData)
+                    .filter(([key]) => key !== previewModData.folderPath)
+            )
+        };
+    else
+        var filteredPrefs = userPrefs;
+    window.chrome.webview.postMessage({ type: 'dump-prefs', value: filteredPrefs });
 }
 
 function restoreAppOptions() {
@@ -1425,8 +1453,42 @@ function initEditor() {
 }
 
 // PREVIEW
-function handleOnPreview() {
+let previewModData;
+
+function appendModData(config) {
+    const modId = config.folderPath;
+    if (modId) {
+        userPrefs.modData[config.folderPath] = config;
+        if (config.options) {
+            userPrefs.modOptions[config.folderPath] = config.options;
+        }
+    }
+}
+
+function unappendModData(config) {
+    const modId = config.folderPath;
+    if (modId) {
+        delete userPrefs.modData[config.folderPath];
+        delete userPrefs.modOptions[config.folderPath];
+    }
+}
+
+function handleOnPreview(config) {
+    console.log('got preview', config)
+    if (!config)
+        return;
     for (const monitorId of Object.keys(userPrefs.selected)) {
         unsetByMonitorId(monitorId, false);
+    }
+    if (config.folderPath) {
+        if (previewModData) {
+            unappendModData(previewModData);
+        }
+        previewModData = config;
+        appendModData(config);
+        for (const monitorId of monitorIds) {
+            userPrefs.selected[monitorId] = config.folderPath;
+        }
+        updateMods();
     }
 }
