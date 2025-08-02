@@ -1,0 +1,11 @@
+{
+    "name": "YouTube",
+    "author": "Octos",
+    "description": "Embed a YouTube video from a URL.",
+    "options": {
+        "url": {
+            "type": "text",
+            "label": "URL:"
+        }
+    }
+}

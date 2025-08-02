@@ -1011,6 +1011,7 @@ label>p {
 
 .text-input {
     height: 50px;
+    width: 100%;
 }
 
 .text-input>p,

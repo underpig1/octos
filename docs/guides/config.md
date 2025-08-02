@@ -70,7 +70,7 @@ The keys of the `options` object represent IDs that can be accessed with the `Us
 #### `option` object properties:
 | Property | Type   | Description |
 |----------|--------|-------------|
-| `type`   | `string` | The type of input. Supported: `checkbox`, `range`, `file`, `description`, `select`, `color-picker`, `dropdown`, `number` |
+| `type`   | `string` | The type of input. Supported: `checkbox`, `range`, `file`, `description`, `select`, `color-picker`, `dropdown`, `number`, `text` |
 | `label`  | `string` | Label text shown to the user (required). |
 | `value`  | `any`    | The default value for the input. |
 | `min`    | `number` | *(range/number only)* Minimum value (optional). |
