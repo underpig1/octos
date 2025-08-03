@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Webpage</title>
+    <style>
+        html,
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #e52e2e;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+        }
+
+        h1 {
+            font-weight: 600;
+            font-size: 16pt;
+            text-align: center;
+            max-width: 90%;
+        }
+    </style>
+</head>
+<body>
+    <h1>&lt; enter a URL in the Octos app to display here &gt;</h1>
+    <script src="https://cdn.jsdelivr.net/npm/octos@latest/octos.min.js"></script>
+    <script>
+        const iframe = document.getElementById('iframe');
+        const userOptions = new octos.UserOptions();
+
+        function handleOptions({ id, value }) {
+            if (id == 'url') {
+                if (value == "") return;
+                if (!/^https?:\/\//i.test(value)) value = 'https://' + value;
+                window.location.href = value;
+            }
+        }
+
+        userOptions.on('load', handleOptions)
+    </script>
+</body>
+
+</html>

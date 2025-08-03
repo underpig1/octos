@@ -2,7 +2,7 @@
     "author": "Octos",
     "description": "A simple customizable gradient background with an analog clock.",
     "entry": "index.html",
-    "image": "gradient.png",
+    "image": "image.png",
     "name": "Gradient",
     "prefs": {
         "primary-color": {

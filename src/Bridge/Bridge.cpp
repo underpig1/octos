@@ -84,7 +84,6 @@ void DispatchSetWallpaper(std::wstring monitorId)
 
 void HandleWebMessage(std::wstring msg, HWND hwnd)
 {
-    printf("RECIEVED MESSAGE: %ws\n", msg.c_str());
     try
     {
         json j = json::parse(to_string(msg));
@@ -93,6 +92,7 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
 
         if (hwnd == app_hwnd)
         {
+            printf("RECIEVED MAIN MESSAGE: %ws\n", msg.c_str());
             if (type == "drag")
             {
                 ReleaseCapture();
@@ -302,9 +302,20 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
                         OpenDevTools(mw->hwnd);
                 }
             }
+            else if (type == "exec")
+            {
+                if (j.contains("monitor-id") && j["monitor-id"].is_string())
+                {
+                    std::string monitorId = j["monitor-id"];
+                    MonitorWindow *mw = FindMonitorWindowById(to_wstring(monitorId));
+                    if (IsWindow(mw->hwnd))
+                        HandleJsExec(j, mw->hwnd);
+                }
+            }
         }
         else
         { // API
+            printf("RECIEVED API MESSAGE: %ws\n", msg.c_str());
             if (type == "request")
                 HandleRequest(j, hwnd);
             else if (type == "subscribe" || type == "unsubscribe")

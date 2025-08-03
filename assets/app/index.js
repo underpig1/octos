@@ -947,10 +947,12 @@ function updateCardOptions() {
             for (const inputId of Object.keys(inputGetters)) {
                 console.log('b', inputId)
                 const value = getInput(inputId);
-                if (userPrefs.modOptions[id].hasOwnProperty(inputId)) {
+                const options = userPrefs.modOptions[id]
+                if (options.hasOwnProperty(inputId)) {
                     console.log('c')
-                    if (userPrefs.modOptions[id][inputId].value != value) {
-                        userPrefs.modOptions[id][inputId].value = value;
+                    const input = options[inputId];
+                    if (input.value != value) {
+                        input.value = value;
                         for (const monitorId of Object.keys(userPrefs.selected)) {
                             if (userPrefs.selected[monitorId] == id) {
                                 const payload = { 'type': 'event', 'eventType': 'options-change', 'data': { 'id': inputId, 'value': value } };
@@ -960,6 +962,16 @@ function updateCardOptions() {
                                     'monitor-id': monitorId,
                                     data: payload
                                 });
+
+                                if (input.hasOwnProperty('onchange')) {
+                                    if (options[inputId].hasOwnProperty('onchange')) {
+                                        window.chrome.webview.postMessage({
+                                            type: 'exec',
+                                            'monitor-id': monitorId,
+                                            data: `{ const f = ${options[inputId].onchange}; f("${ value }"); };`
+                                        });
+                                    }
+                                }
                             }
                         }
                     }
@@ -971,6 +983,7 @@ function updateCardOptions() {
 }
 
 function sendWallpaperAllOptions(monitorId) {
+    console.log('sending all options')
     const id = userPrefs.selected[monitorId];
     if (!id)
         return;
@@ -978,12 +991,21 @@ function sendWallpaperAllOptions(monitorId) {
     if (!options)
         return;
     for (const inputId of Object.keys(options)) {
-        const payload = { 'type': 'event', 'eventType': 'options-load', 'data': { 'id': inputId, 'value': options[inputId].value } };
+        const value = options[inputId].value
+        const payload = { 'type': 'event', 'eventType': 'options-load', 'data': { 'id': inputId, 'value': value } };
         window.chrome.webview.postMessage({
             type: 'send-to-wallpaper',
             'monitor-id': monitorId,
             data: payload
         });
+
+        if (options[inputId].hasOwnProperty('onload')) {
+            window.chrome.webview.postMessage({
+                type: 'exec',
+                'monitor-id': monitorId,
+                data: `{ const f = ${options[inputId].onload}; f("${ value }"); };`
+            });
+        }
     }
 }
 

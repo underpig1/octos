@@ -1,0 +1,13 @@
+{
+    "name": "Webpage",
+    "author": "Octos",
+    "description": "Load any webpage as your wallpaper.",
+    "image": "webpage.png",
+    "options": {
+        "url": {
+            "type": "text",
+            "label": "URL:",
+            "onchange": "(value) => { if (!/^https?:\\/\\//i.test(value)) { value = 'https://' + value; } window.location.href = value; }"
+        }
+    }
+}

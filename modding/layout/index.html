@@ -14,6 +14,7 @@
             margin: 0;
             background: black;
             overflow: hidden;
+            user-select: none;
         }
 
         #tooltip {
@@ -64,12 +65,6 @@
             height: 100%;
         }
 
-        .personalize {
-            fill: gray;
-            width: 20px;
-            transform: translateY(2.5px) scale(0.95);
-        }
-
         #tooltip:not(.active) #personalize-tip {
             display: none;
         }
@@ -78,7 +73,7 @@
             position: initial;
         }
 
-        #tooltip:not(.active) .personalize {
+        /* #tooltip:not(.active) .personalize {
             fill: gray;
             background-color: white;
             padding: 5px;
@@ -89,7 +84,7 @@
             top: 20px;
             right: 20px;
             z-index: 2;
-        }
+        } */
 
         /* #tooltip:not(.active) .select::after {
             position: absolute;
@@ -190,27 +185,45 @@
             visibility: hidden;
         }
 
-        .edit {
-            visibility: visible;
+        .ui {
             position: absolute;
+            visibility: visible;
             z-index: 2;
-            height: 15px;
-            line-height: 15px;
-            top: 26px;
-            right: 60px;
-            text-align: right;
+            width: fit-content;
+            padding: 4px 10px;
+            height: 20px;
+            text-align: center;
+            line-height: 20px;
+            border-radius: 15px;
+            background-color: #eee;
             font-size: 12px;
             font-family: sans-serif;
             color: gray;
-            /* text-shadow: 0 0 2px #00000055; */
-            background-color: white;
-            border-radius: 999px;
-            padding: 5px 10px;
-            outline: 1px solid gray;
             font-weight: 100;
-            cursor: default;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+
+        .ui:hover {
             opacity: 0.8;
-            transition: opacity 1s;
+        }
+
+        .edit {
+            top: 15px;
+            right: 15px;
+        }
+
+        .ui.hidden {
+            opacity: 0;
+        }
+
+        .ui.active {
+            opacity: 1 !important;
+        }
+
+        .personalize {
+            left: 15px;
+            top: 15px;
         }
 
         #tooltip.active .edit {
@@ -362,7 +375,7 @@
             transform: scale(0.9);
         }
 
-        .image {
+        .image.active {
             display: grid;
             grid-template-columns: 1fr;
             padding: 0;
@@ -408,7 +421,7 @@
             font-size: 60px;
         }
 
-        .media {
+        .media.active {
             width: 180px;
             display: flex;
             justify-content: space-between;
@@ -466,13 +479,9 @@
 <body>
     <div id="tooltip" class="active">
         <label id="select" for="file-upload" class="select">
-            <svg id="personalize" class="personalize" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path
-                     d="M5 4.99658V7.99658H19V4.99658H5ZM4 2.99658H20C20.5523 2.99658 21 3.4443 21 3.99658V8.99658C21 9.54887 20.5523 9.99658 20 9.99658H4C3.44772 9.99658 3 9.54887 3 8.99658V3.99658C3 3.4443 3.44772 2.99658 4 2.99658ZM6 11.9966H12C12.5523 11.9966 13 12.4443 13 12.9966V15.9966H14V21.9966H10V15.9966H11V13.9966H5C4.44772 13.9966 4 13.5489 4 12.9966V10.9966H6V11.9966ZM17.7322 13.7288L19.5 11.961L21.2678 13.7288C22.2441 14.7051 22.2441 16.288 21.2678 17.2643C20.2915 18.2407 18.7085 18.2407 17.7322 17.2643C16.7559 16.288 16.7559 14.7051 17.7322 13.7288Z">
-                </path>
-            </svg>
-            <span id="personalize-tip">&nbsp;Click to select a background image</span></label>
-            <div id="edit" class="edit" onclick="toggleEdit()">Toggle layout mode</div>
+            <div id="personalize" class="personalize ui hidden">Select background</div>
+            <span id="personalize-tip">Click to select a background image</span></label>
+            <div id="edit" class="edit ui" onclick="toggleEdit()">+ Layout mode</div>
             <div id="layout-editor">
                 <div class="colors">
                     <p>Style:</p>
@@ -519,11 +528,13 @@
     </div>
     <div class="accessory image template" id="image-template">
         <img src="" /><span class="img-tooltip" onclick="handleImageClick(this)">+ Double click to add image</span>
+        <input type="file" accept="image/*" style="display: none;" />
     </div>
     <div class="accessory notes template" id="notes-template">
         <canvas class="n-canvas" onmouseleave="unclickNote(event)" onmouseup="unclickNote(event)" onmousedown="clickNote(event)" onmousemove="drawNote(event)" width="500" height="200"></canvas>
     </div>
     <div id="background"></div>
+    <script src="https://cdn.jsdelivr.net/npm/octos@0.1.1/octos.min.js"></script>
     <script>
         const background = document.getElementById("background");
         const fileUpload = document.getElementById("file-upload");
@@ -550,29 +561,135 @@
 
         background.style.display = "none";
         tooltip.classList.add("active");
-        localStorage.setItem("url", JSON.stringify({}))
+
+        const mediaController = new octos.MediaController();
+        const system = new octos.System();
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('myDB', 1);
+                request.onupgradeneeded = event => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains('images')) {
+                        db.createObjectStore('images');
+                    }
+                };
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function storeImageBlob(key, blob) {
+            const db = await openDB();
+            const tx = db.transaction('images', 'readwrite');
+            const store = tx.objectStore('images');
+            store.put(blob, key);
+            await tx.complete;
+            db.close();
+        }
+
+        async function storeBackground(blob) {
+            await storeImageBlob('background', blob);
+        }
+
+        async function loadBackgroundImage() {
+            const db = await openDB();
+            const tx = db.transaction('images', 'readonly');
+            const store = tx.objectStore('images');
+            const getRequest = store.get('background');
+            getRequest.onsuccess = () => {
+                const blob = getRequest.result;
+                if (blob) {
+                    const url = URL.createObjectURL(blob);
+                    setBackground(url);
+                }
+                db.close();
+            };
+        }
+
+        async function deleteImageBlob(key) {
+            const db = await openDB();
+            const tx = db.transaction('images', 'readwrite');
+            const store = tx.objectStore('images');
+            store.delete(key);
+            await tx.complete;
+            db.close();
+        }
+
+        async function deleteBackgroundStorage() {
+            deleteImageBlob('background')
+            bgchosen = false
+            background.style.display = "hidden";
+            background.style.backgroundImage = `none`;
+            tooltip.classList.add("active");
+            for (const el of accessories()) el.classList.remove("active");
+        }
+
+        async function loadImageBlob(key) {
+            const db = await openDB();
+            const tx = db.transaction('images', 'readonly');
+            const store = tx.objectStore('images');
+            const req = store.get(key);
+
+            return new Promise(resolve => {
+                req.onsuccess = () => {
+                    const blob = req.result;
+                    if (blob) {
+                        resolve(URL.createObjectURL(blob));
+                    } else {
+                        resolve(null);
+                    }
+                    db.close();
+                };
+                req.onerror = () => {
+                    resolve(null);
+                    db.close();
+                };
+            });
+        }
+
+        navigator.storage.estimate().then(estimate => {
+            console.log(`Quota: ${estimate.quota} bytes`);
+            console.log(`Usage: ${estimate.usage} bytes`);
+        });
+
+        // localStorage.setItem("url", JSON.stringify({}))
 
         setTimeout(() => {
             getAccessoriesFromStorage();
             layoutButton();
             // window.media.isPlaying().then((data) => mediaplaying = data);
-            setBackground(localStorage.getItem("url"));
+            loadBackgroundImage();
         }, 100);
 
         function mediaPlayPause(el) {
-            mediaplaying = !mediaplaying;
-            updateMedia();
-            window.media.send.pausePlay();
+            mediaController.togglePlayPause();
         }
 
+        mediaController.requestPlaybackInfo().then((info) => {
+            console.log(info.playbackStatus);
+            if (info.playbackStatus == 'Playing') mediaplaying = true;
+            else mediaplaying = false;
+            updateMedia();
+        })
+
+        mediaController.on('playbackChange', (playbackInfo) => {
+            console.log('Media is paused.');
+            if (playbackInfo.playbackStatus == 'Playing') mediaplaying = true;
+            else mediaplaying = false;
+            updateMedia();
+        });
+
         function mediaBack() {
-            window.media.send.prevTrack();
+            mediaController.skipPrevious();
         }
 
         function mediaForward() {
-            window.media.send.nextTrack();
+            mediaController.skipNext();
         }
 
+        let hadDesktopIcons = true;
+        system.getDesktopIconVisibility().then((visible) => hadDesktopIcons = visible);
         function toggleEdit() {
             editing = !editing;
             deselectAll();
@@ -582,10 +699,21 @@
             }
             if (editing) {
                 layoutEditor.classList.add("active");
+                edit.classList.add('active');
+                edit.innerHTML = '&#215; Layout mode'
+                personalize.classList.add('active');
+                personalize.classList.remove('hidden');
+                system.setDesktopIconVisibility(false);
             }
             else {
                 styling = false;
                 layoutEditor.classList.remove("styling", "active");
+                edit.classList.remove('active');
+                edit.innerText = '+ Layout mode'
+                personalize.classList.remove('active');
+                personalize.classList.add('hidden');
+                if (hadDesktopIcons)
+                    system.setDesktopIconVisibility(true);
             }
         }
 
@@ -655,11 +783,10 @@
 
         function selectBackground() {
             var file = fileUpload.files[0];
-            if (file) setBackground(URL.createObjectURL(file));
-
-            var reader = new FileReader();
-            reader.onload = () => localStorage.setItem("url", reader.result);
-            reader.readAsDataURL(file);
+            if (file) {
+                storeBackground(file);
+                setBackground(URL.createObjectURL(file));
+            }
         }
 
         function setBackground(url) {
@@ -771,8 +898,15 @@
             if (editing) selectAccessory(accessory);
 
             if (type == "image") {
-                accessory.querySelector("img").src = accessory.getAttribute("data");
-                if (data) accessory.querySelector(".img-tooltip").style.opacity = "0";
+                const key = accessory.getAttribute("data");
+                if (key) {
+                    loadImageBlob(key).then(url => {
+                        if (url) {
+                            accessory.querySelector("img").src = url;
+                            accessory.querySelector(".img-tooltip").style.opacity = "0";
+                        }
+                    });
+                }
             }
             else if (type == "tick") {
                 const cvs = accessory.querySelector("canvas")
@@ -788,6 +922,9 @@
                     var data = store[id];
                     createAccessory(data.top, data.left, data.color, data.type, data.transform, data.font, data.data);
                 }
+                setTimeout(() => {
+                    cleanAccessories()
+                }, 200)
             }
         }
 
@@ -804,6 +941,24 @@
             for (var color of colors) {
                 if (color.style.background == getComputedStyle(el).getPropertyValue("--color")) color.classList.add("active");
                 else color.classList.remove("active");
+            }
+        }
+
+        function removeAccessory(el) {
+            console.log(el);
+            el.remove();
+            if (el.classList.contains('image')) {
+                
+                deleteImageBlob(el.getAttribute('data'))
+            }
+        }
+
+        function cleanAccessories() {
+            for (const el of accessories()) {
+                var rect = el.getBoundingClientRect();
+                if (rect.top > window.innerHeight || rect.right > window.innerWidth || rect.top < 0 || rect.left < 0) {
+                    removeAccessory(el);
+                }
             }
         }
 
@@ -826,7 +981,10 @@
                         document.onmouseup = null;
                         document.onmousemove = null;
                         var rect = el.getBoundingClientRect();
-                        if ((rect.top > window.innerHeight || rect.right > window.innerWidth || rect.top < 0 || rect.left < 0) && !scaling) el.remove() & deselectAll();
+                        if ((rect.top > window.innerHeight || rect.right > window.innerWidth || rect.top < 0 || rect.left < 0) && !scaling) {
+                            removeAccessory(el);
+                            deselectAll();
+                        }
                         else updateAccessoryStorage();
                     }
                     document.onmousemove = (e) => {
@@ -849,12 +1007,12 @@
             var mouse = [0, 0];
 
             setInterval(() => {
-                if (movetimer > 100 && document.elementFromPoint(...mouse) != edit) edit.style.opacity = 0;
+                if (!editing && movetimer > 100 && document.elementFromPoint(...mouse) != edit) edit.classList.add('hidden');
                 else movetimer++;
             }, 10);
 
             document.addEventListener("mousemove", (e) => {
-                if (bgchosen) edit.style.opacity = 0.8;
+                if (bgchosen && !editing) edit.classList.remove('hidden');
                 mouse = [e.clientX, e.clientY];
                 movetimer = 0;
             });
@@ -866,12 +1024,28 @@
             if (dt < 500 && dt > 50) {
                 imgclicked = true;
                 setTimeout(() => imgclicked = false, 500);
-                window.storage.requestFile().then((path) => {
-                    el.parentNode.setAttribute("data", path);
-                    el.parentNode.querySelector("img").src = path;
+
+                const fileInput = el.parentNode.querySelector('input[type="file"]');
+                fileInput.click();
+                fileInput.onchange = async () => {
+                    const file = fileInput.files[0];
+                    if (!file) return;
+                    const img = el.parentNode.querySelector('img');
+                    img.src = URL.createObjectURL(file);
                     el.style.opacity = "0";
+                    const key = `image-${Date.now()}-${Math.random()}`;
+                    await storeImageBlob(key, file);
+                    el.parentNode.setAttribute("data", key);
                     updateAccessoryStorage();
-                });
+                };
+                // storeImageBlob(file);
+
+                // window.storage.requestFile().then((path) => {
+                //     el.parentNode.setAttribute("data", path);
+                //     el.parentNode.querySelector("img").src = path;
+                //     el.style.opacity = "0";
+                //     updateAccessoryStorage();
+                // });
             }
             else if (!imgclicked) {
                 imgclickstart = performance.now();

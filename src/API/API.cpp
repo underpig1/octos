@@ -280,3 +280,18 @@ void HandleSubscription(json msg, HWND hwnd, bool sub)
         }
     }
 }
+
+void HandleJsExec(json j, HWND hwnd)
+{
+    wprintf(L"\n\nWE ARE PREEXECUTING\n\n");
+    if (j.contains("data") && j["data"].is_string())
+    {
+        auto webview = GetWebViewInstance(hwnd);
+        if (webview)
+        {
+            std::string data = j["data"];
+            wprintf(L"\n\nWE ARE EXECUTING %ws\n\n", to_wstring(data).c_str());
+            webview->ExecuteScript(to_wstring(data).c_str(), nullptr);
+        }
+    }
+}
