@@ -134,7 +134,7 @@ std::string GetMediaThumbnail(GlobalSystemMediaTransportControlsSessionMediaProp
 
         return "data:image/*;base64," + Base64Encode(bytes);
     }
-    return nullptr;
+    return "";
 }
 
 void GetMediaThumbnailAsync(
@@ -192,14 +192,14 @@ std::string GetMediaAlbumArtist(GlobalSystemMediaTransportControlsSessionMediaPr
 {
     if (p)
         return winrt::to_string(p.AlbumArtist());
-    return nullptr;
+    return "";
 }
 
 std::string GetMediaAlbumTitle(GlobalSystemMediaTransportControlsSessionMediaProperties p)
 {
     if (p)
         return winrt::to_string(p.AlbumTitle());
-    return nullptr;
+    return "";
 }
 
 int32_t GetMediaAlbumTrackCount(GlobalSystemMediaTransportControlsSessionMediaProperties p)
@@ -213,7 +213,7 @@ std::string GetMediaArtist(GlobalSystemMediaTransportControlsSessionMediaPropert
 {
     if (p)
         return winrt::to_string(p.Artist());
-    return nullptr;
+    return "";
 }
 
 json GetMediaGenres(GlobalSystemMediaTransportControlsSessionMediaProperties p)
@@ -235,14 +235,14 @@ std::string GetMediaSubtitle(GlobalSystemMediaTransportControlsSessionMediaPrope
 {
     if (p)
         return winrt::to_string(p.Subtitle());
-    return nullptr;
+    return "";
 }
 
 std::string GetMediaTitle(GlobalSystemMediaTransportControlsSessionMediaProperties p)
 {
     if (p)
         return winrt::to_string(p.Title());
-    return nullptr;
+    return "";
 }
 
 int32_t GetMediaTrackNumber(GlobalSystemMediaTransportControlsSessionMediaProperties p)
@@ -257,14 +257,18 @@ std::string GetMediaPlaybackType(GlobalSystemMediaTransportControlsSessionPlayba
 {
     if (p)
     {
-        auto playbackType = p.PlaybackType().Value();
-        std::string playbackTypeStr =
-            (playbackType == MediaPlaybackType::Music) ? "Music" : (playbackType == MediaPlaybackType::Video) ? "Video"
-                                                               : (playbackType == MediaPlaybackType::Image)   ? "Image"
-                                                                                                              : "Unknown";
-        return playbackTypeStr;
+        auto ref = p.PlaybackType();
+        if (ref)
+        {
+            auto playbackType = ref.Value();
+            std::string playbackTypeStr =
+                (playbackType == MediaPlaybackType::Music) ? "Music" : (playbackType == MediaPlaybackType::Video) ? "Video"
+                                                                   : (playbackType == MediaPlaybackType::Image)   ? "Image"
+                                                                                                                  : "Unknown";
+            return playbackTypeStr;
+        }
     }
-    return nullptr;
+    return "";
 }
 
 using PlaybackStatus = GlobalSystemMediaTransportControlsSessionPlaybackStatus;
@@ -282,7 +286,7 @@ std::string GetMediaPlaybackStatus(GlobalSystemMediaTransportControlsSessionPlay
                                                                                                : "Unknown";
         return playbackTypeStr;
     }
-    return nullptr;
+    return "";
 }
 
 int GetMediaPlaybackRate(GlobalSystemMediaTransportControlsSessionPlaybackInfo p)
@@ -443,8 +447,7 @@ void HandlePlaybackInfoRequest(HWND hwnd, json msg)
     GetPlaybackInfoAsync([hwnd, msg](auto playbackInfo)
                          {
         json data = GetAllPlaybackInfoJson(playbackInfo);
-        RespondToHwnd(hwnd, msg, data, true);
-    });
+        RespondToHwnd(hwnd, msg, data, true); });
 }
 
 void HandleTimelinePropertiesRequest(HWND hwnd, json msg)
@@ -463,10 +466,13 @@ void HandleThumbnailRequest(HWND hwnd, json msg)
 }
 
 // EVENT LISTENERS
+void SendAllMediaProperties(GlobalSystemMediaTransportControlsSession session);
 void SubscribeToMediaProperties(GlobalSystemMediaTransportControlsSession session, bool replaceInstance = false);
 void UnsubscribeToMediaProperties(GlobalSystemMediaTransportControlsSession session);
+void SendAllPlaybackInfo(GlobalSystemMediaTransportControlsSession session, bool stopped = false);
 void SubscribeToPlaybackInfo(GlobalSystemMediaTransportControlsSession session, bool replaceInstance = false);
 void UnsubscribeToPlaybackInfo(GlobalSystemMediaTransportControlsSession session);
+void SendAllTimelineProperties(GlobalSystemMediaTransportControlsSession session);
 void SubscribeToTimelineProperties(GlobalSystemMediaTransportControlsSession session, bool replaceInstance = false);
 void UnsubscribeToTimelineProperties(GlobalSystemMediaTransportControlsSession session);
 void UnsubscribeToSessionChange();
@@ -480,27 +486,42 @@ void SubscribeToSessionChange()
                                                                                  { GetSessionManagerAsync([](GlobalSystemMediaTransportControlsSessionManager SM)
                                                                                                           {
                                                     wprintf(L"\n((((((( SESSIONSCHANGED FIRED \n");
-                                                    auto session = SM.GetCurrentSession();// Synchronous call 
+                                                    auto session = SM.GetCurrentSession();// Synchronous call
                                                     if (session)
                                                     {
                                                             wprintf(L"\n)))))))) SESSIONSCHANGED FIRED \n");
                                                             // if (mediaToken.value != 0)
                                                             //     UnsubscribeToMediaProperties(oldSession);
                                                             if (!mediaSubscriptions.empty())
-                                                            {SubscribeToMediaProperties(session, true);}
+                                                            {SubscribeToMediaProperties(session, true);
+                                                            SendAllMediaProperties(session);
+                                                        }
                                                             else{
                                                                 UnsubscribeToMediaProperties(session);}
                                                                     // if (playbackToken.value != 0)
                                                                     //     UnsubscribeToPlaybackInfo(oldSession);
                                                                     if (!playbackSubscriptions.empty())
-                                                                        {SubscribeToPlaybackInfo(session, true);}
+                                                                        {SubscribeToPlaybackInfo(session, true);
+                                                                            SendAllPlaybackInfo(session);
+                                                                        }
                                                             else {UnsubscribeToPlaybackInfo(session);}
                                                                 // if (timelineToken.value != 0)
                                                                 //     UnsubscribeToTimelineProperties(oldSession);
                                                                 if (!timelineSubscriptions.empty())
-                                                                    {SubscribeToTimelineProperties(session, true);}
+                                                                    {SubscribeToTimelineProperties(session, true);
+                                                                        SendAllTimelineProperties(session);
+                                                                    }
                                                             else {UnsubscribeToTimelineProperties(session);}
                                                                 oldSession = session;
+                                                    }
+                                                    else
+                                                    {
+                                                        SendAllMediaProperties(oldSession);
+                                                        UnsubscribeToMediaProperties(oldSession);
+                                                        UnsubscribeToPlaybackInfo(oldSession);
+                                                        SendAllPlaybackInfo(oldSession, true);
+                                                        UnsubscribeToTimelineProperties(oldSession);
+                                                        SendAllTimelineProperties(oldSession);
                                                     } }); }); });
 }
 
@@ -514,24 +535,32 @@ void UnsubscribeToSessionChange()
 }
 
 // EVENT: MEDIA
+void SendAllMediaProperties(GlobalSystemMediaTransportControlsSession session)
+{
+    auto asyncOp = session.TryGetMediaPropertiesAsync();
+    asyncOp.Completed([](auto &&asyncOp, auto status)
+                      {
+        if (status == AsyncStatus::Completed)
+        {
+            auto mediaProps = asyncOp.GetResults();
+            json data = GetAllMediaPropertiesJson(mediaProps);
+            for (auto &[hwnd, msg] : mediaSubscriptions)
+                SendEventToHwnd(hwnd, msg, data, true);
+        } });
+}
+
 void SubscribeToMediaProperties(GlobalSystemMediaTransportControlsSession session, bool replaceInstance)
 {
+    if (!session)
+        return;
     if (sessionToken.value == 0)
         SubscribeToSessionChange();
     if (mediaToken.value == 0 || replaceInstance)
     {
         mediaToken = session.MediaPropertiesChanged([](auto const &sender, auto const &)
                                                     {
-            auto asyncOp = sender.TryGetMediaPropertiesAsync();
-            asyncOp.Completed([](auto&& asyncOp, auto status) {
-                if (status == AsyncStatus::Completed) {
-                    auto mediaProps = asyncOp.GetResults();
-
-                    json data = GetAllMediaPropertiesJson(mediaProps);
-                    for (auto &[hwnd, msg] : mediaSubscriptions)
-                        SendEventToHwnd(hwnd, msg, data, true);
-                }
-            }); });
+                                                        if (!sender) return;
+                                                        SendAllMediaProperties(sender); });
     }
 }
 
@@ -580,8 +609,31 @@ void RemoveMediaSubscription(HWND hwnd)
 }
 
 // EVENT: PLAYBACK
+void SendAllPlaybackInfo(GlobalSystemMediaTransportControlsSession session, bool stopped)
+{
+    auto playbackInfo = session.GetPlaybackInfo();
+    if (!playbackInfo)
+        return;
+    json data = GetAllPlaybackInfoJson(playbackInfo);
+    wprintf(L"\n\ndoing subscribe change %hs\n\n", data.dump().c_str());
+    wprintf(L"\n\ndoing subscribe change %hs\n\n", data.dump().c_str());
+    if (stopped)
+    {
+        wprintf(L"#######################WE ARE STOPPED");
+        data["playbackStatus"] = "Stopped";
+    }
+    for (auto &[hwnd, msg] : playbackSubscriptions)
+    {
+        SendEventToHwnd(hwnd, msg, data, true);
+        wprintf(L"HWND: %p\n", hwnd);
+        wprintf(L"MSG: %hs\n", msg.dump().c_str());
+    }
+}
+
 void SubscribeToPlaybackInfo(GlobalSystemMediaTransportControlsSession session, bool replaceInstance)
 {
+    if (!session)
+        return;
     wprintf(L"\nsubscribing - first go\n\n");
     if (sessionToken.value == 0)
         SubscribeToSessionChange();
@@ -590,17 +642,8 @@ void SubscribeToPlaybackInfo(GlobalSystemMediaTransportControlsSession session, 
         wprintf(L"\n\nabout to subscribe\n\n");
         playbackToken = session.PlaybackInfoChanged([](auto const &sender, auto const &)
                                                     {
-            auto playbackInfo = sender.GetPlaybackInfo();
-            if (!playbackInfo)
-                return;
-            json data = GetAllPlaybackInfoJson(playbackInfo);
-            wprintf(L"\n\ndoing subscribe change %hs\n\n", data.dump().c_str());
-            wprintf(L"\n\ndoing subscribe change %hs\n\n", data.dump().c_str());
-            for (auto &[hwnd, msg] : playbackSubscriptions){
-                SendEventToHwnd(hwnd, msg, data, true);
-                wprintf(L"HWND: %p\n", hwnd);
-                wprintf(L"MSG: %hs\n", msg.dump().c_str());
-            } });
+                                                        if (!sender) return;
+                                                        SendAllPlaybackInfo(sender); });
     }
 }
 
@@ -650,18 +693,26 @@ void RemovePlaybackSubscription(HWND hwnd)
 }
 
 // EVENT: TIMELINE
+void SendAllTimelineProperties(GlobalSystemMediaTransportControlsSession session)
+{
+    auto timelineInfo = session.GetTimelineProperties();
+    json data = GetAllTimelinePropertiesJson(timelineInfo);
+    for (auto &[hwnd, msg] : timelineSubscriptions)
+        SendEventToHwnd(hwnd, msg, data, true);
+}
+
 void SubscribeToTimelineProperties(GlobalSystemMediaTransportControlsSession session, bool replaceInstance)
 {
+    if (!session)
+        return;
     if (sessionToken.value == 0)
         SubscribeToSessionChange();
     if (timelineToken.value == 0 || replaceInstance)
     {
         timelineToken = session.TimelinePropertiesChanged([](auto const &sender, auto const &)
                                                           {
-            auto timelineInfo = sender.GetTimelineProperties();
-            json data = GetAllTimelinePropertiesJson(timelineInfo);
-            for (auto &[hwnd, msg] : timelineSubscriptions)
-                SendEventToHwnd(hwnd, msg, data, true); });
+                                                        if (!sender) return;
+                                                        SendAllTimelineProperties(sender); });
     }
 }
 
@@ -766,7 +817,10 @@ void SetPlaybackPosition(int position) // in seconds
         if (session)
         {
             wprintf(L"\n\nposition %i", position);
-            auto controls = session.GetPlaybackInfo().Controls();
+            auto playbackInfo = session.GetPlaybackInfo();
+            if (!playbackInfo)
+                return;
+            auto controls = playbackInfo.Controls();
             if (controls && controls.IsPlaybackPositionEnabled()) {
                 int64_t ticks = static_cast<int64_t>(position * 10'000'000);
                 session.TryChangePlaybackPositionAsync(ticks);
