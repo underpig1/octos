@@ -12,4 +12,5 @@ AppPackage
 *.pfx
 bin/
 obj/
+site/
 # modding
