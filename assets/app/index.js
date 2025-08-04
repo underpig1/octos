@@ -755,12 +755,12 @@ function setCardDescription(prefix = "explore", title = "", author = "", descrip
         }
         else if (installed === false) {
             buttonDisabled = false;
-            cardDescription.querySelector("button").innerText = "Download";
+            cardDescription.querySelector("button").innerText = "Add to library";
             card.classList.remove('loading')
         }
         else {
             buttonDisabled = true;
-            cardDescription.querySelector("button").innerText = "Downloaded";
+            cardDescription.querySelector("button").innerText = "Added to library";
             card.classList.remove('loading')
         }
         button.disabled = buttonDisabled;
@@ -1138,7 +1138,9 @@ function onWallpaperDownloaded(id) {
     console.log('downloaded', id);
     downloadingCards.splice(downloadingCards.indexOf(id), 1);
     exploreMods[id].installed = true;
-    document.getElementById(id).classList.add("installed");
+    const card = document.getElementById(id);
+    card.classList.add("installed");
+    card.classList.remove('loading')
     console.log(exploreMods[id].installed);
     updateCardDescription();
 }

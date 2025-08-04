@@ -10,4 +10,6 @@ node_modules
 AppPackage
 *.msix
 *.pfx
+bin/
+obj/
 # modding

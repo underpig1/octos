@@ -14,7 +14,7 @@
     <DisplayName>Octos</DisplayName>
     <PublisherDisplayName>Underpig</PublisherDisplayName>
     <Description>HTML dynamic desktop engine</Description>
-    <Logo>Assets/StoreLogo.png</Logo>
+    <Logo>img/StoreLogo.png</Logo>
   </Properties>
 
   <Dependencies>
@@ -32,16 +32,16 @@
 
   <Applications>
     <Application Id="App"
-                 Executable="Octos.exe"
+                 Executable="octos.exe"
                  EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
         DisplayName="Octos"
         Description="HTML dynamic desktop engine"
-        Square150x150Logo="Assets/Square150x150Logo.png"
-        Square44x44Logo="Assets/Square44x44Logo.png"
+        Square150x150Logo="img/icon.ico"
+        Square44x44Logo="img/icon.ico"
         BackgroundColor="transparent">
-        <uap:DefaultTile Wide310x150Logo="Assets/Wide310x150Logo.png"/>
-        <uap:SplashScreen Image="Assets/SplashScreen.png"/>
+        <uap:DefaultTile Wide310x150Logo="img/Wide310x150Logo.png"/>
+        <uap:SplashScreen Image="img/SplashScreen.png"/>
       </uap:VisualElements>
     </Application>
   </Applications>

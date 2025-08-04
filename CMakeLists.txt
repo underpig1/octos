@@ -10,6 +10,8 @@ add_executable(octos WIN32 ${SOURCES})
 target_compile_definitions(octos PRIVATE WEBVIEW2_NO_IDL UNICODE _UNICODE)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /FS")
 
+target_sources(octos PRIVATE "assets/icon.rc")
+
 target_link_libraries(octos PRIVATE
     unofficial::webview2::webview2
     WIL::WIL
@@ -41,4 +43,13 @@ add_custom_command(TARGET octos POST_BUILD
         "${CMAKE_SOURCE_DIR}/assets"
         "$<TARGET_FILE_DIR:octos>/"
     COMMENT "Copying asset files to output directory"
+    COMMAND_EXPAND_LISTS
 )
+
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_custom_command(TARGET octos POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_SOURCE_DIR}/release"
+        COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:octos>" "${CMAKE_SOURCE_DIR}/release/"
+        COMMENT "Copying Release exe to /release folder"
+    )
+endif()

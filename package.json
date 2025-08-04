@@ -1,14 +1,8 @@
 {
-  "scripts": {
-    "build-api": "rollup -c --bundleConfigAsCjs",
-    "build-docs": "node docs/build-docs.js",
-    "build-app": "./build.bat"
-  },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.6",
     "@rollup/plugin-node-resolve": "^16.0.1",
-    "@rollup/plugin-terser": "^0.4.4",
-    "docsify-cli": "^4.4.4",
+    "@rollup/plugin-terser": "^0.4.4"
     "glob": "^11.0.3",
     "jsdoc-to-markdown": "^9.1.1",
     "rollup": "^4.44.2",
