@@ -1,0 +1,22 @@
+name: Publish docs
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    name: Deploy docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v2
+      - name: Setup Node
+        uses: actions/setup-node@v3.9.1
+      - name: Build API docs
+        run: npm run build-docs
+      - name: Deploy docs
+        uses: mhausenblas/mkdocs-deploy-gh-pages@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CONFIG_FILE: mkdocs.yml
+          EXTRA_PACKAGES: build-base
