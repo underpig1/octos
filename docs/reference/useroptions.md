@@ -30,7 +30,7 @@ Add an event listener.
 
 **Example**  
 ```js
-// This example shows how to add a simple checkbox for dark mode in your mod and listen for changes by the user.// In your octos.json:{... "options": {   "dark-mode": {     "type": "checkbox",     "value": true,     "label": "Enable dark mode?"   } }...}// In your script.js:// Listen for changes in user options for your moduserOptions.on('change', ({id, value}) => {  if (id == 'dark-mode') {     if (value)         myElement.classList.add('dark-mode')      }      else {          myElement.classList.remove('dark-mode')      }  }  ... // handle changes for other options})
+// This example shows how to add a simple checkbox for dark mode in your mod and listen for changes by the user.// In your octos.json:{... "options": {   "dark-mode": {     "type": "checkbox",     "value": true,     "label": "Enable dark mode?"   } }...}// In your script.js:// Listen for changes in user options for your moduserOptions.on('change', ({id, value}) => {  if (id == 'dark-mode') {     if (value) {         myElement.classList.add('dark-mode')      }      else {          myElement.classList.remove('dark-mode')      }  }  ... // handle changes for other options})
 ```
 <a name="UserOptions+once"></a>
 

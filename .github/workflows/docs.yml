@@ -21,4 +21,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CONFIG_FILE: mkdocs.yml
-          EXTRA_PACKAGES: build-base mkdocs-git-revision-date-localized-plugin
+          EXTRA_PACKAGES: build-base
+          REQUIREMENTS: docs/requirements.txt

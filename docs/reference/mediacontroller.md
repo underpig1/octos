@@ -14,6 +14,8 @@
 <dd></dd>
 <dt><a href="#TimelineProperties">TimelineProperties</a> : <code>Object</code></dt>
 <dd></dd>
+<dt><a href="#AudioStream">AudioStream</a> : <code>Object</code></dt>
+<dd></dd>
 </dl>
 
 <a name="MediaController"></a>
@@ -54,8 +56,8 @@ Add a listener to changes in media events.
 
 | Param | Type | Description |
 | --- | --- | --- |
-| eventName | <code>&#x27;mediaChange&#x27;</code> \| <code>&#x27;playbackChange&#x27;</code> \| <code>&#x27;timelineChange&#x27;</code> | - Events with type `mediaChange` are fired when the current playing media changes (ex. skipping to the next song). - Events with type `playbackChange` are fired when the media playback state changes (ex. pausing/playing a song, enabling shuffle, etc.). - Events with type `timelineChange` are fired whenever the timestamp of the current playing media changes (ex. seeking ahead or back, song progressing, etc.). |
-| callback | <code>function</code> | Callback receives an object containing one of the following: - `mediaChange`: [MediaProperties](#MediaProperties) - `playbackChange`: [PlaybackInfo](#PlaybackInfo) - `timelineChange`: [TimelineProperties](#TimelineProperties) |
+| eventName | <code>&#x27;mediaChange&#x27;</code> \| <code>&#x27;playbackChange&#x27;</code> \| <code>&#x27;timelineChange&#x27;</code> \| <code>&#x27;audioStream&#x27;</code> | - Events with type `mediaChange` are fired when the current playing media changes (ex. skipping to the next song). - Events with type `playbackChange` are fired when the media playback state changes (ex. pausing/playing a song, enabling shuffle, etc.). - Events with type `timelineChange` are fired whenever the timestamp of the current playing media changes (ex. seeking ahead or back, song progressing, etc.). - Subscribing to the `audioStream` event returns chunks of PCM (pulse-code modulation) samples of the current audio every 100ms (useful for audio visualizations). |
+| callback | <code>function</code> | Callback receives an object containing one of the following: - `mediaChange`: [MediaProperties](#MediaProperties) - `playbackChange`: [PlaybackInfo](#PlaybackInfo) - `timelineChange`: [TimelineProperties](#TimelineProperties) - `audioStream`: [AudioStream](#AudioStream) |
 
 **Example**  
 ```js
@@ -70,7 +72,7 @@ Add a one-time event listener that removes itself after firing.
 
 | Param | Type |
 | --- | --- |
-| eventName | <code>&#x27;mediaChange&#x27;</code> \| <code>&#x27;playbackChange&#x27;</code> \| <code>&#x27;timelineChange&#x27;</code> | 
+| eventName | <code>&#x27;mediaChange&#x27;</code> \| <code>&#x27;playbackChange&#x27;</code> \| <code>&#x27;timelineChange&#x27;</code> \| <code>&#x27;audioStream&#x27;</code> | 
 | callback | <code>function</code> | 
 
 <a name="MediaController+off"></a>
@@ -82,7 +84,7 @@ Remove an event listener.
 
 | Param | Type |
 | --- | --- |
-| eventName | <code>&#x27;mediaChange&#x27;</code> \| <code>&#x27;playbackChange&#x27;</code> \| <code>&#x27;timelineChange&#x27;</code> | 
+| eventName | <code>&#x27;mediaChange&#x27;</code> \| <code>&#x27;playbackChange&#x27;</code> \| <code>&#x27;timelineChange&#x27;</code> \| <code>&#x27;audioStream&#x27;</code> | 
 | callback | <code>function</code> | 
 
 <a name="MediaController+requestMediaProperties"></a>
@@ -232,4 +234,16 @@ Set the seek position.
 | position | <code>number</code> | The seek position of playback in the current media in seconds (ex. a user is N seconds into a song). |
 | minSeekTime | <code>number</code> | The minimum seek time of playback in the current media in seconds. |
 | maxSeekTime | <code>number</code> | The maximum seek time of playback in the current media in seconds (ex. the length of the media is `maxSeekTime - minSeekTime`). |
+
+<a name="AudioStream"></a>
+
+## AudioStream : <code>Object</code>
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| channels | <code>number</code> | Number of audio channels (e.g., 2 for stereo). |
+| sampleCount | <code>number</code> | Number of PCM frames in this chunk. |
+| samples | <code>Array.&lt;number&gt;</code> | Normalized PCM samples, in interleaved order if stereo. |
 
