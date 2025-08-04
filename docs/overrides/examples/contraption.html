@@ -609,7 +609,7 @@
                 updateSettings();
             }
 
-            document.body.addEventListener('click', (e) => {
+            document.addEventListener('click', (e) => {
                 if (!document.getElementById('theme-menu').contains(e.target) && !document.getElementById('settings-menu').contains(e.target))
                     closeAllMenus()
             })
