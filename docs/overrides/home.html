@@ -319,6 +319,59 @@ This file was automatically generated - do not edit
         border: none;
         margin: 0;
     }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .modal.active {
+        opacity: 1;
+    }
+
+    .modal-content {
+        background: #111;
+        border-radius: 4px;
+        max-width: 90%;
+        width: 640px;
+        aspect-ratio: 16 / 9;
+        box-shadow: 0 0 20px #000;
+        position: relative;
+        transition: transform 0.3s ease;
+        transform: scale(0.9);
+        border: 1px solid #5b5b5b;
+        background: #111;
+    }
+
+    .modal.active>.modal-content {
+        transform: none;
+    }
+
+    .modal-content img {
+        width: 100%;
+        height: 100%;
+    }
+
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 24px;
+        line-height: 24px;
+        color: white;
+        cursor: pointer;
+        z-index: 8;
+    }
 </style>
 <section class="mdx-container">
     <div class="md-grid md-typeset">
@@ -370,7 +423,7 @@ This file was automatically generated - do not edit
         </div>
         <h1 class="centered-header">Give it a try:</h1>
         <div class="examples">
-            <div class="cards">
+            <div class="cards" id="card-box">
                 <div class="card">
                     <div class="card-content">
                         <div class="card-info">
@@ -404,9 +457,9 @@ This file was automatically generated - do not edit
                     </div>
                 </div>
             </div>
-            <div class="example-content">
+            <!-- <div class="example-content">
                 <iframe src="overrides/examples/contraption.html"></iframe>
-            </div>
+            </div> -->
         </div>
         <div class="footer">
             <div class="footer-content">
@@ -417,6 +470,12 @@ This file was automatically generated - do not edit
                     <button>GitHub</button>
                 </div>
             </div>
+        </div>
+    </div>
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <img id="modal-video" src="" />
         </div>
     </div>
 </section>
@@ -454,26 +513,113 @@ This file was automatically generated - do not edit
         return { rotateX, rotateY }
     }
 
+    function add3dEffect(card) {
+        card.onmousemove = (e) => {
+            let { rotateX, rotateY } = calc3dEffect(e)
+            e.currentTarget.querySelector('.card-content').style.transform = ` perspective(500px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(0.95)`;
+        }
+        card.onmouseleave = (e) => {
+            e.currentTarget.querySelector('.card-content').style.transform = `perspective(500px) rotateX(0) rotateY(0) scale(1)`, 100;
+        }
+        card.onmousedown = (e) => {
+            let { rotateX, rotateY } = calc3dEffect(e)
+            e.currentTarget.querySelector('.card-content').style.transform = ` perspective(500px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(0.92)`;
+        }
+        card.onmouseup = (e) => {
+            let { rotateX, rotateY } = calc3dEffect(e)
+            e.currentTarget.querySelector('.card-content').style.transform = ` perspective(500px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(0.95)`;
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', (e) => {
         const cards = document.getElementsByClassName('card');
         for (const card of cards) {
-            card.onmousemove = (e) => {
-                let { rotateX, rotateY } = calc3dEffect(e)
-                e.currentTarget.querySelector('.card-content').style.transform = ` perspective(500px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(0.95)`;
-            }
-            card.onmouseleave = (e) => {
-                e.currentTarget.querySelector('.card-content').style.transform = `perspective(500px) rotateX(0) rotateY(0) scale(1)`, 100;
-            }
-            card.onmousedown = (e) => {
-                let { rotateX, rotateY } = calc3dEffect(e)
-                e.currentTarget.querySelector('.card-content').style.transform = ` perspective(500px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(0.92)`;
-            }
-            card.onmouseup = (e) => {
-                let { rotateX, rotateY } = calc3dEffect(e)
-                e.currentTarget.querySelector('.card-content').style.transform = ` perspective(500px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(0.95)`;
-            }
+            add3dEffect(card);
         }
     })
+
+    function createCard(name, author, imageUrl, previewUrl) {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const cardContent = document.createElement('div');
+        cardContent.className = 'card-content';
+        cardContent.style.backgroundImage = `url('${imageUrl}')`;
+        cardContent.style.backgroundSize = 'cover';
+        cardContent.style.backgroundPosition = 'center';
+
+        const cardInfo = document.createElement('div');
+        cardInfo.className = 'card-info';
+
+        const cardTitle = document.createElement('p');
+        cardTitle.className = 'card-title';
+        cardTitle.textContent = name;
+
+        const cardAuthor = document.createElement('p');
+        cardAuthor.className = 'card-author';
+        cardAuthor.textContent = author;
+
+        cardInfo.appendChild(cardTitle);
+        cardInfo.appendChild(cardAuthor);
+        cardContent.appendChild(cardInfo);
+        card.appendChild(cardContent);
+
+        card.onclick = () => openModal(previewUrl)
+
+        add3dEffect(card);
+
+        return card;
+    }
+
+    const examples = []
+    const resolvePath = (rel) => rel ? ('https://raw.githubusercontent.com/underpig1/octos-community/refs/heads/master/' + rel).replace('\\', '/') : null;
+    fetch(resolvePath('index.json'))
+        .then(res => res.json())
+        .then(data => {
+            for (const example of data) {
+                example.imagePath = resolvePath(example.imagePath);
+                example.previewPath = resolvePath(example.previewPath);
+                examples.push(example);
+            }
+            populateExamples();
+        });
+
+    function populateExamples() {
+        const cardBox = document.getElementById('card-box')
+        cardBox.innerHTML = "";
+        for (var i = 0; i < examples.length; i++) {
+            const example = examples[i];
+            var card = createCard(example.name, example.author, example.imagePath, example.previewPath);
+            cardBox.appendChild(card);
+        }
+    }
+
+    const modal = document.getElementById("modal");
+    const video = document.getElementById("modal-video");
+
+    function closeModal() {
+        modal.classList.remove("active");
+        // video.pause();
+        // video.currentTime = 0;
+
+        setTimeout(() => {
+            modal.style.display = "none";
+        }, 300);
+    }
+
+    function openModal(src) {
+        modal.style.display = "flex";
+        requestAnimationFrame(() => {
+            modal.classList.add("active");
+        });
+
+        // video.play();
+        video.src = src
+    }
+
+    window.onclick = (event) => {
+        if (event.target === modal) closeModal()
+    };
 </script>
 {% endblock %}
 {% block content %}{% endblock %}
