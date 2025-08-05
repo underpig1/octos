@@ -109,3 +109,15 @@ void ShowTrayMenu()
         }
     }
 }
+
+void ShowTrayNotification(const wchar_t *title, const wchar_t *message)
+{
+    if (!trayHwnd)
+        return;
+    NOTIFYICONDATA notifyData = nid;
+    notifyData.uFlags = NIF_INFO;
+    notifyData.dwInfoFlags = NIIF_INFO;
+    wcscpy_s(notifyData.szInfoTitle, title);
+    wcscpy_s(notifyData.szInfo, message);
+    Shell_NotifyIcon(NIM_MODIFY, &notifyData);
+}

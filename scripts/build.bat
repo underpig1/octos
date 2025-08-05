@@ -11,6 +11,7 @@ if exist .\out\Debug\octos.pdb (
 @REM del /s /q .\build\*.obj
 @REM call npm run build-docs
 @REM call npm run build-api
+mkdir build
 if not exist ".\build\CMakeCache.txt" (
     cmake --preset=default
 )

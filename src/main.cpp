@@ -253,10 +253,11 @@ bool HandleInstances(LPWSTR lpCmdLine)
         {
             if (lpCmdLine && *lpCmdLine != L'\0')
             {
+                auto cmdLine = GetCommandLineW();
                 COPYDATASTRUCT cds;
                 cds.dwData = 1;
-                cds.cbData = (wcslen(lpCmdLine) + 1) * sizeof(wchar_t);
-                cds.lpData = lpCmdLine;
+                cds.cbData = (wcslen(cmdLine) + 1) * sizeof(wchar_t);
+                cds.lpData = cmdLine;
                 SendMessageW(hwndOther, WM_COPYDATA, 0, (LPARAM)&cds);
             }
             else
@@ -267,7 +268,7 @@ bool HandleInstances(LPWSTR lpCmdLine)
         }
         return true;
     }
-    ParseCommandLineArgs(lpCmdLine);
+    ParseCommandLineArgs(GetCommandLineW());
     wprintf(L"\n\n###### handling base case\n\n");
     return false;
 }
@@ -340,7 +341,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int nCmdSh
         MarkStartupSet();
     }
 
-    if (HandleInstances(GetCommandLineW()))
+    if (HandleInstances(lpCmdLine))
         return 0;
 
     SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);

@@ -2,6 +2,7 @@
 #include "../main.h"
 #include "../WebView/WebView.h"
 #include "../Storage/Storage.h"
+#include "../TrayIcon/TrayIcon.h"
 
 std::vector<MonitorWindow> ms;
 std::vector<HMONITOR> g_monitors;
@@ -332,6 +333,7 @@ void ReleaseMainWindow()
     g_appHwndAttached = false;
     HandleOnDestroy(app_hwnd);
     ShowWindow(app_hwnd, SW_HIDE);
+    ShowTrayNotification(L"Octos minimized to tray", L"Octos is still running in the background. Click the tray icon > open to re-open the app.");
 }
 
 void ReattachMainWindow()

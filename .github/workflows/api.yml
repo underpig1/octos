@@ -1,9 +1,13 @@
-name: Build Octos API
+name: API
 on:
   push:
     branches: [ master ]
+    paths:
+      - 'src/js/**'
   pull_request:
     branches: [ master ]
+    paths:
+      - 'src/js/**'
 jobs:
   build:
     runs-on: ubuntu-latest

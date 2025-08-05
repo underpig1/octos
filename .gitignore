@@ -13,4 +13,5 @@ AppPackage
 bin/
 obj/
 site/
+octos.min.js
 # modding

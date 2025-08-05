@@ -1,9 +1,13 @@
-name: Build Octos app
+name: App
 on:
   push:
     branches: [ master ]
+    paths:
+      - 'src/**'
   pull_request:
     branches: [ master ]
+    paths:
+      - 'src/**'
 jobs:
   build:
     runs-on: windows-latest
