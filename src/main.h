@@ -17,6 +17,9 @@
 #define CLASS_NAME L"OctosWorker"
 #define GLOBAL_MUTEX_NAME L"Global\\OctosMutex"
 
+bool AddToStartup();
+bool RemoveFromStartup();
+
 extern HINSTANCE g_hInstance;
 extern HWND app_hwnd;
 extern bool g_appHwndAttached;

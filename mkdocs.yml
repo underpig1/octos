@@ -78,7 +78,7 @@ nav:
       - MonitorBridge: reference/monitorbridge.md
       - System: reference/system.md
       - UserOptions: reference/useroptions.md
-  - About: about.md
+  - Donate: https://buymeacoffee.com/underpig
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true

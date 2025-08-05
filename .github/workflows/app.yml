@@ -1,0 +1,24 @@
+name: Build Octos app
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+    - name: Setup MSVC environment
+      uses: ilammy/msvc-dev-cmd@v1
+    - name: Build app
+      run: .\scripts\build.bat
+      env:
+        VCPKG_ROOT: C:\vcpkg
+        CMAKE_TOOLCHAIN_FILE: C:\vcpkg\scripts\buildsystems\vcpkg.cmake
+    # - name: Archive executable
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: MyApp.exe
+    #     path: build\MyApp.exe

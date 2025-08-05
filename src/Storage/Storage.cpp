@@ -581,35 +581,6 @@ std::wstring LoadPrefsAsJsonString()
     return L"{\"type\":\"prefs\",\"data\":" + to_wstring(prefs.dump()) + L"}";
 }
 
-bool AddToStartup()
-{
-    const std::wstring &exePath = GetAppPath();
-    HKEY hKey;
-    const wchar_t *runKeyPath = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
-    if (RegOpenKeyExW(HKEY_CURRENT_USER, runKeyPath, 0, KEY_WRITE, &hKey) != ERROR_SUCCESS)
-        return false;
-    LONG result = RegSetValueExW(
-        hKey,
-        CLASS_NAME,
-        0,
-        REG_SZ,
-        reinterpret_cast<const BYTE *>(exePath.c_str()),
-        static_cast<DWORD>((exePath.size() + 1) * sizeof(wchar_t)));
-    RegCloseKey(hKey);
-    return result == ERROR_SUCCESS;
-}
-
-bool RemoveFromStartup()
-{
-    HKEY hKey;
-    const wchar_t *runKeyPath = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
-    if (RegOpenKeyExW(HKEY_CURRENT_USER, runKeyPath, 0, KEY_WRITE, &hKey) != ERROR_SUCCESS)
-        return false;
-    LONG result = RegDeleteValueW(hKey, CLASS_NAME);
-    RegCloseKey(hKey);
-    return result == ERROR_SUCCESS || result == ERROR_FILE_NOT_FOUND;
-}
-
 void HandlePrefsChange(const json prefs)
 {
     if (prefs.contains("appOptions") && prefs["appOptions"].is_object())

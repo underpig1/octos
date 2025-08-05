@@ -272,8 +272,74 @@ bool HandleInstances(LPWSTR lpCmdLine)
     return false;
 }
 
+bool AddToStartup()
+{
+    const std::wstring &exePath = GetAppPath();
+    HKEY hKey;
+    const wchar_t *runKeyPath = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
+    if (RegOpenKeyExW(HKEY_CURRENT_USER, runKeyPath, 0, KEY_WRITE, &hKey) != ERROR_SUCCESS)
+        return false;
+    LONG result = RegSetValueExW(
+        hKey,
+        CLASS_NAME,
+        0,
+        REG_SZ,
+        reinterpret_cast<const BYTE *>(exePath.c_str()),
+        static_cast<DWORD>((exePath.size() + 1) * sizeof(wchar_t)));
+    RegCloseKey(hKey);
+    return result == ERROR_SUCCESS;
+}
+
+bool RemoveFromStartup()
+{
+    HKEY hKey;
+    const wchar_t *runKeyPath = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
+    if (RegOpenKeyExW(HKEY_CURRENT_USER, runKeyPath, 0, KEY_WRITE, &hKey) != ERROR_SUCCESS)
+        return false;
+    LONG result = RegDeleteValueW(hKey, CLASS_NAME);
+    RegCloseKey(hKey);
+    return result == ERROR_SUCCESS || result == ERROR_FILE_NOT_FOUND;
+}
+
+bool HasSetStartupOnce()
+{
+    HKEY hKey;
+    DWORD value = 0;
+    DWORD size = sizeof(DWORD);
+
+    if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\Octos", 0, KEY_READ, &hKey) != ERROR_SUCCESS)
+        return false;
+
+    if (RegQueryValueExW(hKey, L"StartupSet", nullptr, nullptr, (LPBYTE)&value, &size) != ERROR_SUCCESS)
+    {
+        RegCloseKey(hKey);
+        return false;
+    }
+
+    RegCloseKey(hKey);
+    return value == 1;
+}
+
+void MarkStartupSet()
+{
+    HKEY hKey;
+    DWORD value = 1;
+
+    if (RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\Octos", 0, nullptr, 0, KEY_WRITE, nullptr, &hKey, nullptr) == ERROR_SUCCESS)
+    {
+        RegSetValueExW(hKey, L"StartupSet", 0, REG_DWORD, (const BYTE *)&value, sizeof(DWORD));
+        RegCloseKey(hKey);
+    }
+}
+
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int nCmdShow)
 {
+    if (!HasSetStartupOnce())
+    {
+        AddToStartup();
+        MarkStartupSet();
+    }
+
     if (HandleInstances(GetCommandLineW()))
         return 0;
 
