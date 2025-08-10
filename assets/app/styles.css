@@ -61,6 +61,7 @@ body {
     -webkit-user-select: none;
     user-select: none;
     -webkit-app-region: drag;
+    background-color: var(--body-color);
 }
 
 .nav {

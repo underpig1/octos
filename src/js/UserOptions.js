@@ -19,10 +19,12 @@ class UserOptions extends Interface {
             case 'options-change':
                 var { id, value } = msg.data;
                 this._emit('change', { id, value });
+                this._emit('changeload', { id, value });
                 break;
             case 'options-load':
                 var { id, value } = msg.data;
                 this._emit('load', { id, value });
+                this._emit('changeload', { id, value });
                 break;
             default:
                 break;
@@ -31,8 +33,8 @@ class UserOptions extends Interface {
 
     /**
      * Add an event listener.
-     * @param {'change' | 'load'} eventName
-     * Events with type `change` are fired whenever a user changes an option. `load` events are fired when the wallpaper first loads in.
+     * @param {'change' | 'load' | 'changeload' } eventName
+     * Events with type `change` are fired whenever a user changes an option. `load` events are fired when the wallpaper first loads in. `changeload` fires for either of the previous events.
      * @param {function(object)} callback
      * Callback receives an object containing the ID of the affected option (as specified in `octos.json`) along with its value in the form `{id, value}`.
      * @example
@@ -70,7 +72,7 @@ class UserOptions extends Interface {
 
     /**
      * Add a one-time event listener that removes itself after firing.
-     * @param {'change' | 'load'} eventName
+     * @param {'change' | 'load' | 'changeload'} eventName
      * @param {function(object)} callback
      */
     once(eventName, callback) {
@@ -79,7 +81,7 @@ class UserOptions extends Interface {
 
     /**
      * Remove an event listener.
-     * @param {'change' | 'load'} eventName
+     * @param {'change' | 'load' | 'changeload'} eventName
      * @param {Function} callback
      */
     off(eventName, callback) {

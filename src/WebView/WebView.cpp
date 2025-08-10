@@ -71,7 +71,8 @@ void InitializeWebViewEnvironment()
                                L"--disable-renderer-backgrounding "
                                L"--disable-web-resources "
                                L"--password-store=basic "
-                               L"--use-mock-keychain ";
+                               L"--use-mock-keychain "
+                               L"--allow-file-access-from-files ";
     if (!enableGPU)
         browserArgs += L"--disable-gpu";
     wprintf(browserArgs.c_str());

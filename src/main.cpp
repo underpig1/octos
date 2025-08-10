@@ -126,6 +126,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         return TRUE;
     case WM_SIZE:
         wprintf(L"[WinMain] Resized\n");
+        if (wParam == SIZE_RESTORED)
+            OnMainWindowRestore();
         HandleResize(hwnd, lParam);
         return 0;
     case WM_ACTIVATE:

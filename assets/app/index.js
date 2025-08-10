@@ -142,13 +142,14 @@ function handleRecieveModData(msg) {
         }, {});
     userPrefs.modData = modData;
     if (!userPrefs.hasOwnProperty('modOptions')) userPrefs.modOptions = {}
-    for (const id of Object.keys(modData))
+    for (const id of Object.keys(modData)) {
         if (!userPrefs.modOptions.hasOwnProperty(id)) userPrefs.modOptions[id] = modData[id].options
         else {
             const existingOptions = userPrefs.modOptions[id]
             const newOptions = modData[id].options
             Object.keys(newOptions).forEach(k => { if (!existingOptions.hasOwnProperty(k)) userPrefs.modOptions[id][k] = newOptions[k] });
         }
+    }
     if (previewModData) {
         appendModData(previewModData);
     }
@@ -786,7 +787,9 @@ function createInput(options, id, cardOptions = null) {
         var div = template.content.cloneNode(true).firstElementChild;
         if (options.label) div.querySelector("p").innerText = options.label;
         var input = div.querySelector("input");
-        if (options.value) input.setAttribute("value", options.value);
+        if (options.value && options.type != "select") {
+            input.setAttribute("value", options.value);
+        }
         getter = () => input.value;
         if (type == "checkbox") {
             if (options.value) input.checked = options.value;
@@ -810,6 +813,7 @@ function createInput(options, id, cardOptions = null) {
                     select.appendChild(el);
                 }
             }
+            if (options.value) select.value = options.value
             getter = () => select.options[select.selectedIndex].text;
         }
         else if (type == "range" || type == "number") {
@@ -968,7 +972,16 @@ function updateCardOptions() {
                                         window.chrome.webview.postMessage({
                                             type: 'exec',
                                             'monitor-id': monitorId,
-                                            data: `{ const f = ${options[inputId].onchange}; f("${ value }"); };`
+                                            data: `{ const f = ${options[inputId].onchange}; f("${value}"); };`
+                                        });
+                                    }
+                                }
+                                if (input.hasOwnProperty('onchangeload')) {
+                                    if (options[inputId].hasOwnProperty('onchangeload')) {
+                                        window.chrome.webview.postMessage({
+                                            type: 'exec',
+                                            'monitor-id': monitorId,
+                                            data: `{ const f = ${options[inputId].onchangeload}; f("${value}"); };`
                                         });
                                     }
                                 }
@@ -1003,7 +1016,14 @@ function sendWallpaperAllOptions(monitorId) {
             window.chrome.webview.postMessage({
                 type: 'exec',
                 'monitor-id': monitorId,
-                data: `{ const f = ${options[inputId].onload}; f("${ value }"); };`
+                data: `{ const f = ${options[inputId].onload}; f("${value}"); };`
+            });
+        }
+        if (options[inputId].hasOwnProperty('onchangeload')) {
+            window.chrome.webview.postMessage({
+                type: 'exec',
+                'monitor-id': monitorId,
+                data: `{ const f = ${options[inputId].onchangeload}; f("${value}"); };`
             });
         }
     }
@@ -1484,7 +1504,7 @@ function appendModData(config) {
     if (modId) {
         userPrefs.modData[config.folderPath] = config;
         if (config.options) {
-            userPrefs.modOptions[config.folderPath] = config.options;
+            userPrefs.modOptions[config.folderPath] = JSON.parse(JSON.stringify(config.options));
         }
     }
 }

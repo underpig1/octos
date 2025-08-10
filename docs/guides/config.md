@@ -79,6 +79,7 @@ The keys of the `options` object represent IDs that can be accessed with the `Us
 | `options` | `array` | *(select only)* List of possible options for select input. |
 | `onchange` | `string` | JavaScript function to execute on change. Passes `value` of the changed input to the function. Ex. `"onchange": "(value) => alert(value)"`. |
 | `onload` | `string` | JavaScript function to execute on load. Passes `value` of the loaded input to the function. Ex. `"onload": "(value) => alert(value)"`. |
+| `onchangeload` | `string` | JavaScript function to execute on either change or load. Passes `value` of the loaded input to the function. Ex. `"onchangeload": "(value) => alert(value)"`. |
 
 #### Notes:
 - An option of `"type": "description"` only renders its `label` property.

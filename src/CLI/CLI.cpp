@@ -16,39 +16,49 @@ void RunWallpaperCommand(std::wstring folderPath, bool devToolsFlag)
         DumpPrefs(prefs);
         WaitForWallpaperWindowsAndCallback([entryPath, devToolsFlag, params]()
                                            {
-                wprintf(L"\n\n#### NAVIGATING ALL\n\n");
-                NavigateAllWallpapers(entryPath);
-                std::wstring paramStr = ParamsAsJsonString(params);
-                if (paramStr.empty()) return;
-                std::wstring sendStr = L"{\"type\":\"preview\",\"data\":" + paramStr + L"}";
-                wprintf(sendStr.c_str());
-                WaitForMainWindowAndDispatch(sendStr);
+            wprintf(L"\n\n#### NAVIGATING ALL\n\n");
+            NavigateAllWallpapers(entryPath);
+            std::wstring paramStr = ParamsAsJsonString(params);
+            if (paramStr.empty())
+                return;
+            std::wstring sendStr = L"{\"type\":\"preview\",\"data\":" + paramStr + L"}";
+            wprintf(sendStr.c_str());
+            ReloadAllWindows();
 
-                // dev tools
-                if (devToolsFlag) {
-                    std::thread([]() {
-                        std::this_thread::sleep_for(std::chrono::seconds(1));
+            // dev tools
+            std::thread([devToolsFlag, sendStr]()
+                        {
+                    std::this_thread::sleep_for(std::chrono::seconds(1));
+                    WaitForMainWindowAndDispatch(sendStr);
+                    
+                    if (devToolsFlag)
+                    {
                         bool found_window = false;
-                        for (auto &mw : ms) {
-                            if (IsWindow(mw.hwnd)) {
+                        for (auto &mw : ms)
+                        {
+                            if (IsWindow(mw.hwnd))
+                            {
                                 PostMessage(mw.hwnd, WM_USER + 7, 0, 0);
                                 found_window = true;
                             }
                         }
-                        if (!found_window) {
+                        if (!found_window)
+                        {
                             std::this_thread::sleep_for(std::chrono::seconds(1));
-                            for (auto &mw : ms) {
+                            for (auto &mw : ms)
+                            {
                                 if (IsWindow(mw.hwnd))
                                     PostMessage(mw.hwnd, WM_USER + 7, 0, 0);
                             }
                         }
-                    }).detach();
-                } });
-        // if (configFlag && !params.configPath.empty())
-        // {
-        //     OpenFile(to_string(params.configPath));
-        // }
-    }
+                    } })
+            .detach();
+    });
+    // if (configFlag && !params.configPath.empty())
+    // {
+    //     OpenFile(to_string(params.configPath));
+    // }
+}
 }
 
 void ParseCommandLineArgs(LPWSTR args)

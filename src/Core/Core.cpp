@@ -4,7 +4,7 @@
 #include "../Storage/Storage.h"
 #include "../TrayIcon/TrayIcon.h"
 
-#include <shellscalingapi.h> // For GetDpiForMonitor
+#include <shellscalingapi.h>
 #pragma comment(lib, "Shcore.lib")
 
 std::vector<MonitorWindow> ms;
@@ -117,17 +117,6 @@ void ReloadAllWindows()
         if (IsWindow(mw.hwnd))
             ReloadWebViewWindow(mw.hwnd);
     }
-}
-
-void RestoreMainWindow()
-{
-    if (IsIconic(app_hwnd))
-        ShowWindow(app_hwnd, SW_RESTORE);
-    else
-        ReattachMainWindow();
-    SetForegroundWindow(app_hwnd);
-    SetWindowPos(app_hwnd, HWND_TOP, 0, 0, 0, 0,
-                 SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
 }
 
 void CreateMonitorWindow(HMONITOR hMon)
@@ -356,5 +345,45 @@ void ReattachMainWindow()
         data = new WebViewData();
         SetWindowLongPtr(app_hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(data));
         ShowWindow(app_hwnd, SW_SHOW);
+    }
+}
+
+void RestoreMainWindow()
+{
+    if (IsIconic(app_hwnd))
+    {
+        WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(app_hwnd, GWLP_USERDATA));
+        if (data && data->controller)
+        {
+            data->controller->put_IsVisible(TRUE);
+            ShowWindow(app_hwnd, SW_RESTORE);
+        }
+    }
+    else
+    {
+        ReattachMainWindow();
+        SetForegroundWindow(app_hwnd);
+        SetWindowPos(app_hwnd, HWND_TOP, 0, 0, 0, 0,
+                     SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+    }
+}
+
+void MinimizeMainWindow()
+{
+    WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(app_hwnd, GWLP_USERDATA));
+    if (data && data->controller)
+    {
+        data->controller->put_IsVisible(FALSE);
+        ShowWindow(app_hwnd, SW_MINIMIZE);
+    }
+}
+
+void OnMainWindowRestore()
+{
+    WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(app_hwnd, GWLP_USERDATA));
+    if (data && data->controller)
+    {
+        data->controller->put_IsVisible(TRUE);
+        ShowWindow(app_hwnd, SW_RESTORE);
     }
 }

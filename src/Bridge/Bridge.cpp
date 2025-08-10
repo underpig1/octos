@@ -99,7 +99,7 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
                 SendMessage(hwnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
             }
             else if (type == "minimize")
-                ShowWindow(app_hwnd, SW_MINIMIZE);
+                MinimizeMainWindow();
             else if (type == "maximize")
             {
                 if (IsZoomed(hwnd))
