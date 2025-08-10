@@ -4,6 +4,9 @@
 #include "../Storage/Storage.h"
 #include "../TrayIcon/TrayIcon.h"
 
+#include <shellscalingapi.h> // For GetDpiForMonitor
+#pragma comment(lib, "Shcore.lib")
+
 std::vector<MonitorWindow> ms;
 std::vector<HMONITOR> g_monitors;
 const std::wstring defaultHtmlPath = L"";
@@ -183,14 +186,35 @@ void WaitForWallpaperWindowsAndCallback(std::function<void()> callback)
 HWND CreateMainWindow()
 {
     WebViewData *data = new WebViewData();
-    const int desiredClientWidth = 850;
-    const int desiredClientHeight = 500;
+
+    const int desiredWebViewWidthDIPs = 850;
+    const int desiredWebViewHeightDIPs = 500;
+
     DWORD style = WS_THICKFRAME | WS_BORDER;
     DWORD exStyle = 0;
-    RECT rect = {0, 0, desiredClientWidth, desiredClientHeight};
+
+    // Get DPI for primary monitor (or the monitor you want)
+    HMONITOR monitor = MonitorFromPoint(POINT{0, 0}, MONITOR_DEFAULTTOPRIMARY);
+    UINT dpiX = 96, dpiY = 96;
+    HRESULT hr = GetDpiForMonitor(monitor, MDT_EFFECTIVE_DPI, &dpiX, &dpiY);
+    if (FAILED(hr))
+    {
+        dpiX = dpiY = 96; // fallback
+    }
+
+    float scaleX = dpiX / 96.0f;
+    float scaleY = dpiY / 96.0f;
+
+    // Calculate physical pixels for client area, scaled by DPI
+    int scaledClientWidth = static_cast<int>(desiredWebViewWidthDIPs * scaleX);
+    int scaledClientHeight = static_cast<int>(desiredWebViewHeightDIPs * scaleY);
+
+    RECT rect = {0, 0, scaledClientWidth, scaledClientHeight};
     AdjustWindowRectEx(&rect, style, FALSE, exStyle);
+
     int windowWidth = rect.right - rect.left;
     int windowHeight = rect.bottom - rect.top;
+
     HWND hwnd = CreateWindowExW(0, CLASS_NAME, L"Octos", WS_THICKFRAME | WS_BORDER, CW_USEDEFAULT, CW_USEDEFAULT, windowWidth, windowHeight, nullptr, nullptr, g_hInstance, reinterpret_cast<LPVOID>(data));
     UpdateWindow(hwnd);
     // AttachWebViewController(hwnd, L"app/index.html");
