@@ -20,5 +20,10 @@
   "author": "underpig1",
   "license": "MIT",
   "repository": "https://github.com/underpig1/octos",
-  "homepage": "https://underpig1.github.io/octos/"
+  "homepage": "https://underpig1.github.io/octos/",
+  "files": [
+    "octos.min.js",
+    "LICENSE",
+    "README.md"
+  ]
 }

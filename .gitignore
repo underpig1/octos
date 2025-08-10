@@ -15,3 +15,7 @@ obj/
 site/
 octos.min.js
 # modding
+Octos
+vcpkg_installed
+x64/
+.vc
