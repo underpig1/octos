@@ -183,7 +183,15 @@ void WaitForWallpaperWindowsAndCallback(std::function<void()> callback)
 HWND CreateMainWindow()
 {
     WebViewData *data = new WebViewData();
-    HWND hwnd = CreateWindowExW(0, CLASS_NAME, L"Octos", WS_THICKFRAME | WS_BORDER, CW_USEDEFAULT, CW_USEDEFAULT, 1350, 800, nullptr, nullptr, g_hInstance, reinterpret_cast<LPVOID>(data));
+    const int desiredClientWidth = 850;
+    const int desiredClientHeight = 500;
+    DWORD style = WS_THICKFRAME | WS_BORDER;
+    DWORD exStyle = 0;
+    RECT rect = {0, 0, desiredClientWidth, desiredClientHeight};
+    AdjustWindowRectEx(&rect, style, FALSE, exStyle);
+    int windowWidth = rect.right - rect.left;
+    int windowHeight = rect.bottom - rect.top;
+    HWND hwnd = CreateWindowExW(0, CLASS_NAME, L"Octos", WS_THICKFRAME | WS_BORDER, CW_USEDEFAULT, CW_USEDEFAULT, windowWidth, windowHeight, nullptr, nullptr, g_hInstance, reinterpret_cast<LPVOID>(data));
     UpdateWindow(hwnd);
     // AttachWebViewController(hwnd, L"app/index.html");
     g_appHwndAttached = false;
