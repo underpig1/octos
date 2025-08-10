@@ -186,36 +186,16 @@ void WaitForWallpaperWindowsAndCallback(std::function<void()> callback)
 HWND CreateMainWindow()
 {
     WebViewData *data = new WebViewData();
-
-    const int desiredWebViewWidthDIPs = 850;
-    const int desiredWebViewHeightDIPs = 500;
-
-    DWORD style = WS_THICKFRAME | WS_BORDER;
-    DWORD exStyle = 0;
-
-    // Get DPI for primary monitor (or the monitor you want)
-    HMONITOR monitor = MonitorFromPoint(POINT{0, 0}, MONITOR_DEFAULTTOPRIMARY);
-    UINT dpiX = 96, dpiY = 96;
-    HRESULT hr = GetDpiForMonitor(monitor, MDT_EFFECTIVE_DPI, &dpiX, &dpiY);
-    if (FAILED(hr))
-    {
-        dpiX = dpiY = 96; // fallback
-    }
-
-    float scaleX = dpiX / 96.0f;
-    float scaleY = dpiY / 96.0f;
-
-    // Calculate physical pixels for client area, scaled by DPI
-    int scaledClientWidth = static_cast<int>(desiredWebViewWidthDIPs * scaleX);
-    int scaledClientHeight = static_cast<int>(desiredWebViewHeightDIPs * scaleY);
-
-    RECT rect = {0, 0, scaledClientWidth, scaledClientHeight};
-    AdjustWindowRectEx(&rect, style, FALSE, exStyle);
-
-    int windowWidth = rect.right - rect.left;
-    int windowHeight = rect.bottom - rect.top;
-
-    HWND hwnd = CreateWindowExW(0, CLASS_NAME, L"Octos", WS_THICKFRAME | WS_BORDER, CW_USEDEFAULT, CW_USEDEFAULT, windowWidth, windowHeight, nullptr, nullptr, g_hInstance, reinterpret_cast<LPVOID>(data));
+    const int clientWidth = 850;
+    const int clientHeight = 500;
+    HWND hwnd = CreateWindowExW(0, CLASS_NAME, L"Octos", WS_THICKFRAME | WS_BORDER, CW_USEDEFAULT, CW_USEDEFAULT, clientWidth, clientHeight, nullptr, nullptr, g_hInstance, reinterpret_cast<LPVOID>(data));
+    UINT dpi = GetDpiForWindow(hwnd);
+    float scale = dpi / 96.0f;
+    RECT rect = {0, 0, static_cast<LONG>(clientWidth * scale), static_cast<LONG>(clientHeight * scale)};
+    AdjustWindowRectEx(&rect, WS_THICKFRAME | WS_BORDER, FALSE, 0);
+    int width = rect.right - rect.left;
+    int height = rect.bottom - rect.top;
+    SetWindowPos(hwnd, nullptr, 0, 0, width, height, SWP_NOZORDER | SWP_NOMOVE);
     UpdateWindow(hwnd);
     // AttachWebViewController(hwnd, L"app/index.html");
     g_appHwndAttached = false;
