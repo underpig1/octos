@@ -17,7 +17,7 @@ jobs:
     - name: Setup MSVC environment
       uses: ilammy/msvc-dev-cmd@v1
     - name: Build app
-      run: .\scripts\build.bat
+      run: msbuild
       env:
         VCPKG_ROOT: C:\vcpkg
         CMAKE_TOOLCHAIN_FILE: C:\vcpkg\scripts\buildsystems\vcpkg.cmake
