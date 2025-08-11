@@ -24,4 +24,4 @@ jobs:
       env:
         VCPKG_ROOT: C:\vcpkg
     - name: Build
-      run: msbuild Octos.vcpkg /p:Configuration=Release
+      run: msbuild Octos.vcxproj /p:Configuration=Release
