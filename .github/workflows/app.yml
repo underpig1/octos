@@ -14,19 +14,14 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
-    - name: Setup MSVC environment
-      uses: ilammy/msvc-dev-cmd@v1
-    - name: Install dependencies
-      run: vcpkg install
-    - name: Build app
-      run: msbuild
+    - uses: actions/checkout@v3
+    - uses: ilammy/msvc-dev-cmd@v1
+    - name: Install vcpkg dependencies
+      run: |
+        vcpkg install --triplet x64-windows
+        vcpkg integrate install
+      working-directory: .
       env:
         VCPKG_ROOT: C:\vcpkg
-        CMAKE_TOOLCHAIN_FILE: C:\vcpkg\scripts\buildsystems\vcpkg.cmake
-    # - name: Archive executable
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: MyApp.exe
-    #     path: build\MyApp.exe
+    - name: Build
+      run: msbuild Octos.vcpkg /p:Configuration=Release
