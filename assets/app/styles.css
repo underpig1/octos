@@ -1424,3 +1424,34 @@ input[type="range"]:focus {
         --sidebar-width: 300px;
     }
 }
+
+.search {
+    position: absolute;
+    top: 10px;
+    right: calc(var(--sidebar-width) + 35px);
+    width: 150px;
+    height: 30px;
+    background: var(--light-body-color);
+    border-radius: 4px;
+    border: 1px var(--button-border-color) solid;
+}
+
+#search {
+    width: calc(100% - 20px);
+    height: 100%;
+    outline: none !important;
+    border: none;
+    color: #a0b0b0ff;
+    font-family: "Segoe UI", sans-serif;
+    background-color: transparent;
+    padding: 5px 7px;
+}
+
+.search-clear {
+    position: absolute;
+    color: #a0b0b0ff;
+    right: 10px;
+    line-height: 30px;
+    cursor: pointer;
+    font-size: 10pt;
+}

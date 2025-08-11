@@ -81,6 +81,10 @@
     <div class="main">
         <div class="topbar" id="topbar">
             <h3 class="subheader" id="title">Library</h3>
+            <div class="search">
+                <input type="text" id="search" placeholder="Search..." onchange="onSearch(this)" />
+                <span class="search-clear" onclick="var input = this.previousElementSibling; input.value = ''; input.focus();">&#10005;</span>
+            </div>
             <div class="win-contain">
                 <div class="win" onclick="minimize()"><img src="img/minimize.png"></div>
                 <div class="win" onclick="maximize()"><img src="img/fullscreen.png"></div>

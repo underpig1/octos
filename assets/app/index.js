@@ -326,7 +326,7 @@ function setContent(el) {
 
     var title = document.getElementById("title");
     title.style.opacity = 0;
-    const nameMap = { "explore": "Gallery", "modules": "Library", "develop": "Create", "settings": "Preferences" }
+    const nameMap = { "explore": "Explore", "modules": "Library", "develop": "Create", "settings": "Preferences" }
     setTimeout(() => title.textContent = nameMap[name], 100);
     setTimeout(() => title.style.opacity = 1, 100);
 
@@ -1221,6 +1221,10 @@ function populateExplore() {
             })();
         })
         .catch(err => console.error('Failed to load index:', err));
+}
+
+function onSearch() {
+    
 }
 
 // DEVELOP
