@@ -73,8 +73,8 @@
         <template id="select-input">
             <label class="select-input">
                 <p>Input</p>
-                <input style="display: none" onchange="updateCardOptions()">
-                <select></select>
+                <input style="display: none">
+                <select onchange="updateCardOptions()"></select>
             </label>
         </template>
     </div>
@@ -82,8 +82,8 @@
         <div class="topbar" id="topbar">
             <h3 class="subheader" id="title">Library</h3>
             <div class="search">
-                <input type="text" id="search" placeholder="Search..." onchange="onSearch(this)" />
-                <span class="search-clear" onclick="var input = this.previousElementSibling; input.value = ''; input.focus();">&#10005;</span>
+                <input type="text" id="search" placeholder="Search..." oninput="onSearch(this)" />
+                <span class="search-clear" style="display: none;" onclick="var input = this.previousElementSibling; input.value = ''; input.focus(); onSearch(input)">&#10005;</span>
             </div>
             <div class="win-contain">
                 <div class="win" onclick="minimize()"><img src="img/minimize.png"></div>

@@ -184,11 +184,30 @@ body {
     filter: brightness(2);
 }
 
+.scrollbox {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(100% - var(--sidebar-width));
+    max-height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    float: left;
+
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    padding: 15px 5px;
+    padding-right: 15px;
+    padding-top: 5px;
+}
+
 .card {
     position: relative;
-    width: var(--card-width);
-    height: calc(var(--card-width)/248*150);
-    margin: 5px 5px;
+    /* width: var(--card-width);
+    height: calc(var(--card-width)/248*150); */
+    aspect-ratio: 16 / 9;
+    /* margin: 5px 5px; */
     float: left;
 }
 
@@ -248,8 +267,15 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 0 15px;
-    background-color: #00000075;
+    background-color: #000000d4;
     font-size: 13px;
+    border-radius: 0 0 2px 2px;
+}
+
+.card-title, .card-author {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .card-info>.card-title {
@@ -258,7 +284,7 @@ body {
 }
 
 .card-info>.card-author {
-    color: #ffffff85;
+    color: #ffffffc2;
 }
 
 ::-webkit-scrollbar {
@@ -282,7 +308,7 @@ body {
     opacity: 0;
     transition: opacity var(--transition-speed);
     z-index: 2;
-    margin-right: 25px;
+    margin-right: calc(var(--sidebar-width) - 175px);
 }
 
 .card .checkmark,
@@ -381,17 +407,6 @@ body {
     opacity: 1;
     transform: translateY(0);
     pointer-events: inherit;
-}
-
-.scrollbox {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: calc(100% - var(--sidebar-width));
-    height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
-    float: left;
 }
 
 .sidebar {
@@ -633,6 +648,9 @@ button:not(.inactive):not(:has(.monitor-arrow:hover)):hover {
 }
 
 .upload-card .card-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: transparent;
     border: 1px solid #b0b0b0ff;
     box-shadow: none;
@@ -656,6 +674,10 @@ button:not(.inactive):not(:has(.monitor-arrow:hover)):hover {
     color: var(--accent);
     border: none;
     margin-right: 100%;
+}
+
+#settings-scrollbox {
+    display: block;
 }
 
 .settings-main {
@@ -1427,13 +1449,21 @@ input[type="range"]:focus {
 
 .search {
     position: absolute;
-    top: 10px;
-    right: calc(var(--sidebar-width) + 35px);
+    top: 12px;
+    right: calc(var(--sidebar-width) + 15px);
     width: 150px;
     height: 30px;
     background: var(--light-body-color);
     border-radius: 4px;
     border: 1px var(--button-border-color) solid;
+    opacity: 0;
+    transform: translateY(0);
+    transition: transform var(--transition-speed), opacity var(--transition-speed);
+}
+
+.search.active {
+    opacity: 1;
+    transform: none;
 }
 
 #search {

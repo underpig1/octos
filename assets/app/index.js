@@ -267,22 +267,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // STYLING
 function updateResponsiveElements() {
-    var computed = window.getComputedStyle(document.querySelector(".card"));
-    const getCSSVariable = (prop) => parseInt(window.getComputedStyle(document.body).getPropertyValue(prop));
-    // var cardWidth = parseInt(computed.getPropertyValue("width")) + parseInt(computed.getPropertyValue("margin-left")) + parseInt(computed.getPropertyValue("margin-right"));
-    // var totalSpace = document.querySelector(".content").clientWidth;
-    // var scrollboxWidth = totalSpace - getCSSVariable("--default-sidebar-width");
-    // var numberOfCards = Math.floor(scrollboxWidth/cardWidth);
-    // var newSidebarWidth = totalSpace - numberOfCards*cardWidth - 10;
-    // document.documentElement.style.setProperty("--sidebar-width", newSidebarWidth + "px");
+    // var computed = window.getComputedStyle(document.querySelector(".card"));
+    // const getCSSVariable = (prop) => parseInt(window.getComputedStyle(document.body).getPropertyValue(prop));
+    // // var cardWidth = parseInt(computed.getPropertyValue("width")) + parseInt(computed.getPropertyValue("margin-left")) + parseInt(computed.getPropertyValue("margin-right"));
+    // // var totalSpace = document.querySelector(".content").clientWidth;
+    // // var scrollboxWidth = totalSpace - getCSSVariable("--default-sidebar-width");
+    // // var numberOfCards = Math.floor(scrollboxWidth/cardWidth);
+    // // var newSidebarWidth = totalSpace - numberOfCards*cardWidth - 10;
+    // // document.documentElement.style.setProperty("--sidebar-width", newSidebarWidth + "px");
 
-    var scrollboxWidth = document.querySelector(".content").clientWidth - getCSSVariable("--sidebar-width");
-    var cardWidth = getCSSVariable("--default-card-width") + parseInt(computed.getPropertyValue("margin-left")) + parseInt(computed.getPropertyValue("margin-right"));
-    document.documentElement.style.setProperty("--card-width", scrollboxWidth / Math.floor(scrollboxWidth / cardWidth) - 20 + "px");
-    for (var shadow of document.getElementsByClassName("scroll-shadow")) shadow.style.width = scrollboxWidth + "px";
+    // var scrollboxWidth = document.querySelector(".content").clientWidth - getCSSVariable("--sidebar-width");
+    // var cardWidth = getCSSVariable("--default-card-width") + parseInt(computed.getPropertyValue("margin-left")) + parseInt(computed.getPropertyValue("margin-right"));
+    // document.documentElement.style.setProperty("--card-width", scrollboxWidth / Math.floor(scrollboxWidth / cardWidth) - 20 + "px");
+    // for (var shadow of document.getElementsByClassName("scroll-shadow")) shadow.style.width = scrollboxWidth - 10 + "px";
 }
 
-window.onresize = updateResponsiveElements;
+// window.onresize = updateResponsiveElements;
 
 function handleScrollShadows() {
     var top = document.getElementById("scroll-shadow-top");
@@ -329,6 +329,11 @@ function setContent(el) {
     const nameMap = { "explore": "Explore", "modules": "Library", "develop": "Create", "settings": "Preferences" }
     setTimeout(() => title.textContent = nameMap[name], 100);
     setTimeout(() => title.style.opacity = 1, 100);
+
+    if (activeTab == 'explore') {
+        document.querySelector('.search').classList.add('active')
+    }
+    else document.querySelector('.search').classList.remove('active')
 
     var highlight = document.querySelector(".nav-highlight");
     highlight.style.setProperty("--nav-active", Array.prototype.indexOf.call(el.parentNode.children, el) - 1);
@@ -510,7 +515,7 @@ function updateMods() {
     modScrollbox.appendChild(uploadCard);
     updateCardDescription();
     updateDownloadedMods();
-    updateResponsiveElements();
+    // updateResponsiveElements();
     updateMonitorIndicators();
 }
 
@@ -1223,8 +1228,40 @@ function populateExplore() {
         .catch(err => console.error('Failed to load index:', err));
 }
 
-function onSearch() {
-    
+function containsAllChars(haystack, needle) {
+    haystack = haystack.toLowerCase();
+    needle = needle.toLowerCase();
+    for (const char of needle) {
+        if (!haystack.includes(char)) return false;
+    }
+    return true;
+}
+
+function onSearch(input) {
+    const searchClear = input.parentNode.querySelector(".search-clear");
+    searchClear.style.display = input.value != "" ? "block" : "none"
+    filterExplore((data) => {
+        const inputVal = input.value.toLowerCase();
+        const inName = containsAllChars(data.name, input.value)
+        const inKeywords = data.keywords?.some(keyword =>
+            keyword.toLowerCase().includes(inputVal)
+        );
+        return inName || inKeywords
+    })
+}
+
+function filterExplore(filterFn) {
+    // const exploreScrollbox = document.getElementById("explore-scrollbox");
+    for (const id of Object.keys(exploreMods)) {
+        const card = document.getElementById(id);
+        const modData = exploreMods[id];
+        if (filterFn(modData)) {
+            card.style.display = 'block'
+        }
+        else {
+            card.style.display = 'none'
+        }
+    }
 }
 
 // DEVELOP
