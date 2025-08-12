@@ -939,6 +939,7 @@ function restoreModOptions() {
                     userPrefs.modOptions[id] = defaultOptions;
                     updateCardDescription();
                     dumpUserPrefs();
+                    updateCardOptions();
                 }
             }
         }
@@ -1230,18 +1231,27 @@ function populateExplore() {
 }
 
 function containsAllChars(haystack, needle) {
+    if (!haystack || !needle) return false;
     haystack = haystack.toLowerCase();
     needle = needle.toLowerCase();
-    for (const char of needle) {
-        if (!haystack.includes(char)) return false;
+    let hayIndex = 0;
+    let needleIndex = 0;
+
+    while (hayIndex < haystack.length && needleIndex < needle.length) {
+        if (haystack[hayIndex] === needle[needleIndex]) {
+            needleIndex++;
+        }
+        hayIndex++;
     }
-    return true;
+
+    return needleIndex === needle.length;
 }
 
 function onSearch(input) {
     const searchClear = input.parentNode.querySelector(".search-clear");
     searchClear.style.display = input.value != "" ? "block" : "none"
     filterExplore((data) => {
+        if (input.value == "") return true;
         const inputVal = input.value.toLowerCase();
         const inName = containsAllChars(data.name, input.value)
         const inKeywords = data.keywords?.some(keyword =>

@@ -20,7 +20,10 @@ void RunWallpaperCommand(std::wstring folderPath, bool devToolsFlag)
             NavigateAllWallpapers(entryPath);
             std::wstring paramStr = ParamsAsJsonString(params);
             if (paramStr.empty())
+            {
+                MessageBox(app_hwnd, (L"Could not run mod at " + params.folderPath + L". This may be a configuration error with octos.json.").c_str(), L"[Octos CLI] Run failed", MB_OK | MB_ICONERROR | MB_TOPMOST);
                 return;
+            }
             std::wstring sendStr = L"{\"type\":\"preview\",\"data\":" + paramStr + L"}";
             wprintf(sendStr.c_str());
             ReloadAllWindows();
@@ -48,17 +51,27 @@ void RunWallpaperCommand(std::wstring folderPath, bool devToolsFlag)
                             for (auto &mw : ms)
                             {
                                 if (IsWindow(mw.hwnd))
+                                {
                                     PostMessage(mw.hwnd, WM_USER + 7, 0, 0);
+                                    found_window = true;
+                                }
                             }
                         }
+                        if (!found_window)
+                        {
+                            MessageBox(app_hwnd, L"Failed to open DevTools", L"[Octos CLI] DevTools failed", MB_OK | MB_ICONERROR | MB_TOPMOST);
+                        }
                     } })
-            .detach();
-    });
-    // if (configFlag && !params.configPath.empty())
-    // {
-    //     OpenFile(to_string(params.configPath));
-    // }
-}
+            .detach(); });
+        // if (configFlag && !params.configPath.empty())
+        // {
+        //     OpenFile(to_string(params.configPath));
+        // }
+    }
+    else
+    {
+        MessageBox(app_hwnd, (L"Could not find a valid HTML file in folder " + folderPath).c_str(), L"[Octos CLI] Run failed", MB_OK | MB_ICONERROR | MB_TOPMOST);
+    }
 }
 
 void ParseCommandLineArgs(LPWSTR args)
@@ -85,17 +98,25 @@ void ParseCommandLineArgs(LPWSTR args)
                 devToolsFlag = true;
             // else if (arg == L"--config")
             //     configFlag = true;
-            else if ((!arg.empty() && arg[0] == L'-') &&
-                     (arg.size() == 1 || arg[1] != L'-'))
-                return;
-            else if (folderPath.empty())
+            // else if ((!arg.empty() && arg[0] == L'-') &&
+            //          (arg.size() == 1 || arg[1] != L'-'))
+            //     return;
+            else if (!arg.empty() && arg[0] != L'-' && folderPath.empty())
                 folderPath = arg;
         }
         if (folderPath.empty())
+        {
+            MessageBox(app_hwnd, L"No folderPath provided. Try specifying the path to a valid mod folder. Ex. octos run path/to/mod", L"[Octos CLI] Run failed", MB_OK | MB_ICONERROR | MB_TOPMOST);
             return;
+        }
         folderPath = fs::absolute(folderPath);
-        if (!fs::exists(folderPath) || !fs::is_directory(folderPath))
+        if (!fs::exists(folderPath))
+        {
+            MessageBox(app_hwnd, (L"Provided folderPath " + folderPath + L" does not exist! Try specifying the path to a valid mod folder. Ex. octos run path/to/mod").c_str(), L"[Octos CLI] Run failed", MB_OK | MB_ICONERROR | MB_TOPMOST);
             return;
+        }
+        else if (!fs::is_directory(folderPath))
+            folderPath = fs::path(folderPath).parent_path();
         RunWallpaperCommand(folderPath, devToolsFlag);
     }
     else if (subcommand == L"reload")
@@ -105,22 +126,32 @@ void ParseCommandLineArgs(LPWSTR args)
     }
     else if (subcommand == L"new")
     {
-        std::wstring folderPath;
+        std::wstring folderName;
         for (int i = 2; i < argc; ++i)
         {
             std::wstring arg = argv[i];
-            if ((!arg.empty() && arg[0] == L'-') &&
-                (arg.size() == 1 || arg[1] != L'-'))
-                return;
-            else if (folderPath.empty())
-                folderPath = arg;
+            if (!arg.empty() && arg[0] != L'-' && folderName.empty())
+            {
+                folderName = arg;
+                break;
+            }
         }
-        if (folderPath.empty())
-            return;
-        folderPath = fs::absolute(folderPath);
+        if (folderName.empty())
+            folderName = L"new-mod";
+        std::wstring folderPath = fs::absolute(folderName);
         if (!fs::exists(folderPath) || !fs::is_directory(folderPath))
-            return;
-        CreateNewWallpaper(folderPath);
+        {
+            if (fs::create_directory(folderPath))
+                CreateNewWallpaper(folderPath);
+            else
+            {
+                MessageBox(app_hwnd, (L"Failed to create new mod at " + folderPath).c_str(), L"[Octos CLI] New failed", MB_OK | MB_ICONERROR | MB_TOPMOST);
+                return;
+            }
+        }
+        else
+            CreateNewWallpaper(folderPath);
+        MessageBox(app_hwnd, (L"Successfully created new mod at " + folderPath).c_str(), L"[Octos CLI] New succeeded", MB_OK | MB_ICONINFORMATION | MB_TOPMOST);
     }
     else if (subcommand == L"dev-tools")
     {

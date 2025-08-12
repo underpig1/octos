@@ -1030,6 +1030,7 @@ label>p {
     border-radius: 2px;
     color: white;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 0 5px;
 }
 
 .text-input {
@@ -1077,8 +1078,16 @@ label>p {
     background-color: #404040ff;
     color: #ffffffaa;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 11px;
     outline: none !important;
+    padding: 0 3px;
+}
+
+.select-input>select, .text-input>input, .number-input>input {
+    background: var(--light-body-color);
+    border-radius: 4px;
+    border: 1px var(--button-border-color) solid;
+    font-size: 9pt;
+    color: #a0b0b0ff;
 }
 
 .metadata-checkbox {

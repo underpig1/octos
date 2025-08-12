@@ -37,6 +37,11 @@
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
 
+  <!-- <Target Name="RunAppLocal" BeforeTargets="Build">
+    <Exec
+      Command="powershell.exe -ExecutionPolicy Bypass -File &quot;$(VcpkgRoot)\scripts\buildsystems\msbuild\applocal.ps1&quot; &quot;$(TargetPath)&quot; &quot;$(VcpkgManifestRoot)\vcpkg_installed\$(VcpkgTriplet)&quot;" />
+  </Target> -->
+
   <PropertyGroup>
     <IncludePath>$(IncludePath);$(VcpkgIncludeDirectories)</IncludePath>
     <LibraryPath>$(LibraryPath);$(VcpkgLibraryDirectories)</LibraryPath>
@@ -69,14 +74,28 @@
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 
-  <Target Name="CopyAssets" AfterTargets="Build">
+  <Target Name="CopyAssets" AfterTargets="Build" DependsOnTargets="PrepareForBuild">
     <Message Text="Copying assets to output directory..." />
     <MakeDir Directories="$(OutDir)" />
     <ItemGroup>
       <AssetFiles Include="$(ProjectDir)assets\**\*.*" />
     </ItemGroup>
     <Copy SourceFiles="@(AssetFiles)" DestinationFolder="$(OutDir)%(RecursiveDir)"
-          SkipUnchangedFiles="true" />
+      SkipUnchangedFiles="false" />
+  </Target>
+
+  <!-- <Target Name="PrintVcpkgRoot" BeforeTargets="Build">
+    <Message
+      Text="hi $(VcpkgManifestRoot)\vcpkg_installed\$(VcpkgTriplet)\bin\*.dll $(VcpkgInstalledDir)"
+      Importance="high" />
+  </Target> -->
+
+  <Target Name="CopyVcpkgDllsAlways" AfterTargets="Build">
+    <Message Text="Copying DLLs forcibly every build... $(VcpkgManifestRoot)\vcpkg_installed\$(VcpkgTriplet)\bin\*.dll" Importance="high" />
+    <ItemGroup>
+      <VcpkgDlls Include="$(VcpkgManifestRoot)\vcpkg_installed\$(VcpkgTriplet)\bin\*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(VcpkgDlls)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="false" />
   </Target>
 
 </Project>
