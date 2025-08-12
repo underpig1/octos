@@ -1191,7 +1191,8 @@ function updateDownloadedMods() {
         var installed = false;
         for (const id of Object.keys(userPrefs.modData)) {
             const data = userPrefs.modData[id];
-            if (data.name == modData.name && data.description == modData.description && data.author == modData.author) {
+            const normalize = v => (v == null || v === '' ? null : v)
+            if (normalize(data.name) == normalize(modData.name) && normalize(data.description) == normalize(modData.description) && normalize(data.author) == normalize(modData.author)) {
                 installed = true;
                 break;
             }

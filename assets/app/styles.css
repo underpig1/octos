@@ -1450,7 +1450,7 @@ input[type="range"]:focus {
 .search {
     position: absolute;
     top: 12px;
-    right: calc(var(--sidebar-width) + 15px);
+    right: calc(var(--sidebar-width) + 20px);
     width: 150px;
     height: 30px;
     background: var(--light-body-color);
