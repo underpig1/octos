@@ -267,7 +267,7 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 0 15px;
-    background-color: #000000d4;
+    background-color: #000000aa;
     font-size: 13px;
     border-radius: 0 0 2px 2px;
 }
@@ -1459,11 +1459,13 @@ input[type="range"]:focus {
     opacity: 0;
     transform: translateY(0);
     transition: transform var(--transition-speed), opacity var(--transition-speed);
+    pointer-events: none;
 }
 
 .search.active {
     opacity: 1;
     transform: none;
+    pointer-events: all;
 }
 
 #search {

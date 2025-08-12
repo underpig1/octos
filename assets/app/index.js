@@ -1246,7 +1246,8 @@ function onSearch(input) {
         const inKeywords = data.keywords?.some(keyword =>
             keyword.toLowerCase().includes(inputVal)
         );
-        return inName || inKeywords
+        const inAuthor = containsAllChars(data.author, input.value)
+        return inName || inKeywords || inAuthor
     })
 }
 

@@ -60,9 +60,9 @@ extra:
       link: https://www.npmjs.com/package/octos
 copyright: Copyright &copy; 2025 underpig1
 nav:
-  - Home:
-    - index.md
-    - Installation: home/installation
+  - Home: index.md
+  - Getting Started:
+    - tbd
   - Guides:
     - guides/index.md
     - Making a mod: guides/mod.md
@@ -72,6 +72,7 @@ nav:
     - octos.json: guides/config.md
     - Publishing your mod: guides/publish.md
     - Tips and tricks: guides/tips.md
+    - Contributing: https://github.com/underpig1/octos/tree/master/.github/CONTRIBUTING.md
   - API Reference:
       - reference/index.md
       - MediaController: reference/mediacontroller.md
