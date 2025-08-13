@@ -41,5 +41,6 @@ json LoadPrefs();
 bool CreateNewWallpaper(fs::path dirPath);
 std::wstring ParamsAsJsonString(ConfigParams p);
 std::wstring GetAppPath();
+std::wstring GetWebViewDir();
 
-    extern std::vector<ConfigParams> g_allParams;
+extern std::vector<ConfigParams> g_allParams;

@@ -44,11 +44,11 @@ void InitializeDCompDevice()
 
 void InitializeWebViewEnvironment()
 {
-    wprintf(L"[WebViewEnv] Started creating environment...\n");
-    wchar_t tempPath[MAX_PATH];
-    GetTempPathW(MAX_PATH, tempPath);
-    std::wstring userDataFolder = tempPath;
-    userDataFolder += L"WebView2UserData";
+    // wprintf(L"[WebViewEnv] Started creating environment...\n");
+    // wchar_t tempPath[MAX_PATH];
+    // GetTempPathW(MAX_PATH, tempPath);
+    // std::wstring userDataFolder = tempPath;
+    // userDataFolder += L"WebView2UserData";
 
     HRESULT hrInit = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
     if (FAILED(hrInit))
@@ -78,7 +78,7 @@ void InitializeWebViewEnvironment()
     wprintf(browserArgs.c_str());
     options->put_AdditionalBrowserArguments(browserArgs.c_str());
 
-    CreateCoreWebView2EnvironmentWithOptions(nullptr, userDataFolder.c_str(), options.Get(),
+    CreateCoreWebView2EnvironmentWithOptions(nullptr, GetWebViewDir().c_str(), options.Get(),
                                              Microsoft::WRL::Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
                                                  [](HRESULT result, ICoreWebView2Environment *env) -> HRESULT
                                                  {

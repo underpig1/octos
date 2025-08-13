@@ -1,12 +1,12 @@
 [Setup]
 AppName=Octos
 AppVersion=1.0
-DefaultDirName={pf}\Octos
 DefaultGroupName=Octos
 OutputBaseFilename=OctosSetup
 Compression=lzma
 SolidCompression=yes
 UninstallDisplayIcon={app}\Octos.exe
+DefaultDirName={localappdata}\Octos
 
 [Files]
 Source: "build\Release\Octos.exe"; DestDir: "{app}"; Flags: ignoreversion
