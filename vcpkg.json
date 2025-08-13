@@ -2,6 +2,7 @@
     "dependencies": [
         "webview2",
         "wil",
-        "nlohmann-json"
+        "nlohmann-json",
+        "minizip"
     ]
 }

@@ -37,10 +37,8 @@ std::wstring GetAppPath()
 
 std::wstring NormalizePath(std::wstring path)
 {
-    for (auto &ch : path)
-        if (ch == L'/')
-            ch = L'\\';
-    return path;
+    fs::path p = path;
+    return p.make_preferred().wstring();
 }
 
 std::wstring CombinePaths(std::wstring firstPath, std::wstring secondPath)
@@ -68,98 +66,64 @@ std::wstring GetWallpapersDir()
     return ResolvePath(L"wallpapers");
 }
 
+#include <minizip/unzip.h>
+
 bool InstallWallpaper(const std::wstring &zipPath)
 {
-    wprintf(L"[Storage] Installing from: %s\n", zipPath.c_str());
+    if (!fs::exists(zipPath) || fs::path(zipPath).extension() != L".zip")
+        return false;
 
-    if (fs::exists(zipPath) && fs::path(zipPath).extension() == L".zip")
+    // Get EXE directory
+    wchar_t exePath[MAX_PATH] = {0};
+    GetModuleFileNameW(nullptr, exePath, MAX_PATH);
+    fs::path exeFolder = fs::path(exePath).parent_path();
+
+    // Destination folder: <exeFolder>/wallpapers/<zipName>
+    fs::path destFolder = exeFolder / L"wallpapers" / fs::path(zipPath).stem();
+    CreateDirectoryW(destFolder.c_str(), nullptr);
+
+    wprintf(L"destFolder %ws\n", destFolder.c_str());
+    wprintf(L"zipPath %s\n", zipPath.c_str());
+    unzFile zip = unzOpen(to_string(zipPath).c_str());
+    if (!zip)
+        return false;
+
+    if (unzGoToFirstFile(zip) != UNZ_OK)
     {
-        std::wstring destFolder = GetWallpapersDir() / fs::path(zipPath).stem();
-        fs::create_directories(destFolder);
-
-        wprintf(L"[Storage] Unzipping\n");
-        CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
-
-        IShellDispatch *shell = nullptr;
-        Folder *zipFolder = nullptr;
-        Folder *destFolderObj = nullptr;
-        bool success = false;
-
-        if (SUCCEEDED(CoCreateInstance(CLSID_Shell, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&shell))))
+        unzClose(zip);
+        return false;
+    }
+    do
+    {
+        char filename[512];
+        unz_file_info info;
+        if (unzGetCurrentFileInfo(zip, &info, filename, sizeof(filename), nullptr, 0, nullptr, 0) != UNZ_OK)
+            continue;
+        fs::path outPath = destFolder / to_wstring(filename);
+        wprintf(L"outPath %ws\n", outPath.c_str());
+        if (filename[strlen(filename) - 1] == '/')
         {
-            VARIANT vZip, vDest;
-            VariantInit(&vZip);
-            VariantInit(&vDest);
-
-            vZip.vt = VT_BSTR;
-            vZip.bstrVal = SysAllocString(NormalizePath(zipPath).c_str());
-            vDest.vt = VT_BSTR;
-            vDest.bstrVal = SysAllocString(NormalizePath(destFolder).c_str());
-
-            shell->NameSpace(vZip, &zipFolder);
-            shell->NameSpace(vDest, &destFolderObj);
-
-            if (zipFolder && destFolderObj)
+            CreateDirectoryW(outPath.c_str(), nullptr);
+        }
+        else
+        {
+            CreateDirectoryW(outPath.parent_path().c_str(), nullptr);
+            if (unzOpenCurrentFile(zip) == UNZ_OK)
             {
-                FolderItems *items = nullptr;
-                if (SUCCEEDED(zipFolder->Items(&items)))
-                {
-                    VARIANT vItems;
-                    VariantInit(&vItems);
-                    vItems.vt = VT_DISPATCH;
-                    vItems.pdispVal = items;
-
-                    VARIANT vOpt;
-                    VariantInit(&vOpt);
-                    vOpt.vt = VT_I4;
-                    vOpt.lVal = FOF_NOCONFIRMATION | FOF_SILENT | FOF_NOERRORUI;
-
-                    HRESULT hr = destFolderObj->CopyHere(vItems, vOpt);
-                    if (SUCCEEDED(hr))
-                    {
-                        wprintf(L"[Storage] Unzipped successfully\n");
-                        // handle main folder not in root folder
-                        size_t count = 0;
-                        fs::directory_entry sourceFolder;
-                        for (const auto &entry : fs::directory_iterator(destFolder))
-                        {
-                            ++count;
-                            if (count > 1)
-                                break;
-                            sourceFolder = entry;
-                        }
-                        if (count == 1 && sourceFolder.is_directory())
-                        {
-                            for (const auto &entry : fs::directory_iterator(sourceFolder))
-                            {
-                                fs::path newPath = destFolder / entry.path().filename();
-                                fs::rename(entry.path(), newPath);
-                            }
-                            fs::remove(sourceFolder);
-                        }
-                        success = true;
-                    }
-
-                    VariantClear(&vItems);
-                    items->Release();
-                }
+                std::ofstream outFile(outPath, std::ios::binary);
+                char buffer[4096];
+                int bytesRead = 0;
+                while ((bytesRead = unzReadCurrentFile(zip, buffer, sizeof(buffer))) > 0)
+                    outFile.write(buffer, bytesRead);
+                unzCloseCurrentFile(zip);
+                wprintf(L"done\n");
             }
-
-            if (zipFolder)
-                zipFolder->Release();
-            if (destFolderObj)
-                destFolderObj->Release();
-            SysFreeString(vZip.bstrVal);
-            SysFreeString(vDest.bstrVal);
-            shell->Release();
         }
 
-        CoUninitialize();
-        return success;
-    }
+    } while (unzGoToNextFile(zip) == UNZ_OK);
 
-    wprintf(L"[Storage] Unsupported input path: not a .zip or directory\n");
-    return false;
+    unzClose(zip);
+    return true;
 }
 
 bool DownloadWallpaper(const std::wstring url)
@@ -167,16 +131,19 @@ bool DownloadWallpaper(const std::wstring url)
     bool result = false;
     wchar_t tempPath[MAX_PATH];
     DWORD pathLen = GetTempPathW(MAX_PATH, tempPath);
-    fs::path zipPath = fs::path(tempPath) / fs::path(url).filename();
+    if (pathLen == 0 || pathLen > MAX_PATH)
+        return false;
+    fs::path zipPath = fs::path(tempPath) / url.substr(url.find_last_of(L"/\\") + 1);
     wprintf(L"DOWNLOADING WALLPAPER %ws %ws\n", zipPath.c_str(), url.c_str());
     HRESULT hr = URLDownloadToFileW(nullptr, url.c_str(), zipPath.c_str(), 0, nullptr);
-    if (SUCCEEDED(hr))
+    if (SUCCEEDED(hr) && fs::exists(zipPath))
     {
         wprintf(L"DOWNLOADED WALLPAPER %ws\n", zipPath.c_str());
         if (fs::exists(zipPath))
         {
+            wprintf(L"ITS HERE %ws\n", zipPath.c_str());
             result = InstallWallpaper(zipPath);
-            fs::remove(zipPath);
+            // fs::remove(zipPath);
         }
     }
     else
