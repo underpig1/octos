@@ -9,6 +9,7 @@
 #include "API/Media.h"
 #include "CLI/CLI.h"
 #include "API/Audio.h"
+#include "WebView/Bootstrap.h"
 
 HINSTANCE g_hInstance;
 HWND app_hwnd;
@@ -58,6 +59,10 @@ void RestartApp()
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+    // if (msg == WM_DESTROY || msg == WM_CLOSE)
+    // {
+    //     wprintf(L"we have an issue");
+    // }
     switch (msg)
     {
     case WM_NCCALCSIZE:
@@ -335,14 +340,17 @@ void MarkStartupSet()
     }
 }
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int nCmdShow)
+void HandleStartup()
 {
     if (!HasSetStartupOnce())
     {
         AddToStartup();
         MarkStartupSet();
     }
+}
 
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int nCmdShow)
+{
     if (HandleInstances(lpCmdLine))
         return 0;
 
@@ -353,20 +361,30 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int nCmdSh
     // freopen("CONOUT$", "w", stderr);
     // freopen("CONIN$", "r", stdin);
 
-    LoadAndHandleAppPrefs();
-    InitializeWebViewEnvironment();
+    DWORD g_mainThreadId = GetCurrentThreadId();
     RegisterWndClass(hInstance);
-    InitializeTrayIcon();
-    CreateMainWindow();
-    InitializeWallpaperWindows();
-    InstallEventHooks();
-    wprintf(L"[WinMain] Initialized\n");
+    HandleBootstrap([g_mainThreadId]()
+                    { PostThreadMessage(g_mainThreadId, WM_USER + 10, 0, 0); });
 
     MSG msg;
-    while (GetMessage(&msg, NULL, 0, 0))
+    while (GetMessage(&msg, NULL, 0, 0) > 0)
     {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
+        if (msg.message == WM_USER + 10)
+        {
+            LoadAndHandleAppPrefs();
+            HandleStartup();
+            InitializeWebViewEnvironment();
+            InitializeTrayIcon();
+            CreateMainWindow();
+            InitializeWallpaperWindows();
+            InstallEventHooks();
+            wprintf(L"[WinMain] Initialized\n");
+        }
+        else
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
     }
 
     OnClose();

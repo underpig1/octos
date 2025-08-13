@@ -72,7 +72,7 @@ nav:
     - octos.json: guides/config.md
     - Publishing your mod: guides/publish.md
     - Tips and tricks: guides/tips.md
-    - Contributing: https://github.com/underpig1/octos/tree/master/.github/CONTRIBUTING.md
+    - Contributing: https://github.com/underpig1/octos/tree/master?tab=contributing-ov-file#user-content-contributing-guide
   - API Reference:
       - reference/index.md
       - MediaController: reference/mediacontroller.md
