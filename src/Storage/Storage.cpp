@@ -63,24 +63,48 @@ std::wstring ResolvePath(std::wstring relativePath, bool includeFileScheme)
     return url;
 }
 
-std::wstring GetWallpapersDir()
+fs::path GetAppLocalDir()
 {
     wchar_t appDataPath[MAX_PATH] = {0};
     if (FAILED(SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, 0, appDataPath)))
         return L"";
-    fs::path destFolder = fs::path(appDataPath) / L"Octos" / L"wallpapers";
-    fs::create_directories(destFolder);
-    return destFolder.wstring();
+    return fs::path(appDataPath) / L"Octos";
+}
+
+std::wstring GetWallpapersDir()
+{
+    // fs::path appLocal = GetAppLocalDir();
+    // if (appLocal.empty()) return L"";
+    // fs::path path = appLocal / L"wallpapers";
+    // fs::create_directories(path);
+    // return path.wstring();
+
+    std::wstring path = ResolvePath(L"wallpapers");
+    fs::create_directories(path);
+    return path;
 }
 
 std::wstring GetWebViewDir()
 {
-    wchar_t appDataPath[MAX_PATH] = {0};
-    if (FAILED(SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, 0, appDataPath)))
-        return L"";
-    fs::path webViewDir = fs::path(appDataPath) / L"Octos" / L"WebView2";
-    fs::create_directories(webViewDir);
-    return webViewDir.wstring();
+    std::wstring path = ResolvePath(L"WebView2UserData");
+    fs::create_directories(path);
+    return path;
+
+    // fs::path appLocal = GetAppLocalDir();
+    // if (appLocal.empty()) return L"";
+    // fs::path path = appLocal / L"WebView2UserData";
+    // fs::create_directories(path);
+    // return path.wstring();
+}
+
+std::wstring GetUIDir()
+{
+    return ResolvePath(L"app");
+}
+
+std::wstring GetPrefsPath()
+{
+    return ResolvePath(L"preferences.json");
 }
 
 bool InstallWallpaper(const std::wstring &zipPath)
@@ -561,11 +585,6 @@ void RemoveWallpaper(std::wstring folderPath)
     fs::remove_all(folderPath, ec);
     if (ec)
         RaiseErrorBox(L"Failed to uninstall", L"Please try again.");
-}
-
-std::wstring GetPrefsPath()
-{
-    return ResolvePath(L"preferences.json");
 }
 
 json LoadPrefs()

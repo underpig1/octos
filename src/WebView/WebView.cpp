@@ -65,16 +65,23 @@ void InitializeWebViewEnvironment()
                                L"--disable-background-networking "
                                L"--disable-default-apps "
                                L"--disable-translate "
-                               L"--disable-features=TranslateUI,AudioServiceOutOfProcess "
+                               L"--disable-features=TranslateUI,AudioServiceOutOfProcess,LowIntegrityMode "
                                L"--no-first-run "
                                L"--no-default-browser-check "
-                               L"--disable-renderer-backgrounding "
+                            //    L"--disable-renderer-backgrounding "
+                                L"--enable-renderer-backgrounding "
+                                L"--enable-background-timer-throttling "
+                                L"--enable-low-priority-ipc "
                                L"--disable-web-resources "
                                L"--password-store=basic "
                                L"--use-mock-keychain "
-                               L"--allow-file-access-from-files ";
+                               L"--allow-file-access-from-files "
+                               L"--disable-breakpad "
+                               L"--disable-component-update ";
     if (!enableGPU)
         browserArgs += L"--disable-gpu";
+    else
+        browserArgs += L"--disable-software-rasterizer";
     wprintf(browserArgs.c_str());
     options->put_AdditionalBrowserArguments(browserArgs.c_str());
 
