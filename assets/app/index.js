@@ -247,6 +247,7 @@ function unsetByMonitorId(monitorId, send = true) {
             window.chrome.webview.postMessage({ type: 'set-wallpaper', 'monitor-id': monitorId, 'url': '' });
         updateMonitorIndicators();
         updateCardDescription();
+        dumpUserPrefs();
     }
 }
 
