@@ -143,7 +143,7 @@ function handleRecieveModData(msg) {
     userPrefs.modData = modData;
     if (!userPrefs.hasOwnProperty('modOptions')) userPrefs.modOptions = {}
     for (const id of Object.keys(modData)) {
-        if (!userPrefs.modOptions.hasOwnProperty(id)) userPrefs.modOptions[id] = modData[id].options
+        if (!userPrefs.modOptions.hasOwnProperty(id)) userPrefs.modOptions[id] = JSON.parse(JSON.stringify(modData[id].options))
         else {
             const existingOptions = userPrefs.modOptions[id]
             const newOptions = modData[id].options
@@ -697,7 +697,7 @@ function updateCardDescription() {
         if (id) {
             const cardData = userPrefs.modData[id]
             if (cardData)
-                setCardDescription(activeTab, cardData.name, cardData.author, cardData.description, userPrefs.modOptions[id], true);
+                setCardDescription(activeTab, cardData.name, cardData.author, cardData.description, userPrefs.modOptions[id], true, cardData.authorsite);
         }
     }
     else if (activeTab == 'explore') {
@@ -705,15 +705,32 @@ function updateCardDescription() {
         if (id) {
             const cardData = exploreMods[id]
             if (cardData)
-                setCardDescription(activeTab, cardData.name, cardData.author, cardData.description, null, cardData.installed, cardData.previewPath);
+                setCardDescription(activeTab, cardData.name, cardData.author, cardData.description, null, cardData.installed, cardData.previewPath, cardData.authorsite);
         }
     }
 }
 
-function setCardDescription(prefix = "explore", title = "", author = "", description = "", options = null, installed = false, preview = null) {
+function setCardDescription(prefix = "explore", title = "", author = "", description = "", options = null, installed = false, preview = null, authorSite="") {
     const cardDescription = document.getElementById(prefix + "-card-description");
     cardDescription.querySelector(".title-content").innerText = title;
-    if (author) cardDescription.querySelector(".author").innerHTML = `By <a class="author-content">${author}</a>`;
+    if (author) {
+        const authorElem = cardDescription.querySelector(".author");
+        authorElem.textContent = "By ";
+        const authorLink = document.createElement("a");
+        authorLink.classList.add("author-content");
+        if (!authorSite && author == "Octos") authorSite = "https://underpig1.github.io/octos/"
+        if (authorSite) {
+            authorLink.classList.add("linked");
+            authorLink.addEventListener("click", () => {
+                chrome.webview.postMessage({
+                    type: "open-external-link",
+                    url: authorSite
+                });
+            });
+        }
+        authorLink.textContent = author;
+        authorElem.appendChild(authorLink);
+    }
     else cardDescription.querySelector(".author").innerHTML = "";
     cardDescription.querySelector(".description").innerText = description;
     if (options) {
@@ -741,10 +758,11 @@ function setCardDescription(prefix = "explore", title = "", author = "", descrip
                     previewImage.style.backgroundImage = "";
                     const img = new Image();
                     img.src = preview;
-                    previewModalImage.src = preview;
+                    previewModalImage.src = "";
                     img.onload = () => {
                         previewImage.classList.add('loaded');
                         previewImage.style.backgroundImage = bkImg;
+                        previewModalImage.src = preview;
                     }
                 }
             }
@@ -937,17 +955,16 @@ function restoreModOptions() {
             if (modData) {
                 const defaultOptions = modData.options;
                 if (defaultOptions) {
-                    userPrefs.modOptions[id] = defaultOptions;
+                    userPrefs.modOptions[id] = JSON.parse(JSON.stringify(defaultOptions));
                     updateCardDescription();
-                    dumpUserPrefs();
-                    updateCardOptions();
+                    updateCardOptions(true);
                 }
             }
         }
     }
 }
 
-function updateCardOptions() {
+function updateCardOptions(force = false) {
     if (activeTab != "modules")
         return;
     const id = focusedIds.modules;
@@ -962,7 +979,7 @@ function updateCardOptions() {
                 if (options.hasOwnProperty(inputId)) {
                     console.log('c')
                     const input = options[inputId];
-                    if (input.value != value) {
+                    if (input.value != value || force) {
                         input.value = value;
                         for (const monitorId of Object.keys(userPrefs.selected)) {
                             if (userPrefs.selected[monitorId] == id) {
@@ -1177,8 +1194,8 @@ function goToSource() {
     if (id) {
         const modData = exploreMods[id];
         var url = modData.folderPath
-        if (modData.website)
-            url = modData.website;
+        if (modData.webpage)
+            url = modData.webpage;
         else if (modData.source)
             url = modData.source;
         window.chrome.webview.postMessage({ type: 'open-external-link', url });

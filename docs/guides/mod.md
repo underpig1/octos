@@ -9,7 +9,9 @@ MyAwesomeMod/
 ├── index.html
 ├── octos.json
 ```
-The `octos.json` file is optional, but it allows you to specify details for when you want to share your mod with the world, like name, author, HTML entry path, user options, preview image, and more.
+In this folder, you can include assets, JS libraries, CSS files, icons, scripts, and basically anything else that your mod needs to run.
+
+The `octos.json` file is completely optional but it allows you to specify a lot of details for when you want to distribute your mod. These include fields like name, author, main page, user options, preview images, and a lot more. Your mod will work just fine without it, but it's good practice to add.
 
 For now, let's put this in our `octos.json`:
 ```json
@@ -19,9 +21,9 @@ For now, let's put this in our `octos.json`:
     "entry": "index.html"
 }
 ```
-The `entry` field basically tells Octos to load index.html as the entry point when your mod is first enabled. This field is not necessary for a simple single-page mod like this one, but it's useful if your mod later needs to navigate between different `.html` files in the same folder. `entry` can also be a link to an external webpage!
+The `entry` field basically tells Octos where your mod's main webpage is located. If you don't put specify this field, Octos will automatically look for `index.html` or any other HTML file in your mod folder, so you probably don't need to worry about this for now, but it's good practice if you later have a bunch of HTML files in the folder. `entry` can also be a link to an external webpage!
 
-In this folder, you can include assets, libraries, icons, scripts, and anything that your mod needs to run. Let's add an `index.js` to our mod:
+Recall that, just like any other webpage, we can add any files we need to our mod folder. Let's add an `index.js` to our mod for some JavaScript functionality:
 ```
 MyAwesomeMod/
 ├── index.html
@@ -29,9 +31,8 @@ MyAwesomeMod/
 ├── octos.json
 ```
 
-Alternatively, you can generate a starting mod folder, which includes template `index.html` and `octos.json` files with the [Octos command line interface (CLI)](cli.md):
+Alternatively, you can generate a starting mod folder, which includes minimal `index.html` and `octos.json` files with the [Octos command line interface (CLI)](cli.md):
 ```batch
-mkdir MyAwesomeMod
 octos new MyAwesomeMod
 ```
 
@@ -78,32 +79,33 @@ A few notes:
 
 ### Testing and debugging
 Now we have a nice and simple mod to test out as our wallpaper. There are a few ways to test and debug your mod:
-- **In the browser**: this is good for simple mods that don't need to use the Octos API or any other Octos features. Simply go to `file:///C:/path/to/MyAwesomeMod` in your browser to preview and debug your HTML.  
 
-- **With the Octos CLI**: this is ideal for actually testing your mod on the wallpaper. This will allow you to use any features like the Octos API in your mod as well.  
+- **In the browser**: this is a good start for simple mods that don't need to use the Octos API or any other Octos features. Simply go to `file:///C:/path/to/MyAwesomeMod` in your browser to preview and debug your HTML. You could also [setup a local server](https://developer.mozilla.org/en-US/docs/Learn_web_development/Howto/Tools_and_setup/set_up_a_local_testing_server) at `localhost` for more advanced testing.  
+
+- **With the Octos CLI**: this is ideal for actually testing your mod on the wallpaper. This will allow you to use any features like the Octos API and test out user options in your mod as well. Simply call `octos run path/to/mod/folder` in your command line to test your mod on the wallpaper.  
     ```batch
-    octos run MyAwesomeMod
+    octos run ./MyAwesomeMod
     ```
     Then, you can reload your wallpaper when you make a change:
     ```batch
     octos reload
     ```
-    In addition, you can enable DevTools for better debugging. Note that this will open separate DevTools windows for each instance of your mod on each monitor/display.
+    In addition, you can enable DevTools for better debugging.
     ```batch
     octos dev-tools
     ```
-    See more about using the [Octos CLI](cli.md)  
+    Learn more about using the [Octos CLI](cli.md). It's pretty powerful for testing out and debugging mods.  
 
 - **Bundled as a .zip**: see the next section for more details
 
 ### Sharing your mod
-Octos mods are distributed as .zip archive files. To distribute your mod, zip your whole `MyAwesomeMod` mod folder. You can then share it and others can install it through the Octos app.
+Octos mods are distributed as .zip archive files. To distribute your mod, simply zip your whole `MyAwesomeMod` mod folder. You can then share it and others can install it through the Octos app by clicking "Install mod from .zip" and then clicking on MyAwesomeMod.zip.
 
 ### Next steps
 - Supercharge your mod with the [Octos API](api.md)  
 
 - See some [example mods](https://github.com/underpig1/octos-community/tree/master) for inspiration  
 
-- Learn more about the [Octos CLI](cli.md)  
+- Learn more about the [Octos CLI](cli.md) for testing and debuugging  
 
 - Learn how to [publish your mod](publish.md) to the Octos community  

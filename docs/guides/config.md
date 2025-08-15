@@ -1,6 +1,6 @@
 # `octos.json` Reference
 
-Each mod folder can optionally include an `octos.json` file, which includes metadata, the mod's entry point, a preview image for the explore page, and user options.
+Each mod folder can optionally include an `octos.json` file, which allows you to specify mod metadata and user options.
 
 ## Example
 `octos.json`:
@@ -35,25 +35,58 @@ Each mod folder can optionally include an `octos.json` file, which includes meta
 **Type:** `string`  
 The author's name.
 
+Example:
+```json
+"author": "underpig1"
+```
+
 ### `name`
 **Type:** `string`  
 Mod's display name.
+
+Example:
+```json
+"name": "My Awesome Mod"
+```
 
 ### `description`
 **Type:** `string`  
 A short description of the mod's purpose or features.
 
+Example:
+```json
+"description": "This is my awesome mod."
+```
+
 ### `image`
 **Type:** `string`  
 Path within the mod folder to the card image to be shown in the Octos app. Typically a stylistic/aesthetic image that doesn't necessarily represent the mod as it appears on the wallpaper. Use the `preview` field to specify a more accurate image/animation.
 
+Example:
+```json
+"image": "my-mod.png"
+```
+
 ### `preview`
-**Type:** `string`
+**Type:** `string`  
 Path within the mod folder to the preview image/animated gif to be shown in the Octos explore page. Typically more like an accurate representation of how the mod will appear as a wallpaper.
+
+Example:
+```json
+"preview": "preview.gif"
+```
 
 ### `entry`
 **Type:** `string`  
-The main HTML entry point that launches the wallpaper. Can either be a local HTML file or an external webpage.
+Path to the main HTML entry point that launches the wallpaper. Can either be a local HTML file or an external webpage.
+
+Example:
+```json
+"entry": "index.html"
+```
+```json
+"entry": "https://www.example.com"
+```
 
 ### `options`
 **Type:** `object`  
@@ -61,13 +94,12 @@ A JSON object that defines one or more **customizable settings** that can be cha
 
 <img src="../../img/user-options.png" width="150px" aria-hidden />
 
-These settings, along with input change event listeners, can be accessed in JS with the [`UserOptions` class](../reference/useroptions.md) of the [Octos API](api.md).
+- These settings, along with input change event listeners, can be accessed in JS with the [`UserOptions` class](../reference/useroptions.md) of the [Octos API](api.md).
 
-Each property inside `options` defines a single input control.
+- Each property inside `options` defines a single input control.
 
-The keys of the `options` object represent IDs that can be accessed with the `UserOptions` API.
+- The keys of the `options` object represent IDs that can be accessed with the `UserOptions` API.
 
-#### `option` object properties:
 | Property | Type   | Description |
 |----------|--------|-------------|
 | `type`   | `string` | The type of input. Supported: `checkbox`, `range`, `file`, `description`, `select`, `color-picker`, `dropdown`, `number`, `text` |
@@ -81,14 +113,13 @@ The keys of the `options` object represent IDs that can be accessed with the `Us
 | `onload` | `string` | JavaScript function to execute on load. Passes `value` of the loaded input to the function. Ex. `"onload": "(value) => alert(value)"`. |
 | `onchangeload` | `string` | JavaScript function to execute on either change or load. Passes `value` of the loaded input to the function. Ex. `"onchangeload": "(value) => alert(value)"`. |
 
-#### Notes:
+Notes:
 - An option of `"type": "description"` only renders its `label` property.
 - An option must include `label` to render.
 - `options` maps directly to standard HTML input elements.
 - Add as many options as you like — they will be rendered dynamically in the app.
 
-#### Example `options`
-
+Example:
 ```json
 "options": {
   "enableParticles": {
@@ -111,6 +142,33 @@ The keys of the `options` object represent IDs that can be accessed with the `Us
     "value": "light"
   }
 }
+```
+
+### `source`
+**Type:** `string`
+Link to the website or source code for your mod. Clicking the "Go to source" button in the Octos app explore page will take the user to the webpage specified in this field. If it is not specified, it will redirect the user to the source in the octos-community repository.
+
+Example:
+```json
+"source": "https://github.com/underpig1/my-awesome-mod"
+```
+
+### `authorsite`
+**Type:** `string`
+Link to the author's webpage. Clicking on the author's name in the Octos app (if specified in the `author` field) will bring the user to this page.
+
+Example:
+```json
+"authorsite": "https://github.com/underpig1"
+```
+
+### `version`
+**Type:** `string`
+Current mod version.
+
+Example:
+```json
+"version": "1.0.0"
 ```
 
 ## Notes

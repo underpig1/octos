@@ -515,6 +515,11 @@ a {
     color: #a0b0b0ff;
     text-decoration: solid;
     text-decoration-color: #a0b0b0ff;
+    text-decoration-line: none;
+    cursor: arrow;
+}
+
+a.linked {
     text-decoration-line: underline;
     cursor: pointer;
 }

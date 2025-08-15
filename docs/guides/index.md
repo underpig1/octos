@@ -19,3 +19,5 @@
     - Share your mod with the Octos community.
 - [Tips and tricks](tips.md)
     - Level up your mod-making skills with some short tips and tricks for getting started.
+- [Contributing](https://github.com/underpig1/octos/blob/master/.github/CONTRIBUTING.md)
+    - Learn how to contribute to the Octos source repository on GitHub.

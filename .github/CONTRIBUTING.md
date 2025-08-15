@@ -87,7 +87,7 @@ You need Python and `pip` installed to locally serve and preview the docs. First
 pip install mkdocs-material
 ```
 
-You may also need to install additional plugins:
+Then, install additional MkDocs plugins:
 ```
 pip install -r docs\requirements.txt
 ```
