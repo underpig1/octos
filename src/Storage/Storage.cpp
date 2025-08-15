@@ -250,9 +250,11 @@ ConfigParams ReadConfig(fs::path path)
         std::string author = j.value("author", "");
         std::string name = j.value("name", "");
         std::string description = j.value("description", "");
+        std::string authorsite = j.value("authorsite", "");
         params.author = to_wstring(author);
         params.name = to_wstring(name);
         params.description = to_wstring(description);
+        params.authorsite = to_wstring(authorsite);
         if (j.contains("image"))
         {
             std::string image = j.value("image", "");
@@ -405,6 +407,7 @@ std::wstring ParamsAsJsonString(ConfigParams p)
         {"imagePath", to_string(p.imagePath)},
         {"configPath", to_string(p.configPath)},
         {"entryPath", to_string(p.entryPath)},
+        {"authorsite", to_string(p.authorsite)},
         {"options", p.options.empty() ? "" : json::parse(to_string(p.options))}};
     std::string dump = j.dump();
     // wprintf(L"DUMP %hs\n", dump.c_str());

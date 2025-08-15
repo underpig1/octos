@@ -697,7 +697,7 @@ function updateCardDescription() {
         if (id) {
             const cardData = userPrefs.modData[id]
             if (cardData)
-                setCardDescription(activeTab, cardData.name, cardData.author, cardData.description, userPrefs.modOptions[id], true, cardData.authorsite);
+                setCardDescription(activeTab, cardData.name, cardData.author, cardData.description, userPrefs.modOptions[id], true, null, cardData.authorsite);
         }
     }
     else if (activeTab == 'explore') {
@@ -714,12 +714,15 @@ function setCardDescription(prefix = "explore", title = "", author = "", descrip
     const cardDescription = document.getElementById(prefix + "-card-description");
     cardDescription.querySelector(".title-content").innerText = title;
     if (author) {
+        console.log(authorSite);
         const authorElem = cardDescription.querySelector(".author");
         authorElem.textContent = "By ";
         const authorLink = document.createElement("a");
         authorLink.classList.add("author-content");
         if (!authorSite && author == "Octos") authorSite = "https://underpig1.github.io/octos/"
         if (authorSite) {
+            if (!/^https?:\/\//i.test(authorSite)) authorSite = "https://" + authorSite;
+            authorSite = new URL(authorSite).href;
             authorLink.classList.add("linked");
             authorLink.addEventListener("click", () => {
                 chrome.webview.postMessage({

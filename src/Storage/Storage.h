@@ -18,6 +18,8 @@ struct ConfigParams
     std::wstring imagePath;
     std::wstring entryPath;
     std::wstring options;
+    std::wstring authorsite;
+    std::wstring source;
 };
 
 std::wstring ResolvePath(std::wstring relativePath, bool includeFileScheme = false);
