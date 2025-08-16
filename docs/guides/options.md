@@ -9,7 +9,7 @@ In this guide, we will go through adding some user options to an example mod.
 We need to add an [`options` field](config.md#options) to our [`octos.json` file](config.md), which is where we'll specify the actual inputs to add, and then use the [`UserOptions`](../../reference/useroptions/) class of the Octos API to listen to changes in those settings by the user.
 
 ### Adding user options
-Recall your mod can include an [`octos.json`](config.md) file in the root directory to specify metadata:
+Recall that your mod can optionally include an [`octos.json`](config.md) file in the root directory to specify metadata:
 ```
 MyAwesomeMod/
 ├── index.html
@@ -104,7 +104,52 @@ userOptions.on('change', handleOptions)
 userOptions.on('load', handleOptions)
 ```
 
-Well done! You've added a user option to your mod. 
+Handling both the `change` and `load` events is often useful for separating how we handle initial user option values and then dealing with changes later, but in this example we didn't have a reason to separate them. In this case then, `UserOptions` offers a handy `changeload` event that lets us handle both events at once. We can use this single event handler in place of the last two lines of our previous example:
+```js
+userOptions.on('changeload', handleOptions)
+```
+
+Well done! You've added a user option to your mod.
+
+### Another way
+We could also handle user options events without needing to include the `UserOptions` class or even the Octos API in our project. We do this by directly specifying `onchange` and `onload` events in our `options` object. These allow us to give Octos a function to be called on these events. By default, the `value` of the changed or loaded input is passed into the function we specify.
+
+In this example, let's add a text option that will allow the user to select the background color.
+
+Once again, we could separately specify handlers for `onchange` and `onload` events, but let's just combine them into the handy `onchangeload` event.
+
+Let's add our new background color picker to our `octos.json` file:
+```json
+"options": {
+    "url": {
+        "label": "Background color:",
+        "type": "color-picker",
+        "value": "#ffffff",
+        "onchangeload": "updateBackground"
+    }
+    ...
+}
+```
+
+Then in our `index.js`:
+```js
+function updateBackground(value) {
+    const backgroundColor = value;
+    document.body.style.backgroundColor = backgroundColor; // set background color
+}
+```
+
+We can also use arrow functions to be a bit more concise:
+```json
+"onchangeload": "(value) => document.body.style.backgroundColor = value"
+```
+
+This is similar to how you would add an `onchange` event for an HTML element:
+```html
+<input type="color" onchange="updateBackground()" />
+```
+
+In this example we didn't even need to include the Octos API to add functionality to our options, but there are some advantages to using the `UserOptions` class.
 
 ### Next steps
 Check out the [`octos.json` documentation for the `options` field](config.md#options) to see the different types of input you can add.

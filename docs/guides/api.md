@@ -25,7 +25,7 @@ Include this script tag in your HTML:
 #### Option 2: npm:
 You can also install the Octos API with npm:
 ```
-npm -i octos
+npm i octos
 ```
 #### Option 3: direct download
 Alternatively, you can download [`octos.min.js`](https://cdn.jsdelivr.net/npm/octos@latest/octos.min.js) from the source and include it directly in your wallpaper's source folder:
