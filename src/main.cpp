@@ -28,6 +28,7 @@ std::bitset<static_cast<size_t>(Pref::Count)> g_prefs = []
     defaults.set(static_cast<size_t>(Pref::DisableMouseInput), false);
     defaults.set(static_cast<size_t>(Pref::RunOnStartup), true);
     defaults.set(static_cast<size_t>(Pref::EnableGPU), true);
+    defaults.set(static_cast<size_t>(Pref::EnableSandboxing), false);
     return defaults;
 }();
 

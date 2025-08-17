@@ -71,12 +71,28 @@ fs::path GetAppLocalDir()
     return fs::path(appDataPath) / L"Octos";
 }
 
+void CopyInitialWallpapers()
+{
+    std::thread([]()
+                {
+    fs::path wallpapers = GetWallpapersDir();
+        fs::path initialWallpapers = fs::path(GetAppPath()) / L"wallpapers";
+        fs::copy(initialWallpapers, wallpapers, fs::copy_options::recursive | fs::copy_options::skip_existing);
+        std::wstring message = IterateWallpapersAsJsonString();
+        WaitForMainWindowAndDispatch(message); })
+        .detach();
+}
+
 std::wstring GetWallpapersDir()
 {
     fs::path appLocal = GetAppLocalDir();
     if (appLocal.empty()) return L"";
     fs::path path = appLocal / L"wallpapers";
-    fs::create_directories(path);
+    if (!fs::exists(path))
+    {
+        fs::create_directories(path);
+        CopyInitialWallpapers();
+    }
     return path.wstring();
 
     // std::wstring path = ResolvePath(L"wallpapers");

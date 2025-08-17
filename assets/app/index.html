@@ -222,13 +222,13 @@
                         <p>Change options that affect app performance.</p>
                         <div class="card-options">
                             <label class="checkbox-input">
-                                <input class="settings-input" id="memorySaver" type="checkbox" onchange="updateAppOptions(this)">
+                                <input class="settings-input" id="memorySaver" type="checkbox" onchange="updateAppOptions(this)" checked>
                                 <p>Pause when hidden</p>
                                 <span class="checkmark"></span>
                             </label>
                             <p class="settings-description">Pause all wallpapers when another app is in full screen. This allows your wallpapers to take up virtually no resources when you aren't looking at them.</p>
                             <label class="checkbox-input">
-                                <input class="settings-input" id="enableGPU" type="checkbox" onchange="updateAppOptions(this)" requires-restart>
+                                <input class="settings-input" id="enableGPU" type="checkbox" onchange="updateAppOptions(this)" checked requires-restart>
                                 <p>Hardware acceleration</p>
                                 <span class="checkmark"></span>
                             </label>
@@ -237,14 +237,20 @@
                     </div>
                     <div class="settings-section">
                         <h1>Permissions</h1>
-                        <p>Control installed mods' access to system information or user input. Note that this may prevent some mods from working as expected.</p>
+                        <p>Control installed mods' access to system information or user input. Note that changing these may prevent some mods from working as expected.</p>
                         <div class="card-options">
                             <label class="checkbox-input">
-                                <input class="settings-input" id="disableMouseInput" type="checkbox" onchange="updateAppOptions(this)" checked>
+                                <input class="settings-input" id="disableMouseInput" type="checkbox" onchange="updateAppOptions(this)">
                                 <p>Disable mouse input</p>
                                 <span class="checkmark"></span>
                             </label>
                             <p class="settings-description">Prevent installed mods from recieving mouse events.</p>
+                            <label class="checkbox-input">
+                                <input class="settings-input" id="enableSandboxing" type="checkbox" onchange="updateAppOptions(this)" requires-restart>
+                                <p>Sandbox mods</p>
+                                <span class="checkmark"></span>
+                            </label>
+                            <p class="settings-description">Sandboxing isolates mods from your operating system for increased security. Sandboxing takes a lot more resources to run mods and may prevent some mods from working properly. <strong>Requires restarting the app to take effect.</strong></p>
                             <!-- <label class="checkbox-input">
                                 <input class="settings-input" id="perm-keyboard" type="checkbox" onchange="updateAppOptions(this)" checked>
                                 <p>Keyboard events</p>

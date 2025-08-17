@@ -735,6 +735,7 @@ button:not(.inactive):not(:has(.monitor-arrow:hover)):hover {
 
 hr {
     border-color: #000000aa;
+    width: 125%;
 }
 
 .develop-metadata>.subheader {

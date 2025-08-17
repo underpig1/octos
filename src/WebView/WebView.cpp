@@ -57,27 +57,29 @@ void InitializeWebViewEnvironment()
     InitializeDCompDevice();
 
     bool enableGPU = GetPref(Pref::EnableGPU);
+    bool enableSandox = GetPref(Pref::EnableSandboxing);
     wprintf(L"\n\ndisable GPU?? %d\n\n", enableGPU);
 
     auto options = Microsoft::WRL::Make<CoreWebView2EnvironmentOptions>();
-    std::wstring browserArgs = L"--no-sandbox "
-                               L"--disable-sync "
+    std::wstring browserArgs = L"--disable-sync "
                                L"--disable-background-networking "
                                L"--disable-default-apps "
                                L"--disable-translate "
                                L"--disable-features=TranslateUI,AudioServiceOutOfProcess,LowIntegrityMode "
                                L"--no-first-run "
                                L"--no-default-browser-check "
-                            //    L"--disable-renderer-backgrounding "
-                                L"--enable-renderer-backgrounding "
-                                L"--enable-background-timer-throttling "
-                                L"--enable-low-priority-ipc "
+                               //    L"--disable-renderer-backgrounding "
+                               L"--enable-renderer-backgrounding "
+                               L"--enable-background-timer-throttling "
+                               L"--enable-low-priority-ipc "
                                L"--disable-web-resources "
                                L"--password-store=basic "
                                L"--use-mock-keychain "
                                L"--allow-file-access-from-files "
                                L"--disable-breakpad "
                                L"--disable-component-update ";
+    if (enableSandox)
+        browserArgs += L"--no-sandbox ";
     if (!enableGPU)
         browserArgs += L"--disable-gpu";
     else

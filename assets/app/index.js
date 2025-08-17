@@ -944,6 +944,7 @@ function setCardOptions(json, cardOptions = null) {
             restorePrefs.setAttribute('id', 'restore-preferences')
             restorePrefs.onclick = restoreModOptions
             restorePrefs.innerText = 'Restore default mod options'
+            restorePrefs.classList.add('linked');
             cardOptions.appendChild(restorePrefs);
         }
     }
@@ -1092,7 +1093,7 @@ function modalPreview() {
 // USER PREFERENCES
 var userPrefs = {}
 const appOptionsDefaults = {
-    "disableMouseInput": false, "memorySaver": true, "runOnStartup": true, "enableGPU": true
+    "disableMouseInput": false, "memorySaver": true, "runOnStartup": true, "enableGPU": true, "enableSandboxing": false
 }
 
 function dumpUserPrefs() {

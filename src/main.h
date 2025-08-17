@@ -36,6 +36,7 @@ enum Pref
     DisableMouseInput,
     RunOnStartup,
     EnableGPU,
+    EnableSandboxing,
     Count
 };
 
