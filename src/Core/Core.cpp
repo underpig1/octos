@@ -80,7 +80,7 @@ HWND CreateWallpaperWindow(const std::wstring &htmlPath)
         0, 0, 0, 0,
         NULL,
         NULL, g_hInstance, reinterpret_cast<LPVOID>(data));
-    // SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA);
+    SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA);
     wprintf(L"\n\n!!!! MAKING NEW WINDOW WITH PATH %ws\n\n", htmlPath.c_str());
     if (!htmlPath.empty())
     {
@@ -101,7 +101,7 @@ HWND CreateWallpaperWindow(const std::wstring &htmlPath)
         //              SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
         // HRGN hrgn = CreateRectRgn(0, 0, 0, 0);
         // SetWindowRgn(hwnd, hrgn, TRUE);
-        // SetLayeredWindowAttributes(hwnd, 0, 0, LWA_ALPHA);
+        SetLayeredWindowAttributes(hwnd, 0, 0, LWA_ALPHA);
         wprintf(L"\n\n??? I WASNT ATTACHED\n\n");
         ShowWindow(hwnd, SW_HIDE);
     }
