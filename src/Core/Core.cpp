@@ -80,11 +80,11 @@ HWND CreateWallpaperWindow(const std::wstring &htmlPath)
         0, 0, 0, 0,
         NULL,
         NULL, g_hInstance, reinterpret_cast<LPVOID>(data));
-    // SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA);
+    SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA);
     wprintf(L"\n\n!!!! MAKING NEW WINDOW WITH PATH %ws\n\n", htmlPath.c_str());
     ShowWindow(hwnd, SW_SHOW);
-    if (!htmlPath.empty())
-        AttachWebViewCompositionController(hwnd, htmlPath);
+    if (!htmlPath.empty()){
+        AttachWebViewCompositionController(hwnd, htmlPath);}
     else // unset
     {
         // LONG_PTR ex = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
@@ -92,14 +92,14 @@ HWND CreateWallpaperWindow(const std::wstring &htmlPath)
         // SetWindowPos(hwnd, nullptr, 0, 0, 0, 0,
         //              SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
         // BOOL ok = SetLayeredWindowAttributes(hwnd, 0, 0, LWA_ALPHA);
-        LONG_PTR style = GetWindowLongPtr(hwnd, GWL_STYLE);
-        style &= ~WS_VISIBLE;
-        SetWindowLongPtr(hwnd, GWL_STYLE, style);
-        SetWindowPos(hwnd, NULL, 0, 0, 0, 0,
-                     SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+        // LONG_PTR style = GetWindowLongPtr(hwnd, GWL_STYLE);
+        // style &= ~WS_VISIBLE;
+        // SetWindowLongPtr(hwnd, GWL_STYLE, style);
+        // SetWindowPos(hwnd, NULL, 0, 0, 0, 0,
+        //              SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
         // HRGN hrgn = CreateRectRgn(0, 0, 0, 0);
         // SetWindowRgn(hwnd, hrgn, TRUE);
-        // SetLayeredWindowAttributes(hwnd, 0, 0, LWA_ALPHA);
+        SetLayeredWindowAttributes(hwnd, 0, 0, LWA_ALPHA);
         wprintf(L"\n\n??? I WASNT ATTACHED\n\n");
     }
     UpdateWindow(hwnd);

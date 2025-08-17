@@ -124,7 +124,10 @@ void OnWebViewControllerCreated(
     RECT bounds;
     GetClientRect(hwnd, &bounds);
     controller->put_Bounds(bounds);
-    controller->put_IsVisible(TRUE);
+    if (htmlPath.empty())
+        controller->put_IsVisible(FALSE);
+    else
+        controller->put_IsVisible(TRUE);
 
     // disable unnecessary settings
     wil::com_ptr<ICoreWebView2Settings> settings;
