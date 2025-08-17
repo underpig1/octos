@@ -6,26 +6,27 @@ Here's a quick (but not exhaustive) overview of the different classes provided i
 
 | Class | Features |
 | ---- | ---- |
-| [MediaController](../../reference/mediacontroller) | <li>Access media properties like the title, thumbnail image, artist name, and much more</li><li>Listen to events for playback state changes and media timeline info</li><li>Toggle play/pause, enable shuffle, and seek</li> |
+| [MediaController](../../reference/mediacontroller) | <li>Access media properties like the title, thumbnail image, artist name, and much more</li><li>Listen to events for playback state changes and media timeline info</li><li>Toggle play/pause, enable shuffle, and seek</li><li>Get PCM samples of the current playing media, which you can use for audio visualizations</li> |
 | [MonitorBridge](../../reference/monitorbridge) | <li>Communicate across instances of your wallpaper living on different monitors</li><li>Get monitor info for the system</li> |
-| [System](../../reference/system) | <li>Temporarily hide desktop icons to allow a user to interact seamlessly with your wallpaper</li><li>Use web debugging tools like DevTools</li><li>Retrieve system information like the system theme</li> |
+| [System](../../reference/system) | <li>Temporarily hide desktop icons to allow a user to interact seamlessly with your wallpaper</li><li>Use web debugging tools like DevTools</li><li>Retrieve system information like the system theme</li><li>Detect if your wallpaper is hidden or shown</li> |
 | [UserOptions](../../reference/useroptions) | <li>Listen to events related to user option changes on your mod</li><li>Get and set user options</li> |
 
 > As always, if there's a feature you'd like to see in the API, please don't hesistate to submit a [feature request](https://github.com/underpig1/octos/issues). Don't be shy - the continued development of Octos depends on them! They are always appreciated.
 
-All Octos API member classes are thoroughly documented with examples in the [API reference](../../reference).
+All Octos API member classes are documented with examples in the [API reference](../../reference).
 
 ## Using the API
-The Octos API is super easy to use! Let's get started by adding it to your mod using either of the two following options. These will expose the `octos` namespace to your runtime, which includes all of the API member classes. 
+The Octos API is super easy to use! Let's get started by adding it to your mod using either of the following options. These will expose the `octos` namespace to your JavaScript, which includes all of the API member classes.
+
 #### Option 1: CDN (recommended)
 Include this script tag in your HTML:
 ```html
 <script src="https://cdn.jsdelivr.net/npm/octos@latest/octos.min.js"></script>
 ```
 #### Option 2: npm:
-You can also install the Octos API with npm:
+You can also install the Octos API via [npm](https://www.npmjs.com/):
 ```
-npm i octos
+npm install octos
 ```
 #### Option 3: direct download
 Alternatively, you can download [`octos.min.js`](https://cdn.jsdelivr.net/npm/octos@latest/octos.min.js) from the source and include it directly in your wallpaper's source folder:
@@ -39,8 +40,8 @@ If you need some inspiration, let's get you started with a simple fully function
 #### Preview
 <div style="font-family: sans-serif; text-align: center; padding: 2em; padding-top: 1px; width: 300px; background-color: darkgray; margin-bottom: 20px">
 <h2 style="color: black">Media Player</h2>
-<button id="playPauseBtn" style="margin-top: 1em; font-weight: bold;">Play</button>
-<button id="shuffleBtn" style="margin-top: 1em; font-weight: bold;">Shuffle Off</button>
+<button id="playPauseBtn" style="margin-top: 1em; font-weight: bold; cursor: pointer; padding: 3px; background: black;">Play</button>
+<button id="shuffleBtn" style="margin-top: 1em; font-weight: bold; cursor: pointer; padding: 3px; background: black;">Shuffle Off</button>
 <div id="status" style="margin-top: 1em; font-weight: bold; color: black; font-weight: normal;">Status: Paused | Shuffle: On</div>
 </div>
 

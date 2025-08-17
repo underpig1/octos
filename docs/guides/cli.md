@@ -2,11 +2,25 @@
 
 The Octos command line interface (CLI) allows you to easily test and debug your custom mods from the command line.
 
+## Setup
+Depending on your installation method, you may have had the option to add `octos` to your system PATH environmental variable. This allows you to run the `octos` command from any command line without having to specify the entire path.
+
+You can see if `octos` is added to your path simply by running it in your command line:
+```
+octos
+```
+
+If it opens the app, you're all set. You can now use Octos commands from anywhere.
+
+If not, you can either specify the full path to the `octos.exe` app when you run it from the command line (likely installed at `C:\Program Files\Octos\octos.exe`, although the location depends on your installation method), or you can manually add it to PATH.
+
 ## Usage
 
 ```batch
 octos <command> [options]
 ```
+
+Read on to learn about specific commands for running, testing, and debugging your mods.
 
 ## Commands
 

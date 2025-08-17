@@ -269,7 +269,7 @@ This file was automatically generated - do not edit
         align-items: center;
         justify-content: space-between;
         padding: 0 15px;
-        background-color: #00000025;
+        background-color: #00000075;
         font-size: 13px;
     }
 
@@ -342,8 +342,8 @@ This file was automatically generated - do not edit
     .modal-content {
         background: #111;
         border-radius: 4px;
-        max-width: 90%;
-        width: 640px;
+        width: 80%;
+        max-width: 900px;
         aspect-ratio: 16 / 9;
         box-shadow: 0 0 20px #000;
         position: relative;
@@ -362,15 +362,66 @@ This file was automatically generated - do not edit
         height: 100%;
     }
 
-    .close {
+    .modal-content .close {
+        display: block;
         position: absolute;
-        top: 10px;
-        right: 15px;
-        font-size: 24px;
-        line-height: 24px;
+        top: -15px;
+        text-align: center;
+        right: -15px;
+        font-size: 30px;
         color: white;
+        opacity: 1;
         cursor: pointer;
         z-index: 8;
+        background-color: #111;
+        border: 1px solid gray;
+        border-radius: 999px;
+        width: 35px;
+        height: 35px;
+        line-height: 26px;
+    }
+
+    .modal-content .modal-info {
+        position: absolute;
+        right: -25px;
+        bottom: -25px;
+        border: 1px solid #5b5b5b;
+        border-radius: 10px;
+        background-color: #111;
+        width: 350px;
+        height: fit-content;
+        padding: 18px 22px;
+    }
+
+    #modal-title {
+        font-size: 26px;
+        color: #f0f0f0ff;
+        font-weight: 700;
+    }
+
+    #modal-author {
+        font-size: 14px;
+        color: #a0b0b0ff;
+        font-weight: normal;
+        margin: 0;
+        margin-top: 4px;
+    }
+
+    #modal-description {
+        font-size: 16px;
+        color: #f0f0f0ff;
+        font-weight: normal;
+        margin-top: 16px;
+        margin-bottom: 8px;
+    }
+
+    @media screen and (max-width: 800px) {
+        .modal-info {
+            position: static !important;
+            width: auto !important;
+            border-radius: 0 !important;
+            border: none !important
+        }
     }
 </style>
 <section class="mdx-container">
@@ -421,7 +472,7 @@ This file was automatically generated - do not edit
                 </p>
             </div>
         </div>
-        <h1 class="centered-header">Give it a try:</h1>
+        <h1 class="centered-header">Check out some examples:</h1>
         <div class="examples">
             <div class="cards" id="card-box">
                 <div class="card">
@@ -476,6 +527,11 @@ This file was automatically generated - do not edit
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
             <img id="modal-video" src="" />
+            <div class="modal-info">
+                <h1 id="modal-title">Title</h1>
+                <p id="modal-author">By author</p>
+                <p id="modal-description">This is one of the coolest mods of our century.</p>
+            </div>
         </div>
     </div>
 </section>
@@ -557,7 +613,7 @@ This file was automatically generated - do not edit
 
         const cardAuthor = document.createElement('p');
         cardAuthor.className = 'card-author';
-        cardAuthor.textContent = author;
+        if (author) cardAuthor.textContent = "By " + author;
 
         cardInfo.appendChild(cardTitle);
         cardInfo.appendChild(cardAuthor);
@@ -578,6 +634,7 @@ This file was automatically generated - do not edit
         .then(data => {
             for (const example of data) {
                 example.imagePath = resolvePath(example.imagePath);
+                if (!example.previewPath) continue;
                 example.previewPath = resolvePath(example.previewPath);
                 examples.push(example);
             }
@@ -597,6 +654,11 @@ This file was automatically generated - do not edit
     const modal = document.getElementById("modal");
     const video = document.getElementById("modal-video");
 
+    const modalInfo = document.querySelector(".modal-info");
+    const modalTitle = document.getElementById("modal-title");
+    const modalAuthor = document.getElementById("modal-author");
+    const modalDescription = document.getElementById("modal-description");
+
     function closeModal() {
         modal.classList.remove("active");
         // video.pause();
@@ -612,6 +674,21 @@ This file was automatically generated - do not edit
         requestAnimationFrame(() => {
             modal.classList.add("active");
         });
+        const mod = examples.filter(m => m.previewPath == src)[0]
+        modalTitle.innerText = mod.name
+        modalAuthor.innerText = 'By ' + mod.author
+        if (!mod.author) modalAuthor.style.display = 'none'
+        else modalAuthor.style.display = 'block'
+        modalDescription.innerText = mod.description
+
+        if (mod.name == '3D Car') {
+            modalInfo.style.left = '-25px';
+            modalInfo.style.right = 'auto';
+        }
+        else {
+            modalInfo.style.right = '-25px';
+            modalInfo.style.left = 'auto';
+        }
 
         // video.play();
         video.src = src

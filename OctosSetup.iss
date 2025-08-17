@@ -30,10 +30,11 @@ Name: "{commondesktop}\Octos"; Filename: "{app}\Octos.exe"; Tasks: desktopicon
 Filename: "{app}\Octos.exe"; Description: "Launch Octos"; Flags: nowait postinstall skipifsilent
 
 [Tasks]
-Name: envPath; Description: "Add Octos to PATH"; GroupDescription: "Add Octos to path? This allows you to run the 'octos' command without needing to specify the full file path."
 Name: desktopicon; Description: "Create a Desktop shortcut"; GroupDescription: "Additional shortcuts:"
 Name: startmenuicon; Description: "Create a Start Menu shortcut"; GroupDescription: "Additional shortcuts:"
+Name: envPath; Description: "Add Octos to PATH"; GroupDescription: "Add the 'octos' command to PATH? Enable this if you plan to develop custom wallpapers using the CLI:"
 
+[Code]
 [Code]
 const EnvironmentKey = 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment';
 
@@ -42,19 +43,23 @@ var
     Paths: string;
 begin
     { Retrieve current path (use empty string if entry not exists) }
-    if not RegQueryStringValue(HKEY_LOCAL_MACHINE, EnvironmentKey, 'Path', Paths)
-    then Paths := '';
+    if not RegQueryStringValue(HKEY_LOCAL_MACHINE, EnvironmentKey, 'Path', Paths) then
+        Paths := '';
 
     { Skip if string already found in path }
-    if Pos(';' + Uppercase(Path) + ';', ';' + Uppercase(Paths) + ';') > 0 then exit;
+    if Pos(';' + Uppercase(Path) + ';', ';' + Uppercase(Paths) + ';') > 0 then
+        exit;
 
-    { App string to the end of the path variable }
-    Paths := Paths + ';'+ Path +';'
+    { Append properly with semicolon }
+    if Paths <> '' then
+        Paths := Paths + ';';
+    Paths := Paths + Path;
 
     { Overwrite (or create if missing) path environment variable }
-    if RegWriteStringValue(HKEY_LOCAL_MACHINE, EnvironmentKey, 'Path', Paths)
-    then Log(Format('The [%s] added to PATH: [%s]', [Path, Paths]))
-    else Log(Format('Error while adding the [%s] to PATH: [%s]', [Path, Paths]));
+    if RegWriteStringValue(HKEY_LOCAL_MACHINE, EnvironmentKey, 'Path', Paths) then
+        Log(Format('The [%s] added to PATH: [%s]', [Path, Paths]))
+    else
+        Log(Format('Error while adding the [%s] to PATH: [%s]', [Path, Paths]));
 end;
 
 procedure EnvRemovePath(Path: string);
@@ -66,27 +71,30 @@ begin
     if not RegQueryStringValue(HKEY_LOCAL_MACHINE, EnvironmentKey, 'Path', Paths) then
         exit;
 
-    { Skip if string not found in path }
+    { Find string in path }
     P := Pos(';' + Uppercase(Path) + ';', ';' + Uppercase(Paths) + ';');
     if P = 0 then exit;
 
-    { Update path variable }
-    Delete(Paths, P - 1, Length(Path) + 1);
+    { Remove it safely }
+    Delete(Paths, P, Length(Path) + 1);
+    if (P <= Length(Paths)) and (Copy(Paths, P, 1) = ';') then
+        Delete(Paths, P, 1);
 
     { Overwrite path environment variable }
-    if RegWriteStringValue(HKEY_LOCAL_MACHINE, EnvironmentKey, 'Path', Paths)
-    then Log(Format('The [%s] removed from PATH: [%s]', [Path, Paths]))
-    else Log(Format('Error while removing the [%s] from PATH: [%s]', [Path, Paths]));
+    if RegWriteStringValue(HKEY_LOCAL_MACHINE, EnvironmentKey, 'Path', Paths) then
+        Log(Format('The [%s] removed from PATH: [%s]', [Path, Paths]))
+    else
+        Log(Format('Error while removing the [%s] from PATH: [%s]', [Path, Paths]));
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
-    if (CurStep = ssPostInstall) and IsTaskSelected('envPath')
-    then EnvAddPath(ExpandConstant('{app}') +'\bin');
+    if (CurStep = ssPostInstall) and IsTaskSelected('envPath') then
+        EnvAddPath(ExpandConstant('{app}'));
 end;
 
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
-    if CurUninstallStep = usPostUninstall
-    then EnvRemovePath(ExpandConstant('{app}') +'\bin');
+    if CurUninstallStep = usPostUninstall then
+        EnvRemovePath(ExpandConstant('{app}'));
 end;
