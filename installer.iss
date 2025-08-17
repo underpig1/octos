@@ -7,6 +7,11 @@ Compression=lzma
 SolidCompression=yes
 UninstallDisplayIcon={app}\Octos.exe
 DefaultDirName={localappdata}\Octos
+ChangesEnvironment=true
+DisableWelcomePage=no
+WizardImageFile=./img/wizard-screen.bmp
+WizardSmallImageFile=./img/small-wizard.bmp
+DisableDirPage=false
 
 [Files]
 Source: "build\Release\Octos.exe"; DestDir: "{app}"; Flags: ignoreversion
@@ -14,68 +19,71 @@ Source: ".\assets\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs crea
 Source: ".\vcpkg_installed\x64-windows\bin\*.dll"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{group}\Octos"; Filename: "{app}\Octos.exe"
-Name: "{commondesktop}\Octos"; Filename: "{app}\Octos.exe"
-Name: "{group}\Uninstall Octos"; Filename: "{uninstallexe}"
+Name: "{group}\Octos"; Filename: "{app}\Octos.exe"; Tasks: startmenuicon
+Name: "{group}\Uninstall Octos"; Filename: "{uninstallexe}"; Tasks: startmenuicon
+Name: "{commondesktop}\Octos"; Filename: "{app}\Octos.exe"; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\Octos.exe"; Description: "Launch Octos"; Flags: nowait postinstall skipifsilent
 
-; [Tasks]
-; Name: modifypath; Description: "Add Octos directory to PATH"; Flags: unchecked
+[Tasks]
+Name: envPath; Description: "Add Octos to PATH"; GroupDescription: "Add Octos to path? This allows you to run the 'octos' command without needing to specify the full file path."
+Name: desktopicon; Description: "Create a Desktop shortcut"; GroupDescription: "Additional shortcuts:"
+Name: startmenuicon; Description: "Create a Start Menu shortcut"; GroupDescription: "Additional shortcuts:"
 
-; [Code]
-; const
-;   EnvironmentKey = 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment';
+[Code]
+const EnvironmentKey = 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment';
 
-; procedure AddToPath;
-; var
-;   PathValue: string;
-; begin
-;   if not RegQueryStringValue(HKEY_LOCAL_MACHINE, EnvironmentKey, 'Path', PathValue) then
-;     PathValue := '';
-;   if Pos(LowerCase(ExpandConstant('{app}')), LowerCase(PathValue)) = 0 then
-;   begin
-;     if PathValue <> '' then
-;       PathValue := PathValue + ';';
-;     PathValue := PathValue + ExpandConstant('{app}');
-;     RegWriteStringValue(HKEY_LOCAL_MACHINE, EnvironmentKey, 'Path', PathValue);
-;     SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0,
-;       LPARAM(PChar('Environment')), SMTO_ABORTIFHUNG, 5000, Longint(nil^));
-;   end;
-; end;
+procedure EnvAddPath(Path: string);
+var
+    Paths: string;
+begin
+    { Retrieve current path (use empty string if entry not exists) }
+    if not RegQueryStringValue(HKEY_LOCAL_MACHINE, EnvironmentKey, 'Path', Paths)
+    then Paths := '';
 
-; procedure RemoveFromPath;
-; var
-;   PathValue, NewPath: string;
-;   Parts: TArrayOfString;
-;   I: Integer;
-; begin
-;   if not RegQueryStringValue(HKEY_LOCAL_MACHINE, EnvironmentKey, 'Path', PathValue) then
-;     Exit;
-;   StringChangeEx(PathValue, ExpandConstant('{app}'), '', True);
-;   Parts := SplitString(PathValue, ';');
-;   NewPath := '';
-;   for I := 0 to GetArrayLength(Parts) - 1 do
-;     if Trim(Parts[I]) <> '' then
-;     begin
-;       if NewPath <> '' then
-;         NewPath := NewPath + ';';
-;       NewPath := NewPath + Parts[I];
-;     end;
-;   RegWriteStringValue(HKEY_LOCAL_MACHINE, EnvironmentKey, 'Path', NewPath);
-;   SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0,
-;     LPARAM(PChar('Environment')), SMTO_ABORTIFHUNG, 5000, Longint(nil^));
-; end;
+    { Skip if string already found in path }
+    if Pos(';' + Uppercase(Path) + ';', ';' + Uppercase(Paths) + ';') > 0 then exit;
 
-; procedure CurStepChanged(CurStep: TSetupStep);
-; begin
-;   if (CurStep = ssPostInstall) and IsTaskSelected('modifypath') then
-;     AddToPath;
-; end;
+    { App string to the end of the path variable }
+    Paths := Paths + ';'+ Path +';'
 
-; procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
-; begin
-;   if CurUninstallStep = usPostUninstall then
-;     RemoveFromPath;
-; end;
+    { Overwrite (or create if missing) path environment variable }
+    if RegWriteStringValue(HKEY_LOCAL_MACHINE, EnvironmentKey, 'Path', Paths)
+    then Log(Format('The [%s] added to PATH: [%s]', [Path, Paths]))
+    else Log(Format('Error while adding the [%s] to PATH: [%s]', [Path, Paths]));
+end;
+
+procedure EnvRemovePath(Path: string);
+var
+    Paths: string;
+    P: Integer;
+begin
+    { Skip if registry entry not exists }
+    if not RegQueryStringValue(HKEY_LOCAL_MACHINE, EnvironmentKey, 'Path', Paths) then
+        exit;
+
+    { Skip if string not found in path }
+    P := Pos(';' + Uppercase(Path) + ';', ';' + Uppercase(Paths) + ';');
+    if P = 0 then exit;
+
+    { Update path variable }
+    Delete(Paths, P - 1, Length(Path) + 1);
+
+    { Overwrite path environment variable }
+    if RegWriteStringValue(HKEY_LOCAL_MACHINE, EnvironmentKey, 'Path', Paths)
+    then Log(Format('The [%s] removed from PATH: [%s]', [Path, Paths]))
+    else Log(Format('Error while removing the [%s] from PATH: [%s]', [Path, Paths]));
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+    if (CurStep = ssPostInstall) and IsTaskSelected('envPath')
+    then EnvAddPath(ExpandConstant('{app}') +'\bin');
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+    if CurUninstallStep = usPostUninstall
+    then EnvRemovePath(ExpandConstant('{app}') +'\bin');
+end;
