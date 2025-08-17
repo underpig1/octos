@@ -10,7 +10,7 @@ struct MonitorWindow
     HWND hwnd;
     HMONITOR monitor;
     bool fixing = false;
-    std::wstring htmlPath = L"assets/index.html";
+    std::wstring htmlPath = L"";
     void ExpandToMonitor();
 };
 

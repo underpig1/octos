@@ -156,6 +156,11 @@ void WatchdogProc()
                 .detach();
             continue;
         }
+        if (mw.htmlPath.empty())
+        {
+            if (IsWindowVisible(mw.hwnd)) ShowWindow(mw.hwnd, SW_HIDE);
+            continue;
+        }
         // fix rendering target
         FixRenderingTarget(mw);
         // check if not parented

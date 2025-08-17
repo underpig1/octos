@@ -6,12 +6,15 @@ OutputBaseFilename=OctosSetup
 Compression=lzma
 SolidCompression=yes
 UninstallDisplayIcon={app}\Octos.exe
-DefaultDirName={localappdata}\Octos
+ArchitecturesAllowed=x64
+ArchitecturesInstallIn64BitMode=x64
+DefaultDirName={pf}\Octos
 ChangesEnvironment=true
 DisableWelcomePage=no
 WizardImageFile=./img/wizard-screen.bmp
 WizardSmallImageFile=./img/small-wizard.bmp
 DisableDirPage=false
+OutputDir=build
 
 [Files]
 Source: "build\Release\Octos.exe"; DestDir: "{app}"; Flags: ignoreversion

@@ -73,28 +73,28 @@ fs::path GetAppLocalDir()
 
 std::wstring GetWallpapersDir()
 {
-    // fs::path appLocal = GetAppLocalDir();
-    // if (appLocal.empty()) return L"";
-    // fs::path path = appLocal / L"wallpapers";
-    // fs::create_directories(path);
-    // return path.wstring();
-
-    std::wstring path = ResolvePath(L"wallpapers");
+    fs::path appLocal = GetAppLocalDir();
+    if (appLocal.empty()) return L"";
+    fs::path path = appLocal / L"wallpapers";
     fs::create_directories(path);
-    return path;
+    return path.wstring();
+
+    // std::wstring path = ResolvePath(L"wallpapers");
+    // fs::create_directories(path);
+    // return path;
 }
 
 std::wstring GetWebViewDir()
 {
-    std::wstring path = ResolvePath(L"WebView2UserData");
-    fs::create_directories(path);
-    return path;
-
-    // fs::path appLocal = GetAppLocalDir();
-    // if (appLocal.empty()) return L"";
-    // fs::path path = appLocal / L"WebView2UserData";
+    // std::wstring path = ResolvePath(L"WebView2UserData");
     // fs::create_directories(path);
-    // return path.wstring();
+    // return path;
+
+    fs::path appLocal = GetAppLocalDir();
+    if (appLocal.empty()) return L"";
+    fs::path path = appLocal / L"WebView2UserData";
+    fs::create_directories(path);
+    return path.wstring();
 }
 
 std::wstring GetUIDir()
@@ -104,7 +104,13 @@ std::wstring GetUIDir()
 
 std::wstring GetPrefsPath()
 {
-    return ResolvePath(L"preferences.json");
+    // return ResolvePath(L"preferences.json");
+
+    fs::path appLocal = GetAppLocalDir();
+    if (appLocal.empty()) return L"";
+    fs::path path = appLocal / L"preferences.json";
+    fs::create_directories(appLocal);
+    return path.wstring();
 }
 
 bool InstallWallpaper(const std::wstring &zipPath)
