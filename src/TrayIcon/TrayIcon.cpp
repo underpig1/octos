@@ -112,6 +112,7 @@ void ShowTrayMenu()
 
 void ShowTrayNotification(const wchar_t *title, const wchar_t *message)
 {
+    if (!GetPref(Pref::AllowNotifs)) return;
     if (!trayHwnd)
         return;
     NOTIFYICONDATA notifyData = nid;

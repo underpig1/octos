@@ -137,7 +137,7 @@ void OnWebViewControllerCreated(
     if (SUCCEEDED(hr) && settings)
     {
         settings->put_IsStatusBarEnabled(FALSE);
-        // settings->put_AreDevToolsEnabled(FALSE);
+        if (hwnd == app_hwnd) settings->put_AreDevToolsEnabled(FALSE);
         settings->put_IsZoomControlEnabled(FALSE);
         settings->put_AreDefaultContextMenusEnabled(FALSE);
         settings->put_AreHostObjectsAllowed(FALSE);
@@ -175,8 +175,8 @@ void OnWebViewControllerCreated(
                 // webview->PostWebMessageAsJson((L"{ \"type\": \"loaded\", \"entryPath\":\"" + htmlPath + L"\"}").c_str());
                 if (hwnd != app_hwnd)
                     HandleOnHwndLoadMessage(hwnd);
-                else
-                    webview->OpenDevToolsWindow();
+                // else
+                //     webview->OpenDevToolsWindow();
                 return S_OK;
             })
             .Get(),

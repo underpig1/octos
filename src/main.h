@@ -37,6 +37,7 @@ enum Pref
     RunOnStartup,
     EnableGPU,
     EnableSandboxing,
+    AllowNotifs,
     Count
 };
 

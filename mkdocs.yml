@@ -58,6 +58,10 @@ extra:
       link: https://github.com/underpig1/octos
     - icon: fontawesome/brands/npm 
       link: https://www.npmjs.com/package/octos
+  consent:
+    title: Cookie consent
+    description: >- 
+      We use cookies to measure page visits to improve our documentation.
 copyright: Copyright &copy; 2025 underpig1
 nav:
   - Home: index.md

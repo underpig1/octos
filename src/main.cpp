@@ -29,6 +29,7 @@ std::bitset<static_cast<size_t>(Pref::Count)> g_prefs = []
     defaults.set(static_cast<size_t>(Pref::RunOnStartup), true);
     defaults.set(static_cast<size_t>(Pref::EnableGPU), true);
     defaults.set(static_cast<size_t>(Pref::EnableSandboxing), false);
+    defaults.set(static_cast<size_t>(Pref::AllowNotifs), true);
     return defaults;
 }();
 
@@ -357,10 +358,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int nCmdSh
 
     SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
-    AllocConsole();
-    freopen("CONOUT$", "w", stdout);
-    freopen("CONOUT$", "w", stderr);
-    freopen("CONIN$", "r", stdin);
+    // AllocConsole();
+    // freopen("CONOUT$", "w", stdout);
+    // freopen("CONOUT$", "w", stderr);
+    // freopen("CONIN$", "r", stdin);
 
     DWORD g_mainThreadId = GetCurrentThreadId();
     RegisterWndClass(hInstance);

@@ -47,11 +47,11 @@ function openIssues() {
 }
 
 function openDocumentation() {
-    chrome.webview.postMessage({ type: "open-external-link", url: "https://underpig1.github.io/octos/docs/" });
+    chrome.webview.postMessage({ type: "open-external-link", url: "https://underpig1.github.io/octos/" });
 }
 
 function shareMod() {
-    chrome.webview.postMessage({ type: "open-external-link", url: "https://underpig1.github.io/octos/docs/?t=publishing" });
+    chrome.webview.postMessage({ type: "open-external-link", url: "https://underpig1.github.io/octos/guides/publish/" });
 }
 
 function refresh() {
@@ -1093,7 +1093,7 @@ function modalPreview() {
 // USER PREFERENCES
 var userPrefs = {}
 const appOptionsDefaults = {
-    "disableMouseInput": false, "memorySaver": true, "runOnStartup": true, "enableGPU": true, "enableSandboxing": false
+    "disableMouseInput": false, "memorySaver": true, "runOnStartup": true, "enableGPU": true, "enableSandboxing": false, "sendNotifs": true
 }
 
 function dumpUserPrefs() {

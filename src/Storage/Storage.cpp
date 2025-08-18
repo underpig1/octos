@@ -665,6 +665,8 @@ void HandlePrefsChange(const json prefs)
                         {
             if (result) AddToStartup();
             else RemoveFromStartup(); });
+        setPrefOnChange("enableSandboxing", Pref::EnableSandboxing);
+        setPrefOnChange("allowNotifs", Pref::AllowNotifs);
     }
 }
 
