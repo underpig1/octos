@@ -438,7 +438,8 @@ This file was automatically generated - do not edit
                     <h1 class="scrollable" style="--damp: -2">Your new desktop awaits. 🚀</h1>
                     <p class="scrollable" style="--damp: -2">The open-source HTML dynamic desktop engine for Windows
                         10 &amp; 11.</p>
-                    <button class="scrollable" style="--damp: -3; background-color: red">Download</button>
+                    <button class="scrollable" style="--damp: -3; background-color: red"
+                        onClick="download()">Download</button>
                     <button class="scrollable" style="--damp: -3">GitHub</button>
                 </div>
             </div>
@@ -697,6 +698,10 @@ This file was automatically generated - do not edit
     window.onclick = (event) => {
         if (event.target === modal) closeModal()
     };
+
+    function download() {
+        umami.track('download')
+    }
 </script>
 {% endblock %}
 {% block content %}{% endblock %}

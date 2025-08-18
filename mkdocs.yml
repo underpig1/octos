@@ -36,33 +36,38 @@ extra_css:
   - stylesheets/extra.css
   - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css
 extra:
-  analytics:
-    provider: google
-    property: G-MTNS79FQ24
-    feedback:
-      title: Was this page helpful?
-      ratings:
-        - icon: octicons/thumbsup-24
-          name: This page was helpful
-          data: 1
-          note: >-
-            Thanks for your feedback!
-        - icon: octicons/thumbsdown-24
-          name: This page could be improved
-          data: 0
-          note: >-
-            Thanks for your feedback! Help us improve this page by
-            submitting an <a href="https://github.com/underpig1/octos/issues/new" target="_blank" rel="noopener">issue</a>.
+  # analytics:
+  #   provider: google
+  #   property: G-MTNS79FQ24
+  #   feedback:
+  #     title: Was this page helpful?
+  #     ratings:
+  #       - icon: octicons/thumbsup-24
+  #         name: This page was helpful
+  #         data: 1
+  #         note: >-
+  #           Thanks for your feedback!
+  #       - icon: octicons/thumbsdown-24
+  #         name: This page could be improved
+  #         data: 0
+  #         note: >-
+  #           Thanks for your feedback! Help us improve this page by
+  #           submitting an <a href="https://github.com/underpig1/octos/issues/new" target="_blank" rel="noopener">issue</a>.
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/underpig1/octos
     - icon: fontawesome/brands/npm
       link: https://www.npmjs.com/package/octos
-  consent:
-    title: Cookie consent
-    description: >-
-      We use cookies to measure page visits to improve our documentation.
-copyright: Copyright &copy; 2025 underpig1
+  # consent:
+  #   title: Cookie consent
+  #   description: >-
+  #     This site uses cookies to measure the effectiveness of our documentation and count metrics like page views and downloads. With your consent, you're helping us make Octos better.
+  #   actions:
+  #     - accept
+  #     - manage
+copyright: >
+  Copyright &copy; 2025 underpig1
+#  - <a href="https://underpig1.github.io/octos/about/privacy/">Privacy policy</a>
 nav:
   - Home: index.md
   - Quickstart:
@@ -76,7 +81,6 @@ nav:
       - octos.json: guides/config.md
       - Publishing your mod: guides/publish.md
       - Tips and tricks: guides/tips.md
-    # - Contributing: https://github.com/underpig1/octos/tree/master?tab=contributing-ov-file#user-content-contributing-guide
   - API Reference:
       - reference/index.md
       - MediaController: reference/mediacontroller.md
@@ -89,7 +93,6 @@ nav:
       - Support: about/support.md
       - Roadmap: about/roadmap.md
       - License: about/license.md
-      - Privacy Policy: about/privacy.md
   - Support: about/support.md
 markdown_extensions:
   - pymdownx.highlight:
