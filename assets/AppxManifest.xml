@@ -37,8 +37,8 @@
       <uap:VisualElements
         DisplayName="Octos"
         Description="HTML dynamic desktop engine"
-        Square150x150Logo="img/icon.ico"
-        Square44x44Logo="img/icon.ico"
+        Square150x150Logo="img/Square150x150Logo.png"
+        Square44x44Logo="img/Square44x44Logo.png"
         BackgroundColor="transparent">
         <uap:DefaultTile Wide310x150Logo="img/Wide310x150Logo.png"/>
         <uap:SplashScreen Image="img/SplashScreen.png"/>

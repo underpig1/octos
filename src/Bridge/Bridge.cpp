@@ -182,6 +182,12 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
                     ShellExecuteW(NULL, L"open", p.c_str(), NULL, NULL, SW_SHOWDEFAULT);
                 }
             }
+            else if (type == "open-wallpaper-folder")
+            {
+                std::wstring p = GetWallpapersDir();
+                if (p.empty()) return;
+                ShellExecuteW(NULL, L"open", p.c_str(), NULL, NULL, SW_SHOWDEFAULT);
+            }
             else if (type == "request-prefs")
                 std::thread([]()
                             { std::wstring message = LoadPrefsAsJsonString(); 

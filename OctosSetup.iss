@@ -15,11 +15,12 @@ WizardImageFile=./img/wizard-screen.bmp
 WizardSmallImageFile=./img/small-wizard.bmp
 DisableDirPage=false
 OutputDir=build
+LicenseFile=LICENSE
 
 [Files]
-Source: "build\Release\Octos.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: ".\assets\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: ".\vcpkg_installed\x64-windows\bin\*.dll"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+; Source: "build\Release\Octos.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: ".\build\Release\*"; DestDir: "{app}"; Excludes: ".\build\Release\img\*.png"; Flags: ignoreversion recursesubdirs createallsubdirs
+; Source: ".\vcpkg_installed\x64-windows\bin\*.dll"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\Octos"; Filename: "{app}\Octos.exe"; Tasks: startmenuicon

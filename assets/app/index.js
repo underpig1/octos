@@ -31,7 +31,7 @@ function maximize() {
 }
 
 function openModsFolder() {
-    chrome.webview.postMessage({ type: "open-folder", path: "wallpapers/", relative: true });
+    chrome.webview.postMessage({ type: "open-wallpaper-folder" });
 }
 
 function findMoreMods() {
@@ -710,7 +710,7 @@ function updateCardDescription() {
     }
 }
 
-function setCardDescription(prefix = "explore", title = "", author = "", description = "", options = null, installed = false, preview = null, authorSite="") {
+function setCardDescription(prefix = "explore", title = "", author = "", description = "", options = null, installed = false, preview = null, authorSite = "") {
     const cardDescription = document.getElementById(prefix + "-card-description");
     cardDescription.querySelector(".title-content").innerText = title;
     if (author) {
@@ -1119,14 +1119,33 @@ function restoreAppOptions() {
     modalListener = (state) => {
         if (state) {
             userPrefs.appOptions = JSON.parse(JSON.stringify(appOptionsDefaults))
+            let restartRequired = false;
             for (const id of Object.keys(userPrefs.appOptions)) {
                 const el = document.getElementById(id)
-                if (el)
-                    if (el.type == "checkbox") el.checked = userPrefs.appOptions[id];
-                    else el.value = userPrefs.appOptions[id]
+                let changed = false;
+                if (el) {
+                    if (el.type == "checkbox") {
+                        if (el.checked != userPrefs.appOptions[id]) changed = true;
+                        el.checked = userPrefs.appOptions[id];
+                    }
+                    else {
+                        if (el.value != userPrefs.appOptions[id]) changed = true;
+                        el.value = userPrefs.appOptions[id]
+                    }
+                }
+                if (!restartRequired && changed && el.hasAttribute('requires-restart')) restartRequired = true;
             }
             dumpUserPrefs();
+            if (restartRequired) promptRestart();
         }
+    }
+}
+
+function promptRestart() {
+    modalDialog("Requires restart", "Would you like to restart the app now? If not, the change will apply the next time you close Octos.");
+    modalListener = (state) => {
+        if (state)
+            window.chrome.webview.postMessage({ type: 'restart' });
     }
 }
 
@@ -1138,14 +1157,7 @@ function updateAppOptions(el) {
     userPrefs.appOptions[el.id] = value;
     dumpUserPrefs();
     const restart = el.hasAttribute('requires-restart');
-    if (restart) {
-        modalDialog("Requires reload", "Would you like to restart the app now? If not, the change will apply the next time you close Octos.");
-        modalListener = (state) => {
-            if (state) {
-                window.chrome.webview.postMessage({ type: 'restart' });
-            }
-        }
-    }
+    if (restart) promptRestart();
 }
 
 function handleRecieveUserPrefs(msg) {

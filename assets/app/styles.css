@@ -127,7 +127,7 @@ body {
     width: 45px;
     height: 42px;
     background-color: var(--light-body-color);
-    border-radius: 2px;
+    border-radius: 4px;
 }
 
 .nav-highlight>.nav-accent {
@@ -272,7 +272,8 @@ body {
     border-radius: 0 0 2px 2px;
 }
 
-.card-title, .card-author {
+.card-title,
+.card-author {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
@@ -454,7 +455,13 @@ h1 {
     width: 100%;
     height: 100%;
     padding: 0 16px;
+    overflow: auto;
     /* margin-top: -10px; */
+}
+
+#explore-card-description {
+    display: flex;
+    flex-direction: column;
 }
 
 .author {
@@ -507,6 +514,10 @@ h1 {
 .description {
     margin: 0;
     margin-bottom: 15px;
+}
+
+#explore-card-description .description {
+    overflow: auto;
 }
 
 a {
@@ -1088,7 +1099,9 @@ label>p {
     padding: 0 3px;
 }
 
-.select-input>select, .text-input>input, .number-input>input {
+.select-input>select,
+.text-input>input,
+.number-input>input {
     background: var(--light-body-color);
     border-radius: 4px;
     border: 1px var(--button-border-color) solid;

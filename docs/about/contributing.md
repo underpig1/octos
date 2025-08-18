@@ -1,7 +1,30 @@
 # Contributing guide
-Here you can find helpful resources for building the project from source, submitting issues, and submitting PRs.
+Here you can find helpful resources on contributing to the [Octos project on GitHub](https://github.com/underpig1/octos).
+
+<hr />
+
+## Code of Conduct
+Please read the [Code of Conduct](conduct.md) for conduct expectations of contributors.
+
+## Pull requests
+You are more than welcome to submit changes to the source repository via a pull request.
+
+## Issues
+Octos uses [GitHub issues](https://github.com/underpig1/octos/issues) to track public bugs. Please make sure the description is clear and you provide exact steps for reproducing the issue.
+
+Feature requests are also welcome. Please describe the proposed feature and why it should be implemented, as well as any details you think would help us in implementing it.
+
+## Contributing Mods
+If you made a mod and you want to contribute it to be shown in the explore page of the Octos app, read the [publishing guide](https://underpig1.github.io/octos/guides/publish/).
+
+## Discussion
+If you have any questions on contributing or ideas to add, feel free to discuss them in [GitHub discussions](https://github.com/underpig1/octos/discussions).
+
+<hr />
 
 ## Project structure
+Here you can find an overview on the project structure to make contributing easier.
+
 - `assets/`: content to be copied to `C:/Program Files/Octos` on install, contains app UI
     - `app/`: main app UI in HTML/CSS/JS
     - `wallpapers/`: default wallpapers to include with Octos on install
@@ -24,9 +47,11 @@ Here you can find helpful resources for building the project from source, submit
 - `scripts/`: batch scripts for building and packaging
 
 ## Building the app from source
-Octos is written in [C++/Win32](https://learn.microsoft.com/en-us/windows/win32/api/) and is mainly powered by [Microsoft Edge WebView2](https://developer.microsoft.com/en-us/Microsoft-edge/webview2/?form=MA13LH) for displaying web content. Building is done with [MSBuild](https://learn.microsoft.com/en-us/visualstudio/msbuild/msbuild?view=vs-2022) from the command line and uses [vcpkg](https://learn.microsoft.com/en-us/vcpkg/get_started/overview) for package management.
+Here you can learn how to locally setup the environment and build the app from source.
 
-To build the app, you must be using a [Visual Studio Integrated Developer Command Prompt](https://learn.microsoft.com/en-us/visualstudio/ide/reference/command-prompt-powershell?view=vs-2022) to correctly set up the environment and necessary binaries. Next, navigate to the `octos/` directory.
+Octos is written in [C++/Win32](https://learn.microsoft.com/en-us/windows/win32/api/) and is mainly powered by [Microsoft Edge WebView2](https://developer.microsoft.com/en-us/Microsoft-edge/webview2) for displaying web content. Building is done with [MSBuild](https://learn.microsoft.com/en-us/visualstudio/msbuild/msbuild) from the command line and uses [vcpkg](https://learn.microsoft.com/en-us/vcpkg/get_started/overview) for package management.
+
+To build the app, you must be using a [Visual Studio Integrated Developer Command Prompt](https://learn.microsoft.com/en-us/visualstudio/ide/reference/command-prompt-powershell) to correctly set up the environment and necessary binaries. Next, navigate to the `octos/` directory.
 
 In the developer command prompt, install dependencies (as specified in `vcpkg.json`):
 ```
@@ -43,10 +68,41 @@ Then, the executable `Octos.exe` will appear in the `build/Debug/` folder.
 
 Note that all content from `assets` must be next to the executable in order for it to run properly. You shouldn't have to worry about this since all content from `assets` will be copied to `build/Debug/` automatically during `msbuild`.
 
-## Packaging the app for distribution
-TBD
+<hr />
 
-## Bundling the Octos API
+## Packaging the app
+
+Here you can find instructions for packaging the app into its two supported installer formats.
+
+### Packaging the app for .exe
+Octos uses [InnoSetup](https://jrsoftware.org/isinfo.php) for packaging the app into a setup executable (`OctosSetup.exe`).
+
+First, install the latest version of [InnoSetup](https://jrsoftware.org/isinfo.php) and make sure the `iscc.exe` command is added to PATH.
+
+Then, in the [Visual Studio Integrated Developer Command Prompt](https://learn.microsoft.com/en-us/visualstudio/ide/reference/command-prompt-powershell), run the following command:
+```
+msbuild Octos.vcxproj /t:InnoSetup /p:Configuration=Release
+```
+
+The installer should appear in `build/OctosSetup.exe`.
+
+### Packaging the app for .msix
+Octos uses MSBuild for packaging the app installer into the [MSIX](https://learn.microsoft.com/en-us/windows/msix/) installer format.
+
+In the [Visual Studio Integrated Developer Command Prompt](https://learn.microsoft.com/en-us/visualstudio/ide/reference/command-prompt-powershell), run the following command:
+```
+msbuild Octos.vcxproj /t:MakeAppx /p:Configuration=Release
+```
+
+The installer should appear in `build/OctosSetup.msix`.
+
+<hr />
+
+## Octos API
+
+Here you can learn to bundle the frontend (JS) component of the Octos API to create the `octos.min.js` script and update the backend (C++) component with MSBuild.
+
+### Bundling the Octos API frontend
 The frontend side of the Octos API lives in `src/js/`. If you make changes to these files, you can bundle the Octos API into an `octos.min.js` file using [rollup.js](https://rollupjs.org/). You need [`npm`](https://www.npmjs.com/) to do this. Rollup config is found in `rollup.config.js`.
 
 First, install dependencies:
@@ -61,9 +117,15 @@ npm run build-api
 
 This should produce `octos.min.js` in the root directory.
 
-If you make changes to the backend side of the API in `src/API/`, you'll need to follow the instructions above for building the app from source in order for these changes to take effect.
+### Building the Octos API backend
+
+If you make changes to the backend side of the API (which lives in `src/API/`), you'll need to follow the instructions above for building the app from source in order for these changes to take effect.
+
+<hr />
 
 ## Docs
+Here you can learn to build, preview, and deploy the Octos docs.
+
 The Octos docs, including the main site homepage are powered by [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/). The config file for mkdocs can be found in `mkdocs.yml`.
 
 ### Building the API Reference
@@ -100,19 +162,10 @@ mkdocs serve
 ### Building the docs
 Docs are automatically built and served with GitHub Actions on push.
 
-## Contributing to the Octos Community
-If you made a cool mod and you want to contribute it to the Octos app, read the [publishing guide](https://underpig1.github.io/octos/guides/publish/).
-
-## Pull requests
-You are more than welcome to submit changes to the source repository via a pull request.
-
-## Issues
-Octos uses GitHub issues to track public bugs. Please make sure the description is clear and you provide exact steps for reproducing the issue.
-
-Feature requests of any size are also more than welcome.
+<hr />
 
 ## License
-By contributing, you agree that your contributions will be licensed under the LICENSE file in the root directory of this source tree.
+By contributing, you agree that your contributions will be licensed under the LICENSE file in the root directory of this repository's source tree.
 
 ## Thank you!
 Thanks for visiting! Your contributions are always appreciated, big or small.

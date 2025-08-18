@@ -50,40 +50,47 @@ extra:
         - icon: octicons/thumbsdown-24
           name: This page could be improved
           data: 0
-          note: >- 
+          note: >-
             Thanks for your feedback! Help us improve this page by
             submitting an <a href="https://github.com/underpig1/octos/issues/new" target="_blank" rel="noopener">issue</a>.
   social:
-    - icon: fontawesome/brands/github 
+    - icon: fontawesome/brands/github
       link: https://github.com/underpig1/octos
-    - icon: fontawesome/brands/npm 
+    - icon: fontawesome/brands/npm
       link: https://www.npmjs.com/package/octos
   consent:
     title: Cookie consent
-    description: >- 
+    description: >-
       We use cookies to measure page visits to improve our documentation.
 copyright: Copyright &copy; 2025 underpig1
 nav:
   - Home: index.md
-  - Getting Started:
-    - tbd
+  - Quickstart:
+      - Installation: install.md
   - Guides:
-    - guides/index.md
-    - Making a mod: guides/mod.md
-    - Using the API: guides/api.md
-    - Using the CLI: guides/cli.md
-    - Adding user options: guides/options.md
-    - octos.json: guides/config.md
-    - Publishing your mod: guides/publish.md
-    - Tips and tricks: guides/tips.md
-    - Contributing: https://github.com/underpig1/octos/tree/master?tab=contributing-ov-file#user-content-contributing-guide
+      - guides/index.md
+      - Making a mod: guides/mod.md
+      - Using the API: guides/api.md
+      - Using the CLI: guides/cli.md
+      - Adding user options: guides/options.md
+      - octos.json: guides/config.md
+      - Publishing your mod: guides/publish.md
+      - Tips and tricks: guides/tips.md
+    # - Contributing: https://github.com/underpig1/octos/tree/master?tab=contributing-ov-file#user-content-contributing-guide
   - API Reference:
       - reference/index.md
       - MediaController: reference/mediacontroller.md
       - MonitorBridge: reference/monitorbridge.md
       - System: reference/system.md
       - UserOptions: reference/useroptions.md
-  - Donate: https://buymeacoffee.com/underpig
+  - About:
+      - Contributing: about/contributing.md
+      - Code of Conduct: about/conduct.md
+      - Support: about/support.md
+      - Roadmap: about/roadmap.md
+      - License: about/license.md
+      - Privacy Policy: about/privacy.md
+  - Support: about/support.md
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true

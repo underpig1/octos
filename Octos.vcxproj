@@ -90,12 +90,35 @@
       Importance="high" />
   </Target> -->
 
-  <Target Name="CopyVcpkgDllsAlways" AfterTargets="Build">
-    <Message Text="Copying DLLs forcibly every build... $(VcpkgManifestRoot)\vcpkg_installed\$(VcpkgTriplet)\bin\*.dll" Importance="high" />
+  <Target Name="CopyVcpkgDlls" AfterTargets="Build">
+    <Message Text="Copying vcpkg DLLs... $(VcpkgManifestRoot)\vcpkg_installed\$(VcpkgTriplet)\bin\*.dll" Importance="high" />
     <ItemGroup>
       <VcpkgDlls Include="$(VcpkgManifestRoot)\vcpkg_installed\$(VcpkgTriplet)\bin\*.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(VcpkgDlls)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="false" />
+  </Target>
+
+  <PropertyGroup>
+    <AppxManifest>$(ProjectDir)assets\AppxManifest.xml</AppxManifest>
+    <AppxBundle>Always</AppxBundle>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FilesToDelete Include="$(OutDir)**\*.pdb;$(OutDir)**\*.ilk;$(OutDir)**\*.exp;$(OutDir)**\*.lib" />
+  </ItemGroup>
+
+  <Target Name="MakeAppx" DependsOnTargets="Build;CopyAssets;CopyVcpkgDlls">
+    <Message Text="Creating MSIX/MSIXBundle from $(OutDir)..." Importance="high" />
+    <Delete Files="@(FilesToDelete)" />
+    <Exec Command="MakeAppx.exe pack /d &quot;$(ProjectDir)build\$(Configuration)&quot; /p &quot;$(ProjectDir)build\OctosSetup.msix&quot;" />
+    <Message Text="MSIX created at $(OutDir)OctosSetup.msix" Importance="high" />
+  </Target>
+
+  <Target Name="InnoSetup" DependsOnTargets="Build;CopyAssets;CopyVcpkgDlls">
+    <Message Text="Creating startup executable from $(OutDir)..." Importance="high" />
+    <Delete Files="@(FilesToDelete)" />
+    <Exec Command="iscc.exe $(ProjectDir)OctosSetup.iss" />
+    <Message Text="Setup EXE created at $(OutDir)OctosSetup.exe" Importance="high" />
   </Target>
 
 </Project>
