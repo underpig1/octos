@@ -21,7 +21,7 @@ Create animated and interactive wallpapers with HTML/CSS/JS for Windows 10 & 11
 |**Quick and easy customization**|Creating your own live, interactive wallpapers has never been easier.|
 |**Any and all web technology**|Supports games, websites, videos, and pretty much any other interactive web-based content for your wallpaper.|
 |**Performant and lightweight**|Optimized for web technologies on the desktop through WebView2. Designed to run smoothly for any machine, from beefed-up PCs to battery-powered laptops.|
-|**Powered by the Octos API**|Interface with music, media, and other native Windows features from JavaScript through the Octos API.|
+|**Powered by the Octos API**|Add music visualizations, media controls, and other native Windows features to your desktop through JavaScript with the Octos API.|
 |**Free and open-source**|Community contributions are welcome!|
 |**Octos Community**|Create and share your wallpapers for the world to download from the app.|
 |**Multi-monitor support**|Customize multiple monitors easily in the Octos app.|

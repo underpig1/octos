@@ -620,7 +620,7 @@ This file was automatically generated - do not edit
         const scrolls = document.querySelectorAll('.scroll-container');
         for (const el of scrolls) {
             const rect = el.getBoundingClientRect();
-            el.style.setProperty('--pos', rect.top + window.scrollY + 'px');
+            el.style.setProperty('--pos', el.classList.contains('app-preview') ? rect.bottom : rect.top + window.scrollY + 'px');
         }
     }
 

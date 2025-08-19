@@ -6,8 +6,8 @@ OutputBaseFilename=OctosSetup
 Compression=lzma
 SolidCompression=yes
 UninstallDisplayIcon={app}\Octos.exe
-ArchitecturesAllowed=x64
-ArchitecturesInstallIn64BitMode=x64
+ArchitecturesAllowed=x86compatible x64compatible
+ArchitecturesInstallIn64BitMode=x64compatible
 DefaultDirName={commonpf}\Octos
 ChangesEnvironment=true
 DisableWelcomePage=no
@@ -15,11 +15,12 @@ WizardImageFile=./img/wizard-screen.bmp
 WizardSmallImageFile=./img/small-wizard.bmp
 DisableDirPage=false
 OutputDir=build
-LicenseFile=LICENSE
+; LicenseFile=LICENSE
 
 [Files]
 ; Source: "build\Release\Octos.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: ".\build\Release\*"; DestDir: "{app}"; Excludes: ".\build\Release\img\*.png"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: ".\build\x64\Release\*"; DestDir: "{app}"; Excludes: ".\build\Release\img\*.png"; Flags: ignoreversion recursesubdirs createallsubdirs; Check: Is64BitInstallMode
+Source: ".\build\Win32\Release\*"; DestDir: "{app}"; Excludes: ".\build\Release\img\*.png"; Flags: ignoreversion recursesubdirs createallsubdirs; Check: not Is64BitInstallMode
 ; Source: ".\vcpkg_installed\x64-windows\bin\*.dll"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
@@ -33,9 +34,11 @@ Filename: "{app}\Octos.exe"; Description: "Launch Octos"; Flags: nowait postinst
 [Tasks]
 Name: desktopicon; Description: "Create a Desktop shortcut"; GroupDescription: "Additional shortcuts:"
 Name: startmenuicon; Description: "Create a Start Menu shortcut"; GroupDescription: "Additional shortcuts:"
-Name: envPath; Description: "Add Octos to PATH"; GroupDescription: "Add the 'octos' command to PATH? Enable this if you plan to develop custom wallpapers using the CLI:"
+Name: envPath; Description: "Add Octos to PATH"; GroupDescription: "Add the 'octos' toolset to PATH?"
 
-[Code]
+[UninstallDelete]
+Type: filesandordirs; Name: "{localappdata}\Octos"
+
 [Code]
 const EnvironmentKey = 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment';
 

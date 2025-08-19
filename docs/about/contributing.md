@@ -61,7 +61,7 @@ vcpkg integrate install
 
 Build app:
 ```
-msbuild Octos.vcxproj /p:Configuration=Debug
+msbuild Octos.vcxproj /p:Configuration=Debug /p:Platform=x64
 ```
 
 Then, the executable `Octos.exe` will appear in the `build/Debug/` folder.
@@ -79,9 +79,14 @@ Octos uses [InnoSetup](https://jrsoftware.org/isinfo.php) for packaging the app 
 
 First, install the latest version of [InnoSetup](https://jrsoftware.org/isinfo.php) and make sure the `iscc.exe` command is added to PATH.
 
-Then, in the [Visual Studio Integrated Developer Command Prompt](https://learn.microsoft.com/en-us/visualstudio/ide/reference/command-prompt-powershell), run the following command:
+Then, in the [Visual Studio Integrated Developer Command Prompt](https://learn.microsoft.com/en-us/visualstudio/ide/reference/command-prompt-powershell), run the following commands to build for both platforms:
 ```
-msbuild Octos.vcxproj /t:InnoSetup /p:Configuration=Release
+msbuild Octos.vcxproj /p:Configuration=Release /p:Platform=x86
+msbuild Octos.vcxproj /p:Configuration=Release /p:Platform=x64
+```
+Then, compile the installer:
+```
+msbuild Octos.vcxproj /t:InnoSetup
 ```
 
 The installer should appear in `build/OctosSetup.exe`.
@@ -91,7 +96,7 @@ Octos uses MSBuild for packaging the app installer into the [MSIX](https://learn
 
 In the [Visual Studio Integrated Developer Command Prompt](https://learn.microsoft.com/en-us/visualstudio/ide/reference/command-prompt-powershell), run the following command:
 ```
-msbuild Octos.vcxproj /t:MakeAppx /p:Configuration=Release
+msbuild Octos.vcxproj /t:MakeAppx /p:Configuration=Release /p:Platform=x64
 ```
 
 The installer should appear in `build/OctosSetup.msix`.
