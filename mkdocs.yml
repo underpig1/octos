@@ -27,6 +27,7 @@ theme:
     - search.highlight
     - navigation.footer
     - content.action.edit
+    # - announce.dismiss
 plugins:
   - search
   # - git-revision-date-localized:

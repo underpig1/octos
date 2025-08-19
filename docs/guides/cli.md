@@ -3,7 +3,7 @@
 The Octos command line interface (CLI) allows you to easily test and debug your custom mods from the command line.
 
 ## Setup
-Depending on your installation method, you may have had the option to add `octos` to your system PATH environmental variable. This allows you to run the `octos` command from any command line without having to specify the entire path.
+Depending on your installation method, you may have had the option to add `octos` to your system PATH environmental variable. This allows you to run the `octos` command from any command line without having to specify the entire path to the `octos.exe` executable.
 
 You can see if `octos` is added to your path simply by running it in your command line:
 ```
@@ -36,9 +36,12 @@ Running a mod this way will also give you full access to the [Octos API](api.md)
 octos run <folderPath> [--dev-tools]
 ```
 
-**Options:**
-- `<folderPath>` — *(required)* Path to the mod folder. Must exist and be a valid directory.
-- `--dev-tools` — *(optional)* Open developer tools for all wallpaper windows after launch. Note that this will open a separate DevTools window for each monitor that your mod is running on.
+**Options:**  
+
+- `<folderPath>` — *(optional)* Path to the mod folder. Leaving this blank will use the current working directory.
+
+- `--dev-tools` — *(optional)* Open developer tools for all wallpaper windows after launch. Note that this will open a separate DevTools window for each display that your mod is running on.
+
 <!-- - `--auto` — *(optional)* Enable automatic behavior. -->
 
 The given folderPath must be a valid mod folder, which means it must have a valid HTML `entry` point. This can be specified explicitly in the optional [`octos.json`](config.md) file in the folder's root (pointing to a local HTML file or external webpage), or if unspecified, Octos will look for a valid HTML file to load.
@@ -62,7 +65,7 @@ octos reload
 Create a new mod folder with starting `index.html` and `octos.json` files.
 
 ```batch
-octos new <name>
+octos new <folderPath>
 ```
 
 **Example:**
@@ -79,7 +82,7 @@ MyAwesomeMod/
 └── octos.json
 ```
 
-`<name>` can also point to an existing folder path in which to create the starting files:
+`<folderPath>` can also point to an existing folder path in which to create the starting files:
 
 ```batch
 mkdir MyAwesomeMod
@@ -97,4 +100,4 @@ Open developer tools for all wallpaper windows. This is the same as using `run` 
 octos dev-tools
 ```
 
-Note that this will open a separate DevTools window for each monitor that is running an Octos mod.
+Note that this will open a separate DevTools window for each display that is running an Octos mod.

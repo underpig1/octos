@@ -1,6 +1,6 @@
 [Setup]
 AppName=Octos
-AppVersion=1.0
+AppVersion={#AppVersion}
 DefaultGroupName=Octos
 OutputBaseFilename=OctosSetup
 Compression=lzma
@@ -8,7 +8,7 @@ SolidCompression=yes
 UninstallDisplayIcon={app}\Octos.exe
 ArchitecturesAllowed=x64
 ArchitecturesInstallIn64BitMode=x64
-DefaultDirName={pf}\Octos
+DefaultDirName={commonpf}\Octos
 ChangesEnvironment=true
 DisableWelcomePage=no
 WizardImageFile=./img/wizard-screen.bmp
@@ -90,7 +90,7 @@ end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
-    if (CurStep = ssPostInstall) and IsTaskSelected('envPath') then
+    if (CurStep = ssPostInstall) and WizardIsTaskSelected('envPath') then
         EnvAddPath(ExpandConstant('{app}'));
 end;
 

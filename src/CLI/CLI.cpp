@@ -104,11 +104,11 @@ void ParseCommandLineArgs(LPWSTR args)
             else if (!arg.empty() && arg[0] != L'-' && folderPath.empty())
                 folderPath = arg;
         }
-        if (folderPath.empty())
-        {
-            MessageBox(app_hwnd, L"No folderPath provided. Try specifying the path to a valid mod folder. Ex. octos run path/to/mod", L"[Octos CLI] Run failed", MB_OK | MB_ICONERROR | MB_TOPMOST);
-            return;
-        }
+        if (folderPath.empty()) folderPath = fs::current_path();
+        // {
+        //     MessageBox(app_hwnd, L"No folderPath provided. Try specifying the path to a valid mod folder. Ex. octos run path/to/mod", L"[Octos CLI] Run failed", MB_OK | MB_ICONERROR | MB_TOPMOST);
+        //     return;
+        // }
         folderPath = fs::absolute(folderPath);
         if (!fs::exists(folderPath))
         {

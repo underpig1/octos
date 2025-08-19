@@ -33,7 +33,7 @@ Customize your desktop, download community wallpapers, and more, all from the Oc
 Easily personalize your desktop with this interactive interface. -->
 
 ## [Octos API](https://underpig1.github.io/octos/guides/api/)
-Elevate your wallpaper with the Octos API. Access music playback info from JavaScript to visualize music on the desktop, add a pause/play button to interact with music, and so much more.
+Elevate your wallpaper with the Octos API. Access music visualization data, synchronize across monitors and displays, add media controls, and so much more right on your desktop in JavaScript via the Octos API.
 
 ## [Octos Docs](https://underpig1.github.io/octos/)
 It's super easy to get started making your own content for Octos. Check out the docs for a quick getting started guide.

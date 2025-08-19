@@ -66,6 +66,17 @@ This file was automatically generated - do not edit
         object-fit: cover;
     }
 
+    .loading {
+        position: absolute;
+        left: 0;
+        top: 0;
+        min-width: 100%;
+        min-height: 100%;
+        z-index: -1;
+        opacity: 0.6;
+        object-fit: cover;
+    }
+
     .gradient-overlay {
         position: absolute;
         left: 0;
@@ -120,7 +131,10 @@ This file was automatically generated - do not edit
         justify-content: center;
     }
 
-    .mdx-container button {
+    .mdx-container .button {
+        display: block;
+        color: white;
+        text-decoration: none;
         position: relative;
         box-shadow: 0 4px 4px #00000033;
         border-radius: 6px;
@@ -135,11 +149,14 @@ This file was automatically generated - do not edit
         margin-right: 10px;
         margin-top: 10px;
         cursor: pointer;
+        text-align: center;
+        float: left;
         transition: opacity 0.1s ease-in-out;
     }
 
-    .mdx-container button:hover {
+    .mdx-container .button:hover {
         opacity: 0.7;
+        color: white;
     }
 
     .hero-centered {
@@ -155,6 +172,9 @@ This file was automatically generated - do not edit
         margin: 0 auto;
         text-align: center;
         margin-bottom: 100px;
+
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
     }
 
     .feature {
@@ -192,9 +212,9 @@ This file was automatically generated - do not edit
         transition: opacity 0.6s ease, transform 0.6s ease;
     }
 
-    button.reveal {
+    /* .button.reveal {
         transition: opacity 0.6s ease, transform 0.6s ease !important;
-    }
+    } */
 
     .reveal.revealed {
         opacity: 1;
@@ -240,6 +260,20 @@ This file was automatically generated - do not edit
 
         .cards {
             grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 1000px) {
+        .feature-grid {
+            grid-template-columns: repeat(2, 1fr);
+            width: 800px;
+            max-width: 90%;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .feature-grid {
+            display: flex;
         }
     }
 
@@ -314,15 +348,15 @@ This file was automatically generated - do not edit
         background-image: url(./img/app.png);
         background-size: 100%;
         background-repeat: no-repeat;
-        --damp: 8;
-        background-position: center calc(-100% - (var(--scroll) - var(--pos))/var(--damp));
+        --damp: 5;
+        background-position: center calc(0% - (var(--scroll) - var(--pos))/var(--damp));
     }
 
     .text-outline {
         position: absolute;
         width: 100%;
         height: 100%;
-        --damp: 3;
+        --damp: 5;
         background-image: url(./img/text-outline.png);
         background-size: 800px;
         background-repeat: no-repeat;
@@ -334,7 +368,8 @@ This file was automatically generated - do not edit
 
     .footer {
         width: 100%;
-        height: 350px;
+        height: 300px;
+        margin-bottom: 50px;
     }
 
     .footer-content {
@@ -467,6 +502,13 @@ This file was automatically generated - do not edit
         }
     }
 </style>
+<noscript>
+    <style>
+        .script-dependent {
+            display: none;
+        }
+    </style>
+</noscript>
 <section class="mdx-container">
     <div class="md-grid md-typeset">
         <div class="mdx-hero">
@@ -481,26 +523,26 @@ This file was automatically generated - do not edit
                     <h1 class="scrollable" style="--damp: -2">Your new desktop awaits. 🚀</h1>
                     <p class="scrollable" style="--damp: -2">The open-source HTML dynamic desktop engine for Windows
                         10 &amp; 11.</p>
-                    <button class="scrollable" style="--damp: -3; background-color: red"
-                        data-umami-event="download-button">Download</button>
-                    <button class="scrollable" style="--damp: -3" data-umami-event="github-button">GitHub</button>
+                    <a class="scrollable button" style="--damp: -3; background-color: red"
+                        data-umami-event="download-button">Download</a>
+                    <a class="scrollable button" style="--damp: -3" data-umami-event="github-button">GitHub</a>
                 </div>
             </div>
         </div>
         <div class="feature-grid">
-            <div class="feature reveal">
+            <div class="feature reveal revealed">
                 <i class="ri-tools-line feature-icon"></i>
                 <h3>Quick and easy</h3>
                 <p>Customizing your desktop has never been easier. Create your own live, interactive wallpapers with
                     HTML, CSS, and JS, or browse and download others' creations right from the app.</p>
             </div>
-            <div class="feature reveal" style="transition-delay: 0.2s">
+            <div class="feature reveal revealed" style="transition-delay: 0.2s">
                 <i class="ri-github-fill feature-icon"></i>
                 <h3>Open-source</h3>
                 <p>Octos is driven by its community. Contribute your own wallpaper or check out the repository on
                     GitHub. And, of course, Octos and all wallpapers are completely free. Join our community!</p>
             </div>
-            <div class="feature reveal" style="transition-delay: 0.4s">
+            <div class="feature reveal revealed" style="transition-delay: 0.4s">
                 <i class="ri-speed-up-line feature-icon"></i>
                 <h3>Performant</h3>
                 <p>Octos is optimized for any and all web technologies to run smoothly on the desktop, like by
@@ -508,7 +550,7 @@ This file was automatically generated - do not edit
                     from beefed-up PCs to battery-powered
                     laptops.</p>
             </div>
-            <div class="feature reveal" style="transition-delay: 0.6s">
+            <div class="feature reveal revealed" style="transition-delay: 0.6s">
                 <i class="ri-settings-3-line feature-icon"></i>
                 <h3>Powerful</h3>
                 <p>Octos provides loads of powerful and easy-to-use features, from music visualization and
@@ -516,8 +558,8 @@ This file was automatically generated - do not edit
                 </p>
             </div>
         </div>
-        <h1 class="centered-header">See for yourself:</h1>
-        <div class="examples">
+        <h1 class="centered-header script-dependent">See for yourself:</h1>
+        <div class="examples script-dependent">
             <div class="cards" id="card-box">
                 <div class="card">
                     <div class="card-content">
@@ -539,10 +581,10 @@ This file was automatically generated - do not edit
         <div class="footer scroll-container">
             <div class="footer-content">
                 <div style="width: max-content;">
-                    <h1 class="reveal" style="--damp: -2">Let's do this</h1>
-                    <p class="reveal" style="--damp: -2; margin: 10px 0;">Download for free on Windows 10 &amp; 11 today</p>
-                    <button class="reveal" style="--damp: -3; background-color: white; color: black;">Download</button>
-                    <button class="reveal" style="--damp: -3">GitHub</button>
+                    <h1 class="reveal revealed" style="--damp: -2">Let's do this!</h1>
+                    <p class="reveal revealed" style="--damp: -2; margin: 10px 0;">Download for free on Windows 10 &amp; 11 today</p>
+                    <a class="reveal revealed button" style="--damp: -3; background-color: white; color: black;" data-umami-event="download-button">Download</a>
+                    <a class="reveal revealed button" style="--damp: -3" data-umami-event="github-button">GitHub</a>
                 </div>
             </div>
         </div>
@@ -589,6 +631,7 @@ This file was automatically generated - do not edit
 
     document.addEventListener('DOMContentLoaded', revealOnScroll)
     document.addEventListener('DOMContentLoaded', initScrollPos)
+    window.addEventListener('resize', revealOnScroll)
     window.addEventListener('resize', initScrollPos)
 
     function calc3dEffect(e) {

@@ -71,6 +71,7 @@ document.addEventListener('click', (e) => {
 })
 ```
 A few notes:
+
 - You probably want to make sure the body is styled as `user-select: none;`. This prevents users from dragging to select text on the wallpaper. `overflow: hidden;` is also useful for disabling the scroll bar on the side of the screen.   
 
 - In addition, notice how you can reference any local files within your mod folder like `index.js` in your files.   

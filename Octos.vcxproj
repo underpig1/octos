@@ -18,6 +18,7 @@
     <VcpkgEnabled>true</VcpkgEnabled>
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
     <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
+    <AppVersion>1.0.0.0</AppVersion>
   </PropertyGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -39,7 +40,9 @@
 
   <!-- <Target Name="RunAppLocal" BeforeTargets="Build">
     <Exec
-      Command="powershell.exe -ExecutionPolicy Bypass -File &quot;$(VcpkgRoot)\scripts\buildsystems\msbuild\applocal.ps1&quot; &quot;$(TargetPath)&quot; &quot;$(VcpkgManifestRoot)\vcpkg_installed\$(VcpkgTriplet)&quot;" />
+      Command="powershell.exe -ExecutionPolicy Bypass -File
+  &quot;$(VcpkgRoot)\scripts\buildsystems\msbuild\applocal.ps1&quot; &quot;$(TargetPath)&quot;
+  &quot;$(VcpkgManifestRoot)\vcpkg_installed\$(VcpkgTriplet)&quot;" />
   </Target> -->
 
   <PropertyGroup>
@@ -91,33 +94,43 @@
   </Target> -->
 
   <Target Name="CopyVcpkgDlls" AfterTargets="Build">
-    <Message Text="Copying vcpkg DLLs... $(VcpkgManifestRoot)\vcpkg_installed\$(VcpkgTriplet)\bin\*.dll" Importance="high" />
+    <Message
+      Text="Copying vcpkg DLLs... $(VcpkgManifestRoot)\vcpkg_installed\$(VcpkgTriplet)\bin\*.dll"
+      Importance="high" />
     <ItemGroup>
       <VcpkgDlls Include="$(VcpkgManifestRoot)\vcpkg_installed\$(VcpkgTriplet)\bin\*.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(VcpkgDlls)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="false" />
   </Target>
 
-  <PropertyGroup>
-    <AppxManifest>$(ProjectDir)assets\AppxManifest.xml</AppxManifest>
-    <AppxBundle>Always</AppxBundle>
-  </PropertyGroup>
-
   <ItemGroup>
     <FilesToDelete Include="$(OutDir)**\*.pdb;$(OutDir)**\*.ilk;$(OutDir)**\*.exp;$(OutDir)**\*.lib" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <AppxManifest>$(ProjectDir)assets\AppxManifest.xml</AppxManifest>
+    <Namespaces>
+      <Namespace Prefix="x" Uri="http://schemas.microsoft.com/appx/manifest/foundation/windows10" />
+    </Namespaces>
+  </PropertyGroup>
+
   <Target Name="MakeAppx" DependsOnTargets="Build;CopyAssets;CopyVcpkgDlls">
     <Message Text="Creating MSIX/MSIXBundle from $(OutDir)..." Importance="high" />
     <Delete Files="@(FilesToDelete)" />
-    <Exec Command="MakeAppx.exe pack /d &quot;$(ProjectDir)build\$(Configuration)&quot; /p &quot;$(ProjectDir)build\OctosSetup.msix&quot;" />
+    <XmlPoke XmlInputPath="$(AppxManifest)"
+      Query="/x:Package/x:Identity/@Version"
+      Value="$(AppVersion)"
+      Namespaces="$(Namespaces)">
+    </XmlPoke>
+    <!-- <Exec Command="MakeAppx.exe pack /d &quot;$(ProjectDir)build\$(Configuration)&quot; /p
+    &quot;$(ProjectDir)build\OctosSetup.msix&quot;" /> -->
     <Message Text="MSIX created at $(OutDir)OctosSetup.msix" Importance="high" />
   </Target>
 
   <Target Name="InnoSetup" DependsOnTargets="Build;CopyAssets;CopyVcpkgDlls">
     <Message Text="Creating startup executable from $(OutDir)..." Importance="high" />
     <Delete Files="@(FilesToDelete)" />
-    <Exec Command="iscc.exe $(ProjectDir)OctosSetup.iss" />
+    <Exec Command="iscc.exe /dAppVersion=$(AppVersion) $(ProjectDir)OctosSetup.iss" />
     <Message Text="Setup EXE created at $(OutDir)OctosSetup.exe" Importance="high" />
   </Target>
 
