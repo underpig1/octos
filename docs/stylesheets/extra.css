@@ -40,6 +40,10 @@
     scrollbar-color: darkgray #0000 !important;
 }
 
+.md-consent__overlay {
+    display: none;
+}
+
 /* h1 {
     font-weight: 700 !important;
 }

@@ -36,23 +36,23 @@ extra_css:
   - stylesheets/extra.css
   - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css
 extra:
-  # analytics:
-  #   provider: google
-  #   property: G-MTNS79FQ24
-  #   feedback:
-  #     title: Was this page helpful?
-  #     ratings:
-  #       - icon: octicons/thumbsup-24
-  #         name: This page was helpful
-  #         data: 1
-  #         note: >-
-  #           Thanks for your feedback!
-  #       - icon: octicons/thumbsdown-24
-  #         name: This page could be improved
-  #         data: 0
-  #         note: >-
-  #           Thanks for your feedback! Help us improve this page by
-  #           submitting an <a href="https://github.com/underpig1/octos/issues/new" target="_blank" rel="noopener">issue</a>.
+  analytics:
+    provider: google
+    # property: G-MTNS79FQ24
+    feedback:
+      title: Was this page helpful?
+      ratings:
+        - icon: octicons/thumbsup-24
+          name: This page was helpful
+          data: 1
+          note: >-
+            Thanks for your feedback!
+        - icon: octicons/thumbsdown-24
+          name: This page could be improved
+          data: 0
+          note: >-
+            Thanks for your feedback! Help us improve this page by
+            submitting an <a href="https://github.com/underpig1/octos/issues/new" target="_blank" rel="noopener">issue</a>.
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/underpig1/octos
@@ -93,6 +93,7 @@ nav:
       - Support: about/support.md
       - Roadmap: about/roadmap.md
       - License: about/license.md
+      - Privacy policy: about/privacy.md
   - Support: about/support.md
 markdown_extensions:
   - pymdownx.highlight:

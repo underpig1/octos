@@ -32,11 +32,11 @@ Customize your desktop, download community wallpapers, and more, all from the Oc
 <!-- ## Octos Studio
 Easily personalize your desktop with this interactive interface. -->
 
-## [Octos Community](https://github.com/underpig1/octos-community/tree/master)
-Join the Octos community to share your wonderful creations with the world! It's ridiculously easy to make and share HTML wallpapers with Octos.
-
 ## [Octos API](https://underpig1.github.io/octos/guides/api/)
 Elevate your wallpaper with the Octos API. Access music playback info from JavaScript to visualize music on the desktop, add a pause/play button to interact with music, and so much more.
 
 ## [Octos Docs](https://underpig1.github.io/octos/)
 It's super easy to get started making your own content for Octos. Check out the docs for a quick getting started guide.
+
+## [Octos Community](https://github.com/underpig1/octos-community/tree/master)
+Join the Octos community to share your wonderful creations with the world! It's easy to make and share HTML wallpapers with Octos.
