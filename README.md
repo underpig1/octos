@@ -13,7 +13,7 @@ Create animated and interactive wallpapers with HTML/CSS/JS for Windows 10 & 11
 
 **[Website](https://underpig1.github.io/octos) | [Docs](https://underpig1.github.io/octos/guides) | [Download]()**
 
-<img src="img/app.png" width="599px" />
+<img src="docs/img/app.png" width="599px" />
 
 ## Features
 |||

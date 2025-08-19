@@ -7,8 +7,9 @@ This file was automatically generated - do not edit
 <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
 <style>
     :root {
-        --scroll: 0;
-        --octos: #e52e2e
+        --scroll: 0px;
+        --pos: 0px;
+        --octos: #e52e2e;
     }
 
     .md-header {
@@ -86,8 +87,8 @@ This file was automatically generated - do not edit
     }
 
     .scrollable {
-        transform: translateY(calc((var(--scroll) - (100vh*var(--pos)))/var(--damp)));
-        transition: transformY 0.1s linear;
+        transform: translateY(calc((var(--scroll) - var(--pos))/var(--damp)));
+        /* transition: transformY 0.1s linear; */
     }
 
     .mdx-container h1 {
@@ -153,7 +154,7 @@ This file was automatically generated - do not edit
         height: auto;
         margin: 0 auto;
         text-align: center;
-        margin-bottom: 150px;
+        margin-bottom: 100px;
     }
 
     .feature {
@@ -189,6 +190,10 @@ This file was automatically generated - do not edit
         opacity: 0;
         transform: translateY(20px);
         transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    button.reveal {
+        transition: opacity 0.6s ease, transform 0.6s ease !important;
     }
 
     .reveal.revealed {
@@ -283,29 +288,67 @@ This file was automatically generated - do not edit
         color: #ffffff85;
     }
 
-    .example-content {
+    /* .example-content {
         margin-top: 10px;
         width: 100%;
         aspect-ratio: 16 / 8;
-        /* border: 1px solid #5b5b5b; */
+        border: 1px solid #5b5b5b;
         background: #111;
+    } */
+
+    .app-preview-container {
+        margin-top: 100px;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        /* height: 350px; */
+        height: fit-content;
+    }
+
+    .app-preview {
+        /* height: 100%; */
+        width: 800px;
+        max-width: 95%;
+        aspect-ratio: 16 / 9;
+        background-image: url(./img/app.png);
+        background-size: 100%;
+        background-repeat: no-repeat;
+        --damp: 8;
+        background-position: center calc(-100% - (var(--scroll) - var(--pos))/var(--damp));
+    }
+
+    .text-outline {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        --damp: 3;
+        background-image: url(./img/text-outline.png);
+        background-size: 800px;
+        background-repeat: no-repeat;
+        background-position: center calc(0px - (var(--scroll) - var(--pos))/var(--damp));
+        top: 0;
+        left: 0;
+        z-index: -1;
     }
 
     .footer {
-        margin-top: 150px;
+        width: 100%;
         height: 350px;
     }
 
     .footer-content {
-        position: absolute;
-        left: 0;
-        right: 0;
+        width: 100%;
+        height: 100%;
         display: flex;
-        height: inherit;
-        /* background-color: #e52e2e; */
-        background-color: #222;
         align-items: center;
+        /* background-color: #e52e2e; */
+        /* background-color: #1a1a1a; */
+        border-top: 1px solid #5b5b5b;
         justify-content: center;
+        background-size: 75%;
+        background-repeat: no-repeat;
+        padding: 0 50px;
     }
 
     .md-main {
@@ -426,7 +469,7 @@ This file was automatically generated - do not edit
 </style>
 <section class="mdx-container">
     <div class="md-grid md-typeset">
-        <div class="mdx-hero" style="--pos: 0;">
+        <div class="mdx-hero">
             <div class="background">
                 <video id="background" src="img/octos-preview.mp4" alt="" draggable="false" autoplay playsinline muted
                     loop></video>
@@ -479,32 +522,8 @@ This file was automatically generated - do not edit
                 <div class="card">
                     <div class="card-content">
                         <div class="card-info">
-                            <p class="card-title">Title</p>
-                            <p class="card-author">Author</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-content">
-                        <div class="card-info">
-                            <p class="card-title">Title</p>
-                            <p class="card-author">Author</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-content">
-                        <div class="card-info">
-                            <p class="card-title">Title</p>
-                            <p class="card-author">Author</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="card">
-                    <div class="card-content">
-                        <div class="card-info">
-                            <p class="card-title">Title</p>
-                            <p class="card-author">Author</p>
+                            <p class="card-title">Loading...</p>
+                            <p class="card-author"></p>
                         </div>
                     </div>
                 </div>
@@ -513,13 +532,17 @@ This file was automatically generated - do not edit
                 <iframe src="overrides/examples/contraption.html"></iframe>
             </div> -->
         </div>
-        <div class="footer">
+        <div class="app-preview-container scroll-container">
+        <!-- <h1 class="scrollable centered-header" style="--damp: -5; position: absolute; top: -20px;">Ready?</h1> -->
+            <div class="app-preview"></div>
+        </div>
+        <div class="footer scroll-container">
             <div class="footer-content">
                 <div style="width: max-content;">
-                    <h1>Let's do this! 🤘</h1>
-                    <p style="margin: 10px 0;">Download for free on Windows 10 &amp; 11 today</p>
-                    <button style="background-color: white; color: black;">Download</button>
-                    <button>GitHub</button>
+                    <h1 class="reveal" style="--damp: -2">Let's do this</h1>
+                    <p class="reveal" style="--damp: -2; margin: 10px 0;">Download for free on Windows 10 &amp; 11 today</p>
+                    <button class="reveal" style="--damp: -3; background-color: white; color: black;">Download</button>
+                    <button class="reveal" style="--damp: -3">GitHub</button>
                 </div>
             </div>
         </div>
@@ -539,10 +562,10 @@ This file was automatically generated - do not edit
 <script>
     function revealOnScroll() {
         const reveals = document.querySelectorAll('.reveal');
+        const windowHeight = window.innerHeight;
         for (const reveal of reveals) {
-            const windowHeight = window.innerHeight;
+            const revealPoint = reveal.classList.contains('feature') ? 150 : 0;
             const elementTop = reveal.getBoundingClientRect().top;
-            const revealPoint = 150;
             if (elementTop < windowHeight - revealPoint) {
                 reveal.classList.add('revealed');
             } else {
@@ -550,11 +573,23 @@ This file was automatically generated - do not edit
             }
         }
     }
+
+    function initScrollPos() {
+        const scrolls = document.querySelectorAll('.scroll-container');
+        for (const el of scrolls) {
+            const rect = el.getBoundingClientRect();
+            el.style.setProperty('--pos', rect.top + window.scrollY + 'px');
+        }
+    }
+
     document.addEventListener('scroll', (e) => {
         document.documentElement.style.setProperty('--scroll', this.scrollY + 'px')
         revealOnScroll();
-    })
-    document.addEventListener('load', revealOnScroll)
+    });
+
+    document.addEventListener('DOMContentLoaded', revealOnScroll)
+    document.addEventListener('DOMContentLoaded', initScrollPos)
+    window.addEventListener('resize', initScrollPos)
 
     function calc3dEffect(e) {
         const clamp = (x, t) => Math.min(Math.max(x, -t), t)
@@ -648,6 +683,8 @@ This file was automatically generated - do not edit
         for (var i = 0; i < examples.length; i++) {
             const example = examples[i];
             var card = createCard(example.name, example.author, example.imagePath, example.previewPath);
+            card.classList.add('reveal')
+            card.style.setProperty('--reveal-point', 0)
             cardBox.appendChild(card);
         }
     }
@@ -662,9 +699,6 @@ This file was automatically generated - do not edit
 
     function closeModal() {
         modal.classList.remove("active");
-        // video.pause();
-        // video.currentTime = 0;
-
         setTimeout(() => {
             modal.style.display = "none";
         }, 300);
@@ -681,7 +715,6 @@ This file was automatically generated - do not edit
         if (!mod.author) modalAuthor.style.display = 'none'
         else modalAuthor.style.display = 'block'
         modalDescription.innerText = mod.description
-
         if (mod.name == '3D Car') {
             modalInfo.style.left = '-25px';
             modalInfo.style.right = 'auto';
@@ -690,8 +723,6 @@ This file was automatically generated - do not edit
             modalInfo.style.right = '-25px';
             modalInfo.style.left = 'auto';
         }
-
-        // video.play();
         video.src = src
     }
 
