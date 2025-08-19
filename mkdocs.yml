@@ -37,8 +37,8 @@ extra_css:
   - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css
 extra:
   analytics:
-    provider: google
-    # property: G-MTNS79FQ24
+    provider: umami
+    property: 416a23b5-11a1-49f5-9877-24803f746146
     feedback:
       title: Was this page helpful?
       ratings:
@@ -93,7 +93,7 @@ nav:
       - Support: about/support.md
       - Roadmap: about/roadmap.md
       - License: about/license.md
-      - Privacy policy: about/privacy.md
+      # - Privacy policy: about/privacy.md
   - Support: about/support.md
 markdown_extensions:
   - pymdownx.highlight:
