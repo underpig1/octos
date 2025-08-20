@@ -1,7 +1,8 @@
+name: Package
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    branches:
+      - master
 jobs:
   build-installer:
     runs-on: windows-latest
@@ -10,7 +11,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1
-      - name: Build x64
+      - name: Build EXE
         run: msbuild /t:InnoSetup
-      - name: Build project
-        run: msbuild /t:InnoSetup
+      - name: Build MSIX
+        run: msbuild /t:BundleAppx

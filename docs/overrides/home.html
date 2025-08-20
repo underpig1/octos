@@ -159,6 +159,10 @@ This file was automatically generated - do not edit
         color: white;
     }
 
+    .mdx-container .button:visited {
+        color: white;
+    }
+
     .hero-centered {
         width: 65%;
     }
@@ -525,7 +529,7 @@ This file was automatically generated - do not edit
                         10 &amp; 11.</p>
                     <a class="scrollable button" style="--damp: -3; background-color: red"
                         data-umami-event="download-button">Download</a>
-                    <a class="scrollable button" style="--damp: -3" data-umami-event="github-button">GitHub</a>
+                    <a class="scrollable button" style="--damp: -3" data-umami-event="github-button" href="https://github.com/underpig1/octos" target="_blank">GitHub</a>
                 </div>
             </div>
         </div>
@@ -584,7 +588,7 @@ This file was automatically generated - do not edit
                     <h1 class="reveal revealed" style="--damp: -2">Let's do this!</h1>
                     <p class="reveal revealed" style="--damp: -2; margin: 10px 0;">Download for free on Windows 10 &amp; 11 today</p>
                     <a class="reveal revealed button" style="--damp: -3; background-color: white; color: black;" data-umami-event="download-button">Download</a>
-                    <a class="reveal revealed button" style="--damp: -3" data-umami-event="github-button">GitHub</a>
+                    <a class="reveal revealed button" style="--damp: -3" data-umami-event="github-button" href="https://github.com/underpig1/octos" target="_blank">GitHub</a>
                 </div>
             </div>
         </div>
@@ -617,10 +621,11 @@ This file was automatically generated - do not edit
     }
 
     function initScrollPos() {
+        console.log('initing');
         const scrolls = document.querySelectorAll('.scroll-container');
         for (const el of scrolls) {
             const rect = el.getBoundingClientRect();
-            el.style.setProperty('--pos', el.classList.contains('app-preview') ? rect.bottom : rect.top + window.scrollY + 'px');
+            el.style.setProperty('--pos', rect.top + window.scrollY + 'px');
         }
     }
 
@@ -631,8 +636,6 @@ This file was automatically generated - do not edit
 
     document.addEventListener('DOMContentLoaded', revealOnScroll)
     document.addEventListener('DOMContentLoaded', initScrollPos)
-    initScrollPos()
-    setTimeout(initScrollPos, 1000)
     window.addEventListener('resize', revealOnScroll)
     window.addEventListener('resize', initScrollPos)
 
@@ -725,13 +728,14 @@ This file was automatically generated - do not edit
     function populateExamples() {
         const cardBox = document.getElementById('card-box')
         cardBox.innerHTML = "";
-        for (var i = 0; i < examples.length; i++) {
+        for (var i = 0; i < Math.min(examples.length, 17); i++) {
             const example = examples[i];
             var card = createCard(example.name, example.author, example.imagePath, example.previewPath);
             card.classList.add('reveal')
             card.style.setProperty('--reveal-point', 0)
             cardBox.appendChild(card);
         }
+        initScrollPos()
     }
 
     const modal = document.getElementById("modal");
