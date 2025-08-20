@@ -1,0 +1,16 @@
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+jobs:
+  build-installer:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
+      - name: Build x64
+        run: msbuild /t:InnoSetup
+      - name: Build project
+        run: msbuild /t:InnoSetup

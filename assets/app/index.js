@@ -761,11 +761,12 @@ function setCardDescription(prefix = "explore", title = "", author = "", descrip
                     previewImage.style.backgroundImage = "";
                     const img = new Image();
                     img.src = preview;
-                    previewModalImage.src = "";
+                    previewModalImage.src = preview;
+                    previewModalImage.style.display = "none";
                     img.onload = () => {
                         previewImage.classList.add('loaded');
                         previewImage.style.backgroundImage = bkImg;
-                        previewModalImage.src = preview;
+                        previewModalImage.style.display = "block";
                     }
                 }
             }

@@ -59,14 +59,14 @@ vcpkg install --triplet x64-windows
 vcpkg integrate install
 ```
 
-Build app:
+Build the app:
 ```
 msbuild Octos.vcxproj /p:Configuration=Debug /p:Platform=x64
 ```
 
-Then, the executable `Octos.exe` will appear in the `build/Debug/` folder.
+Then, the executable `Octos.exe` will appear in the `build/x64/Debug/` folder. You can target either `x64` or `x86` platforms and either `Debug` or `Release` configurations.
 
-Note that all content from `assets` must be next to the executable in order for it to run properly. You shouldn't have to worry about this since all content from `assets` will be copied to `build/Debug/` automatically during `msbuild`.
+Note that all content from `assets` must be next to the executable in order for it to run properly. You shouldn't have to worry about this since all content from `assets` will be copied to `build/x64/Debug/` automatically during build.
 
 <hr />
 
@@ -79,12 +79,7 @@ Octos uses [InnoSetup](https://jrsoftware.org/isinfo.php) for packaging the app 
 
 First, install the latest version of [InnoSetup](https://jrsoftware.org/isinfo.php) and make sure the `iscc.exe` command is added to PATH.
 
-Then, in the [Visual Studio Integrated Developer Command Prompt](https://learn.microsoft.com/en-us/visualstudio/ide/reference/command-prompt-powershell), run the following commands to build for both platforms:
-```
-msbuild Octos.vcxproj /p:Configuration=Release /p:Platform=x86
-msbuild Octos.vcxproj /p:Configuration=Release /p:Platform=x64
-```
-Then, compile the installer:
+Then, in the [Visual Studio Integrated Developer Command Prompt](https://learn.microsoft.com/en-us/visualstudio/ide/reference/command-prompt-powershell), run the following commands to build the installer for both Windows x64 and x86:
 ```
 msbuild Octos.vcxproj /t:InnoSetup
 ```

@@ -518,6 +518,7 @@ h1 {
 
 #explore-card-description .description {
     overflow: auto;
+    min-height: 50px;
 }
 
 a {
@@ -1371,7 +1372,7 @@ button.inactive {
 }
 
 .card-description.inactive {
-    display: none;
+    display: none !important;
 }
 
 #modal-container .modal-textbox {

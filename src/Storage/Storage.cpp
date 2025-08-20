@@ -7,6 +7,7 @@
 #include <fstream>
 #include <codecvt>
 #include <urlmon.h>
+// #include <winrt/Windows.Storage.h>
 
 #include "Storage.h"
 #include "../Bridge/Bridge.h"
@@ -65,6 +66,9 @@ std::wstring ResolvePath(std::wstring relativePath, bool includeFileScheme)
 
 fs::path GetAppLocalDir()
 {
+    // auto localFolder = winrt::Windows::Storage::ApplicationData::Current().LocalFolder();
+    // return localFolder.Path().c_str();
+
     wchar_t appDataPath[MAX_PATH] = {0};
     if (FAILED(SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, 0, appDataPath)))
         return L"";
@@ -100,15 +104,30 @@ std::wstring GetWallpapersDir()
     // return path;
 }
 
+std::wstring GetTempDir()
+{
+    wchar_t tempPath[MAX_PATH];
+    DWORD len = GetTempPathW(MAX_PATH, tempPath);
+    if (len == 0 || len > MAX_PATH)
+        return L"";
+    return std::wstring(tempPath);
+}
+
 std::wstring GetWebViewDir()
 {
     // std::wstring path = ResolvePath(L"WebView2UserData");
     // fs::create_directories(path);
     // return path;
 
-    fs::path appLocal = GetAppLocalDir();
-    if (appLocal.empty()) return L"";
-    fs::path path = appLocal / L"WebView2UserData";
+    // fs::path appLocal = GetAppLocalDir();
+    // if (appLocal.empty()) return L"";
+    // fs::path path = appLocal / L"WebView2UserData";
+    // fs::create_directories(path);
+    // return path.wstring();
+
+    fs::path temp = GetTempDir();
+    if (temp.empty()) return L"";
+    fs::path path = temp / L"WebView2UserData";
     fs::create_directories(path);
     return path.wstring();
 }
@@ -129,96 +148,86 @@ std::wstring GetPrefsPath()
     return path.wstring();
 }
 
+#include <zip.h>
+
+bool ExtractZip(const std::wstring &zipPath, const std::wstring &destFolder)
+{
+    int err = 0;
+    std::string zipPathUtf8 = to_string(zipPath);
+    std::string destUtf8 = to_string(destFolder);
+
+    zip_t *za = zip_open(zipPathUtf8.c_str(), ZIP_RDONLY, &err);
+    if (!za)
+    {
+        wprintf(L"[Storage] Failed to open zip: %s\n", zipPath.c_str());
+        return false;
+    }
+
+    fs::create_directories(destUtf8);
+
+    zip_int64_t numEntries = zip_get_num_entries(za, 0);
+    for (zip_int64_t i = 0; i < numEntries; i++)
+    {
+        const char *name = zip_get_name(za, i, 0);
+        if (!name)
+            continue;
+        fs::path outPath = fs::path(destUtf8) / name;
+        if (name[strlen(name) - 1] == '/')
+        {
+            fs::create_directories(outPath);
+            continue;
+        }
+        zip_file_t *zf = zip_fopen_index(za, i, 0);
+        if (!zf)
+            continue;
+        fs::create_directories(outPath.parent_path());
+        std::ofstream ofs(outPath, std::ios::binary);
+        char buf[4096];
+        zip_int64_t bytesRead = 0;
+        while ((bytesRead = zip_fread(zf, buf, sizeof(buf))) > 0)
+        {
+            ofs.write(buf, bytesRead);
+        }
+        ofs.close();
+        zip_fclose(zf);
+    }
+    zip_close(za);
+    return true;
+}
+
 bool InstallWallpaper(const std::wstring &zipPath)
 {
     wprintf(L"[Storage] Installing from: %s\n", zipPath.c_str());
-
     if (fs::exists(zipPath) && fs::path(zipPath).extension() == L".zip")
     {
-        std::wstring destFolder = GetWallpapersDir() / fs::path(zipPath).stem();
+        std::wstring destFolder = (GetWallpapersDir() / fs::path(zipPath).stem()).wstring();
         fs::create_directories(destFolder);
-
         wprintf(L"[Storage] Unzipping\n");
-        CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
-
-        IShellDispatch *shell = nullptr;
-        Folder *zipFolder = nullptr;
-        Folder *destFolderObj = nullptr;
-        bool success = false;
-
-        if (SUCCEEDED(CoCreateInstance(CLSID_Shell, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&shell))))
+        bool success = ExtractZip(zipPath, destFolder);
+        if (success)
         {
-            VARIANT vZip, vDest;
-            VariantInit(&vZip);
-            VariantInit(&vDest);
-
-            vZip.vt = VT_BSTR;
-            vZip.bstrVal = SysAllocString(NormalizePath(zipPath).c_str());
-            vDest.vt = VT_BSTR;
-            vDest.bstrVal = SysAllocString(NormalizePath(destFolder).c_str());
-
-            shell->NameSpace(vZip, &zipFolder);
-            shell->NameSpace(vDest, &destFolderObj);
-
-            if (zipFolder && destFolderObj)
+            wprintf(L"[Storage] Unzipped successfully\n");
+            size_t count = 0;
+            fs::directory_entry sourceFolder;
+            for (const auto &entry : fs::directory_iterator(destFolder))
             {
-                FolderItems *items = nullptr;
-                if (SUCCEEDED(zipFolder->Items(&items)))
-                {
-                    VARIANT vItems;
-                    VariantInit(&vItems);
-                    vItems.vt = VT_DISPATCH;
-                    vItems.pdispVal = items;
-
-                    VARIANT vOpt;
-                    VariantInit(&vOpt);
-                    vOpt.vt = VT_I4;
-                    vOpt.lVal = FOF_NOCONFIRMATION | FOF_SILENT | FOF_NOERRORUI;
-
-                    HRESULT hr = destFolderObj->CopyHere(vItems, vOpt);
-                    if (SUCCEEDED(hr))
-                    {
-                        wprintf(L"[Storage] Unzipped successfully\n");
-                        // handle main folder not in root folder
-                        size_t count = 0;
-                        fs::directory_entry sourceFolder;
-                        for (const auto &entry : fs::directory_iterator(destFolder))
-                        {
-                            ++count;
-                            if (count > 1)
-                                break;
-                            sourceFolder = entry;
-                        }
-                        if (count == 1 && sourceFolder.is_directory())
-                        {
-                            for (const auto &entry : fs::directory_iterator(sourceFolder))
-                            {
-                                fs::path newPath = destFolder / entry.path().filename();
-                                fs::rename(entry.path(), newPath);
-                            }
-                            fs::remove(sourceFolder);
-                        }
-                        success = true;
-                    }
-
-                    VariantClear(&vItems);
-                    items->Release();
-                }
+                ++count;
+                if (count > 1)
+                    break;
+                sourceFolder = entry;
             }
-
-            if (zipFolder)
-                zipFolder->Release();
-            if (destFolderObj)
-                destFolderObj->Release();
-            SysFreeString(vZip.bstrVal);
-            SysFreeString(vDest.bstrVal);
-            shell->Release();
+            if (count == 1 && sourceFolder.is_directory())
+            {
+                for (const auto &entry : fs::directory_iterator(sourceFolder))
+                {
+                    fs::path newPath = fs::path(destFolder) / entry.path().filename();
+                    fs::rename(entry.path(), newPath);
+                }
+                fs::remove(sourceFolder);
+            }
         }
-
-        CoUninitialize();
         return success;
     }
-
     wprintf(L"[Storage] Unsupported input path: not a .zip or directory\n");
     return false;
 }

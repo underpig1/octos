@@ -99,36 +99,51 @@
     <Copy SourceFiles="@(VcpkgDlls)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="false" />
   </Target>
 
+  <Target Name="CleanDebugFiles" AfterTargets="CopyVcpkgDlls" Condition="'$(Configuration)'=='Release'">
+    <ItemGroup>
+      <FilesToDelete Include="$(OutDir)**\*.pdb;$(OutDir)**\*.ilk;$(OutDir)**\*.exp;$(OutDir)**\*.lib" />
+    </ItemGroup>
+    <Delete Files="@(FilesToDelete)" ContinueOnError="true" />
+  </Target>
+
   <PropertyGroup>
     <AppxManifest>$(ProjectDir)assets\AppxManifest.xml</AppxManifest>
     <Namespaces>
       <Namespace Prefix="x" Uri="http://schemas.microsoft.com/appx/manifest/foundation/windows10" />
     </Namespaces>
+    <BundlePlatforms>x86;x64</BundlePlatforms>
+    <AppxPackageDir>$(ProjectDir)build\Appx</AppxPackageDir>
+    <OutAppx>$(AppxPackageDir)\OctosSetup_$(Platform).msix</OutAppx>
+    <OutAppxBundle>$(ProjectDir)build\OctosSetup.msixbundle</OutAppxBundle>
   </PropertyGroup>
 
-  <Target Name="MakeAppx" DependsOnTargets="Build;CopyAssets;CopyVcpkgDlls">
-    <Message Text="Creating MSIX/MSIXBundle from $(OutDir)..." Importance="high" />
-    <ItemGroup>
-      <FilesToDelete Include="$(OutDir)**\*.pdb;$(OutDir)**\*.ilk;$(OutDir)**\*.exp;$(OutDir)**\*.lib" />
-    </ItemGroup>
-    <Delete Files="@(FilesToDelete)" />
+  <Target Name="MakeAppx" DependsOnTargets="Build;CopyAssets;CopyVcpkgDlls;CleanDebugFiles">
+    <Message Text="Creating MSIX from $(OutDir)..." Importance="high" />
+    <Delete Files="$(OutAppx)" ContinueOnError="true" />
     <XmlPoke XmlInputPath="$(AppxManifest)"
       Query="/x:Package/x:Identity/@Version"
       Value="$(AppVersion)"
       Namespaces="$(Namespaces)">
     </XmlPoke>
-    <Exec Command="MakeAppx.exe pack /d &quot;$(OutFolder)&quot; /p &quot;$(ProjectDir)build\OctosSetup.msix&quot;" />
-    <Message Text="MSIX created at build/OctosSetup.msix" Importance="high" />
+    <Exec Command="MakeAppx.exe pack /d &quot;$(OutFolder)&quot; /p &quot;$(OutAppx)&quot;" />
+    <Exec Command="signtool sign /a /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 &quot;$(OutAppx)&quot;" />
+    <Message Text="MSIX created at $(OutAppx)" Importance="high" />
   </Target>
 
-  <Target Name="InnoSetup" DependsOnTargets="Build;CopyAssets;CopyVcpkgDlls">
-    <Message Text="Creating startup executable from $(OutDir)..." Importance="high" />
-    <ItemGroup>
-      <FilesToDelete Include="$(OutDir)**\*.pdb;$(OutDir)**\*.ilk;$(OutDir)**\*.exp;$(OutDir)**\*.lib" />
-    </ItemGroup>
-    <Delete Files="@(FilesToDelete)" />
-    <Exec Command="iscc.exe /dAppVersion=$(AppVersion) /dPlatform=$(Platform) $(ProjectDir)OctosSetup.iss" />
-    <Message Text="Setup EXE created at build/OctosSetup.exe" Importance="high" />
+  <Target Name="BundleAppx">
+    <Message Text="Creating MSIXBundle for all supported platforms..." Importance="high" />
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="MakeAppx" Properties="Platform=x64;Configuration=Release" />
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="MakeAppx" Properties="Platform=x86;Configuration=Release" />
+    <Exec Command="MakeAppx.exe bundle /d &quot;$(AppxPackageDir)&quot; /p &quot;$(OutAppxBundle)&quot;" />
+    <Message Text="MSIXBundle created at $(OutAppxBundle)" Importance="high" />
+  </Target>
+
+  <Target Name="InnoSetup">
+    <Message Text="Creating startup executable for all supported platforms..." Importance="high" />
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="Build" Properties="Platform=x64;Configuration=Release" />
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="Build" Properties="Platform=x86;Configuration=Release" />
+    <Exec Command="iscc.exe /dAppVersion=$(AppVersion) $(ProjectDir)OctosSetup.iss" />
+    <Message Text="Setup EXE created at $(ProjectDir)build\OctosSetup.exe" Importance="high" />
   </Target>
 
 </Project>
