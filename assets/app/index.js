@@ -263,7 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     populateExplore();
     setInterval(handleScrollShadows, 100);
-    window.onresize();
+    // window.onresize();
 });
 
 // STYLING
@@ -482,14 +482,18 @@ function removeFocusedCard() {
 function updateMods() {
     const modScrollbox = document.getElementById("modules-scrollbox");
     const focusedId = focusedIds.modules;
+    console.log('UPDATEMODS FOCUSED ID IS', focusedId)
     installedModCards = {};
     modScrollbox.innerHTML = "";
     for (var child of modScrollbox.children)
         child.classList.remove("focused");
+    const allSelected = Object.values(userPrefs.selected)
+    let focusedAlready = false;
     for (const id of Object.keys(userPrefs.modData)) {
         const data = userPrefs.modData[id]
         var card = createCard(id, data.name, data.author, data.imagePath);
-        if (focusedId == id) {
+        if (focusedId ? (focusedId == id) : (!focusedAlready ? allSelected.includes(id) : false)) {
+            focusedAlready = true;
             card.classList.add("focused");
             focusedIds.modules = id;
         }
@@ -501,9 +505,7 @@ function updateMods() {
             }
         }
     }
-    var focusCheck = false;
-    for (var mod of modScrollbox.childNodes) focusCheck = focusCheck || mod.classList.contains("focused");
-    if (!focusCheck) {
+    if (!focusedAlready) {
         var firstCard = modScrollbox.querySelector(".card");
         if (firstCard) {
             firstCard.classList.add("focused");

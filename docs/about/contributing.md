@@ -58,6 +58,7 @@ In the developer command prompt, install dependencies (as specified in `vcpkg.js
 vcpkg install --triplet x64-windows
 vcpkg integrate install
 ```
+Feel free to change the triplet to match your target architecture (`x86-windows` for Win32).
 
 Build the app:
 ```
@@ -84,17 +85,23 @@ Then, in the [Visual Studio Integrated Developer Command Prompt](https://learn.m
 msbuild Octos.vcxproj /t:InnoSetup
 ```
 
-The installer should appear in `build/OctosSetup.exe`.
+The installer should appear in `build/OctosSetup.exe`. It packages both architectures then installs the correct one for each user.
 
 ### Packaging the app for .msix
 Octos uses MSBuild for packaging the app installer into the [MSIX](https://learn.microsoft.com/en-us/windows/msix/) installer format.
 
-In the [Visual Studio Integrated Developer Command Prompt](https://learn.microsoft.com/en-us/visualstudio/ide/reference/command-prompt-powershell), run the following command:
+In the [Visual Studio Integrated Developer Command Prompt](https://learn.microsoft.com/en-us/visualstudio/ide/reference/command-prompt-powershell), run the following command to build the MSIX for a particular architecture:
 ```
 msbuild Octos.vcxproj /t:MakeAppx /p:Configuration=Release /p:Platform=x64
 ```
 
-The installer should appear in `build/OctosSetup.msix`.
+The installer should appear in `build/Appx/OctosSetup_x64.msix`.
+
+You can also bundle builds for both architectures into an `.msixbundle`, which you can achieve by running only the following command:
+```
+msbuild Octos.vcxproj /t:BundleAppx
+```
+The installer will appear in `build/OctosSetup.msixbundle`.
 
 <hr />
 

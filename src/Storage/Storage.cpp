@@ -159,7 +159,6 @@ bool ExtractZip(const std::wstring &zipPath, const std::wstring &destFolder)
     memset(&zipArchive, 0, sizeof(zipArchive));
     if (!mz_zip_reader_init_file(&zipArchive, zipUtf8.c_str(), 0))
     {
-        wprintf(L"[Storage] Failed to open zip: %s\n", zipPath.c_str());
         return false;
     }
     mz_uint numFiles = mz_zip_reader_get_num_files(&zipArchive);
@@ -181,7 +180,6 @@ bool ExtractZip(const std::wstring &zipPath, const std::wstring &destFolder)
         std::vector<char> buffer(uncompressedSize);
         if (!mz_zip_reader_extract_to_mem(&zipArchive, i, buffer.data(), uncompressedSize, 0))
         {
-            wprintf(L"[Storage] Failed to extract file: %s\n", filename.c_str());
             continue;
         }
         std::ofstream ofs(outPath, std::ios::binary);
