@@ -59,6 +59,27 @@ void RestartApp()
     }
 }
 
+void HandleLoadIcon(HWND hwnd)
+{
+    WebViewData *d = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+    PAINTSTRUCT ps;
+    HDC hdc = BeginPaint(hwnd, &ps);
+    if (!d || !d->loaded)
+    {
+        if (g_hIcon)
+        {
+            RECT rc;
+            GetClientRect(hwnd, &rc);
+            int iconWidth = GetSystemMetrics(SM_CXICON);
+            int iconHeight = GetSystemMetrics(SM_CYICON);
+            int x = (rc.right - rc.left - iconWidth) / 2;
+            int y = (rc.bottom - rc.top - iconHeight) / 2;
+            DrawIconEx(hdc, x, y, g_hIcon, iconWidth, iconHeight, 0, nullptr, DI_NORMAL);
+        }
+    }
+    EndPaint(hwnd, &ps);
+}
+
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     // if (msg == WM_DESTROY || msg == WM_CLOSE)
@@ -227,6 +248,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_RESTOREMAINWINDOW:
     {
         RestoreMainWindow();
+        return 0;
+    }
+    case WM_PAINT:
+    {
+        HandleLoadIcon(hwnd);
         return 0;
     }
     default:

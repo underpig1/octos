@@ -67,9 +67,9 @@
     <ClCompile Include="src\**\*.cpp" />
   </ItemGroup>
 
-  <ItemGroup>
+  <!-- <ItemGroup>
     <ResourceCompile Include="assets\icon.rc" />
-  </ItemGroup>
+  </ItemGroup> -->
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 
@@ -125,16 +125,28 @@
       Value="$(AppVersion)"
       Namespaces="$(Namespaces)">
     </XmlPoke>
+    <PropertyGroup>
+      <MSIXArch Condition="'$(Platform)'=='Win32'">x86</MSIXArch>
+      <MSIXArch Condition="'$(Platform)'=='x64'">x64</MSIXArch>
+    </PropertyGroup>
+    <XmlPoke XmlInputPath="$(AppxManifest)"
+      Query="/x:Package/x:Identity/@ProcessorArchitecture"
+      Value="$(MSIXArch)"
+      Namespaces="$(Namespaces)">
+    </XmlPoke>
+    <Exec Command="powershell -Command &quot;Start-Sleep -Seconds 1&quot;" />
     <Exec Command="MakeAppx.exe pack /d &quot;$(OutFolder)&quot; /p &quot;$(OutAppx)&quot;" />
     <Exec Command="signtool sign /a /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 &quot;$(OutAppx)&quot;" />
     <Message Text="MSIX created at $(OutAppx)" Importance="high" />
   </Target>
 
   <Target Name="BundleAppx">
+    <Delete Files="$(OutAppxBundle)" ContinueOnError="true" />
     <Message Text="Creating MSIXBundle for all supported platforms..." Importance="high" />
     <MSBuild Projects="$(MSBuildProjectFile)" Targets="MakeAppx" Properties="Platform=x64;Configuration=Release" />
     <MSBuild Projects="$(MSBuildProjectFile)" Targets="MakeAppx" Properties="Platform=x86;Configuration=Release" />
     <Exec Command="MakeAppx.exe bundle /d &quot;$(AppxPackageDir)&quot; /p &quot;$(OutAppxBundle)&quot;" />
+    <Exec Command="signtool sign /a /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 &quot;$(OutAppxBundle)&quot;" />
     <Message Text="MSIXBundle created at $(OutAppxBundle)" Importance="high" />
   </Target>
 

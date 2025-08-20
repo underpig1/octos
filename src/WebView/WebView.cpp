@@ -177,6 +177,8 @@ void OnWebViewControllerCreated(
                     HandleOnHwndLoadMessage(hwnd);
                 // else
                 //     webview->OpenDevToolsWindow();
+                WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+                data->loaded = true;
                 return S_OK;
             })
             .Get(),

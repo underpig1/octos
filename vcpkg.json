@@ -3,6 +3,6 @@
         "webview2",
         "wil",
         "nlohmann-json",
-        "libzip"
+        "miniz"
     ]
 }

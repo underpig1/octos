@@ -14,6 +14,7 @@ struct WebViewData
     Microsoft::WRL::ComPtr<IDCompositionVisual> dcompVisual;
     bool hidden = false;
     bool registerInput = true;
+    bool loaded = false;
 };
 
 void InitializeWebViewEnvironment();

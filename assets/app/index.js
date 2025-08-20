@@ -762,11 +762,11 @@ function setCardDescription(prefix = "explore", title = "", author = "", descrip
                     const img = new Image();
                     img.src = preview;
                     previewModalImage.src = preview;
-                    previewModalImage.style.display = "none";
+                    previewModalImage.style.opacity = "0";
                     img.onload = () => {
                         previewImage.classList.add('loaded');
                         previewImage.style.backgroundImage = bkImg;
-                        previewModalImage.style.display = "block";
+                        previewModalImage.style.opacity = "1";
                     }
                 }
             }

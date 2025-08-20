@@ -148,56 +148,52 @@ std::wstring GetPrefsPath()
     return path.wstring();
 }
 
-#include <zip.h>
+#include <miniz/miniz.h>
+#include <fstream>
 
 bool ExtractZip(const std::wstring &zipPath, const std::wstring &destFolder)
 {
-    int err = 0;
-    std::string zipPathUtf8 = to_string(zipPath);
+    std::string zipUtf8 = to_string(zipPath);
     std::string destUtf8 = to_string(destFolder);
-
-    zip_t *za = zip_open(zipPathUtf8.c_str(), ZIP_RDONLY, &err);
-    if (!za)
+    mz_zip_archive zipArchive;
+    memset(&zipArchive, 0, sizeof(zipArchive));
+    if (!mz_zip_reader_init_file(&zipArchive, zipUtf8.c_str(), 0))
     {
         wprintf(L"[Storage] Failed to open zip: %s\n", zipPath.c_str());
         return false;
     }
-
-    fs::create_directories(destUtf8);
-
-    zip_int64_t numEntries = zip_get_num_entries(za, 0);
-    for (zip_int64_t i = 0; i < numEntries; i++)
+    mz_uint numFiles = mz_zip_reader_get_num_files(&zipArchive);
+    fs::create_directories(destFolder);
+    for (mz_uint i = 0; i < numFiles; ++i)
     {
-        const char *name = zip_get_name(za, i, 0);
-        if (!name)
+        mz_zip_archive_file_stat fileStat;
+        if (!mz_zip_reader_file_stat(&zipArchive, i, &fileStat))
             continue;
-        fs::path outPath = fs::path(destUtf8) / name;
-        if (name[strlen(name) - 1] == '/')
+        std::string filename(fileStat.m_filename);
+        fs::path outPath = fs::path(destFolder) / filename;
+        if (filename.back() == '/')
         {
             fs::create_directories(outPath);
             continue;
         }
-        zip_file_t *zf = zip_fopen_index(za, i, 0);
-        if (!zf)
-            continue;
         fs::create_directories(outPath.parent_path());
-        std::ofstream ofs(outPath, std::ios::binary);
-        char buf[4096];
-        zip_int64_t bytesRead = 0;
-        while ((bytesRead = zip_fread(zf, buf, sizeof(buf))) > 0)
+        size_t uncompressedSize = (size_t)fileStat.m_uncomp_size;
+        std::vector<char> buffer(uncompressedSize);
+        if (!mz_zip_reader_extract_to_mem(&zipArchive, i, buffer.data(), uncompressedSize, 0))
         {
-            ofs.write(buf, bytesRead);
+            wprintf(L"[Storage] Failed to extract file: %s\n", filename.c_str());
+            continue;
         }
-        ofs.close();
-        zip_fclose(zf);
+        std::ofstream ofs(outPath, std::ios::binary);
+        ofs.write(buffer.data(), buffer.size());
     }
-    zip_close(za);
+    mz_zip_reader_end(&zipArchive);
     return true;
 }
 
 bool InstallWallpaper(const std::wstring &zipPath)
 {
-    wprintf(L"[Storage] Installing from: %s\n", zipPath.c_str());
+    wprintf(L"[Storage] Installing from: %ws\n", zipPath.c_str());
     if (fs::exists(zipPath) && fs::path(zipPath).extension() == L".zip")
     {
         std::wstring destFolder = (GetWallpapersDir() / fs::path(zipPath).stem()).wstring();
@@ -207,6 +203,7 @@ bool InstallWallpaper(const std::wstring &zipPath)
         if (success)
         {
             wprintf(L"[Storage] Unzipped successfully\n");
+            // flatten if only one folder at top level
             size_t count = 0;
             fs::directory_entry sourceFolder;
             for (const auto &entry : fs::directory_iterator(destFolder))
