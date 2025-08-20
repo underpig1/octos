@@ -6,8 +6,8 @@ OutputBaseFilename=OctosSetup
 Compression=lzma
 SolidCompression=yes
 UninstallDisplayIcon={app}\Octos.exe
-ArchitecturesAllowed=x86compatible x64compatible
-ArchitecturesInstallIn64BitMode=x64compatible
+ArchitecturesAllowed=x86 x64
+ArchitecturesInstallIn64BitMode=x64
 DefaultDirName={commonpf}\Octos
 ChangesEnvironment=true
 DisableWelcomePage=no
@@ -38,6 +38,9 @@ Name: envPath; Description: "Add Octos to PATH"; GroupDescription: "Add the 'oct
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{localappdata}\Octos"
+
+[Registry]
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "Octos"; ValueData: """{app}\Octos.exe"""; Flags: uninsdeletevalue
 
 [Code]
 const EnvironmentKey = 'SYSTEM\CurrentControlSet\Control\Session Manager\Environment';

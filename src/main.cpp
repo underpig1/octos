@@ -308,20 +308,26 @@ bool HandleInstances(LPWSTR lpCmdLine)
     return false;
 }
 
+const wchar_t *runKeyPath = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
+
 bool AddToStartup()
 {
-    const std::wstring &exePath = GetAppPath();
+    wchar_t path[MAX_PATH] = {0};
+    DWORD length = GetModuleFileNameW(NULL, path, MAX_PATH);
+    if (length == 0) return false;
+    std::wstring startupPath(path, length);
+    startupPath = L"\"" + startupPath + L"\"";
+
+    if (startupPath.empty()) return false;
     HKEY hKey;
-    const wchar_t *runKeyPath = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
-    if (RegOpenKeyExW(HKEY_CURRENT_USER, runKeyPath, 0, KEY_WRITE, &hKey) != ERROR_SUCCESS)
-        return false;
+    if (RegOpenKeyExW(HKEY_CURRENT_USER, runKeyPath, 0, KEY_WRITE, &hKey) != ERROR_SUCCESS) return false;
     LONG result = RegSetValueExW(
         hKey,
-        CLASS_NAME,
+        L"Octos",
         0,
         REG_SZ,
-        reinterpret_cast<const BYTE *>(exePath.c_str()),
-        static_cast<DWORD>((exePath.size() + 1) * sizeof(wchar_t)));
+        reinterpret_cast<const BYTE *>(startupPath.c_str()),
+        static_cast<DWORD>((startupPath.size() + 1) * sizeof(wchar_t)));
     RegCloseKey(hKey);
     return result == ERROR_SUCCESS;
 }
@@ -329,52 +335,11 @@ bool AddToStartup()
 bool RemoveFromStartup()
 {
     HKEY hKey;
-    const wchar_t *runKeyPath = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
     if (RegOpenKeyExW(HKEY_CURRENT_USER, runKeyPath, 0, KEY_WRITE, &hKey) != ERROR_SUCCESS)
         return false;
-    LONG result = RegDeleteValueW(hKey, CLASS_NAME);
+    LONG result = RegDeleteValueW(hKey, L"Octos");
     RegCloseKey(hKey);
     return result == ERROR_SUCCESS || result == ERROR_FILE_NOT_FOUND;
-}
-
-bool HasSetStartupOnce()
-{
-    HKEY hKey;
-    DWORD value = 0;
-    DWORD size = sizeof(DWORD);
-
-    if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\Octos", 0, KEY_READ, &hKey) != ERROR_SUCCESS)
-        return false;
-
-    if (RegQueryValueExW(hKey, L"StartupSet", nullptr, nullptr, (LPBYTE)&value, &size) != ERROR_SUCCESS)
-    {
-        RegCloseKey(hKey);
-        return false;
-    }
-
-    RegCloseKey(hKey);
-    return value == 1;
-}
-
-void MarkStartupSet()
-{
-    HKEY hKey;
-    DWORD value = 1;
-
-    if (RegCreateKeyExW(HKEY_CURRENT_USER, L"Software\\Octos", 0, nullptr, 0, KEY_WRITE, nullptr, &hKey, nullptr) == ERROR_SUCCESS)
-    {
-        RegSetValueExW(hKey, L"StartupSet", 0, REG_DWORD, (const BYTE *)&value, sizeof(DWORD));
-        RegCloseKey(hKey);
-    }
-}
-
-void HandleStartup()
-{
-    if (!HasSetStartupOnce())
-    {
-        AddToStartup();
-        MarkStartupSet();
-    }
 }
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int nCmdShow)
@@ -400,7 +365,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, LPWSTR lpCmdLine, int nCmdSh
         if (msg.message == WM_USER + 10)
         {
             LoadAndHandleAppPrefs();
-            HandleStartup();
             InitializeWebViewEnvironment();
             InitializeTrayIcon();
             CreateMainWindow();

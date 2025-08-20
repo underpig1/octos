@@ -135,7 +135,7 @@
       Value="$(MSIXArch)"
       Namespaces="$(Namespaces)">
     </XmlPoke>
-    <Exec Command="powershell -Command &quot;Start-Sleep -Seconds 1&quot;" />
+    <Exec Command="powershell -Command &quot;Start-Sleep -Seconds 2&quot;" />
     <Exec Command="MakeAppx.exe pack /d &quot;$(OutFolder)&quot; /p &quot;$(OutAppx)&quot;" />
     <!-- <Exec Command="signtool sign /a /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 &quot;$(OutAppx)&quot;" /> -->
     <Message Text="MSIX created at $(OutAppx)" Importance="high" />

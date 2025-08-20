@@ -631,6 +631,8 @@ This file was automatically generated - do not edit
 
     document.addEventListener('DOMContentLoaded', revealOnScroll)
     document.addEventListener('DOMContentLoaded', initScrollPos)
+    initScrollPos()
+    setTimeout(initScrollPos, 1000)
     window.addEventListener('resize', revealOnScroll)
     window.addEventListener('resize', initScrollPos)
 

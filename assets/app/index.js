@@ -260,6 +260,7 @@ document.addEventListener("DOMContentLoaded", () => {
     window.chrome.webview.postMessage({ type: 'request-prefs' });
     window.chrome.webview.postMessage({ type: 'request-monitor-ids' });
     window.chrome.webview.postMessage({ type: 'request-wallpaper-data' });
+    setTimeout(() => window.chrome.webview.postMessage({ type: 'request-wallpaper-data' }), 1000)
 
     populateExplore();
     setInterval(handleScrollShadows, 100);

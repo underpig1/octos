@@ -7,7 +7,7 @@
 #include <fstream>
 #include <codecvt>
 #include <urlmon.h>
-// #include <winrt/Windows.Storage.h>
+#include <winrt/Windows.Storage.h>
 
 #include "Storage.h"
 #include "../Bridge/Bridge.h"
@@ -64,15 +64,36 @@ std::wstring ResolvePath(std::wstring relativePath, bool includeFileScheme)
     return url;
 }
 
+#include <appmodel.h>
+
 fs::path GetAppLocalDir()
 {
     // auto localFolder = winrt::Windows::Storage::ApplicationData::Current().LocalFolder();
     // return localFolder.Path().c_str();
 
-    wchar_t appDataPath[MAX_PATH] = {0};
-    if (FAILED(SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, 0, appDataPath)))
-        return L"";
-    return fs::path(appDataPath) / L"Octos";
+    UINT32 length = 0;
+    LONG rc = GetCurrentPackageFullName(&length, nullptr);
+    if (rc == APPMODEL_ERROR_NO_PACKAGE)
+    {
+        wchar_t appDataPath[MAX_PATH] = {0};
+        if (FAILED(SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, 0, appDataPath)))
+            return L"";
+        return fs::path(appDataPath) / L"Octos";
+    }
+    else
+    {
+        wchar_t *buffer = new wchar_t[length];
+        if (GetCurrentPackageFullName(&length, buffer) == ERROR_SUCCESS)
+        {
+            wchar_t path[MAX_PATH];
+            if (SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA, nullptr, 0, path)))
+            {
+                return fs::path(path) / L"Packages" / buffer / L"LocalState";
+            }
+        }
+        delete[] buffer;
+    }
+    return L"";
 }
 
 void CopyInitialWallpapers()
@@ -170,18 +191,20 @@ bool ExtractZip(const std::wstring &zipPath, const std::wstring &destFolder)
             continue;
         std::string filename(fileStat.m_filename);
         fs::path outPath = fs::path(destFolder) / filename;
-        if (filename.back() == '/')
-        {
-            fs::create_directories(outPath);
+        std::string normalizedPath = outPath.lexically_normal().string();
+        std::string destStr = fs::path(destFolder).lexically_normal().string();
+        if (normalizedPath.size() < destStr.size() || normalizedPath.compare(0, destStr.size(), destStr) != 0)
             continue;
-        }
         fs::create_directories(outPath.parent_path());
         size_t uncompressedSize = (size_t)fileStat.m_uncomp_size;
-        std::vector<char> buffer(uncompressedSize);
-        if (!mz_zip_reader_extract_to_mem(&zipArchive, i, buffer.data(), uncompressedSize, 0))
+        if (uncompressedSize == 0)
         {
+            std::ofstream ofs(outPath, std::ios::binary);
             continue;
         }
+        std::vector<char> buffer(uncompressedSize);
+        if (!mz_zip_reader_extract_to_mem(&zipArchive, i, buffer.data(), uncompressedSize, 0))
+            continue;
         std::ofstream ofs(outPath, std::ios::binary);
         ofs.write(buffer.data(), buffer.size());
     }
@@ -213,12 +236,22 @@ bool InstallWallpaper(const std::wstring &zipPath)
             }
             if (count == 1 && sourceFolder.is_directory())
             {
-                for (const auto &entry : fs::directory_iterator(sourceFolder))
+                for (const auto &entry : fs::recursive_directory_iterator(sourceFolder))
                 {
-                    fs::path newPath = fs::path(destFolder) / entry.path().filename();
-                    fs::rename(entry.path(), newPath);
+                    fs::path relative = fs::relative(entry.path(), sourceFolder);
+                    fs::path newPath = fs::path(destFolder) / relative;
+
+                    if (entry.is_directory())
+                    {
+                        fs::create_directories(newPath);
+                    }
+                    else if (entry.is_regular_file())
+                    {
+                        fs::create_directories(newPath.parent_path());
+                        fs::copy_file(entry.path(), newPath, fs::copy_options::overwrite_existing);
+                    }
                 }
-                fs::remove(sourceFolder);
+                fs::remove_all(sourceFolder);
             }
         }
         return success;
