@@ -67,9 +67,9 @@
     <ClCompile Include="src\**\*.cpp" />
   </ItemGroup>
 
-  <!-- <ItemGroup>
+  <ItemGroup>
     <ResourceCompile Include="assets\icon.rc" />
-  </ItemGroup> -->
+  </ItemGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 
