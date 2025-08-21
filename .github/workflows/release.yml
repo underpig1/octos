@@ -39,7 +39,7 @@ jobs:
 
       - name: Setup MSBuild env
         uses: microsoft/setup-msbuild@v2
-      - name: Install dependencies or restore cache
+      - name: Install dependencies
         uses: lukka/run-vcpkg@v11
         with:
           doNotCache: true
@@ -51,6 +51,12 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v2
         if: github.ref_type == 'tag'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
         with:
-          files: octos.min.js build/OctosSetup.exe LICENSE #build/OctosSetup.msixbundle #build/appx/*
+          files: |
+            octos.min.js
+            build/OctosSetup.exe
+            LICENSE
           body_path: ./.github/CHANGELOG.md
+          token: ${{ secrets.GITHUB_TOKEN }}

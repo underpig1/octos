@@ -20,8 +20,6 @@ jobs:
         uses: microsoft/setup-msbuild@v2
       - name: Install dependencies or restore cache
         uses: lukka/run-vcpkg@v11
-        with:
-          doNotCache: false
       - name: Integrate vcpkg
         run: vcpkg integrate install
       - name: Build
