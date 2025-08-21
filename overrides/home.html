@@ -1,0 +1,786 @@
+{#-
+This file was automatically generated - do not edit
+-#}
+{% extends "main.html" %}
+{% block tabs %}
+{{ super() }}
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
+<style>
+    :root {
+        --scroll: 0px;
+        --pos: 0px;
+        --octos: #e52e2e;
+    }
+
+    .md-header {
+        position: initial;
+        background-color: transparent !important;
+        /* backdrop-filter: blur(4px); */
+    }
+
+    .md-tabs {
+        background-color: transparent !important;
+        /* backdrop-filter: blur(4px); */
+    }
+
+    .md-main__inner {
+        margin: 0;
+    }
+
+    .md-content {
+        display: none;
+    }
+
+    @media screen and (min-width:60em) {
+        .md-sidebar--secondary {
+            display: none;
+        }
+    }
+
+    @media screen and (min-width:76.25em) {
+        .md-sidebar--primary {
+            display: none;
+        }
+    }
+
+    body {
+        background-color: black;
+    }
+
+    .background {
+        position: absolute;
+        width: 100%;
+        height: 100vh;
+        top: -10px;
+        left: 0;
+        margin: 0;
+        z-index: -1;
+        overflow: hidden;
+    }
+
+    #background {
+        min-width: 100%;
+        min-height: 100%;
+        z-index: 0;
+        opacity: 0.6;
+        object-fit: cover;
+    }
+
+    .loading {
+        position: absolute;
+        left: 0;
+        top: 0;
+        min-width: 100%;
+        min-height: 100%;
+        z-index: -1;
+        opacity: 0.6;
+        object-fit: cover;
+    }
+
+    .gradient-overlay {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 30%;
+        background: linear-gradient(to bottom, transparent, black);
+        pointer-events: none;
+    }
+
+    .gradient-top {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 20%;
+        background: linear-gradient(to top, transparent, black);
+        pointer-events: none;
+    }
+
+    .scrollable {
+        transform: translateY(calc((var(--scroll) - var(--pos))/var(--damp)));
+        /* transition: transformY 0.1s linear; */
+    }
+
+    .mdx-container h1 {
+        font-weight: bold;
+        color: white;
+        font-size: 32pt;
+        margin: auto;
+    }
+
+    .mdx-container h3 {
+        font-weight: bold;
+        color: white;
+        font-size: 18pt;
+    }
+
+    .mdx-hero {
+        width: 100%;
+        height: 100vh;
+    }
+
+    .mdx-hero__content {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .mdx-container .button {
+        display: block;
+        color: white;
+        text-decoration: none;
+        position: relative;
+        box-shadow: 0 4px 4px #00000033;
+        border-radius: 6px;
+        border: 1px solid #5b5b5b;
+        outline: none;
+        background-color: #111;
+        width: 170px;
+        height: 42px;
+        line-height: 42px;
+        font-size: 11pt;
+        font-weight: 600;
+        margin-right: 10px;
+        margin-top: 10px;
+        cursor: pointer;
+        text-align: center;
+        float: left;
+        transition: opacity 0.1s ease-in-out;
+    }
+
+    .mdx-container .button:hover {
+        opacity: 0.7;
+        color: white;
+    }
+
+    .mdx-container .button:visited {
+        color: white;
+    }
+
+    .hero-centered {
+        width: 65%;
+    }
+
+    .feature-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;
+        height: auto;
+        margin: 0 auto;
+        text-align: center;
+        margin-bottom: 100px;
+
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .feature {
+        padding: 20px;
+        flex: 1 0 250px;
+        max-width: 400px;
+    }
+
+    .feature-icon {
+        background: #111;
+        color: white;
+        font-size: 24pt;
+        border-radius: 50%;
+        width: 64px;
+        height: 64px;
+        line-height: 64px;
+        margin: 0;
+        display: inline-block;
+        border: 1px solid #5b5b5b;
+    }
+
+    .feature p {
+        text-justify: distribute;
+        font-size: 11pt;
+    }
+
+    .feature h3 {
+        margin-top: 40px;
+        margin-bottom: 0;
+    }
+
+    .reveal {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    /* .button.reveal {
+        transition: opacity 0.6s ease, transform 0.6s ease !important;
+    } */
+
+    .reveal.revealed {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .centered-header {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 50px !important;
+    }
+
+    .examples {
+        height: auto;
+        /* background-color: #111;
+        border: 1px solid #5b5b5b; */
+        margin: 0 50px;
+    }
+
+    .cards {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 10px;
+    }
+
+    @media (min-width: 900px) {
+        .examples {
+            margin: 0 50px;
+        }
+
+        .cards {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
+    @media (max-width: 899px) {
+        .examples {
+            margin: 0 20px;
+        }
+
+        .cards {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 1000px) {
+        .feature-grid {
+            grid-template-columns: repeat(2, 1fr);
+            width: 800px;
+            max-width: 90%;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .feature-grid {
+            display: flex;
+        }
+    }
+
+    .card {
+        position: relative;
+        /* max-width: 350px; */
+        flex: 1 1 250px;
+        aspect-ratio: 16 / 9;
+        float: left;
+    }
+
+    .card-content {
+        width: 100%;
+        height: 100%;
+        border-radius: 3px;
+        background-color: #111;
+        box-shadow: 0 1px 10px #00000055;
+        border: 1px solid #5b5b5b;
+        cursor: pointer;
+        background-size: cover;
+        background-position: center center;
+        transition: transform 0.1s ease;
+        transform-style: preserve-3d;
+    }
+
+    .card-info {
+        position: absolute;
+        display: flex;
+        width: 100%;
+        bottom: 0;
+        height: 36px;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 15px;
+        background-color: #00000075;
+        font-size: 13px;
+    }
+
+    .card-info>.card-title {
+        color: #ffffffff;
+        font-weight: 500;
+    }
+
+    .card-info>.card-author {
+        font-weight: 400;
+        color: #ffffff85;
+    }
+
+    /* .example-content {
+        margin-top: 10px;
+        width: 100%;
+        aspect-ratio: 16 / 8;
+        border: 1px solid #5b5b5b;
+        background: #111;
+    } */
+
+    .app-preview-container {
+        margin-top: 100px;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        /* height: 350px; */
+        height: fit-content;
+    }
+
+    .app-preview {
+        /* height: 100%; */
+        width: 800px;
+        max-width: 95%;
+        aspect-ratio: 16 / 9;
+        background-image: url(./img/app.png);
+        background-size: 100%;
+        background-repeat: no-repeat;
+        --damp: 5;
+        background-position: center calc(0% - (var(--scroll) - var(--pos))/var(--damp));
+    }
+
+    .text-outline {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        --damp: 5;
+        background-image: url(./img/text-outline.png);
+        background-size: 800px;
+        background-repeat: no-repeat;
+        background-position: center calc(0px - (var(--scroll) - var(--pos))/var(--damp));
+        top: 0;
+        left: 0;
+        z-index: -1;
+    }
+
+    .footer {
+        width: 100%;
+        height: 300px;
+        margin-bottom: 50px;
+    }
+
+    .footer-content {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        /* background-color: #e52e2e; */
+        /* background-color: #1a1a1a; */
+        border-top: 1px solid #5b5b5b;
+        justify-content: center;
+        background-size: 75%;
+        background-repeat: no-repeat;
+        padding: 0 50px;
+    }
+
+    .md-main {
+        height: 0;
+    }
+
+    iframe {
+        outline: none;
+        width: 100%;
+        height: 100%;
+        border: none;
+        margin: 0;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .modal.active {
+        opacity: 1;
+    }
+
+    .modal-content {
+        background: #111;
+        border-radius: 4px;
+        width: 80%;
+        max-width: 900px;
+        aspect-ratio: 16 / 9;
+        box-shadow: 0 0 20px #000;
+        position: relative;
+        transition: transform 0.3s ease;
+        transform: scale(0.9);
+        border: 1px solid #5b5b5b;
+        background: #111;
+    }
+
+    .modal.active>.modal-content {
+        transform: none;
+    }
+
+    .modal-content img {
+        width: 100%;
+        height: 100%;
+    }
+
+    .modal-content .close {
+        display: block;
+        position: absolute;
+        top: -15px;
+        text-align: center;
+        right: -15px;
+        font-size: 30px;
+        color: white;
+        opacity: 1;
+        cursor: pointer;
+        z-index: 8;
+        background-color: #111;
+        border: 1px solid gray;
+        border-radius: 999px;
+        width: 35px;
+        height: 35px;
+        line-height: 26px;
+    }
+
+    .modal-content .modal-info {
+        position: absolute;
+        right: -25px;
+        bottom: -25px;
+        border: 1px solid #5b5b5b;
+        border-radius: 10px;
+        background-color: #111;
+        width: 350px;
+        height: fit-content;
+        padding: 18px 22px;
+    }
+
+    #modal-title {
+        font-size: 26px;
+        color: #f0f0f0ff;
+        font-weight: 700;
+    }
+
+    #modal-author {
+        font-size: 14px;
+        color: #a0b0b0ff;
+        font-weight: normal;
+        margin: 0;
+        margin-top: 4px;
+    }
+
+    #modal-description {
+        font-size: 16px;
+        color: #f0f0f0ff;
+        font-weight: normal;
+        margin-top: 16px;
+        margin-bottom: 8px;
+    }
+
+    @media screen and (max-width: 800px) {
+        .modal-info {
+            position: static !important;
+            width: auto !important;
+            border-radius: 0 !important;
+            border: none !important
+        }
+    }
+</style>
+<noscript>
+    <style>
+        .script-dependent {
+            display: none;
+        }
+    </style>
+</noscript>
+<section class="mdx-container">
+    <div class="md-grid md-typeset">
+        <div class="mdx-hero">
+            <div class="background">
+                <video id="background" src="img/octos-preview.mp4" alt="" draggable="false" autoplay playsinline muted
+                    loop></video>
+                <div class="gradient-top"></div>
+                <div class="gradient-overlay"></div>
+            </div>
+            <div class="mdx-hero__content">
+                <div class="hero-centered">
+                    <h1 class="scrollable" style="--damp: -2">Your new desktop awaits. 🚀</h1>
+                    <p class="scrollable" style="--damp: -2">The open-source HTML dynamic desktop engine for Windows
+                        10 &amp; 11.</p>
+                    <a class="scrollable button" style="--damp: -3; background-color: red"
+                        data-umami-event="download-button">Download</a>
+                    <a class="scrollable button" style="--damp: -3" data-umami-event="github-button" href="https://github.com/underpig1/octos" target="_blank">GitHub</a>
+                </div>
+            </div>
+        </div>
+        <div class="feature-grid">
+            <div class="feature reveal revealed">
+                <i class="ri-tools-line feature-icon"></i>
+                <h3>Quick and easy</h3>
+                <p>Customizing your desktop has never been easier. Create your own live, interactive wallpapers with
+                    HTML, CSS, and JS, or browse and download others' creations right from the app.</p>
+            </div>
+            <div class="feature reveal revealed" style="transition-delay: 0.2s">
+                <i class="ri-github-fill feature-icon"></i>
+                <h3>Open-source</h3>
+                <p>Octos is driven by its community. Contribute your own wallpaper or check out the repository on
+                    GitHub. And, of course, Octos and all wallpapers are completely free. Join our community!</p>
+            </div>
+            <div class="feature reveal revealed" style="transition-delay: 0.4s">
+                <i class="ri-speed-up-line feature-icon"></i>
+                <h3>Performant</h3>
+                <p>Octos is optimized for any and all web technologies to run smoothly on the desktop, like by
+                    pausing when an app is in fullscreen. Octos is designed for all machines,
+                    from beefed-up PCs to battery-powered
+                    laptops.</p>
+            </div>
+            <div class="feature reveal revealed" style="transition-delay: 0.6s">
+                <i class="ri-settings-3-line feature-icon"></i>
+                <h3>Powerful</h3>
+                <p>Octos provides loads of powerful and easy-to-use features, from music visualization and
+                    media controls right on your desktop to multi-monitor synchronization. Try it out for yourself!
+                </p>
+            </div>
+        </div>
+        <h1 class="centered-header script-dependent">See for yourself:</h1>
+        <div class="examples script-dependent">
+            <div class="cards" id="card-box">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="card-info">
+                            <p class="card-title">Loading...</p>
+                            <p class="card-author"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="example-content">
+                <iframe src="overrides/examples/contraption.html"></iframe>
+            </div> -->
+        </div>
+        <div class="app-preview-container scroll-container">
+        <!-- <h1 class="scrollable centered-header" style="--damp: -5; position: absolute; top: -20px;">Ready?</h1> -->
+            <div class="app-preview"></div>
+        </div>
+        <div class="footer scroll-container">
+            <div class="footer-content">
+                <div style="width: max-content;">
+                    <h1 class="reveal revealed" style="--damp: -2">Let's do this!</h1>
+                    <p class="reveal revealed" style="--damp: -2; margin: 10px 0;">Download for free on Windows 10 &amp; 11 today</p>
+                    <a class="reveal revealed button" style="--damp: -3; background-color: white; color: black;" data-umami-event="download-button">Download</a>
+                    <a class="reveal revealed button" style="--damp: -3" data-umami-event="github-button" href="https://github.com/underpig1/octos" target="_blank">GitHub</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <img id="modal-video" src="" />
+            <div class="modal-info">
+                <h1 id="modal-title">Title</h1>
+                <p id="modal-author">By author</p>
+                <p id="modal-description">This is one of the coolest mods of our century.</p>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    function revealOnScroll() {
+        const reveals = document.querySelectorAll('.reveal');
+        const windowHeight = window.innerHeight;
+        for (const reveal of reveals) {
+            const revealPoint = reveal.classList.contains('feature') ? 150 : 0;
+            const elementTop = reveal.getBoundingClientRect().top;
+            if (elementTop < windowHeight - revealPoint) {
+                reveal.classList.add('revealed');
+            } else {
+                reveal.classList.remove('revealed');
+            }
+        }
+    }
+
+    function initScrollPos() {
+        console.log('initing');
+        const scrolls = document.querySelectorAll('.scroll-container');
+        for (const el of scrolls) {
+            const rect = el.getBoundingClientRect();
+            el.style.setProperty('--pos', rect.top + window.scrollY + 'px');
+        }
+    }
+
+    document.addEventListener('scroll', (e) => {
+        document.documentElement.style.setProperty('--scroll', this.scrollY + 'px')
+        revealOnScroll();
+    });
+
+    document.addEventListener('DOMContentLoaded', revealOnScroll)
+    document.addEventListener('DOMContentLoaded', initScrollPos)
+    window.addEventListener('resize', revealOnScroll)
+    window.addEventListener('resize', initScrollPos)
+
+    function calc3dEffect(e) {
+        const clamp = (x, t) => Math.min(Math.max(x, -t), t)
+        const { clientX, clientY, currentTarget } = e;
+        const { clientWidth, clientHeight } = currentTarget;
+        const rect = currentTarget.getBoundingClientRect();
+
+        const x = clientX - rect.left - clientWidth / 2;
+        const y = clientY - rect.top - clientHeight / 2;
+
+        const rotateX = clamp(-y / e.target.offsetWidth * 20, 10);
+        const rotateY = clamp(x / e.target.offsetHeight * 20, 10);
+        return { rotateX, rotateY }
+    }
+
+    function add3dEffect(card) {
+        card.onmousemove = (e) => {
+            let { rotateX, rotateY } = calc3dEffect(e)
+            e.currentTarget.querySelector('.card-content').style.transform = ` perspective(500px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(0.95)`;
+        }
+        card.onmouseleave = (e) => {
+            e.currentTarget.querySelector('.card-content').style.transform = `perspective(500px) rotateX(0) rotateY(0) scale(1)`, 100;
+        }
+        card.onmousedown = (e) => {
+            let { rotateX, rotateY } = calc3dEffect(e)
+            e.currentTarget.querySelector('.card-content').style.transform = ` perspective(500px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(0.92)`;
+        }
+        card.onmouseup = (e) => {
+            let { rotateX, rotateY } = calc3dEffect(e)
+            e.currentTarget.querySelector('.card-content').style.transform = ` perspective(500px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale(0.95)`;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', (e) => {
+        const cards = document.getElementsByClassName('card');
+        for (const card of cards) {
+            add3dEffect(card);
+        }
+    })
+
+    function createCard(name, author, imageUrl, previewUrl) {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const cardContent = document.createElement('div');
+        cardContent.className = 'card-content';
+        cardContent.style.backgroundImage = `url('${imageUrl}')`;
+        cardContent.style.backgroundSize = 'cover';
+        cardContent.style.backgroundPosition = 'center';
+
+        const cardInfo = document.createElement('div');
+        cardInfo.className = 'card-info';
+
+        const cardTitle = document.createElement('p');
+        cardTitle.className = 'card-title';
+        cardTitle.textContent = name;
+
+        const cardAuthor = document.createElement('p');
+        cardAuthor.className = 'card-author';
+        if (author) cardAuthor.textContent = "By " + author;
+
+        cardInfo.appendChild(cardTitle);
+        cardInfo.appendChild(cardAuthor);
+        cardContent.appendChild(cardInfo);
+        card.appendChild(cardContent);
+
+        card.onclick = () => openModal(previewUrl)
+
+        add3dEffect(card);
+
+        return card;
+    }
+
+    const examples = []
+    const resolvePath = (rel) => rel ? ('https://raw.githubusercontent.com/underpig1/octos-community/refs/heads/master/' + rel).replace('\\', '/') : null;
+    fetch(resolvePath('index.json'))
+        .then(res => res.json())
+        .then(data => {
+            for (const example of data) {
+                example.imagePath = resolvePath(example.imagePath);
+                if (!example.previewPath) continue;
+                example.previewPath = resolvePath(example.previewPath);
+                examples.push(example);
+            }
+            populateExamples();
+        });
+
+    function populateExamples() {
+        const cardBox = document.getElementById('card-box')
+        cardBox.innerHTML = "";
+        for (var i = 0; i < Math.min(examples.length, 17); i++) {
+            const example = examples[i];
+            var card = createCard(example.name, example.author, example.imagePath, example.previewPath);
+            card.classList.add('reveal')
+            card.style.setProperty('--reveal-point', 0)
+            cardBox.appendChild(card);
+        }
+        initScrollPos()
+    }
+
+    const modal = document.getElementById("modal");
+    const video = document.getElementById("modal-video");
+
+    const modalInfo = document.querySelector(".modal-info");
+    const modalTitle = document.getElementById("modal-title");
+    const modalAuthor = document.getElementById("modal-author");
+    const modalDescription = document.getElementById("modal-description");
+
+    function closeModal() {
+        modal.classList.remove("active");
+        setTimeout(() => {
+            modal.style.display = "none";
+        }, 300);
+    }
+
+    function openModal(src) {
+        modal.style.display = "flex";
+        requestAnimationFrame(() => {
+            modal.classList.add("active");
+        });
+        const mod = examples.filter(m => m.previewPath == src)[0]
+        modalTitle.innerText = mod.name
+        modalAuthor.innerText = 'By ' + mod.author
+        if (!mod.author) modalAuthor.style.display = 'none'
+        else modalAuthor.style.display = 'block'
+        modalDescription.innerText = mod.description
+        if (mod.name == '3D Car') {
+            modalInfo.style.left = '-25px';
+            modalInfo.style.right = 'auto';
+        }
+        else {
+            modalInfo.style.right = '-25px';
+            modalInfo.style.left = 'auto';
+        }
+        video.src = src
+    }
+
+    window.onclick = (event) => {
+        if (event.target === modal) closeModal()
+    };
+</script>
+{% endblock %}
+{% block content %}{% endblock %}
+{% block footer %}
+{{ super() }}
+{% endblock %}

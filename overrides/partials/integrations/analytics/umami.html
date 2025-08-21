@@ -1,0 +1,55 @@
+{% if config.extra.analytics %}
+{% set property = config.extra.analytics.property | d("", true) %}
+{% endif %}
+
+<script id="__analytics">
+    function __md_analytics() {
+        document.addEventListener("DOMContentLoaded", function () {
+            if (document.forms.search) {
+                var query = document.forms.search.query
+                query.addEventListener("blur", function () {
+                    if (this.value)
+                        umami.track("search", { search_term: this.value })
+                })
+            }
+
+            document$.subscribe(function () {
+                var feedback = document.forms.feedback
+                if (typeof feedback === "undefined")
+                    return
+                for (var button of feedback.querySelectorAll("[type=submit]")) {
+                    button.addEventListener("click", function (ev) {
+                        ev.preventDefault()
+
+                        var page = document.location.pathname
+                        var data = this.getAttribute("data-md-value")
+                        umami.track("feedback", { page, data });
+
+                        feedback.firstElementChild.disabled = true
+                        var note = feedback.querySelector(
+                            ".md-feedback__note [data-md-value='" + data + "']"
+                        )
+                        if (note)
+                            note.hidden = false
+                    })
+
+                    feedback.hidden = false
+                }
+            })
+
+            // location$.subscribe(function (url) {
+            //     gtag("config", "{{ property }}", {
+            //         page_path: url.pathname
+            //     })
+            // })
+        })
+
+        var script = document.createElement("script")
+        script.src = 'https://cloud.umami.is/script.js';
+        script.defer = true;
+        script.setAttribute('data-website-id', '{{ property }}');
+
+        var container = document.getElementById("__analytics")
+        container.insertAdjacentElement("afterEnd", script)
+    }
+</script>
