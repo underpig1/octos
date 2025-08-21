@@ -22,5 +22,7 @@ jobs:
         uses: lukka/run-vcpkg@v11
         with:
           doNotCache: false
+      - name: Integrate vcpkg
+        run: vcpkg integrate install
       - name: Build
-        run: msbuild Octos.vcxproj /p:Configuration=Release /p:VcpkgRoot="%VCPKG_ROOT%"
+        run: msbuild Octos.vcxproj /p:Configuration=Release
