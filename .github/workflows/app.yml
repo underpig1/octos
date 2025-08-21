@@ -10,6 +10,7 @@ on:
     paths:
       - "src/**"
       - "Octos.vcxproj"
+  workflow_dispatch:
 jobs:
   build:
     runs-on: windows-latest
