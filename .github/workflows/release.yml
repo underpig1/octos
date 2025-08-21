@@ -25,7 +25,7 @@ jobs:
         with:
           node-version: 20
       - name: Install npm dependencies
-        run: npm install
+        run: npm ci
       - name: Update package version
         run: npm version $env:VERSION --no-git-tag-version
       - name: Build API
