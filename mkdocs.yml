@@ -94,6 +94,7 @@ nav:
       - Support: about/support.md
       - Roadmap: about/roadmap.md
       - License: about/license.md
+      - Privacy policy: about/privacy.md
       # - Privacy policy: about/privacy.md
   - Support: about/support.md
 markdown_extensions:
