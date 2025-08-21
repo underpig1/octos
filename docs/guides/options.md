@@ -58,7 +58,7 @@ Include this script tag in your HTML:
 
 You can also install the Octos API with npm:
 ```
-npm -i octos
+npm install octos
 ```
 
 **Option 3: direct download**
@@ -121,7 +121,7 @@ Once again, we could separately specify handlers for `onchange` and `onload` eve
 Let's add our new background color picker to our `octos.json` file:
 ```json
 "options": {
-    "url": {
+    "background": {
         "label": "Background color:",
         "type": "color-picker",
         "value": "#ffffff",

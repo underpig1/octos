@@ -5,10 +5,22 @@
 #include "../Core/Core.h"
 #include "../WebView/WebView.h"
 #include "../Watchdog/Watchdog.h"
+#include "../TrayIcon/TrayIcon.h"
 
 static HHOOK g_mouseHook = nullptr;
 HHOOK g_keyboardHook = nullptr;
-bool just_released = false;
+bool waiting_for_first_click = true;
+bool left_mouse_down = false;
+bool right_mouse_down = false;
+bool middle_mouse_down = false;
+
+void FirstClickMessage()
+{
+    ShowTrayNotification(L"Tip", L"To drag on your desktop without the select box showing, double click and drag instead. (Or triple tap and drag for trackpads.) Some mods hide it by default.");
+}
+
+HWND working_hwnd;
+bool working_clicked = false;
 
 LRESULT CALLBACK MouseEventProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
@@ -43,6 +55,11 @@ LRESULT CALLBACK MouseEventProc(int nCode, WPARAM wParam, LPARAM lParam)
         if (IsWindow(mw.hwnd) && GetWindowRect(mw.hwnd, &rc) && PtInRect(&rc, screenMouse))
         {
             hwnd = mw.hwnd;
+            if (working_hwnd != hwnd)
+            {
+                working_hwnd = hwnd;
+                working_clicked = false;
+            }
             break;
         }
     }
@@ -59,28 +76,35 @@ LRESULT CALLBACK MouseEventProc(int nCode, WPARAM wParam, LPARAM lParam)
 
     if (not_over_wallpaper)
     {
-        data->compController->SendMouseInput(
-            COREWEBVIEW2_MOUSE_EVENT_KIND_LEFT_BUTTON_UP,
-            COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_LEFT_BUTTON,
-            0,
-            clientMouse);
-        data->compController->SendMouseInput(
-            COREWEBVIEW2_MOUSE_EVENT_KIND_RIGHT_BUTTON_UP,
-            COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_RIGHT_BUTTON,
-            0,
-            clientMouse);
-        data->compController->SendMouseInput(
-            COREWEBVIEW2_MOUSE_EVENT_KIND_MIDDLE_BUTTON_UP,
-            COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_MIDDLE_BUTTON,
-            0,
-            clientMouse);
+        if (working_clicked)
+        {
+            if (left_mouse_down)
+                data->compController->SendMouseInput(
+                    COREWEBVIEW2_MOUSE_EVENT_KIND_LEFT_BUTTON_UP,
+                    COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_LEFT_BUTTON,
+                    0,
+                    clientMouse);
+            else if (right_mouse_down)
+                data->compController->SendMouseInput(
+                    COREWEBVIEW2_MOUSE_EVENT_KIND_RIGHT_BUTTON_UP,
+                    COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_RIGHT_BUTTON,
+                    0,
+                    clientMouse);
+            else if (middle_mouse_down)
+                data->compController->SendMouseInput(
+                    COREWEBVIEW2_MOUSE_EVENT_KIND_MIDDLE_BUTTON_UP,
+                    COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_MIDDLE_BUTTON,
+                    0,
+                    clientMouse);
+        }
         // data->compController->SendMouseInput(
         //     COREWEBVIEW2_MOUSE_EVENT_KIND_MOVE,
         //     COREWEBVIEW2_MOUSE_EVENT_VIRTUAL_KEYS_NONE,
         //     0,
         //     POINT{10000, 10000});
-        just_released = true;
-        // return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
+
+        // COMMENT LINE BELOW TO ALLOW HOVER FROM ANYWHERE
+        return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
     }
 
     COREWEBVIEW2_MOUSE_EVENT_KIND kind;
@@ -93,21 +117,32 @@ LRESULT CALLBACK MouseEventProc(int nCode, WPARAM wParam, LPARAM lParam)
         break;
     case WM_LBUTTONDOWN:
         kind = COREWEBVIEW2_MOUSE_EVENT_KIND_LEFT_BUTTON_DOWN;
+        left_mouse_down = true;
+        if (waiting_for_first_click && !not_over_wallpaper)
+        {
+            FirstClickMessage();
+            waiting_for_first_click = false;
+        }
         break;
     case WM_LBUTTONUP:
         kind = COREWEBVIEW2_MOUSE_EVENT_KIND_LEFT_BUTTON_UP;
+        left_mouse_down = false;
         break;
     case WM_RBUTTONDOWN:
         kind = COREWEBVIEW2_MOUSE_EVENT_KIND_RIGHT_BUTTON_DOWN;
+        right_mouse_down = true;
         break;
     case WM_RBUTTONUP:
         kind = COREWEBVIEW2_MOUSE_EVENT_KIND_RIGHT_BUTTON_UP;
+        right_mouse_down = false;
         break;
     case WM_MBUTTONDOWN:
         kind = COREWEBVIEW2_MOUSE_EVENT_KIND_MIDDLE_BUTTON_DOWN;
+        middle_mouse_down = true;
         break;
     case WM_MBUTTONUP:
         kind = COREWEBVIEW2_MOUSE_EVENT_KIND_MIDDLE_BUTTON_UP;
+        middle_mouse_down = false;
         break;
     case WM_MOUSEWHEEL:
         kind = COREWEBVIEW2_MOUSE_EVENT_KIND_WHEEL;
@@ -121,7 +156,7 @@ LRESULT CALLBACK MouseEventProc(int nCode, WPARAM wParam, LPARAM lParam)
     }
 
     if (kind != COREWEBVIEW2_MOUSE_EVENT_KIND_MOVE && valid && not_over_wallpaper)
-        valid = false;
+        valid = false; // logic for allowing hover events from anywhere
 
     if (!valid)
         return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
@@ -166,11 +201,15 @@ LRESULT CALLBACK MouseEventProc(int nCode, WPARAM wParam, LPARAM lParam)
 
     // send input only to our own windows
     if (data->registerInput)
-        {data->compController->SendMouseInput(kind, vk, mouseData, clientMouse);
+    {
+        data->compController->SendMouseInput(kind, vk, mouseData, clientMouse);
         if (kind != COREWEBVIEW2_MOUSE_EVENT_KIND_MOVE)
-            FixWallpaperOrder(hwnd);}
+        {
+            working_clicked = true;
+            FixWallpaperOrder(hwnd);
+        }
+    }
 
-    // Always pass the event along to avoid interfering with other apps
     return CallNextHookEx(g_mouseHook, nCode, wParam, lParam);
 }
 

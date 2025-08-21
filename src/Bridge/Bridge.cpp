@@ -1,5 +1,6 @@
 #include <nlohmann/json.hpp>
 #include <thread>
+#include <chrono>
 
 #include "Bridge.h"
 #include "../main.h"
@@ -7,8 +8,11 @@
 #include "../WebView/Webview.h"
 #include "../Storage/Storage.h"
 #include "../API/API.h"
+#include "../TrayIcon/TrayIcon.h"
 
 using json = nlohmann::json;
+
+auto lastNotif = std::chrono::steady_clock::now() - std::chrono::seconds(10);
 
 void DispatchToHwnd(HWND hwnd, std::wstring message)
 {
@@ -236,6 +240,12 @@ void HandleWebMessage(std::wstring msg, HWND hwnd)
                                 {"type", "downloaded-wallpaper"},
                                 {"url", url},
                                 {"id", id}};
+                            
+                            auto now = std::chrono::steady_clock::now();
+                            if (now - lastNotif >= std::chrono::seconds(5))
+                                ShowTrayNotification(L"Mod successfully installed!", L"Go to your library tab to view it and set it as your wallpaper.");
+                            lastNotif = now;
+
                             std::wstring message = to_wstring(sendJson.dump());
                             PostMessage(app_hwnd, WM_USER + 5, 0, (LPARAM) new std::wstring(message));
                             message = IterateWallpapersAsJsonString();

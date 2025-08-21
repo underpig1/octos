@@ -37,7 +37,9 @@ void ShowTrayMenu()
     HMENU hMenu = CreatePopupMenu();
 
     AppendMenu(hMenu, MF_STRING, 1, L"Open");
-    AppendMenu(hMenu, MF_STRING, 2, L"Minimize to tray");
+
+    if (g_appHwndAttached)
+        AppendMenu(hMenu, MF_STRING, 2, L"Minimize to tray");
 
     AppendMenu(hMenu, MF_SEPARATOR, 0, nullptr);
     bool visible = IsWindowVisible(ms[0].hwnd);
@@ -91,7 +93,7 @@ void ShowTrayMenu()
     // }
     else if (cmd == 5)
     {
-        ShellExecute(NULL, L"open", L"https://underpig1.github.io/octos/docs/", NULL, NULL, SW_SHOWNORMAL);
+        ShellExecute(NULL, L"open", L"https://underpig1.github.io/octos/guides/", NULL, NULL, SW_SHOWNORMAL);
     }
     else if (cmd == 6)
         PostMessage(trayHwnd, WM_USER + 4, 0, 0);

@@ -51,6 +51,9 @@ std::wstring CombinePaths(std::wstring firstPath, std::wstring secondPath)
 
 std::wstring AddFileScheme(std::wstring path)
 {
+    for (auto &ch : path)
+        if (ch == L'\\')
+            ch = L'/';
     return L"file:///" + path;
 }
 
@@ -111,7 +114,8 @@ void CopyInitialWallpapers()
 std::wstring GetWallpapersDir()
 {
     fs::path appLocal = GetAppLocalDir();
-    if (appLocal.empty()) return L"";
+    if (appLocal.empty())
+        return L"";
     fs::path path = appLocal / L"wallpapers";
     if (!fs::exists(path))
     {
@@ -147,7 +151,8 @@ std::wstring GetWebViewDir()
     // return path.wstring();
 
     fs::path temp = GetTempDir();
-    if (temp.empty()) return L"";
+    if (temp.empty())
+        return L"";
     fs::path path = temp / L"WebView2UserData";
     fs::create_directories(path);
     return path.wstring();
@@ -163,7 +168,8 @@ std::wstring GetPrefsPath()
     // return ResolvePath(L"preferences.json");
 
     fs::path appLocal = GetAppLocalDir();
-    if (appLocal.empty()) return L"";
+    if (appLocal.empty())
+        return L"";
     fs::path path = appLocal / L"preferences.json";
     fs::create_directories(appLocal);
     return path.wstring();
@@ -300,7 +306,16 @@ bool ReadJsonFile(const fs::path &filePath, json &out)
     }
 }
 
-ConfigParams ReadConfig(fs::path path)
+std::wstring ToVirtualFolderPath(std::wstring folderName, std::wstring relativePath)
+{
+    std::wstring path = fs::path(L"https://local.octos") / folderName / relativePath;
+    for (auto &ch : path)
+        if (ch == L'\\')
+            ch = L'/';
+    return path;
+}
+
+ConfigParams ReadConfig(fs::path path, bool toVirtual = true)
 {
     json j;
     ConfigParams params;
@@ -314,12 +329,19 @@ ConfigParams ReadConfig(fs::path path)
         params.name = to_wstring(name);
         params.description = to_wstring(description);
         params.authorsite = to_wstring(authorsite);
+
+        std::wstring folderName = path.parent_path().filename();
         if (j.contains("image"))
         {
             std::string image = j.value("image", "");
             std::wstring imagePath = path.parent_path() / NormalizePath(to_wstring(image));
             if (fs::exists(imagePath))
-                params.imagePath = AddFileScheme(imagePath);
+            {
+                if (toVirtual)
+                    params.imagePath = ToVirtualFolderPath(folderName, to_wstring(image));
+                else
+                    params.imagePath = AddFileScheme(imagePath);
+            }
         }
         if (j.contains("entry"))
         {
@@ -330,7 +352,12 @@ ConfigParams ReadConfig(fs::path path)
             {
                 std::wstring normalEntryPath = path.parent_path() / NormalizePath(to_wstring(entryPath));
                 if (fs::exists(normalEntryPath))
-                    params.entryPath = AddFileScheme(normalEntryPath);
+                {
+                    if (toVirtual)
+                        params.entryPath = ToVirtualFolderPath(folderName, to_wstring(entryPath));
+                    else
+                        params.entryPath = AddFileScheme(normalEntryPath);
+                }
             }
         }
         if (j.contains("options") && j["options"].is_object())
@@ -386,14 +413,14 @@ void DumpConfig(std::wstring path, json data)
     DumpJson(path, data);
 }
 
-ConfigParams GetFolderConfigParams(fs::directory_entry path)
+ConfigParams GetFolderConfigParams(fs::directory_entry path, bool toVirtual)
 {
     std::wstring name = path.path().filename().wstring();
     ConfigParams params;
     fs::path configPath = GetFolderConfigPath(path);
     if (fs::exists(configPath))
     {
-        params = ReadConfig(configPath);
+        params = ReadConfig(configPath, toVirtual);
         params.configPath = configPath.wstring();
     }
     if (params.name.empty())
@@ -420,7 +447,12 @@ ConfigParams GetFolderConfigParams(fs::directory_entry path)
         if (entryCandidate.empty())
             params.entryPath = L"";
         else
-            params.entryPath = AddFileScheme(fs::path(path) / NormalizePath(entryCandidate));
+        {
+            if (toVirtual)
+                params.entryPath = ToVirtualFolderPath(fs::path(path).filename(), entryCandidate);
+            else
+                params.entryPath = AddFileScheme(fs::path(path) / NormalizePath(entryCandidate));
+        }
 
         wprintf(L"\n--- ConfigParams ---\n");
         wprintf(L"Author      : %s\n", params.author.c_str());
@@ -576,8 +608,9 @@ std::wstring SelectFolderToCreateWallpaper()
         fs::path dirPath = result;
         if (fs::exists(dirPath) && fs::is_directory(dirPath))
         {
-            if (CreateNewWallpaper(dirPath));
-                return GetConfigFromFolderAsJsonString(dirPath);
+            if (CreateNewWallpaper(dirPath))
+                ;
+            return GetConfigFromFolderAsJsonString(dirPath);
         }
     }
     return L"";

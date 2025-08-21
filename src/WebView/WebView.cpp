@@ -77,7 +77,7 @@ void InitializeWebViewEnvironment()
                                L"--use-mock-keychain "
                                L"--allow-file-access-from-files "
                                L"--disable-breakpad "
-                               L"--disable-web-security " // remove cross-origin restrictions, in future deployments i'll switch to SetVirtualHostNameToFolderMapping
+                               //    L"--disable-web-security " // remove cross-origin restrictions, in future deployments i'll switch to SetVirtualHostNameToFolderMapping (did)
                                L"--disable-component-update ";
     if (enableSandox)
         browserArgs += L"--no-sandbox ";
@@ -138,7 +138,8 @@ void OnWebViewControllerCreated(
     if (SUCCEEDED(hr) && settings)
     {
         settings->put_IsStatusBarEnabled(FALSE);
-        if (hwnd == app_hwnd) settings->put_AreDevToolsEnabled(FALSE);
+        if (hwnd == app_hwnd)
+            settings->put_AreDevToolsEnabled(FALSE);
         settings->put_IsZoomControlEnabled(FALSE);
         settings->put_AreDefaultContextMenusEnabled(FALSE);
         settings->put_AreHostObjectsAllowed(FALSE);
@@ -158,21 +159,36 @@ void OnWebViewControllerCreated(
     //     controller3->put_RasterizationScale(10005);
     // }
 
-    // navigate to local HTML file
-    std::wstring url = htmlPath;
-    if (hwnd == app_hwnd)
-        url = ResolvePath(L"app/index.html", true);
-    std::replace(url.begin(), url.end(), L'\\', L'/');
-    webview->Navigate(url.c_str());
-    wprintf(L"ATTACHING CONTROLLER WITH PATH %ws\n", url.c_str());
     // wprintf(L"EARLIER %ws\n", ResolvePath(L"app/index.html", true).c_str());
     // wprintf(L"SAME??? %b\n", url.c_str() == ResolvePath(L"app/index.html", true).c_str());
 
-    Microsoft::WRL::ComPtr<ICoreWebView2Controller2> controller2;
-    if (SUCCEEDED(controller->QueryInterface(IID_PPV_ARGS(&controller2))))
+    Microsoft::WRL::ComPtr<ICoreWebView2_3> webview3;
+    if (SUCCEEDED(webview->QueryInterface(IID_PPV_ARGS(&webview3))))
     {
-        controller2->put_DefaultBackgroundColor({0, 0, 0, 255});
+        if (hwnd == app_hwnd)
+        {
+            webview3->SetVirtualHostNameToFolderMapping(L"app.octos", GetUIDir().c_str(), COREWEBVIEW2_HOST_RESOURCE_ACCESS_KIND_ALLOW);
+            webview3->SetVirtualHostNameToFolderMapping(L"local.octos", GetWallpapersDir().c_str(), COREWEBVIEW2_HOST_RESOURCE_ACCESS_KIND_ALLOW);
+            webview->Navigate(L"https://app.octos/index.html");
+            wprintf(GetUIDir().c_str());
+        }
+        else
+        {
+            webview3->SetVirtualHostNameToFolderMapping(L"local.octos", GetWallpapersDir().c_str(), COREWEBVIEW2_HOST_RESOURCE_ACCESS_KIND_ALLOW);
+            std::wstring url = htmlPath;
+            std::replace(url.begin(), url.end(), L'\\', L'/');
+            webview->Navigate(url.c_str());
+        }
     }
+    else
+    {
+        HandleOnDestroy(hwnd);
+        return;
+    }
+    /*///////////////////////////////////////////////
+    - cant reopen app
+    - context menu on set wallpaper
+    ////////////////////////////////////////////////*/
 
     // handle messages
     if (hwnd != app_hwnd)
@@ -190,6 +206,8 @@ void OnWebViewControllerCreated(
                 })
                 .Get(),
             nullptr);
+    // else
+    //     webview->OpenDevToolsWindow();
     webview->add_WebMessageReceived(
         Microsoft::WRL::Callback<ICoreWebView2WebMessageReceivedEventHandler>(
             [hwnd](ICoreWebView2 *, ICoreWebView2WebMessageReceivedEventArgs *args) -> HRESULT

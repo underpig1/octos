@@ -18,14 +18,14 @@ HWND hostHwnd;
 HWND labelHwnd;
 HWND progressHwnd;
 
-std::wstring GetBootstrapTargetPath()
-{
-    wchar_t tempPath[MAX_PATH] = {0};
-    DWORD length = GetTempPathW(MAX_PATH, tempPath);
-    if (length == 0 || length > MAX_PATH)
-        return L"";
-    return std::wstring(tempPath) + L"WebView2Bootstrapper.exe";
-}
+// std::wstring GetBootstrapTargetPath()
+// {
+//     wchar_t tempPath[MAX_PATH] = {0};
+//     DWORD length = GetTempPathW(MAX_PATH, tempPath);
+//     if (length == 0 || length > MAX_PATH)
+//         return L"";
+//     return std::wstring(tempPath) + L"WebView2Bootstrapper.exe";
+// }
 
 bool IsWebView2Installed()
 {
@@ -50,7 +50,7 @@ void AddBootstrapLink()
     HWND hwndButton = CreateWindowEx(
         0, L"BUTTON", L"Download Runtime",
         WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_FLAT,
-        100, 50, 100, 25,
+        75, 100, 350, 25,
         hostHwnd, (HMENU)1234, g_hInstance, nullptr);
 
     HFONT hFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
@@ -104,7 +104,7 @@ bool CreateProgressWindow()
     wc.hIcon = g_hIcon;
     RegisterClassEx(&wc);
 
-    RECT rc = {0, 0, 300, 90};
+    RECT rc = {0, 0, 500, 150};
     AdjustWindowRect(&rc, WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU, FALSE);
 
     hostHwnd = CreateWindowEx(
@@ -120,7 +120,7 @@ bool CreateProgressWindow()
     labelHwnd = CreateWindowEx(
         0, L"STATIC", L"Setting up Octos for the first time...",
         WS_CHILD | WS_VISIBLE | SS_CENTER,
-        20, 15, 260, 30,
+        50, 25, 400, 100,
         hostHwnd, nullptr, g_hInstance, nullptr);
 
     HFONT hFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
@@ -132,7 +132,7 @@ bool CreateProgressWindow()
     progressHwnd = CreateWindowEx(
         0, PROGRESS_CLASS, nullptr,
         WS_CHILD | WS_VISIBLE | PBS_SMOOTH | PBS_MARQUEE,
-        20, 45, 260, 20,
+        75, 75, 350, 25,
         hostHwnd, nullptr, g_hInstance, nullptr);
 
     SendMessage(progressHwnd, PBM_SETMARQUEE, TRUE, 0);
@@ -190,67 +190,67 @@ private:
     LONG m_refCount;
 };
 
-HRESULT DownloadWebView2Installer(const std::wstring &url, const std::wstring &destPath)
-{
-    ProgressDialog *pCallback = new ProgressDialog(progressHwnd);
-    IMoniker *pMoniker = nullptr;
-    IBindCtx *pBindCtx = nullptr;
+// HRESULT DownloadWebView2Installer(const std::wstring &url, const std::wstring &destPath)
+// {
+//     ProgressDialog *pCallback = new ProgressDialog(progressHwnd);
+//     IMoniker *pMoniker = nullptr;
+//     IBindCtx *pBindCtx = nullptr;
 
-    HRESULT hr = CreateBindCtx(0, &pBindCtx);
-    if (FAILED(hr))
-    {
-        pCallback->Release();
-        return hr;
-    }
+//     HRESULT hr = CreateBindCtx(0, &pBindCtx);
+//     if (FAILED(hr))
+//     {
+//         pCallback->Release();
+//         return hr;
+//     }
 
-    hr = CreateURLMoniker(nullptr, url.c_str(), &pMoniker);
-    if (FAILED(hr))
-    {
-        pBindCtx->Release();
-        pCallback->Release();
-        return hr;
-    }
+//     hr = CreateURLMoniker(nullptr, url.c_str(), &pMoniker);
+//     if (FAILED(hr))
+//     {
+//         pBindCtx->Release();
+//         pCallback->Release();
+//         return hr;
+//     }
 
-    hr = URLDownloadToFile(pBindCtx, url.c_str(), destPath.c_str(), 0, pCallback);
+//     hr = URLDownloadToFile(pBindCtx, url.c_str(), destPath.c_str(), 0, pCallback);
 
-    pMoniker->Release();
-    pBindCtx->Release();
-    pCallback->Release();
+//     pMoniker->Release();
+//     pBindCtx->Release();
+//     pCallback->Release();
 
-    return hr;
-}
+//     return hr;
+// }
 
-bool InstallWebView2(const std::wstring &installerPath, HWND hwndProgress)
-{
-    SendMessage(hwndProgress, PBM_SETMARQUEE, TRUE, 0);
+// bool InstallWebView2(const std::wstring &installerPath, HWND hwndProgress)
+// {
+//     SendMessage(hwndProgress, PBM_SETMARQUEE, TRUE, 0);
 
-    STARTUPINFO si = {sizeof(si)};
-    PROCESS_INFORMATION pi;
+//     STARTUPINFO si = {sizeof(si)};
+//     PROCESS_INFORMATION pi;
 
-    wchar_t cmdLineArgs[] = L"/silent /install";
-    if (CreateProcess(installerPath.c_str(), cmdLineArgs, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi))
-    {
-        WaitForSingleObject(pi.hProcess, INFINITE);
-        CloseHandle(pi.hProcess);
-        CloseHandle(pi.hThread);
-        SendMessage(hwndProgress, PBM_SETMARQUEE, FALSE, 0);
-        return true;
-    }
-    SendMessage(hwndProgress, PBM_SETMARQUEE, FALSE, 0);
-    return false;
-}
+//     wchar_t cmdLineArgs[] = L"/silent /install";
+//     if (CreateProcess(installerPath.c_str(), cmdLineArgs, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi))
+//     {
+//         WaitForSingleObject(pi.hProcess, INFINITE);
+//         CloseHandle(pi.hProcess);
+//         CloseHandle(pi.hThread);
+//         SendMessage(hwndProgress, PBM_SETMARQUEE, FALSE, 0);
+//         return true;
+//     }
+//     SendMessage(hwndProgress, PBM_SETMARQUEE, FALSE, 0);
+//     return false;
+// }
 
-bool RunBootstrapProcess()
-{
-    std::wstring bootstrapPath = GetBootstrapTargetPath();
-    if (bootstrapPath.empty())
-        return false;
-    if (FAILED(DownloadWebView2Installer(bootstrapUrl, bootstrapPath)))
-        return false;
-    if (!InstallWebView2(bootstrapPath, progressHwnd))
-        return false;
-    return true;
-}
+// bool RunBootstrapProcess()
+// {
+//     std::wstring bootstrapPath = GetBootstrapTargetPath();
+//     if (bootstrapPath.empty())
+//         return false;
+//     if (FAILED(DownloadWebView2Installer(bootstrapUrl, bootstrapPath)))
+//         return false;
+//     if (!InstallWebView2(bootstrapPath, progressHwnd))
+//         return false;
+//     return true;
+// }
 
 void HandleBootstrap(std::function<void()> callback)
 {
@@ -259,19 +259,19 @@ void HandleBootstrap(std::function<void()> callback)
         return;
     }
     if (!CreateProgressWindow()) {
-        int result = MessageBox(nullptr, L"Cannot open Octos", L"Fatal error", MB_OK | MB_ICONERROR | MB_TOPMOST);
+        int result = MessageBox(nullptr, L"Octos needs WebView2 to run!", L"Download WebView2 from the Microsoft website.", MB_OK | MB_ICONERROR | MB_TOPMOST);
         PostQuitMessage(0);
         return;
     }
     std::thread bootstrapThread([callback]()
                                 {
-            bool result = RunBootstrapProcess();
-            if (!result)
-            {
+            // bool result = RunBootstrapProcess();
+            // if (!result)
+            // {
                 PostMessage(hostHwnd, WM_USER + 1, 0, 0); // add download bootstrapper link
                 return;
-            }
-            PostMessage(hostHwnd, WM_USER + 2, 0, 0); // cleanup
+            // }
+            // PostMessage(hostHwnd, WM_USER + 2, 0, 0); // cleanup
             RestartApp(); });
     bootstrapThread.detach();
 }

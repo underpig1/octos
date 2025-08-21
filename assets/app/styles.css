@@ -209,6 +209,7 @@ body {
     aspect-ratio: 16 / 9;
     /* margin: 5px 5px; */
     float: left;
+    scroll-margin-top: 10px;
 }
 
 .card-content {

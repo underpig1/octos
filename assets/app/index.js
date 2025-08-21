@@ -47,7 +47,7 @@ function openIssues() {
 }
 
 function openDocumentation() {
-    chrome.webview.postMessage({ type: "open-external-link", url: "https://underpig1.github.io/octos/" });
+    chrome.webview.postMessage({ type: "open-external-link", url: "https://underpig1.github.io/octos/guides/" });
 }
 
 function shareMod() {
@@ -129,6 +129,8 @@ window.chrome.webview.addEventListener('message', (e) => {
         handleConfigData(msg.data);
     else if (msg.type == 'preview')
         handleOnPreview(msg.data);
+    else if (msg.type == 'select-all')
+        selectAll(msg.data);
 });
 
 // MOD DATA
@@ -313,7 +315,7 @@ function setContent(el) {
         return;
     activeTab = name;
     const scrollBox = document.getElementById(`${activeTab}-scrollbox`)
-    if (scrollBox) scrollBox.scrollTo(0, 0);
+    // if (scrollBox) scrollBox.scrollTo(0, 0);
     var target = document.getElementById(name + "-tab");
     var tabs = document.getElementsByClassName("tab-content");
     if (target) {
@@ -482,6 +484,8 @@ function removeFocusedCard() {
 
 function updateMods() {
     const modScrollbox = document.getElementById("modules-scrollbox");
+    const saveScroll = modScrollbox.scrollTop;
+    console.log('SAVING SCROLL', saveScroll);
     const focusedId = focusedIds.modules;
     console.log('UPDATEMODS FOCUSED ID IS', focusedId)
     installedModCards = {};
@@ -521,6 +525,16 @@ function updateMods() {
     updateDownloadedMods();
     // updateResponsiveElements();
     updateMonitorIndicators();
+    if (saveScroll == 0) {
+        for (const card of modScrollbox.childNodes) {
+            if (card.classList.contains('focused')) {
+                card.scrollIntoView()
+                return;
+            }
+        }
+    }
+    console.log('SCROLLING AGAIN', saveScroll);
+    modScrollbox.scrollTo(0, saveScroll);
 }
 
 function updateMonitorIndicators() {
@@ -1608,6 +1622,26 @@ function unappendModData(config) {
     }
 }
 
+function selectAll(data) {
+    if (!data) return;
+    console.log('SELECTING ALL', data)
+    for (const monitorId of monitorIds) {
+        userPrefs.selected[monitorId] = data.folderPath;
+        window.chrome.webview.postMessage({ type: 'set-wallpaper', url: data.entryPath, "monitor-id": monitorId });
+    }
+    const scrollBox = document.getElementById('modules-scrollbox');
+    for (var card of scrollBox.getElementsByClassName("card")) card.classList.remove("focused");
+    const el = document.getElementById(data.folderPath);
+    el.classList.add("focused");
+    focusedIds[activeTab] = data.folderPath;
+    el.scrollIntoView();
+    updateCardDescription();
+    dumpUserPrefs();
+    updateMonitorIndicators();
+    configureSetAsWallpaperButton();
+    updateDevelopDescription();
+}
+
 function handleOnPreview(config) {
     console.log('got preview', config)
     if (!config)
@@ -1625,5 +1659,18 @@ function handleOnPreview(config) {
             userPrefs.selected[monitorId] = config.folderPath;
         }
         updateMods();
+
+        const scrollBox = document.getElementById('modules-scrollbox');
+        for (var card of scrollBox.getElementsByClassName("card")) card.classList.remove("focused");
+        const el = document.getElementById(config.folderPath);
+        el.classList.add("focused");
+        focusedIds[activeTab] = data.folderPath;
+        el.scrollIntoView();
+        updateCardDescription();
+        updateMonitorIndicators();
+        configureSetAsWallpaperButton();
+        updateDevelopDescription();
     }
 }
+
+window.addEventListener('contextmenu', e => e.preventDefault());

@@ -17,15 +17,16 @@
     <VcpkgEnableManifest>true</VcpkgEnableManifest>
     <WindowsTargetPlatformVersion>10.0.26100.0</WindowsTargetPlatformVersion>
     <AppVersion>1.0.0.0</AppVersion>
-    <VcpkgTriplet Condition="'$(Platform)'=='x64'">x64-windows</VcpkgTriplet>
-    <VcpkgTriplet Condition="'$(Platform)'=='Win32'">x86-windows</VcpkgTriplet>
+    <!-- <VcpkgTriplet Condition="'$(Platform)'=='x64'">x64-windows</VcpkgTriplet>
+    <VcpkgTriplet Condition="'$(Platform)'=='Win32'">x86-windows</VcpkgTriplet> -->
   </PropertyGroup>
 
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 
   <PropertyGroup Label="Configuration">
     <OutDir>$(ProjectDir)build\$(Platform)\$(Configuration)\</OutDir>
-    <OutFolder>$(ProjectDir)build\$(Platform)\$(Configuration)</OutFolder> <!--No trailing slash-->
+    <OutFolder>$(ProjectDir)build\$(Platform)\$(Configuration)</OutFolder> <!--No
+    trailing slash-->
     <IntDir>$(ProjectDir)build\intermediate\$(Platform)\$(Configuration)\</IntDir>
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v143</PlatformToolset>
@@ -41,20 +42,39 @@
   &quot;$(VcpkgManifestRoot)\vcpkg_installed\$(VcpkgTriplet)&quot;" />
   </Target> -->
 
-  <PropertyGroup>
-    <IncludePath>$(IncludePath);$(VcpkgIncludeDirectories)</IncludePath>
-    <LibraryPath>$(LibraryPath);$(VcpkgLibraryDirectories)</LibraryPath>
-  </PropertyGroup>
-
-  <ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PreprocessorDefinitions>WEBVIEW2_NO_IDL;UNICODE;_UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary> <!-- /MDd -->
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>
+        ole32.lib;uuid.lib;user32.lib;shlwapi.lib;dcomp.lib;d3d11.lib;shell32.lib;
+        comctl32.lib;advapi32.lib;urlmon.lib;windowsapp.lib;Crypt32.lib;
+        %(AdditionalDependencies)
+      </AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <ClCompile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <PreprocessorDefinitions>WEBVIEW2_NO_IDL;UNICODE;_UNICODE;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary> <!-- /MD -->
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>
         ole32.lib;uuid.lib;user32.lib;shlwapi.lib;dcomp.lib;d3d11.lib;shell32.lib;
         comctl32.lib;advapi32.lib;urlmon.lib;windowsapp.lib;Crypt32.lib;
@@ -95,13 +115,18 @@
       Importance="high" />
     <ItemGroup>
       <VcpkgDlls Include="$(VcpkgManifestRoot)\vcpkg_installed\$(VcpkgTriplet)\bin\*.dll" />
+      <NestedVcpkgDlls
+        Include="$(VcpkgManifestRoot)\vcpkg_installed\$(VcpkgTriplet)\$(VcpkgTriplet)\bin\*.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(VcpkgDlls)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="false" />
+    <Copy SourceFiles="@(NestedVcpkgDlls)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="false" />
   </Target>
 
-  <Target Name="CleanDebugFiles" AfterTargets="CopyVcpkgDlls" Condition="'$(Configuration)'=='Release'">
+  <Target Name="CleanDebugFiles" AfterTargets="CopyVcpkgDlls"
+    Condition="'$(Configuration)'=='Release'">
     <ItemGroup>
-      <FilesToDelete Include="$(OutDir)**\*.pdb;$(OutDir)**\*.ilk;$(OutDir)**\*.exp;$(OutDir)**\*.lib" />
+      <FilesToDelete
+        Include="$(OutDir)**\*.pdb;$(OutDir)**\*.ilk;$(OutDir)**\*.exp;$(OutDir)**\*.lib" />
     </ItemGroup>
     <Delete Files="@(FilesToDelete)" ContinueOnError="true" />
     <Message Text="Built to $(OutDir)" Importance="high"></Message>
@@ -137,24 +162,31 @@
     </XmlPoke>
     <Exec Command="powershell -Command &quot;Start-Sleep -Seconds 2&quot;" />
     <Exec Command="MakeAppx.exe pack /d &quot;$(OutFolder)&quot; /p &quot;$(OutAppx)&quot;" />
-    <!-- <Exec Command="signtool sign /a /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 &quot;$(OutAppx)&quot;" /> -->
+    <!-- <Exec Command="signtool sign /a /fd SHA256 /tr http://timestamp.digicert.com /td SHA256
+    &quot;$(OutAppx)&quot;" /> -->
     <Message Text="MSIX created at $(OutAppx)" Importance="high" />
   </Target>
 
   <Target Name="BundleAppx">
     <Delete Files="$(OutAppxBundle)" ContinueOnError="true" />
     <Message Text="Creating MSIXBundle for all supported platforms..." Importance="high" />
-    <MSBuild Projects="$(MSBuildProjectFile)" Targets="MakeAppx" Properties="Platform=x64;Configuration=Release" />
-    <MSBuild Projects="$(MSBuildProjectFile)" Targets="MakeAppx" Properties="Platform=x86;Configuration=Release" />
-    <Exec Command="MakeAppx.exe bundle /d &quot;$(AppxPackageDir)&quot; /p &quot;$(OutAppxBundle)&quot;" />
-    <!-- <Exec Command="signtool sign /a /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 &quot;$(OutAppxBundle)&quot;" /> -->
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="MakeAppx"
+      Properties="Platform=x64;Configuration=Release" />
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="MakeAppx"
+      Properties="Platform=x86;Configuration=Release" />
+    <Exec
+      Command="MakeAppx.exe bundle /d &quot;$(AppxPackageDir)&quot; /p &quot;$(OutAppxBundle)&quot;" />
+    <!-- <Exec Command="signtool sign /a /fd SHA256 /tr http://timestamp.digicert.com /td SHA256
+    &quot;$(OutAppxBundle)&quot;" /> -->
     <Message Text="MSIXBundle created at $(OutAppxBundle)" Importance="high" />
   </Target>
 
   <Target Name="InnoSetup">
     <Message Text="Creating startup executable for all supported platforms..." Importance="high" />
-    <MSBuild Projects="$(MSBuildProjectFile)" Targets="Build" Properties="Platform=x64;Configuration=Release" />
-    <MSBuild Projects="$(MSBuildProjectFile)" Targets="Build" Properties="Platform=x86;Configuration=Release" />
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="Build"
+      Properties="Platform=x64;Configuration=Release" />
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="Build"
+      Properties="Platform=x86;Configuration=Release" />
     <Exec Command="iscc.exe /dAppVersion=$(AppVersion) $(ProjectDir)OctosSetup.iss" />
     <Message Text="Setup EXE created at $(ProjectDir)build\OctosSetup.exe" Importance="high" />
   </Target>

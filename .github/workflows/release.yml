@@ -49,4 +49,4 @@ jobs:
         if: github.ref_type == 'tag'
         with:
           files: octos.min.js build/OctosSetup.msixbundle build/OctosSetup.exe build/appx/* LICENSE
-          body_path: CHANGELOG.md
+          body_path: ./github/CHANGELOG.md

@@ -37,7 +37,7 @@ std::wstring GetConfigFromFolderAsJsonString(std::wstring dirPath, std::string t
 void DumpConfig(std::wstring path, json data);
 std::wstring SelectFolderToCreateWallpaper();
 void OpenFile(std::string path);
-ConfigParams GetFolderConfigParams(fs::directory_entry path);
+ConfigParams GetFolderConfigParams(fs::directory_entry path, bool toVirtual = true);
 json LoadPrefs();
 bool CreateNewWallpaper(fs::path dirPath);
 std::wstring ParamsAsJsonString(ConfigParams p);

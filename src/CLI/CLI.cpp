@@ -1,68 +1,139 @@
+#include <chrono>
+
 #include "../Bridge/Bridge.h"
 #include "../Core/Core.h"
 #include "../Storage/Storage.h"
 #include "../WebView/WebView.h"
 #include "../main.h"
-#include <chrono>
 
+// void RunWallpaperCommand(std::wstring folderPath, bool devToolsFlag)
+// {
+//     ConfigParams params = GetFolderConfigParams(fs::directory_entry(folderPath), false);
+//     std::wstring entryPath = params.entryPath;
+//     if (!entryPath.empty())
+//     {
+//         json prefs = LoadPrefs();
+//         prefs["selected"] = json::object();
+//         DumpPrefs(prefs);
+//         WaitForWallpaperWindowsAndCallback([entryPath, devToolsFlag, params]()
+//                                            {
+//             wprintf(L"\n\n#### NAVIGATING ALL\n\n");
+//             NavigateAllWallpapers(entryPath);
+//             std::wstring paramStr = ParamsAsJsonString(params);
+//             if (paramStr.empty())
+//             {
+//                 MessageBox(app_hwnd, (L"Could not run mod at " + params.folderPath + L". This may be a configuration error with octos.json.").c_str(), L"[Octos CLI] Run failed", MB_OK | MB_ICONERROR | MB_TOPMOST);
+//                 return;
+//             }
+//             std::wstring sendStr = L"{\"type\":\"preview\",\"data\":" + paramStr + L"}";
+//             wprintf(sendStr.c_str());
+//             ReloadAllWindows();
+
+//             // dev tools
+//             std::thread([devToolsFlag, sendStr]()
+//                         {
+//                     std::this_thread::sleep_for(std::chrono::seconds(1));
+//                     WaitForMainWindowAndDispatch(sendStr);
+                    
+//                     if (devToolsFlag)
+//                     {
+//                         bool found_window = false;
+//                         for (auto &mw : ms)
+//                         {
+//                             if (IsWindow(mw.hwnd))
+//                             {
+//                                 PostMessage(mw.hwnd, WM_USER + 7, 0, 0);
+//                                 found_window = true;
+//                             }
+//                         }
+//                         if (!found_window)
+//                         {
+//                             std::this_thread::sleep_for(std::chrono::seconds(1));
+//                             for (auto &mw : ms)
+//                             {
+//                                 if (IsWindow(mw.hwnd))
+//                                 {
+//                                     PostMessage(mw.hwnd, WM_USER + 7, 0, 0);
+//                                     found_window = true;
+//                                 }
+//                             }
+//                         }
+//                         if (!found_window)
+//                         {
+//                             MessageBox(app_hwnd, L"Failed to open DevTools", L"[Octos CLI] DevTools failed", MB_OK | MB_ICONERROR | MB_TOPMOST);
+//                         }
+//                     } })
+//             .detach(); });
+//         // if (configFlag && !params.configPath.empty())
+//         // {
+//         //     OpenFile(to_string(params.configPath));
+//         // }
+//     }
+//     else
+//     {
+//         MessageBox(app_hwnd, (L"Could not find a valid HTML file in folder " + folderPath).c_str(), L"[Octos CLI] Run failed", MB_OK | MB_ICONERROR | MB_TOPMOST);
+//     }
+// }
+
+// THIS METHOD USES VIRTUAL FOLDER MAPPING
 void RunWallpaperCommand(std::wstring folderPath, bool devToolsFlag)
 {
     ConfigParams params = GetFolderConfigParams(fs::directory_entry(folderPath));
     std::wstring entryPath = params.entryPath;
     if (!entryPath.empty())
     {
-        json prefs = LoadPrefs();
-        prefs["selected"] = json::object();
-        DumpPrefs(prefs);
-        WaitForWallpaperWindowsAndCallback([entryPath, devToolsFlag, params]()
-                                           {
-            wprintf(L"\n\n#### NAVIGATING ALL\n\n");
-            NavigateAllWallpapers(entryPath);
-            std::wstring paramStr = ParamsAsJsonString(params);
-            if (paramStr.empty())
-            {
-                MessageBox(app_hwnd, (L"Could not run mod at " + params.folderPath + L". This may be a configuration error with octos.json.").c_str(), L"[Octos CLI] Run failed", MB_OK | MB_ICONERROR | MB_TOPMOST);
-                return;
-            }
-            std::wstring sendStr = L"{\"type\":\"preview\",\"data\":" + paramStr + L"}";
-            wprintf(sendStr.c_str());
-            ReloadAllWindows();
-
-            // dev tools
-            std::thread([devToolsFlag, sendStr]()
-                        {
-                    std::this_thread::sleep_for(std::chrono::seconds(1));
-                    WaitForMainWindowAndDispatch(sendStr);
-                    
-                    if (devToolsFlag)
+        std::thread([folderPath, devToolsFlag]
                     {
-                        bool found_window = false;
-                        for (auto &mw : ms)
-                        {
-                            if (IsWindow(mw.hwnd))
-                            {
-                                PostMessage(mw.hwnd, WM_USER + 7, 0, 0);
-                                found_window = true;
-                            }
-                        }
-                        if (!found_window)
-                        {
-                            std::this_thread::sleep_for(std::chrono::seconds(1));
-                            for (auto &mw : ms)
-                            {
-                                if (IsWindow(mw.hwnd))
-                                {
-                                    PostMessage(mw.hwnd, WM_USER + 7, 0, 0);
-                                    found_window = true;
-                                }
-                            }
-                        }
-                        if (!found_window)
-                        {
-                            MessageBox(app_hwnd, L"Failed to open DevTools", L"[Octos CLI] DevTools failed", MB_OK | MB_ICONERROR | MB_TOPMOST);
-                        }
-                    } })
-            .detach(); });
+            fs::path wallpapers = GetWallpapersDir();
+            fs::path newDir = wallpapers / fs::path(folderPath).filename();
+            fs::copy(folderPath, newDir, fs::copy_options::recursive | fs::copy_options::overwrite_existing);
+            ConfigParams params = GetFolderConfigParams(fs::directory_entry(newDir));
+            std::wstring entryPath = params.entryPath;
+            // json prefs = LoadPrefs();
+            // prefs["selected"] = json::object();
+            // DumpPrefs(prefs);
+            WaitForWallpaperWindowsAndCallback([entryPath, devToolsFlag, params]()
+                                               {
+                                                   std::this_thread::sleep_for(std::chrono::seconds(1));
+                                                   wprintf(L"\n\n#### NAVIGATING ALL\n\n");
+                                                   NavigateAllWallpapers(entryPath);
+                                                   std::wstring paramStr = ParamsAsJsonString(params);
+                                                   std::wstring sendStr = L"{\"type\":\"select-all\",\"data\":" + paramStr + L"}";
+                                                   WaitForMainWindowAndDispatch(sendStr);
+                                                   std::wstring message = IterateWallpapersAsJsonString();
+                                                   WaitForMainWindowAndDispatch(message);
+                                                   ReloadAllWindows();
+                                                   std::this_thread::sleep_for(std::chrono::seconds(1));
+
+                                                   if (devToolsFlag)
+                                                   {
+                                                       bool found_window = false;
+                                                       for (auto &mw : ms)
+                                                       {
+                                                           if (IsWindow(mw.hwnd))
+                                                           {
+                                                               PostMessage(mw.hwnd, WM_USER + 7, 0, 0);
+                                                               found_window = true;
+                                                           }
+                                                       }
+                                                       if (!found_window)
+                                                       {
+                                                           std::this_thread::sleep_for(std::chrono::seconds(1));
+                                                           for (auto &mw : ms)
+                                                           {
+                                                               if (IsWindow(mw.hwnd))
+                                                               {
+                                                                   PostMessage(mw.hwnd, WM_USER + 7, 0, 0);
+                                                                   found_window = true;
+                                                               }
+                                                           }
+                                                       }
+                                                       if (!found_window)
+                                                       {
+                                                           MessageBox(app_hwnd, L"Failed to open DevTools", L"[Octos CLI] DevTools failed", MB_OK | MB_ICONERROR | MB_TOPMOST);
+                                                       }
+                                                   } }); })
+            .detach();
         // if (configFlag && !params.configPath.empty())
         // {
         //     OpenFile(to_string(params.configPath));
@@ -104,7 +175,8 @@ void ParseCommandLineArgs(LPWSTR args)
             else if (!arg.empty() && arg[0] != L'-' && folderPath.empty())
                 folderPath = arg;
         }
-        if (folderPath.empty()) folderPath = fs::current_path();
+        if (folderPath.empty())
+            folderPath = fs::current_path();
         // {
         //     MessageBox(app_hwnd, L"No folderPath provided. Try specifying the path to a valid mod folder. Ex. octos run path/to/mod", L"[Octos CLI] Run failed", MB_OK | MB_ICONERROR | MB_TOPMOST);
         //     return;

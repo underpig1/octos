@@ -7,6 +7,26 @@
 #include "../Core/Core.h"
 #include "../WebView/WebView.h"
 
+bool CheckIfExpanded(HWND hwnd, HMONITOR monitor)
+{
+    RECT rc;
+    if (GetWindowRect(hwnd, &rc))
+    {
+        RECT mrc = GetMonitorRect(monitor);
+        if (rc.left != mrc.left ||
+            rc.top != mrc.top ||
+            rc.right - 1 != mrc.right ||
+            rc.bottom != mrc.bottom)
+        {
+            wprintf(L"[Watchdog] Window rect differs from monitor rect, expanding window\n");
+            wprintf(L"Monitor l%d r%d t%d b%d\n", (int)mrc.left, (int)mrc.right, (int)mrc.top, (int)mrc.bottom);
+            wprintf(L"Client l%d r%d t%d b%d\n", (int)rc.left, (int)rc.right, (int)rc.top, (int)rc.bottom);
+            return false;
+        }
+    }
+    return true;
+}
+
 void FixRenderingTarget(MonitorWindow &mw)
 {
     MONITORINFO mi = {sizeof(mi)};
@@ -158,7 +178,8 @@ void WatchdogProc()
         }
         if (mw.htmlPath.empty())
         {
-            if (IsWindowVisible(mw.hwnd)) ShowWindow(mw.hwnd, SW_HIDE);
+            if (IsWindowVisible(mw.hwnd))
+                ShowWindow(mw.hwnd, SW_HIDE);
             continue;
         }
         // fix rendering target
@@ -198,20 +219,13 @@ void WatchdogProc()
         }
         else // check change in monitor size
         {
-            RECT rc;
-            if (GetWindowRect(mw.hwnd, &rc))
+            if (!CheckIfExpanded(mw.hwnd, g_monitors[i]))
             {
-                RECT mrc = GetMonitorRect(g_monitors[i]);
-
-                if (rc.left != mrc.left ||
-                    rc.top != mrc.top ||
-                    rc.right - 1 != mrc.right ||
-                    rc.bottom != mrc.bottom)
+                mw.ExpandToMonitor();
+                if (!CheckIfExpanded(mw.hwnd, g_monitors[i]))
                 {
-                    wprintf(L"[Watchdog] Window rect differs from monitor rect, expanding window\n");
-                    wprintf(L"Monitor l%d r%d t%d b%d\n", (int)mrc.left, (int)mrc.right, (int)mrc.top, (int)mrc.bottom);
-                    wprintf(L"Client l%d r%d t%d b%d\n", (int)rc.left, (int)rc.right, (int)rc.top, (int)rc.bottom);
-                    mw.ExpandToMonitor();
+                    mw.fixing = true;
+                    PostMessage(app_hwnd, WM_USER + 1, 0, reinterpret_cast<LPARAM>(&mw));
                 }
             }
         }
