@@ -6,8 +6,8 @@ OutputBaseFilename=OctosSetup
 Compression=lzma
 SolidCompression=yes
 UninstallDisplayIcon={app}\Octos.exe
-ArchitecturesAllowed=x86 x64
-ArchitecturesInstallIn64BitMode=x64
+ArchitecturesAllowed=x86 x64compatible
+ArchitecturesInstallIn64BitMode=x64compatible
 DefaultDirName={commonpf}\Octos
 ChangesEnvironment=true
 DisableWelcomePage=no
@@ -15,12 +15,13 @@ WizardImageFile=./img/wizard-screen.bmp
 WizardSmallImageFile=./img/small-wizard.bmp
 DisableDirPage=false
 OutputDir=build
+DisableProgramGroupPage=yes
 ; LicenseFile=LICENSE
 
 [Files]
 ; Source: "build\Release\Octos.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: ".\build\x64\Release\*"; DestDir: "{app}"; Excludes: ".\build\Release\img\*.png"; Flags: ignoreversion recursesubdirs createallsubdirs; Check: Is64BitInstallMode
-Source: ".\build\Win32\Release\*"; DestDir: "{app}"; Excludes: ".\build\Release\img\*.png"; Flags: ignoreversion recursesubdirs createallsubdirs; Check: not Is64BitInstallMode
+Source: ".\build\x64\Release\*"; DestDir: "{app}"; Excludes: ".\build\x64\Release\img\*.png"; Flags: ignoreversion recursesubdirs createallsubdirs; Check: Is64BitInstallMode
+Source: ".\build\Win32\Release\*"; DestDir: "{app}"; Excludes: ".\build\Win32\Release\img\*.png"; Flags: ignoreversion recursesubdirs createallsubdirs; Check: not Is64BitInstallMode
 ; Source: ".\vcpkg_installed\x64-windows\bin\*.dll"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]

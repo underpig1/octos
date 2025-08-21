@@ -3,10 +3,18 @@ on:
   push:
     tags:
       - "v*.*.*"
+  workflow_dispatch:
 jobs:
   create-release:
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
     steps:
+      - name: Extract version from tag
+        id: vars
+        run: echo "VERSION=$($env:GITHUB_REF -replace 'refs/tags/v','')" >> $env:GITHUB_ENV
+
       - uses: actions/checkout@v3
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -14,13 +22,8 @@ jobs:
           node-version: 20
       - name: Install npm dependencies
         run: npm install
-      - name: Update package.json version
-        id: vars
-        shell: pwsh
-        run: |
-          $tag = '${{ github.ref_name }}'
-          $version = $tag.TrimStart('v')
-          Write-Host "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
+      - name: Update package version
+        run: npm version $env:VERSION --no-git-tag-version
       - name: Build API
         run: npm run build-api
       - name: Publish as npm package
@@ -37,16 +40,14 @@ jobs:
         working-directory: .
         env:
           VCPKG_ROOT: C:\vcpkg
-      - name: Build installer MSIX
-        run: msbuild Octos.vcxproj /t:BundleAppx /p:AppVersion="$($env:VERSION).0"
-        shell: pwsh
+      # - name: Build installer MSIX
+      #   run: msbuild Octos.vcxproj /t:BundleAppx /p:AppVersion=$env:VERSION.0
       - name: Build installer EXE
-        run: msbuild Octos.vcxproj /t:InnoSetup /p:AppVersion="$($env:VERSION).0"
-        shell: pwsh
+        run: msbuild Octos.vcxproj /t:InnoSetup /p:AppVersion=$env:VERSION.0
         
       - name: Release
         uses: softprops/action-gh-release@v2
         if: github.ref_type == 'tag'
         with:
-          files: octos.min.js build/OctosSetup.msixbundle build/OctosSetup.exe build/appx/* LICENSE
-          body_path: ./github/CHANGELOG.md
+          files: octos.min.js build/OctosSetup.exe LICENSE #build/OctosSetup.msixbundle #build/appx/*
+          body_path: ./.github/CHANGELOG.md

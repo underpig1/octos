@@ -9,7 +9,7 @@
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/underpig)
 
 ### HTML-powered dynamic desktop engine
-Create animated and interactive wallpapers with HTML/CSS/JS for Windows 10 & 11
+Create live, interactive wallpapers with HTML/CSS/JS for Windows 10 & 11
 
 **[Website](https://underpig1.github.io/octos) | [Docs](https://underpig1.github.io/octos/guides) | [Download]()**
 
@@ -35,7 +35,7 @@ Easily personalize your desktop with this interactive interface. -->
 ## [Octos API](https://underpig1.github.io/octos/guides/api/)
 Elevate your wallpaper with the Octos API. Access music visualization data, synchronize across monitors and displays, add media controls, and so much more right on your desktop in JavaScript via the Octos API.
 
-## [Octos Docs](https://underpig1.github.io/octos/)
+## [Octos Docs](https://underpig1.github.io/octos/guides/)
 It's super easy to get started making your own content for Octos. Check out the docs for a quick getting started guide.
 
 ## [Octos Community](https://github.com/underpig1/octos-community/tree/master)

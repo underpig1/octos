@@ -187,6 +187,7 @@
       Properties="Platform=x64;Configuration=Release" />
     <MSBuild Projects="$(MSBuildProjectFile)" Targets="Build"
       Properties="Platform=x86;Configuration=Release" />
+    <Exec Command="powershell -Command &quot;Start-Sleep -Seconds 2&quot;" />
     <Exec Command="iscc.exe /dAppVersion=$(AppVersion) $(ProjectDir)OctosSetup.iss" />
     <Message Text="Setup EXE created at $(ProjectDir)build\OctosSetup.exe" Importance="high" />
   </Target>
