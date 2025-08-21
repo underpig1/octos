@@ -7,6 +7,9 @@ on:
 jobs:
   create-release:
     runs-on: windows-latest
+    permissions:
+      contents: write
+      id-token: write
     defaults:
       run:
         shell: pwsh
