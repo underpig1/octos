@@ -4,24 +4,22 @@ on:
     branches: [master]
     paths:
       - "src/**"
-      - ".github/**"
+      - "Octos.vcxproj"
   pull_request:
     branches: [master]
     paths:
       - "src/**"
-      - ".github/**"
+      - "Octos.vcxproj"
 jobs:
   build:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: ilammy/msvc-dev-cmd@v1
-      - name: Install vcpkg dependencies
-        run: |
-          vcpkg install --triplet x64-windows
-          vcpkg integrate install
-        working-directory: .
-        env:
-          VCPKG_ROOT: C:\vcpkg
+      - name: Setup MSBuild env
+        uses: microsoft/setup-msbuild@v2
+      - name: Install dependencies or restore cache
+        uses: lukka/run-vcpkg@v11
+        with:
+          doNotCache: false
       - name: Build
         run: msbuild Octos.vcxproj /p:Configuration=Release

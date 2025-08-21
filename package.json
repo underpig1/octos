@@ -16,7 +16,12 @@
   "version": "1.0.0.0",
   "description": "HTML-powered dynamic desktop engine.",
   "main": "octos.min.js",
-  "keywords": ["js", "desktop", "wallpaper", "octos"],
+  "keywords": [
+    "js",
+    "desktop",
+    "wallpaper",
+    "octos"
+  ],
   "author": "underpig1",
   "license": "MIT",
   "repository": "https://github.com/underpig1/octos",
@@ -25,5 +30,8 @@
     "octos.min.js",
     "LICENSE",
     "README.md"
-  ]
+  ],
+  "dependencies": {
+    "octos": "^0.1.2"
+  }
 }

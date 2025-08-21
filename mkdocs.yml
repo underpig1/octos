@@ -91,12 +91,11 @@ nav:
   - About:
       - Contributing: about/contributing.md
       - Code of Conduct: about/conduct.md
-      - Support: about/support.md
+      - Support Octos: about/support.md
       - Roadmap: about/roadmap.md
       - License: about/license.md
       - Privacy policy: about/privacy.md
       # - Privacy policy: about/privacy.md
-      - Support: about/support.md
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
