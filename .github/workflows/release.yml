@@ -36,17 +36,15 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - uses: ilammy/msvc-dev-cmd@v1
-      - name: Install vcpkg dependencies
-        run: |
-          vcpkg install
-          vcpkg integrate install
-        working-directory: .
-        env:
-          VCPKG_ROOT: C:\vcpkg
-      # - name: Build installer MSIX
-      #   run: msbuild Octos.vcxproj /t:BundleAppx /p:AppVersion=$env:VERSION.0
-      - name: Build installer EXE
+      - name: Setup MSBuild env
+        uses: microsoft/setup-msbuild@v2
+      - name: Install dependencies or restore cache
+        uses: lukka/run-vcpkg@v11
+        with:
+          doNotCache: true
+      - name: Integrate vcpkg
+        run: vcpkg integrate install
+      - name: Build
         run: msbuild Octos.vcxproj /t:InnoSetup /p:AppVersion=$env:VERSION.0
         
       - name: Release
