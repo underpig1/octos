@@ -1,0 +1,52 @@
+name: Release
+on:
+  push:
+    tags:
+      - "v*.*.*"
+jobs:
+  create-release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install npm dependencies
+        run: npm install
+      - name: Update package.json version
+        id: vars
+        shell: pwsh
+        run: |
+          $tag = '${{ github.ref_name }}'
+          $version = $tag.TrimStart('v')
+          Write-Host "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
+      - name: Build API
+        run: npm run build-api
+      - name: Publish as npm package
+        if: github.ref_type == 'tag'
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - uses: ilammy/msvc-dev-cmd@v1
+      - name: Install vcpkg dependencies
+        run: |
+          vcpkg install
+          vcpkg integrate install
+        working-directory: .
+        env:
+          VCPKG_ROOT: C:\vcpkg
+      - name: Build installer MSIX
+        run: msbuild Octos.vcxproj /t:BundleAppx /p:AppVersion="$($env:VERSION).0"
+        shell: pwsh
+      - name: Build installer EXE
+        run: msbuild Octos.vcxproj /t:InnoSetup /p:AppVersion="$($env:VERSION).0"
+        shell: pwsh
+        
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: github.ref_type == 'tag'
+        with:
+          files: octos.min.js build/OctosSetup.msixbundle build/OctosSetup.exe build/appx/* LICENSE
+          body_path: CHANGELOG.md

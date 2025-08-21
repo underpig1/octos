@@ -4,8 +4,8 @@ on:
     branches:
       - master
     paths:
-      - 'docs/**'
-      - 'src/js/**'
+      - "docs/**"
+      - "src/js/**"
 permissions:
   contents: write
 jobs:

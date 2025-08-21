@@ -1,27 +1,27 @@
 name: Build
 on:
   push:
-    branches: [ master ]
+    branches: [master]
     paths:
-      - 'src/**'
-      - '.github/**'
+      - "src/**"
+      - ".github/**"
   pull_request:
-    branches: [ master ]
+    branches: [master]
     paths:
-      - 'src/**'
-      - '.github/**'
+      - "src/**"
+      - ".github/**"
 jobs:
   build:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: ilammy/msvc-dev-cmd@v1
-    - name: Install vcpkg dependencies
-      run: |
-        vcpkg install --triplet x64-windows
-        vcpkg integrate install
-      working-directory: .
-      env:
-        VCPKG_ROOT: C:\vcpkg
-    - name: Build
-      run: msbuild Octos.vcxproj /p:Configuration=Release
+      - uses: actions/checkout@v3
+      - uses: ilammy/msvc-dev-cmd@v1
+      - name: Install vcpkg dependencies
+        run: |
+          vcpkg install --triplet x64-windows
+          vcpkg integrate install
+        working-directory: .
+        env:
+          VCPKG_ROOT: C:\vcpkg
+      - name: Build
+        run: msbuild Octos.vcxproj /p:Configuration=Release

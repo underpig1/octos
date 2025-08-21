@@ -77,6 +77,7 @@ void InitializeWebViewEnvironment()
                                L"--use-mock-keychain "
                                L"--allow-file-access-from-files "
                                L"--disable-breakpad "
+                               L"--disable-web-security " // remove cross-origin restrictions, in future deployments i'll switch to SetVirtualHostNameToFolderMapping
                                L"--disable-component-update ";
     if (enableSandox)
         browserArgs += L"--no-sandbox ";
@@ -167,22 +168,28 @@ void OnWebViewControllerCreated(
     // wprintf(L"EARLIER %ws\n", ResolvePath(L"app/index.html", true).c_str());
     // wprintf(L"SAME??? %b\n", url.c_str() == ResolvePath(L"app/index.html", true).c_str());
 
+    Microsoft::WRL::ComPtr<ICoreWebView2Controller2> controller2;
+    if (SUCCEEDED(controller->QueryInterface(IID_PPV_ARGS(&controller2))))
+    {
+        controller2->put_DefaultBackgroundColor({0, 0, 0, 255});
+    }
+
     // handle messages
-    webview->add_NavigationCompleted(
-        Microsoft::WRL::Callback<ICoreWebView2NavigationCompletedEventHandler>(
-            [webview, htmlPath, hwnd](ICoreWebView2 *sender, ICoreWebView2NavigationCompletedEventArgs *args) -> HRESULT
-            {
-                // webview->PostWebMessageAsJson((L"{ \"type\": \"loaded\", \"entryPath\":\"" + htmlPath + L"\"}").c_str());
-                if (hwnd != app_hwnd)
+    if (hwnd != app_hwnd)
+        webview->add_NavigationCompleted(
+            Microsoft::WRL::Callback<ICoreWebView2NavigationCompletedEventHandler>(
+                [webview, htmlPath, hwnd](ICoreWebView2 *sender, ICoreWebView2NavigationCompletedEventArgs *args) -> HRESULT
+                {
+                    // webview->PostWebMessageAsJson((L"{ \"type\": \"loaded\", \"entryPath\":\"" + htmlPath + L"\"}").c_str());
                     HandleOnHwndLoadMessage(hwnd);
-                // else
-                //     webview->OpenDevToolsWindow();
-                WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-                data->loaded = true;
-                return S_OK;
-            })
-            .Get(),
-        nullptr);
+                    // else
+                    //     webview->OpenDevToolsWindow();
+                    WebViewData *data = reinterpret_cast<WebViewData *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+                    data->loaded = true;
+                    return S_OK;
+                })
+                .Get(),
+            nullptr);
     webview->add_WebMessageReceived(
         Microsoft::WRL::Callback<ICoreWebView2WebMessageReceivedEventHandler>(
             [hwnd](ICoreWebView2 *, ICoreWebView2WebMessageReceivedEventArgs *args) -> HRESULT

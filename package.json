@@ -13,7 +13,7 @@
     "terser": "^5.43.1"
   },
   "name": "octos",
-  "version": "0.1.2",
+  "version": "1.0.0.0",
   "description": "HTML-powered dynamic desktop engine.",
   "main": "octos.min.js",
   "keywords": ["js", "desktop", "wallpaper", "octos"],
