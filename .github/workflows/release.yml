@@ -11,8 +11,12 @@ jobs:
       run:
         shell: pwsh
     steps:
+      - name: Extract version from tag (dev)
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "VERSION=0.0.0" >> $env:GITHUB_ENV
+      
       - name: Extract version from tag
-        id: vars
+        if: github.ref_type == 'tag'
         run: echo "VERSION=$($env:GITHUB_REF -replace 'refs/tags/v','')" >> $env:GITHUB_ENV
 
       - uses: actions/checkout@v3
