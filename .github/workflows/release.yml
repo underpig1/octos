@@ -45,8 +45,10 @@ jobs:
           doNotCache: true
       - name: Integrate vcpkg
         run: vcpkg integrate install
-      - name: Build
+      - name: Build InnoSetup
         run: msbuild Octos.vcxproj /t:InnoSetup /p:AppVersion=$env:VERSION.0
+      - name: Build MSIX bundle
+        run: msbuild Octos.vcxproj /t:BundleAppx /p:AppVersion=$env:VERSION.0
         
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -57,6 +59,7 @@ jobs:
           files: |
             octos.min.js
             build/OctosSetup.exe
+            build/OctosSetup.msixbundle
             LICENSE
           body_path: ./.github/CHANGELOG.md
           token: ${{ secrets.GITHUB_TOKEN }}
