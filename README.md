@@ -18,7 +18,7 @@ Create live, interactive wallpapers with HTML/CSS/JS for Windows 10 & 11
 ## Quickstart
 Download from the Microsoft Store:
 
-<a href="https://apps.microsoft.com/detail/9NC4C8N74G02?referrer=appbadge&launch=true&mode=full">
+<a href="https://apps.microsoft.com/detail/9NC4C8N74G02?referrer=appbadge&launch=true&cid=gh&mode=full">
 	<img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200"/>
 </a>
 
