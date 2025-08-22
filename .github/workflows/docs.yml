@@ -5,7 +5,9 @@ on:
       - master
     paths:
       - "docs/**"
+      - "mkdocs.yml"
       - "src/js/**"
+      - ".github/workflows/*"
 permissions:
   contents: write
 jobs:
