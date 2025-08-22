@@ -1,17 +1,16 @@
 <img src="img/readme-logo.png" width=100px />
 
 # Octos: HTML Dynamic Desktop Engine
+Create and share live, interactive wallpapers with HTML/CSS/JS for Windows 10 & 11.
+
+**[Website](https://underpig1.github.io/octos) | [Docs](https://underpig1.github.io/octos/guides) | [Download](https://github.com/underpig1/octos/tree/master?tab=readme-ov-file#quickstart)**
+
 [![App](https://github.com/underpig1/octos/actions/workflows/app.yml/badge.svg)](https://github.com/underpig1/octos/actions/workflows/app.yml)
 [![API](https://github.com/underpig1/octos/actions/workflows/api.yml/badge.svg)](https://github.com/underpig1/octos/actions/workflows/api.yml)
 [![Docs](https://github.com/underpig1/octos/actions/workflows/docs.yml/badge.svg)](https://github.com/underpig1/octos/actions/workflows/docs.yml)
 
 [![Github Sponsors](https://img.shields.io/badge/sponsor-30363D?style=for-the-badge&logo=GitHub-Sponsors&logoColor=#EA4AAA)](https://github.com/sponsors/underpig1)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/underpig)
-
-### HTML-powered dynamic desktop engine
-Create live, interactive wallpapers with HTML/CSS/JS for Windows 10 & 11
-
-**[Website](https://underpig1.github.io/octos) | [Docs](https://underpig1.github.io/octos/guides) | [Download](https://github.com/underpig1/octos/tree/master?tab=readme-ov-file#quickstart)**
 
 <img src="docs/img/app.png" width="599px" />
 
