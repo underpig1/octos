@@ -39,12 +39,8 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Setup MSBuild env
-        uses: microsoft/setup-msbuild@v2
-      - name: Install dependencies
-        uses: lukka/run-vcpkg@v11
-        with:
-          doNotCache: true
+      - name: Setup MSVC env
+        uses: ilammy/msvc-dev-cmd@v1
       - name: Integrate vcpkg
         run: vcpkg integrate install
       - name: Build InnoSetup

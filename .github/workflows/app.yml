@@ -16,10 +16,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Setup MSBuild env
-        uses: microsoft/setup-msbuild@v2
-      - name: Install dependencies or restore cache
-        uses: lukka/run-vcpkg@v11
+      - name: Setup MSVC env
+        uses: ilammy/msvc-dev-cmd@v1
       - name: Integrate vcpkg
         run: vcpkg integrate install
       - name: Build
