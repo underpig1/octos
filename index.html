@@ -820,17 +820,17 @@
         top: -15px;
         text-align: center;
         right: -15px;
-        font-size: 30px;
-        color: white;
+        font-size: 24px;
+        color: #5b5b5b;
         opacity: 1;
         cursor: pointer;
         z-index: 8;
         background-color: #111;
-        border: 1px solid gray;
+        border: 1px solid #5b5b5b;
         border-radius: 999px;
         width: 35px;
         height: 35px;
-        line-height: 26px;
+        line-height: 34px;
     }
 
     .modal-content .modal-info {
@@ -867,6 +867,66 @@
         margin-bottom: 8px;
     }
 
+    #download-modal .modal-content {
+        width: 375px;
+        max-width: 90%;
+        display: flex;
+        padding: 15px;
+        gap: 10px;
+        border-radius: 10px;
+        flex-direction: column;
+        aspect-ratio: unset;
+    }
+
+    .outline-button {
+        border: 1px solid #5b5b5b;
+        display: flex;
+        align-items: center;
+        flex-direction: row;
+        height: 65px;
+        width: 100%;
+        border-radius: 5px;
+        float: left;
+        padding: 0 20px;
+        box-sizing: border-box;
+        cursor: pointer;
+        opacity: 1;
+        justify-content: space-between;
+        transition: background-color 0.1s ease;
+    }
+
+    .outline-button h3 {
+        margin: 0;
+        font-weight: 500;
+        font-size: 12pt;
+        color: #adadad !important;
+        margin-bottom: 2px;
+    }
+
+    .outline-button:hover {
+        background-color: #2a2a2a;
+    }
+
+    .outline-button i {
+        color: inherit;
+        float: right;
+        font-size: 24pt;
+        float: right;
+    }
+
+    #download-modal .modal-content p {
+        font-size: 10pt;
+        margin: 0;
+        color: #858585;
+        float: left;
+        margin-bottom: 5px;
+    }
+
+    .outline-button p {
+        font-size: 9pt !important;
+        margin: 0 !important;
+    }
+
     @media screen and (max-width: 800px) {
         .modal-info {
             position: static !important;
@@ -898,8 +958,9 @@
                     <p class="scrollable" style="--damp: -2">The open-source HTML dynamic desktop engine for Windows
                         10 &amp; 11.</p>
                     <a class="scrollable button" style="--damp: -3; background-color: red"
-                        data-umami-event="download-button">Download</a>
-                    <a class="scrollable button" style="--damp: -3" data-umami-event="github-button" href="https://github.com/underpig1/octos" target="_blank">GitHub</a>
+                        data-umami-event="download-button" onclick="openDownloadModal()">Download</a>
+                    <a class="scrollable button" style="--damp: -3" data-umami-event="github-button"
+                        href="https://github.com/underpig1/octos" target="_blank">GitHub</a>
                 </div>
             </div>
         </div>
@@ -949,29 +1010,52 @@
             </div> -->
         </div>
         <div class="app-preview-container scroll-container">
-        <!-- <h1 class="scrollable centered-header" style="--damp: -5; position: absolute; top: -20px;">Ready?</h1> -->
+            <!-- <h1 class="scrollable centered-header" style="--damp: -5; position: absolute; top: -20px;">Ready?</h1> -->
             <div class="app-preview"></div>
         </div>
         <div class="footer scroll-container">
             <div class="footer-content">
                 <div style="width: max-content;">
                     <h1 class="reveal revealed" style="--damp: -2">Let's do this!</h1>
-                    <p class="reveal revealed" style="--damp: -2; margin: 10px 0;">Download for free on Windows 10 &amp; 11 today</p>
-                    <a class="reveal revealed button" style="--damp: -3; background-color: white; color: black;" data-umami-event="download-button">Download</a>
-                    <a class="reveal revealed button" style="--damp: -3" data-umami-event="github-button" href="https://github.com/underpig1/octos" target="_blank">GitHub</a>
+                    <p class="reveal revealed" style="--damp: -2; margin: 10px 0;">Download for free on Windows 10 &amp;
+                        11 today</p>
+                    <a class="reveal revealed button" style="--damp: -3; background-color: white; color: black;"
+                        data-umami-event="download-button" onclick="openDownloadModal()">Download</a>
+                    <a class="reveal revealed button" style="--damp: -3" data-umami-event="github-button"
+                        href="https://github.com/underpig1/octos" target="_blank">GitHub</a>
                 </div>
             </div>
         </div>
     </div>
     <div id="modal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
+            <i class="close ri-close-line" onclick="closeModals()"></i>
             <img id="modal-video" src="" />
             <div class="modal-info">
                 <h1 id="modal-title">Title</h1>
                 <p id="modal-author">By author</p>
                 <p id="modal-description">This is one of the coolest mods of our century.</p>
             </div>
+        </div>
+    </div>
+    <div id="download-modal" class="modal">
+        <div class="modal-content">
+            <i class="close ri-close-line" onclick="closeModals()"></i>
+            <p>Choose an installation method:</p>
+            <a href="ms-windows-store://pdp/?productid=9NC4C8N74G02" class="outline-button">
+                <div>
+                    <h3>From the Microsoft Store</h3>
+                    <p>Certified installation from Microsoft.</p>
+                </div>
+                <i class="ri-shopping-bag-fill"></i>
+            </a>
+            <a href="https://github.com/underpig1/octos/releases/latest/download/OctosSetup.exe" target="_blank" class="outline-button">
+                <div>
+                    <h3>Download .EXE</h3>
+                    <p>Download the latest setup executable.</p>
+                </div>
+                <i class="ri-windows-fill"></i>
+            </a>
         </div>
     </div>
 </section>
@@ -1109,6 +1193,7 @@
     }
 
     const modal = document.getElementById("modal");
+    const downloadModal = document.getElementById("download-modal");
     const video = document.getElementById("modal-video");
 
     const modalInfo = document.querySelector(".modal-info");
@@ -1116,10 +1201,12 @@
     const modalAuthor = document.getElementById("modal-author");
     const modalDescription = document.getElementById("modal-description");
 
-    function closeModal() {
+    function closeModals() {
         modal.classList.remove("active");
+        downloadModal.classList.remove("active");
         setTimeout(() => {
             modal.style.display = "none";
+            downloadModal.style.display = "none";
         }, 300);
     }
 
@@ -1146,8 +1233,15 @@
     }
 
     window.onclick = (event) => {
-        if (event.target === modal) closeModal()
+        if (event.target === modal || event.target == downloadModal) closeModals()
     };
+
+    function openDownloadModal() {
+        downloadModal.style.display = "flex";
+        requestAnimationFrame(() => {
+            downloadModal.classList.add("active");
+        });
+    }
 </script>
 
       <main class="md-main" data-md-component="main">
