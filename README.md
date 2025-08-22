@@ -15,6 +15,11 @@ Create live, interactive wallpapers with HTML/CSS/JS for Windows 10 & 11
 
 <img src="docs/img/app.png" width="599px" />
 
+## Quickstart
+Download the latest installer for Windows 10 & 11: [**OctosSetup.exe**](https://github.com/underpig1/octos/releases/latest/download/OctosSetup.exe)
+
+Or download from the Microsoft Store: [**Microsoft Store Page**]()
+
 ## Features
 |||
 |-|-|
@@ -36,7 +41,7 @@ Easily personalize your desktop with this interactive interface. -->
 Elevate your wallpaper with the Octos API. Access music visualization data, synchronize across monitors and displays, add media controls, and so much more right on your desktop in JavaScript via the Octos API.
 
 ## [Octos Docs](https://underpig1.github.io/octos/guides/)
-It's super easy to get started making your own content for Octos. Check out the docs for a quick getting started guide.
+It's super easy to get started making your own wallpapers for Octos. Check out the docs for a quick getting started guide.
 
 ## [Octos Community](https://github.com/underpig1/octos-community/tree/master)
 Join the Octos community to share your wonderful creations with the world! It's easy to make and share HTML wallpapers with Octos.

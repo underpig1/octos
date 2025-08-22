@@ -9,7 +9,7 @@ MyAwesomeMod/
 ├── index.html
 ├── octos.json
 ```
-In this folder, you can include assets, JS libraries, CSS files, icons, scripts, and basically anything else that your mod needs to run.
+In this folder, you can include assets, JS libraries, CSS files, icons, scripts, and basically anything else that your mod needs to run. When you're done, you can simply zip the whole mod folder and install it from the app.
 
 The `octos.json` file is completely optional but it allows you to specify a lot of details for when you want to distribute your mod. These include fields like name, author, main page, user options, preview images, and a lot more. Your mod will work just fine without it, but it's good practice to add.
 
@@ -107,6 +107,6 @@ Octos mods are distributed as .zip archive files. To distribute your mod, simply
 
 - See some [example mods](https://github.com/underpig1/octos-community/tree/master) for inspiration  
 
-- Learn more about the [Octos CLI](cli.md) for testing and debuugging  
+- Learn more about the [Octos CLI](cli.md) for testing and debugging  
 
 - Learn how to [publish your mod](publish.md) to the Octos community  
