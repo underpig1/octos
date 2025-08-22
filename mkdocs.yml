@@ -71,8 +71,8 @@ copyright: >
 #  - <a href="https://underpig1.github.io/octos/about/privacy/">Privacy policy</a>
 nav:
   - Home: index.md
-  - Quickstart:
-      - Installation: install.md
+  # - Quickstart:
+  #     - Installation: install.md
   - Guides:
       - guides/index.md
       - Making a mod: guides/mod.md
