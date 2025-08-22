@@ -35,6 +35,7 @@ jobs:
       - name: Build API
         run: npm run build-api
       - run: npm publish --provenance --access public
+        continue-on-error: true
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
