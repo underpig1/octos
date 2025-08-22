@@ -16,9 +16,15 @@ Create live, interactive wallpapers with HTML/CSS/JS for Windows 10 & 11
 <img src="docs/img/app.png" width="599px" />
 
 ## Quickstart
-Download the latest installer for Windows 10 & 11: [**OctosSetup.exe**](https://github.com/underpig1/octos/releases/latest/download/OctosSetup.exe)
+Download from the Microsoft Store:
 
-Or download from the Microsoft Store: [**Microsoft Store Page**]()
+<a href="https://apps.microsoft.com/detail/9NC4C8N74G02?referrer=appbadge&launch=true&mode=full">
+	<img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200"/>
+</a>
+
+Or download the latest .EXE installer from the releases page:
+
+[**OctosSetup.exe**](https://github.com/underpig1/octos/releases/latest/download/OctosSetup.exe)
 
 ## Features
 |||
