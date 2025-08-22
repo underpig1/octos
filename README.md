@@ -11,7 +11,7 @@
 ### HTML-powered dynamic desktop engine
 Create live, interactive wallpapers with HTML/CSS/JS for Windows 10 & 11
 
-**[Website](https://underpig1.github.io/octos) | [Docs](https://underpig1.github.io/octos/guides) | [Download]()**
+**[Website](https://underpig1.github.io/octos) | [Docs](https://underpig1.github.io/octos/guides) | [Download](https://github.com/underpig1/octos/tree/master?tab=readme-ov-file#quickstart)**
 
 <img src="docs/img/app.png" width="599px" />
 
