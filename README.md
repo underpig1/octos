@@ -1,6 +1,6 @@
 <img src="img/readme-logo.png" width=100px />
 
-# Octos: HTML Dynamic Desktop Engine
+# Octos: Web-based Dynamic Desktop Engine
 Create and share live, interactive wallpapers with HTML/CSS/JS for Windows 10 & 11.
 
 **[Website](https://underpig1.github.io/octos) | [Docs](https://underpig1.github.io/octos/guides) | [Download](https://github.com/underpig1/octos/tree/master?tab=readme-ov-file#quickstart)**
