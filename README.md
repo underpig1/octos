@@ -12,7 +12,20 @@ Create and share live, interactive wallpapers with HTML/CSS/JS for Windows 10 & 
 [![Github Sponsors](https://img.shields.io/badge/sponsor-30363D?style=for-the-badge&logo=GitHub-Sponsors&logoColor=#EA4AAA)](https://github.com/sponsors/underpig1)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/underpig)
 
-<img src="docs/img/app.png" width="599px" />
+## Demo
+<img src="https://github.com/underpig1/octos-community/blob/master/src/fractal/fractal.gif?raw=true" alt="Mandelbrot wallpaper" width="500px" />
+
+> Explore the Mandelbrot fractal on your desktop
+
+<img src="https://github.com/underpig1/octos-community/blob/master/src/nasa/nasa.gif?raw=true" alt="Solar system wallpaper" width="500px" />
+
+> Or view the solar system in real-time
+
+<img src="https://github.com/underpig1/octos-community/blob/master/src/terrain/terrain.gif?raw=true" alt="Terrain wallpaper" width="500px" />
+
+> And even experiment with infinite procedurally-generated terrain
+
+And more [community mods](https://github.com/underpig1/octos-community) are available for download right from the app
 
 ## Quickstart
 Download from the Microsoft Store:
@@ -38,6 +51,8 @@ Or download the latest .EXE installer from the releases page:
 
 ## Octos Desktop App
 Customize your desktop, download community wallpapers, and more, all from the Octos desktop app. Download for free on Windows 10 & 11.
+
+<img src="docs/img/app.png" width="599px" />
 
 <!-- ## Octos Studio
 Easily personalize your desktop with this interactive interface. -->
