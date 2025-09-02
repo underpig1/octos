@@ -195,23 +195,26 @@ function handleWallpaperLoaded(monitorId) {
 }
 
 function handleRequest(msg) {
-    console.log('recieved request', msg)
+    console.log('recieved request', msg); 
     const monitorId = msg['monitor-id'];
     if (!monitorId)
         return;
     const id = userPrefs.selected[monitorId]
     if (!id)
         return;
+
     const response = {
         "type": "response",
         "requestId": msg.requestId,
         "requestType": msg.requestType
     };
+
     switch (msg.requestType) {
         case 'options':
             response['data'] = userPrefs.modOptions[id];
             break;
         default:
+            console.warn('Unknown request type: ${msg.requestType}');
             break;
     }
     console.log('sending', { type: 'send-to-wallpaper', 'monitor-id': monitorId, data: response });
