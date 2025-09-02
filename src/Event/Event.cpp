@@ -259,59 +259,154 @@ LRESULT CALLBACK KeyboardEventProc(int nCode, WPARAM wParam, LPARAM lParam)
         return CallNextHookEx(g_keyboardHook, nCode, wParam, lParam);
 
     KBDLLHOOKSTRUCT *kb = reinterpret_cast<KBDLLHOOKSTRUCT *>(lParam);
-    const char *eventType = nullptr;
+    UINT vkCode = kb->vkCode;
+
+    std::wstring eventType;
     switch (wParam)
     {
     case WM_KEYDOWN:
-        eventType = "keydown";
+    case WM_SYSKEYDOWN:
+        eventType = L"keydown";
         break;
     case WM_KEYUP:
-        eventType = "keyup";
-        break;
-    case WM_SYSKEYDOWN:
-        eventType = "keydown";
-        break;
     case WM_SYSKEYUP:
-        eventType = "keyup";
+        eventType = L"keyup";
         break;
     default:
-        eventType = nullptr;
+        eventType = L"";
         break;
     }
-    if (eventType)
+
+    if (!eventType.empty())
     {
-        wprintf(L"SENDING EVENT\n");
-        INPUT inputs[2] = {};
+        wprintf(L"SENDING EVENT vk=%u\n", vkCode);
+
         SetFocus(hwnd);
         data->controller->MoveFocus(COREWEBVIEW2_MOVE_FOCUS_REASON_PROGRAMMATIC);
 
-        // Key down
-        inputs[0].type = INPUT_KEYBOARD;
-        inputs[0].ki.wVk = 'A';
+        INPUT input = {};
+        input.type = INPUT_KEYBOARD;
+        input.ki.wVk = vkCode;
+        if (eventType == L"keyup")
+            input.ki.dwFlags = KEYEVENTF_KEYUP;
+        SendInput(1, &input, sizeof(INPUT));
 
-        // Key up
-        inputs[1].type = INPUT_KEYBOARD;
-        inputs[1].ki.wVk = 'A';
-        inputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
+        BYTE keyboardState[256];
+        GetKeyboardState(keyboardState);
+        WCHAR buff[5] = {};
+        int rc = ToUnicode(vkCode, kb->scanCode, keyboardState, buff, 4, 0);
 
-        SendInput(2, inputs, sizeof(INPUT));
+        if (rc > 0 && wParam == WM_KEYDOWN)
+        {
+            std::wstring text(buff, rc);
+            UINT vk = kb->vkCode;
 
-        UINT key = 'A';
-        LPARAM lparam = 1 | (MapVirtualKey(key, MAPVK_VK_TO_VSC) << 16);
+            std::wstring js = LR"(
+(function(key, vk, eventType) {
+  const el = document.activeElement;
 
-        PostMessage(hwnd, WM_KEYDOWN, key, lparam);
-        PostMessage(hwnd, WM_KEYUP, key, lparam | (1 << 31) | (1 << 30)); // transition & previous
+  function insertText(txt) {
+    if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) {
+      const start = el.selectionStart;
+      const end = el.selectionEnd;
+      const oldValue = el.value;
+      el.value = oldValue.slice(0, start) + txt + oldValue.slice(end);
+      el.selectionStart = el.selectionEnd = start + txt.length;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    } else if (el && el.isContentEditable) {
+      const sel = window.getSelection();
+      if (!sel.rangeCount) return;
+      const range = sel.getRangeAt(0);
+      range.deleteContents();
+      range.insertNode(document.createTextNode(txt));
+      range.collapse(false);
+      el.dispatchEvent(new Event('input', { bubbles: true }));
     }
+  }
 
-    return CallNextHookEx(g_keyboardHook, nCode, wParam, lParam);
+  switch (vk) {
+    case 8: // Backspace
+      if (el && el.value !== undefined) {
+        const start = el.selectionStart;
+        const end = el.selectionEnd;
+        if (start === end && start > 0) {
+          el.value = el.value.slice(0, start - 1) + el.value.slice(end);
+          el.selectionStart = el.selectionEnd = start - 1;
+        } else {
+          el.value = el.value.slice(0, start) + el.value.slice(end);
+          el.selectionStart = el.selectionEnd = start;
+        }
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+      } else if (el && el.isContentEditable) {
+        const sel = window.getSelection();
+        if (!sel.rangeCount) break;
+        const range = sel.getRangeAt(0);
+        if (range.collapsed && range.startOffset > 0) {
+          range.setStart(range.startContainer, range.startOffset - 1);
+        }
+        range.deleteContents();
+      }
+      break;
+    case 13: insertText("\n"); break;
+    case 46: // Delete
+      if (el && el.value !== undefined) {
+        const start = el.selectionStart;
+        const end = el.selectionEnd;
+        if (start === end && start < el.value.length) {
+          el.value = el.value.slice(0, start) + el.value.slice(end + 1);
+          el.selectionStart = el.selectionEnd = start;
+        } else {
+          el.value = el.value.slice(0, start) + el.value.slice(end);
+          el.selectionStart = el.selectionEnd = start;
+        }
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+      } else if (el && el.isContentEditable) {
+        const sel = window.getSelection();
+        if (!sel.rangeCount) break;
+        const range = sel.getRangeAt(0);
+        if (range.collapsed && range.startOffset < range.startContainer.length) {
+          range.setEnd(range.endContainer, range.endOffset + 1);
+        }
+        range.deleteContents();
+      }
+      break;
+    default:
+      if (key.length > 0) insertText(key);
+      break;
+  }
+
+  const ev = new KeyboardEvent(eventType, {
+    key: key || '',
+    keyCode: vk,
+    which: vk,
+    code: 'Key' + String.fromCharCode(vk),
+    bubbles: true,
+    cancelable: true,
+    view: window
+  });
+  console.log('dispatching', ev);
+
+  if (el) el.dispatchEvent(ev);
+//   document.dispatchEvent(ev);
+  window.dispatchEvent(ev);
+
+})(')";
+
+            js += text;
+            js += L"', " + std::to_wstring(vk);
+            js += L", '" + eventType + L"')";
+
+            data->webview->ExecuteScript(js.c_str(), nullptr);
+        }
+    }
 }
 
 void InstallEventHooks()
 {
     if (!g_mouseHook)
         g_mouseHook = SetWindowsHookEx(WH_MOUSE_LL, MouseEventProc, nullptr, 0);
-    // if (!g_keyboardHook)
-    //     g_keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardEventProc, nullptr, 0);
+    if (!g_keyboardHook)
+        g_keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardEventProc, nullptr, 0);
 }
 
 void UninstallEventHooks()
