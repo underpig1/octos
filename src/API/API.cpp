@@ -94,7 +94,7 @@ void SendEventToHwnd(HWND hwnd, json msg, json data, bool mainThread)
 void HandleRequest(json msg, HWND hwnd)
 {
     if (msg.contains("requestId") && msg.contains("requestType") &&
-        msg["requestId"].is_string() && msg["requestId"].is_string())
+        msg["requestId"].is_string() && msg["requestType"].is_string())
     {
         std::string type = msg["requestType"];
         if (type == "options" || false) // handled by app_hwnd
@@ -170,6 +170,11 @@ void HandleRequest(json msg, HWND hwnd)
                     RespondToHwnd(hwnd, msg, IsWindowVisible(listView) ? true : false);
             }
         }
+    }
+    else 
+    {
+        std::string type = msg["requestType"];
+        wprintf(L"Unknown request type: %hs\n", type.c_str());
     }
 }
 
