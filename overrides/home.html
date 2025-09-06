@@ -797,14 +797,32 @@ This file was automatically generated - do not edit
     }
 
     const examples = []
+    const names = [
+        "Simple Audio",
+        "3D Car",
+        "Cloudy Day",
+        "Contraption",
+        "Conway",
+        "Fluid",
+        "Mandelbrot",
+        "3D Fractal Zoom",
+        "Globe",
+        "Gradient",
+        "Layout",
+        "Eyes on the Solar System",
+        "Notes",
+        "Constellation",
+        "Terminal",
+        "Terrain"
+    ]
     const resolvePath = (rel) => rel ? ('https://raw.githubusercontent.com/underpig1/octos-community/refs/heads/master/' + rel).replace('\\', '/') : null;
     fetch(resolvePath('index.json'))
         .then(res => res.json())
         .then(data => {
             for (const example of data) {
-                example.imagePath = resolvePath(example.imagePath);
-                if (!example.previewPath) continue;
+                if (!names.includes(example.name) || !example.previewPath) continue;
                 example.previewPath = resolvePath(example.previewPath);
+                example.imagePath = resolvePath(example.imagePath);
                 examples.push(example);
             }
             populateExamples();
@@ -813,7 +831,7 @@ This file was automatically generated - do not edit
     function populateExamples() {
         const cardBox = document.getElementById('card-box')
         cardBox.innerHTML = "";
-        for (var i = 0; i < Math.min(examples.length, 17); i++) {
+        for (var i = 0; i < Math.min(examples.length, 16); i++) {
             const example = examples[i];
             var card = createCard(example.name, example.author, example.imagePath, example.previewPath);
             card.classList.add('reveal')
